@@ -6,7 +6,7 @@ import socket
 import sys
 
 from license_manager.logging import logger
-from license_manager.slurm_tools import (
+from license_manager.slurm_tools.job_requirements import (
     required_licenses_for_job as slurm_job_requirement,
 )
 
@@ -57,7 +57,7 @@ def _job_context():
     return ctxt
 
 
-def _epilog_controller(auth_token, license_manager_server_endpoint):
+def _epilog_controller(license_manager_server_endpoint):
     """Epilog to be executed by controller."""
     cluster_name, compute_host_name, job_id, user_name = _job_context()
 
@@ -102,7 +102,7 @@ def _epilog_controller(auth_token, license_manager_server_endpoint):
         sys.exit(0)
 
 
-def _prolog_controller(auth_token, license_manager_server_endpoint):
+def _prolog_controller(license_manager_server_endpoint):
     """Prolog to be executed by ctld."""
     cluster_name, compute_host_name, job_id, user_name = _job_context()
 

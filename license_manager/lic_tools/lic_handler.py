@@ -3,9 +3,13 @@
 from time import time
 
 from license_manager.logging import log
-from license_manager.slurm_tools import (
+from license_manager.slurm_tools.check_used_feature_tokens import (
     check_used_feature_tokens as slurm_dbd_check_used_feature_tokens,
+)
+from license_manager.slurm_tools.is_job_running import (
     is_job_running as slurm_is_job_running,
+)
+from license_manager.slurm_tools.update_feature_tokens import (
     update_feature_tokens as slurm_dbd_update_feature_tokens,
 )
 
