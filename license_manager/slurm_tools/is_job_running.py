@@ -3,14 +3,14 @@
 import re
 import subprocess
 
-from license_manager.config import config
+from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
 def is_job_running(job_id, slurm_controller, debug=False):
     """Determine whether or not a job is running."""
     cmd = [
-        config.SACCT_PATH,
+        slurm_cmd.SACCT,
         '-j',
         str(job_id),
         '--parsable2',

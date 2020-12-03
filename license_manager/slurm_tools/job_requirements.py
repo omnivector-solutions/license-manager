@@ -4,7 +4,7 @@ import re
 import subprocess
 import sys
 
-from license_manager.config import config
+from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 # TODO: For a jobpack the license requirement may be stated
@@ -14,7 +14,7 @@ from license_manager.logging import log
 def required_licenses_for_job(slurm_job_id, debug=False):
     """Retrieve the required licenses for a job."""
     cmd = [
-        config.SCONTROL_PATH,
+        slurm_cmd.SCONTROL,
         "show",
         f"job={slurm_job_id}"
     ]
