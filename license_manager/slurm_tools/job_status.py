@@ -2,7 +2,7 @@
 """license_manager.server.slurm_tools.slurm_job_status"""
 import subprocess
 
-from license_manager.config import config
+from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
@@ -10,7 +10,7 @@ def is_job_running(slurm_job_id):
     """Return a bool representing whether or not the job is running."""
     # Use squeue to check status of job
     cmd = [
-        config.SQUEUE_PATH,
+        slurm_cmd.SQUEUE,
         '-j',
         slurm_job_id
     ]
@@ -43,7 +43,7 @@ def job_state(slurm_job_id):
     """Get the job state."""
     # Use squeue to check status of job
     cmd = [
-        config.SQUEUE_PATH,
+        slurm_cmd.SQUEUE,
         '-j',
         slurm_job_id
     ]

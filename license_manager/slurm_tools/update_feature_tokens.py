@@ -2,14 +2,14 @@
 """license_manager.server.slurm_tools.slurm_dbd_update_feature_tokens"""
 import subprocess
 
-from license_manager.config import config
+from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
 def slurm_dbd_update_feature_tokens(feature, tokens):
     """Update tokens for a feature."""
     cmd = [
-        config.SACCTMGR_PATH,
+        slurm_cmd.SACCTMGR,
         "modify",
         "resource",
         f"name={feature}"

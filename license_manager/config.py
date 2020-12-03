@@ -6,23 +6,39 @@ import sys
 import yaml
 
 
-conf = None
+class SlurmCmd:
+    """Return slurm command paths.
+
+    Supported commands:
+        * SCONTROL
+        * SQUEUE
+        * SACCT
+        * SACCTMGR
+
+    Usage:
+    slurm_cmd = SlurmCmd()
+
+    subprocess.call([slurm_cmd.SQUEUE])
+    """
+
+    def __init__(self):
+        """Determine if we are in a snap and set the path to the slurm cmds."""
+        bin_dir = "/usr/bin"
+
+        if os.environ.get('SNAP'):
+            bin_dir = "/snap/bin"
+
+        self.SCONTROL = f"{bin_dir}/scontrol"
+        self.SQUEUE = f"{bin_dir}/squeue"
+        self.SACCT = f"{bin_dir}/sacct"
+        self.SACCTMGR = f"{bin_dir}/sacctmgr"
 
 
 class Config:
     """License manager config object."""
 
     def __init__(self, config_file):
-        """Initialize slurm command paths."""
-        bin_dir = "/usr/bin"
-
-        if self._is_snap:
-            bin_dir = "/snap/bin"
-
-        self.SCONTROL_PATH = f"{bin_dir}/scontrol"
-        self.SQUEUE_PATH = f"{bin_dir}/squeue"
-        self.SACCT_PATH = f"{bin_dir}/sacct"
-
+        """Initialize license-manager config."""
         try:
             # Load the yaml or log and exit.
             self._server_config = yaml.full_load(config_file.read_text())
@@ -31,21 +47,9 @@ class Config:
             sys.exit(1)
 
     @property
-    def _is_snap(self):
-        return os.environ.get('SNAP')
-
-    @property
     def server_config(self) -> dict:
         """Return the server.yaml."""
         return self._server_config
 
 
-def init_config(config_file):
-    """Create the config object and set the global."""
-    global conf
-
-    conf = Config(config_file)
-    return conf
-
-
-config = conf
+slurm_cmd = SlurmCmd()

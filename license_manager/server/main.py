@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from signal import SIGINT, signal, SIGTERM
 
-from license_manager.config import init_config
+from license_manager.config import Config
 from license_manager.logging import init_logging
 from license_manager.server.mgmt_server import (
     initiate_license_tracking,
@@ -69,7 +69,7 @@ def main(argv=sys.argv[1:]):
     args = _get_input_args(argv)
 
     # Initialize logging config global objects
-    config = init_config(args.config_file)
+    config = Config(args.config_file)
     init_logging(args.log_file)
 
     pid_file = Path("/tmp/slurm_lic.pid")

@@ -3,14 +3,14 @@
 import re
 import subprocess
 
-from license_manager.config import config
+from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
 def check_used_feature_tokens(feature, license_server):
     """Check uesd feature tokens in slurmdbd."""
     cmd = [
-        config.SCONTROL_PATH,
+        slurm_cmd.SCONTROL,
         'show',
         'lic={feature}@{license_server}'
     ]
