@@ -7,7 +7,7 @@ from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
-def check_used_feature_tokens(feature, license_server):
+def slurm_dbd_check_used_feature_tokens(feature, license_server):
     """Check uesd feature tokens in slurmdbd."""
     cmd = [
         slurm_cmd.SCONTROL,
