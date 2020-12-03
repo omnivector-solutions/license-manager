@@ -6,7 +6,7 @@ import socket
 import sys
 
 from license_manager.logging import logger
-from license_manager.slurm_tools.job_requirements import (
+from license_manager.slurm_tools import (
     required_licenses_for_job as slurm_job_requirement,
 )
 

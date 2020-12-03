@@ -7,7 +7,7 @@ from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
-def is_job_running(job_id, slurm_controller, debug=False):
+def is_slurm_job_running(job_id, slurm_controller, debug=False):
     """Determine whether or not a job is running."""
     cmd = [
         slurm_cmd.SACCT,

@@ -3,15 +3,9 @@
 from time import time
 
 from license_manager.logging import log
-from license_manager.slurm_tools.check_used_feature_tokens import (
-    check_used_feature_tokens as slurm_dbd_check_used_feature_tokens,
-)
-from license_manager.slurm_tools.is_job_running import (
-    is_job_running as slurm_is_job_running,
-)
-from license_manager.slurm_tools.update_feature_tokens import (
-    update_feature_tokens as slurm_dbd_update_feature_tokens,
-)
+from license_manager.slurm_tools import is_slurm_job_running
+from license_manager.slurm_tools import slurm_dbd_check_used_feature_tokens
+from license_manager.slurm_tools import slurm_dbd_update_feature_tokens
 
 
 class LicHandler:
@@ -181,7 +175,7 @@ class LicHandler:
 
             # TODO: Name of controller for running job to allow for multiple
             # slurm clusters, Maybe not required?
-            if not slurm_is_job_running(job_id, None):
+            if not is_slurm_job_running(job_id, None):
                 # If job has ended at slurm controller, remove from
                 # reservations
                 jobs_to_remove_from_bookings.append(job_id)
