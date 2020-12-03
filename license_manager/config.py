@@ -22,6 +22,7 @@ class SlurmCmd:
     """
 
     def __init__(self):
+        """Determine if we are in a snap and set the path to the slurm cmds."""
         bin_dir = "/usr/bin"
 
         if os.environ.get('SNAP'):
@@ -38,7 +39,6 @@ class Config:
 
     def __init__(self, config_file):
         """Initialize license-manager config."""
-
         try:
             # Load the yaml or log and exit.
             self._server_config = yaml.full_load(config_file.read_text())
