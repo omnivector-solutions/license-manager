@@ -5,8 +5,6 @@ import sys
 import threading
 import time
 
-import systemd
-
 from license_manager.lic_tools import LicHandler
 from license_manager.lic_tools.flexlm import (
     check_feature as flexlm_check_feature,
@@ -14,6 +12,7 @@ from license_manager.lic_tools.flexlm import (
 )
 from license_manager.logging import log
 from license_manager.server.handle_request import handle_request
+from systemd.daemon import Notification, notify
 
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
@@ -134,7 +133,9 @@ def mgmt_server(host="localhost", port=666, **kwargs):
         # Exit the server thread when the main thread terminates
         server_thread.daemon = True
         server_thread.start()
+
         log.info(f"Server loop running in thread: {server_thread.name}")
+        notify(Notification.READY)
 
         try:
             while True:
@@ -143,7 +144,8 @@ def mgmt_server(host="localhost", port=666, **kwargs):
             log.debug("Interrupt from keyboard detected, shutting down.")
         finally:
             log.debug("Server is going down.....")
-            systemd.daemon.notify('STOPPING=1')
+            notify(Notification.STOPPING)
+
             # Shut down server
             server.shutdown()
             log.debug("State DOWN")
