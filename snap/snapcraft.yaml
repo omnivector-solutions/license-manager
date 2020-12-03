@@ -36,10 +36,10 @@ parts:
     parse-info: ['setup.py']
     python-packages: [wheel]
     source: .
-    build-packages:
-      - libsystemd-dev
     stage-packages:
-      - libsystemd-dev
+      - python3-systemd
+    stage-packages:
+      - python3-systemd
       - libpython3.8
 
   hooks:
