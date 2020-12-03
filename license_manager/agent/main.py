@@ -9,7 +9,7 @@ from pathlib import Path
 from license_manager.agent.handlers import (
     run_controller_prolog_or_epilog,
 )
-from license_manager.config import init_config
+from license_manager.config import Config
 from license_manager.logging import init_logging
 
 
@@ -59,7 +59,7 @@ def main(argv=sys.argv[1:]):
     args = _get_input_args(argv)
 
     # Init the logger and config
-    config = init_config(args.config_file)
+    config = Config(args.config_file)
     init_logging(args.log_file)
 
     license_manager_server_endpoint = config.server_config.get(
