@@ -1,0 +1,54 @@
+name: 'PublishRelease'
+
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  build-attach-and-publish:
+    runs-on: ubuntu-latest
+    name: "Build the snap and upload the artifact"
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: set-git-user
+        run: |
+          git config user.name omnivector-qa
+          git config user.email admin@omnivector.solutions
+
+      - name: "Parse and store the release_version"
+        if: ${{ success() }}
+        id: vars
+        shell: bash
+        run: |
+          echo "::set-output name=release_version::$(echo $(git branch | grep '*' | awk '{print$2}') | sed 's/[a-z-]*\///g')"
+
+      - id: set-version
+        if: ${{ success() }}
+        run: |
+          echo 'RELEASE_VERSION=${{ steps.vars.outputs.release_version }}' >> $GITHUB_ENV;
+
+      - uses: getsentry/craft@master
+        if: ${{ success() }}
+        name: "Craft Publish"
+        with:
+          action: publish
+          version: ${{ steps.vars.outputs.release_version }}
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: next-dev-version
+        if: ${{ success() }}
+        run: |
+          git fetch --all
+          git checkout master
+          ./scripts/bump-version.sh '' $(date -d "$(echo $RELEASE_VERSION | sed -e 's/^\([0-9]\{2\}\)\.\([0-9]\{1,2\}\)\.[0-9]\+$/20\1-\2-1/') 1 month" +%y.%-m.0.dev0)
+          git diff --quiet || git commit -anm 'meta: Bump new development version' && git pull --rebase && git push
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.

@@ -1,0 +1,29 @@
+name: 'TestOnPr'
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    name: "Lint codebase (make lint)"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+      - name: "Install tox"
+        run: | 
+          pip install tox
+      - name: "`make lint`"
+        run: | 
+          make lint
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.

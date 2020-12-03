@@ -1,0 +1,16 @@
+minVersion: "0.12.0"
+github:
+  owner: omnivector-solutions
+  repo: license-manager
+releaseBranchPrefix: releases
+changelog: CHANGELOG.md
+changelogPolicy: auto
+statusProvider:
+  name: github
+  config:
+    contexts:
+      - "ReleaseAction"
+artifactProvider:
+  name: github
+targets:
+  - name: github

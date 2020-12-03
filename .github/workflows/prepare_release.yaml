@@ -1,0 +1,93 @@
+name: 'PrepareRelease'
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release (optional)
+        required: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    name: "Run craft prepare"
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: set-version
+        run: |
+          echo 'RELEASE_VERSION=${{ github.event.inputs.version }}' >> $GITHUB_ENV;
+
+      - id: set-git-user
+        run: |
+          git config user.name omnivector-qa
+          git config user.email admin@omnivector.solutions
+
+      - uses: getsentry/craft@master
+        name: "Craft Prepare"
+        with:
+          action: prepare
+          version: ${{ env.RELEASE_VERSION }}
+        env:
+          GIT_COMMITTER_NAME: omnivector-qa
+          GIT_AUTHOR_NAME: omnivector-qa
+          EMAIL: admin@omnivector.solutions
+
+  build-and-attach:
+    runs-on: ubuntu-latest
+    name: "Build and attach the snap artifact"
+    needs: [prepare]
+    steps:
+      - id: set-version
+        run: |
+          echo 'RELEASE_VERSION=${{ github.event.inputs.version }}' >> $GITHUB_ENV;
+
+      - uses: actions/checkout@v2
+        with:
+          ref: releases/${{ env.RELEASE_VERSION }}
+
+      - id: set-git-user
+        run: |
+          git config user.name omnivector-qa
+          git config user.email admin@omnivector.solutions
+
+      - name: "Install Snapcraft"
+        uses: samuelmeuli/action-snapcraft@v1
+        with:
+          use_lxd: true
+
+      - name: "Build license-manager snap"
+        run: sg lxd -c 'snapcraft --use-lxd'
+
+      - name: "Parse and store git_sha, snap_file and release_version"
+        if: ${{ success() }}
+        id: vars
+        shell: bash
+        run: |
+          echo "::set-output name=release_version::$(echo $(git branch | grep '*' | awk '{print$2}') | sed 's/[a-z-]*\///g')"
+          echo "::set-output name=snap_file::$(ls *.snap)"
+          echo "::set-output name=git_sha::$(git rev-parse HEAD)"
+
+      - name: Archive Artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.vars.outputs.git_sha }}
+          path: |
+            ${{ steps.vars.outputs.snap_file }}
+
+      - uses: Sibz/github-status-action@v1
+        if: ${{ success() }}
+        with:
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'ReleaseAction'
+          description: 'Passed'
+          state: 'success'
+          sha: ${{ steps.vars.outputs.git_sha }}
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: always() # Pick up events even if the job fails or is canceled.

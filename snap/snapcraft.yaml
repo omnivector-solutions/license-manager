@@ -1,0 +1,60 @@
+name: license-manager
+base: core20
+adopt-info: license-manager
+summary: License scheduling client and server application.
+description: |
+  License accounting middleware for efficient license utilization.
+
+grade: stable
+confinement: classic
+
+apps:
+  license-server:
+    environment:
+      PATH: $SNAP/bin/:$PATH
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+    restart-condition: on-failure
+    daemon: simple
+    command: license_manager/bin/license-server
+    stop-timeout: 2m
+
+  prolog-controller:
+    environment:
+      PATH: $SNAP/bin/:$PATH
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+    command: license_manager/bin/prolog-controller
+
+  epilog-controller:
+    environment:
+      PATH: $SNAP/bin/:$PATH
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+    command: license_manager/bin/epilog-controller
+
+parts:
+  license-manager:
+    plugin: python
+    parse-info: ['setup.py']
+    python-packages: [wheel]
+    source: .
+    build-packages:
+      - libsystemd-dev
+    stage-packages:
+      - libsystemd-dev
+      - libpython3.8
+
+  hooks:
+    plugin: dump
+    source-type: local
+    source: src/hooks/
+    organize:
+      bin/: snap/hooks/
+
+  bins:
+    plugin: dump
+    source-type: local
+    source: src/bins/
+
+  example-config:
+    plugin: dump
+    source-type: local
+    source: src/example_config/

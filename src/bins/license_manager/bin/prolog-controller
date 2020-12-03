@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+exec "$SNAP/bin/license-agent" -l "$SNAP_COMMON/license_manager/log/prolog-controller.log" -c "$SNAP_COMMON/license_manager/config/agent.yaml" -t prolog

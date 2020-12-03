@@ -1,0 +1,7 @@
+# Required external helper applications
+include license_manager/lic_tools/flexlm/lmstat
+include license_manager/lic_tools/flexlm/lmstat.exe
+
+# Required files
+include README.md
+include setup.py

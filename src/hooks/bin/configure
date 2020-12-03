@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eux
+
+
+snap_mode=$(snapctl get snap.mode)
+echo $snap_mode > "$SNAP_COMMON/snap_mode.txt"
+
+license_manager_server=$SNAP_INSTANCE_NAME.license-server
+if [[ $snap_mode == "server" ]]; then
+    snapctl start $license_manager_server --enable
+else
+    snapctl stop $license_manager_server --disable
+fi
