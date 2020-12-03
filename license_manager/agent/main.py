@@ -60,8 +60,7 @@ def main(argv=sys.argv[1:]):
 
     # Init the logger and config
     config = init_config(args.config_file)
-    logger = init_logging(args.log_file)
-    logger.setLevel(logging.DEBUG)
+    init_logging(args.log_file)
 
     license_manager_server_endpoint = config.get(
         'license_manager_server_endpoint'

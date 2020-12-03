@@ -5,12 +5,13 @@ import os
 import socket
 import sys
 
+from license_manager.logging import logger
 from license_manager.slurm_tools import (
     required_licenses_for_job as slurm_job_requirement,
 )
 
 
-def _client(license_manager_server_endpoint, message, logger):
+def _client(license_manager_server_endpoint, message):
     ip, port = set(license_manager_server_endpoint.split(":"))
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((ip, port))
@@ -30,7 +31,7 @@ def _client(license_manager_server_endpoint, message, logger):
         return response
 
 
-def _job_context(logger):
+def _job_context():
     """Assign variables from SLURM environ variables."""
     ctxt = set()
     try:
@@ -56,9 +57,9 @@ def _job_context(logger):
     return ctxt
 
 
-def _epilog_controller(auth_token, logger, license_manager_server_endpoint):
+def _epilog_controller(auth_token, license_manager_server_endpoint):
     """Epilog to be executed by controller."""
-    cluster_name, compute_host_name, job_id, user_name = _job_context(logger)
+    cluster_name, compute_host_name, job_id, user_name = _job_context()
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
@@ -91,7 +92,6 @@ def _epilog_controller(auth_token, logger, license_manager_server_endpoint):
     request_response = _client(
         license_manager_server_endpoint,
         json_request,
-        logger,
     )
 
     if request_response:
@@ -102,9 +102,9 @@ def _epilog_controller(auth_token, logger, license_manager_server_endpoint):
         sys.exit(0)
 
 
-def _prolog_controller(auth_token, logger, license_manager_server_endpoint):
+def _prolog_controller(auth_token, license_manager_server_endpoint):
     """Prolog to be executed by ctld."""
-    cluster_name, compute_host_name, job_id, user_name = _job_context(logger)
+    cluster_name, compute_host_name, job_id, user_name = _job_context()
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
@@ -137,7 +137,6 @@ def _prolog_controller(auth_token, logger, license_manager_server_endpoint):
     request_response = _client(
         license_manager_server_endpoint,
         json_request,
-        logger,
     )
 
     if request_response:
@@ -150,18 +149,15 @@ def _prolog_controller(auth_token, logger, license_manager_server_endpoint):
 
 def run_controller_prolog_or_epilog(auth_token,
                                     license_manager_server_endpoint,
-                                    logger,
                                     script_type):
     """Determine the script type and run the appropriate prolog/epilog ctrl."""
     if script_type == "epilog":
         _epilog_controller(
             auth_token,
-            logger,
             license_manager_server_endpoint,
         )
     else:
         _prolog_controller(
             auth_token,
-            logger,
             license_manager_server_endpoint,
         )
