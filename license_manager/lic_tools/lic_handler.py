@@ -128,17 +128,20 @@ class LicHandler:
             if response:
                 slurm_total, slurm_used, slurm_free = response
 
-            # Compute tokens used by others, such as Workstation and LSF
-            used_by_others = self.tokens_used - slurm_used
+                # Compute tokens used by others, such as Workstation and LSF
+                used_by_others = self.tokens_used - slurm_used
 
-            # Compute tokens available for slurm_dbd
-            new_slurm_total = self.tokens_issued - used_by_others
+                # Compute tokens available for slurm_dbd
+                new_slurm_total = self.tokens_issued - used_by_others
 
-            # Set number of tokens available at slurm_dbd
-            slurm_dbd_update_feature_tokens(
-                self.license_feature,
-                new_slurm_total
-            )
+                # Set number of tokens available at slurm_dbd
+                slurm_dbd_update_feature_tokens(
+                    self.license_feature,
+                    new_slurm_total
+                )
+                log.info("License feature tokens updated.")
+            else:
+                log.info("No response from slurmdbd.")
 
     def __update_booked_licenses__(self): # NOQA
         """Update the booked licenses."""

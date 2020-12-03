@@ -5,7 +5,7 @@ import os
 import socket
 import sys
 
-from license_manager.logging import logger
+from license_manager.logging import log
 from license_manager.slurm_tools import (
     required_licenses_for_job as slurm_job_requirement,
 )
@@ -20,10 +20,10 @@ def _client(license_manager_server_endpoint, message):
         response = bool(response)
 
         if response:
-            logger.info("License booking completed!")
+            log.info("License booking completed!")
 
         else:
-            logger.info(
+            log.info(
                 "License booking failed! "
                 f"Received: {response}."
             )
@@ -47,7 +47,7 @@ def _job_context():
         }
     except KeyError as e:
         # If not all keys could be assigned, then return non 0 exit status
-        logger.error(
+        log.error(
             f"All required environment variables were not set, missing: {e}. "
             "Expecting: SLURM_CLUSTER_NAME, SLURM_JOB_ID, SLURM_JOB_NODELIST, "
             "SLURM_JOB_USER"
@@ -63,7 +63,7 @@ def _epilog_controller(license_manager_server_endpoint):
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
-        logger.info("No licenses requested")
+        log.info("No licenses requested")
         sys.exit(0)
     else:
         # Generate requests for all required tokens
@@ -86,7 +86,7 @@ def _epilog_controller(license_manager_server_endpoint):
         json_request = json.dumps(requests)
 
     # Debug log request
-    logger.debug(json_request)
+    log.debug(json_request)
 
     # Send request to license manager
     request_response = _client(
@@ -95,10 +95,10 @@ def _epilog_controller(license_manager_server_endpoint):
     )
 
     if request_response:
-        logger.info("License was returned")
+        log.info("License was returned")
         sys.exit(0)
     else:
-        logger.info("License was not booked")
+        log.info("License was not booked")
         sys.exit(0)
 
 
@@ -108,7 +108,7 @@ def _prolog_controller(license_manager_server_endpoint):
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
-        logger.info("No licenses requested")
+        log.info("No licenses requested")
         sys.exit(0)
     else:
         # Generate requests for all required tokens
@@ -131,7 +131,7 @@ def _prolog_controller(license_manager_server_endpoint):
         json_request = json.dumps(requests)
 
     # Debug log request
-    logger.debug(json_request)
+    log.debug(json_request)
 
     # Send request to license manager
     request_response = _client(
@@ -140,10 +140,10 @@ def _prolog_controller(license_manager_server_endpoint):
     )
 
     if request_response:
-        logger.info("Sufficient tokens")
+        log.info("Sufficient tokens")
         sys.exit(0)
     else:
-        logger.info("Unsufficient tokens")
+        log.info("Unsufficient tokens")
         sys.exit(1)
 
 
