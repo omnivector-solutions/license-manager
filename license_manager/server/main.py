@@ -68,11 +68,9 @@ def main(argv=sys.argv[1:]):
     # Get input arguments
     args = _get_input_args(argv)
 
-    # Initialize config object
+    # Initialize logging config global objects
     config = init_config(args.config_file)
-    log_file = args.log_file
-
-    init_logging(log_file)
+    init_logging(args.log_file)
 
     pid_file = Path("/tmp/slurm_lic.pid")
     pid = f"{os.getpid()}\n\r"

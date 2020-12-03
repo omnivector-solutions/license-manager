@@ -62,7 +62,7 @@ def main(argv=sys.argv[1:]):
     config = init_config(args.config_file)
     init_logging(args.log_file)
 
-    license_manager_server_endpoint = config.get(
+    license_manager_server_endpoint = config.server_config.get(
         'license_manager_server_endpoint'
     )
 

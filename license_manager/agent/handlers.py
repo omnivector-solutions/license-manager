@@ -147,17 +147,14 @@ def _prolog_controller(auth_token, license_manager_server_endpoint):
         sys.exit(1)
 
 
-def run_controller_prolog_or_epilog(auth_token,
-                                    license_manager_server_endpoint,
+def run_controller_prolog_or_epilog(license_manager_server_endpoint,
                                     script_type):
     """Determine the script type and run the appropriate prolog/epilog ctrl."""
     if script_type == "epilog":
         _epilog_controller(
-            auth_token,
             license_manager_server_endpoint,
         )
     else:
         _prolog_controller(
-            auth_token,
             license_manager_server_endpoint,
         )
