@@ -12,7 +12,7 @@ def slurm_dbd_update_feature_tokens(feature, tokens):
         slurm_cmd.SACCTMGR,
         "modify",
         "resource",
-        f"name={feature}"
+        f"name={feature}",
         "set",
         f"count={tokens}",
         "-i"

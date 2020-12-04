@@ -12,9 +12,9 @@ from license_manager.slurm_tools import (
 
 
 def _client(license_manager_server_endpoint, message):
-    ip, port = set(license_manager_server_endpoint.split(":"))
+    ip_port = license_manager_server_endpoint.split(":")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.connect((ip, port))
+        sock.connect((ip_port[0], int(ip_port[1])))
         sock.sendall(bytes(message, 'ascii'))
         response = str(sock.recv(1024), 'ascii')
         response = bool(response)
