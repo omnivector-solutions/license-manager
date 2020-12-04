@@ -37,13 +37,13 @@ def _job_context():
     try:
         ctxt = {
             # Get cluster name
-            os.environ['SLURM_CLUSTER_NAME'],
+            'cluster_name': os.environ['SLURM_CLUSTER_NAME'],
             # Get job id of job
-            os.environ['SLURM_JOB_ID'],
+            'job_id': os.environ['SLURM_JOB_ID'],
             #  Get first node which execute application
-            os.environ['SLURM_JOB_NODELIST'].split(',')[0],
+            'compute_host': os.environ['SLURM_JOB_NODELIST'].split(',')[0],
             # Get user name
-            os.environ['SLURM_JOB_USER'],
+            'user': os.environ['SLURM_JOB_USER'],
         }
     except KeyError as e:
         # If not all keys could be assigned, then return non 0 exit status
@@ -59,7 +59,10 @@ def _job_context():
 
 def _epilog_controller(license_manager_server_endpoint):
     """Epilog to be executed by controller."""
-    cluster_name, compute_host_name, job_id, user_name = _job_context()
+    ctxt = _job_context()
+    compute_host = ctxt['compute_host']
+    job_id = ctxt['job_id']
+    user_name = ctxt['user']
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
@@ -68,14 +71,14 @@ def _epilog_controller(license_manager_server_endpoint):
     else:
         # Generate requests for all required tokens
         requests = []
-        for license_feature, tokens, license_server in job_req:
+        for license_feature, license_server, tokens in job_req:
             # Generate request to license manager
             request = dict()
             request['feature'] = license_feature
             request['required_tokens'] = tokens
             request['job_id'] = job_id
             request['user_name'] = user_name
-            request['compute_host_name'] = compute_host_name
+            request['compute_host_name'] = compute_host
 
             # Set action at license manager
             request['action'] = 'return_license'
@@ -104,7 +107,10 @@ def _epilog_controller(license_manager_server_endpoint):
 
 def _prolog_controller(license_manager_server_endpoint):
     """Prolog to be executed by ctld."""
-    cluster_name, compute_host_name, job_id, user_name = _job_context()
+    ctxt = _job_context()
+    compute_host = ctxt['compute_host']
+    job_id = ctxt['job_id']
+    user_name = ctxt['user']
 
     job_req = slurm_job_requirement(job_id, debug=True)
     if not job_req:
@@ -113,14 +119,14 @@ def _prolog_controller(license_manager_server_endpoint):
     else:
         # Generate requests for all required tokens
         requests = []
-        for license_feature, tokens, license_server in job_req:
+        for license_feature, license_server, tokens in job_req:
             # Generate request to license manager
             request = dict()
             request['feature'] = license_feature
             request['required_tokens'] = tokens
             request['job_id'] = job_id
             request['user_name'] = user_name
-            request['compute_host_name'] = compute_host_name
+            request['compute_host_name'] = compute_host
 
             # Set action at license manager
             request['action'] = 'book_license'
@@ -151,10 +157,6 @@ def run_controller_prolog_or_epilog(license_manager_server_endpoint,
                                     script_type):
     """Determine the script type and run the appropriate prolog/epilog ctrl."""
     if script_type == "epilog":
-        _epilog_controller(
-            license_manager_server_endpoint,
-        )
+        _epilog_controller(license_manager_server_endpoint)
     else:
-        _prolog_controller(
-            license_manager_server_endpoint,
-        )
+        _prolog_controller(license_manager_server_endpoint)

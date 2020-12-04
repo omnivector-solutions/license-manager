@@ -30,7 +30,7 @@ def required_licenses_for_job(slurm_job_id, debug=False):
 
     # Check that the process completed successfully for the requested job id
     if not proc.returncode == 0:
-        log.error("Could not get SLURM data for job id: {slurm_job_id}")
+        log.error(f"Could not get SLURM data for job id: {slurm_job_id}")
         return False
 
     # Check for requested licenses
@@ -64,7 +64,7 @@ def required_licenses_for_job(slurm_job_id, debug=False):
                 log.error(f"Unsupported license request: {requested_license}")
                 sys.exit(1)
 
-            licenses_requested.append([feature, tokens, license_server])
+            licenses_requested.append([feature, license_server, tokens])
 
         if debug:
             log.debug(f"License features requested by job id: {slurm_job_id}")

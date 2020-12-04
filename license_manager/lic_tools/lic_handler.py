@@ -69,13 +69,16 @@ class LicHandler:
     def __update_available_licenses__(self):
         """Update the available licenses."""
         # Loop over license servers until a response is received, not False
+        log.debug("Updating available licenses")
         for license_server in self.license_server_address:
+            log.debug(f"License server: {license_server}")
             # Check license server status
             server_response = self.update_license(
                 license_server,
                 self.license_server_port,
                 self.license_feature
             )
+            log.debug(f"Response from {license_server}: {server_response}")
             if server_response:
                 break
 

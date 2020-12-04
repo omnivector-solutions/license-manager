@@ -11,28 +11,31 @@ def slurm_dbd_check_used_feature_tokens(feature, license_server):
     """Check uesd feature tokens in slurmdbd."""
     cmd = [
         slurm_cmd.SCONTROL,
-        'show',
-        'lic={feature}@{license_server}'
+        "show",
+        f"lic={feature}@{license_server}"
     ]
+    log.debug(" ".join(cmd))
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     std_out, std_err = proc.communicate()
+    log.debug(f"STD OUT: {std_out}")
+    log.debug(f"STD ERR: {std_err}")
 
     # Decode output
     std_out = std_out.decode("utf-8")
     std_err = std_err.decode("utf-8")
 
     # Check that the process completed successfully for the requested job id
-    if not proc.returncode == 0:
-        log.error(
-            "Could not update number of available tokens for: "
-            f"Feature: {feature}, Server: {license_server}, "
-            f"Stdout:  {std_out}, Stderr: {std_err}"
-        )
-        return False
+    #if not proc.returncode == 0:
+    #    log.error(
+    #        "Could not update number of available tokens for: "
+    #        f"Feature: {feature}, Server: {license_server}, "
+    #        f"Stdout:  {std_out}, Stderr: {std_err}"
+    #    )
+    #    return False
 
     # If feature is not found, an empty string is returned
     if not std_out:

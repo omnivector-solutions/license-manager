@@ -37,9 +37,6 @@ parts:
     python-packages: [wheel]
     source: .
     stage-packages:
-      - python3-systemd
-    stage-packages:
-      - python3-systemd
       - libpython3.8
 
   hooks:
