@@ -29,7 +29,7 @@ def slurm_dbd_check_used_feature_tokens(feature, license_server):
     std_err = std_err.decode("utf-8")
 
     # Check that the process completed successfully for the requested job id
-    #if not proc.returncode == 0:
+    # if not proc.returncode == 0:
     #    log.error(
     #        "Could not update number of available tokens for: "
     #        f"Feature: {feature}, Server: {license_server}, "
