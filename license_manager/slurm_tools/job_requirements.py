@@ -28,6 +28,7 @@ def required_licenses_for_job(slurm_job_id, debug=False):
 
     std_out = std_out.decode("utf-8")
 
+    log.debug(f"STDOUT: {std_out}")
     # Check that the process completed successfully for the requested job id
     if not proc.returncode == 0:
         log.error(f"Could not get SLURM data for job id: {slurm_job_id}")
@@ -35,9 +36,11 @@ def required_licenses_for_job(slurm_job_id, debug=False):
 
     # Check for requested licenses
     m = re.search('.* Licenses=([^ ]*).*', std_out)
+    log.debug(f"####### M ######: {m}")
 
     if m:
         license_array = m.group(1).split(',')
+        log.debug(f"####### license_array ######: {license_array}")
         licenses_requested = []
         for requested_license in license_array:
 
