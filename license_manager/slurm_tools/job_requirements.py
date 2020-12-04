@@ -25,19 +25,20 @@ def required_licenses_for_job(slurm_job_id, debug=False):
         stderr=subprocess.PIPE
     )
     std_out, std_err = proc.communicate()
-
     std_out = std_out.decode("utf-8")
 
     # Check that the process completed successfully for the requested job id
     if not proc.returncode == 0:
-        log.error("Could not get SLURM data for job id: {slurm_job_id}")
+        log.error(f"Could not get SLURM data for job id: {slurm_job_id}")
         return False
 
     # Check for requested licenses
     m = re.search('.* Licenses=([^ ]*).*', std_out)
+    license_array = m.group(1).split(',')
 
-    if m:
-        license_array = m.group(1).split(',')
+    if license_array[0] == "(null)":
+        return False
+    else:
         licenses_requested = []
         for requested_license in license_array:
 
@@ -64,7 +65,7 @@ def required_licenses_for_job(slurm_job_id, debug=False):
                 log.error(f"Unsupported license request: {requested_license}")
                 sys.exit(1)
 
-            licenses_requested.append([feature, tokens, license_server])
+            licenses_requested.append([feature, license_server, tokens])
 
         if debug:
             log.debug(f"License features requested by job id: {slurm_job_id}")
@@ -75,8 +76,6 @@ def required_licenses_for_job(slurm_job_id, debug=False):
                     f"Tokens: {tokens}"
                 )
         return licenses_requested
-    else:
-        return False
 
 
 if __name__ == "__main__":

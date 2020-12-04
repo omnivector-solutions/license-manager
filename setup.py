@@ -12,7 +12,7 @@ setuptools.setup(
     ),
     license='GPLv3',
     long_description=open('README.md').read(),
-    install_requires=['pyyaml', 'systemd'],
+    install_requires=['pyyaml'],
     entry_points={
         'console_scripts': [
             'license-server=license_manager.server.main:main',

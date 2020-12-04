@@ -1,2 +1,1 @@
-license_manager_server_endpoint: "rat:8080"
-auth_token: "hosentstenis"
+license_manager_server_endpoint: "127.0.0.1:2048"

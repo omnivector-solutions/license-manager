@@ -5,7 +5,7 @@ import sys
 import threading
 import time
 
-import systemd
+# from systemd.daemon import notify
 
 from license_manager.lic_tools import LicHandler
 from license_manager.lic_tools.flexlm import (
@@ -134,7 +134,9 @@ def mgmt_server(host="localhost", port=666, **kwargs):
         # Exit the server thread when the main thread terminates
         server_thread.daemon = True
         server_thread.start()
+
         log.info(f"Server loop running in thread: {server_thread.name}")
+        # notify('READY=1')
 
         try:
             while True:
@@ -143,7 +145,8 @@ def mgmt_server(host="localhost", port=666, **kwargs):
             log.debug("Interrupt from keyboard detected, shutting down.")
         finally:
             log.debug("Server is going down.....")
-            systemd.daemon.notify('STOPPING=1')
+            # notify('STOPPING=1')
+
             # Shut down server
             server.shutdown()
             log.debug("State DOWN")

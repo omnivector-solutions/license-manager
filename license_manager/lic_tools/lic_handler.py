@@ -3,11 +3,9 @@
 from time import time
 
 from license_manager.logging import log
-from license_manager.slurm_tools import (
-    check_used_feature_tokens as slurm_dbd_check_used_feature_tokens,
-    is_job_running as slurm_is_job_running,
-    update_feature_tokens as slurm_dbd_update_feature_tokens,
-)
+from license_manager.slurm_tools import is_slurm_job_running
+from license_manager.slurm_tools import slurm_dbd_check_used_feature_tokens
+from license_manager.slurm_tools import slurm_dbd_update_feature_tokens
 
 
 class LicHandler:
@@ -71,13 +69,16 @@ class LicHandler:
     def __update_available_licenses__(self):
         """Update the available licenses."""
         # Loop over license servers until a response is received, not False
+        log.debug("Updating available licenses")
         for license_server in self.license_server_address:
+            log.debug(f"License server: {license_server}")
             # Check license server status
             server_response = self.update_license(
                 license_server,
                 self.license_server_port,
                 self.license_feature
             )
+            log.debug(f"Response from {license_server}: {server_response}")
             if server_response:
                 break
 
@@ -130,17 +131,20 @@ class LicHandler:
             if response:
                 slurm_total, slurm_used, slurm_free = response
 
-            # Compute tokens used by others, such as Workstation and LSF
-            used_by_others = self.tokens_used - slurm_used
+                # Compute tokens used by others, such as Workstation and LSF
+                used_by_others = self.tokens_used - slurm_used
 
-            # Compute tokens available for slurm_dbd
-            new_slurm_total = self.tokens_issued - used_by_others
+                # Compute tokens available for slurm_dbd
+                new_slurm_total = self.tokens_issued - used_by_others
 
-            # Set number of tokens available at slurm_dbd
-            slurm_dbd_update_feature_tokens(
-                self.license_feature,
-                new_slurm_total
-            )
+                # Set number of tokens available at slurm_dbd
+                slurm_dbd_update_feature_tokens(
+                    self.license_feature,
+                    new_slurm_total
+                )
+                log.info("License feature tokens updated.")
+            else:
+                log.info("No response from slurmdbd.")
 
     def __update_booked_licenses__(self): # NOQA
         """Update the booked licenses."""
@@ -177,7 +181,7 @@ class LicHandler:
 
             # TODO: Name of controller for running job to allow for multiple
             # slurm clusters, Maybe not required?
-            if not slurm_is_job_running(job_id, None):
+            if not is_slurm_job_running(job_id, None):
                 # If job has ended at slurm controller, remove from
                 # reservations
                 jobs_to_remove_from_bookings.append(job_id)

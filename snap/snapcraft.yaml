@@ -12,7 +12,7 @@ apps:
   license-server:
     environment:
       PATH: $SNAP/bin/:$PATH
-      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages/
     restart-condition: on-failure
     daemon: simple
     command: license_manager/bin/license-server
@@ -21,13 +21,13 @@ apps:
   prolog-controller:
     environment:
       PATH: $SNAP/bin/:$PATH
-      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages/
     command: license_manager/bin/prolog-controller
 
   epilog-controller:
     environment:
       PATH: $SNAP/bin/:$PATH
-      PYTHONPATH: $SNAP/lib/python3.8/site-packages/
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages/
     command: license_manager/bin/epilog-controller
 
 parts:
@@ -36,10 +36,7 @@ parts:
     parse-info: ['setup.py']
     python-packages: [wheel]
     source: .
-    build-packages:
-      - libsystemd-dev
     stage-packages:
-      - libsystemd-dev
       - libpython3.8
 
   hooks:

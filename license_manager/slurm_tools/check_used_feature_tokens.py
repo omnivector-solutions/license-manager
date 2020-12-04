@@ -7,19 +7,22 @@ from license_manager.config import slurm_cmd
 from license_manager.logging import log
 
 
-def check_used_feature_tokens(feature, license_server):
+def slurm_dbd_check_used_feature_tokens(feature, license_server):
     """Check uesd feature tokens in slurmdbd."""
     cmd = [
         slurm_cmd.SCONTROL,
-        'show',
-        'lic={feature}@{license_server}'
+        "show",
+        f"lic={feature}@{license_server}"
     ]
+    log.debug(" ".join(cmd))
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     std_out, std_err = proc.communicate()
+    log.debug(f"STD OUT: {std_out}")
+    log.debug(f"STD ERR: {std_err}")
 
     # Decode output
     std_out = std_out.decode("utf-8")
