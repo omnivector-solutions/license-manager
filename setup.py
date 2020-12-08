@@ -1,7 +1,7 @@
 import setuptools
 
 
-VERSION = "0.0.3-dev0"
+VERSION = "0.5.0"
 
 
 setuptools.setup(
