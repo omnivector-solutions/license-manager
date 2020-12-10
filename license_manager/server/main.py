@@ -75,6 +75,11 @@ def main(argv=sys.argv[1:]):
     pid_file = Path("/tmp/slurm_lic.pid")
     pid = f"{os.getpid()}\n\r"
 
+    # Conifigure sentry if we have the sentry_dsn
+    sentry_dsn = config.server_config.get('sentry_dsn')
+    if sentry_dsn:
+        sentry_sdk.init(sentry_dsn, traces_sample_rate=1.0)
+
     try:
         # Starting server
         print(f"Starting with parent PID: {pid}")
@@ -99,4 +104,5 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == "__main__":
+    import sentry_sdk
     main()
