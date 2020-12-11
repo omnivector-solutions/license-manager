@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from signal import SIGINT, signal, SIGTERM
 
+import sentry_sdk
 from license_manager.config import Config
 from license_manager.logging import init_logging
 from license_manager.server.mgmt_server import (
@@ -104,5 +105,4 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == "__main__":
-    import sentry_sdk
     main()
