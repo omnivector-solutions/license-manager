@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import sentry_sdk
+from license_manager import VERSION
 from license_manager.agent.handlers import (
     run_controller_prolog_or_epilog,
 )
@@ -49,6 +50,11 @@ def _get_input_args(argv):
         required=False,
         type=Path,
         help="Log file path."
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=VERSION
     )
     return parser.parse_args(argv)
 

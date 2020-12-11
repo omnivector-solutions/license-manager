@@ -1,7 +1,9 @@
 import setuptools
+import sys
 
+sys.path.append(".")
 
-VERSION = "0.5.1-dev0"
+from license_manager import VERSION # NOQA
 
 
 setuptools.setup(
