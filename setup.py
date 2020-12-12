@@ -1,7 +1,9 @@
 import setuptools
+import sys
 
+sys.path.append(".")
 
-VERSION = "0.5.1-dev0"
+from license_manager import VERSION # NOQA
 
 
 setuptools.setup(
@@ -12,7 +14,7 @@ setuptools.setup(
     ),
     license='GPLv3',
     long_description=open('README.md').read(),
-    install_requires=['pyyaml'],
+    install_requires=['pyyaml', 'sentry-sdk'],
     entry_points={
         'console_scripts': [
             'license-server=license_manager.server.main:main',

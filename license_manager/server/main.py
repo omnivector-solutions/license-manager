@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from signal import SIGINT, signal, SIGTERM
 
+import sentry_sdk
 from license_manager.config import Config
 from license_manager.logging import init_logging
 from license_manager.server.mgmt_server import (
@@ -74,6 +75,11 @@ def main(argv=sys.argv[1:]):
 
     pid_file = Path("/tmp/slurm_lic.pid")
     pid = f"{os.getpid()}\n\r"
+
+    # Conifigure sentry if we have the sentry_dsn
+    sentry_dsn = config.server_config.get('sentry_dsn')
+    if sentry_dsn:
+        sentry_sdk.init(sentry_dsn, traces_sample_rate=1.0)
 
     try:
         # Starting server

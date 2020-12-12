@@ -6,12 +6,13 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
+import sentry_sdk
+from license_manager import VERSION
 from license_manager.agent.handlers import (
     run_controller_prolog_or_epilog,
 )
 from license_manager.config import Config
 from license_manager.logging import init_logging
-
 
 logger = logging.getLogger("license-manager-agent")
 logger.setLevel(logging.DEBUG)
@@ -50,6 +51,11 @@ def _get_input_args(argv):
         type=Path,
         help="Log file path."
     )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=VERSION
+    )
     return parser.parse_args(argv)
 
 
@@ -61,6 +67,11 @@ def main(argv=sys.argv[1:]):
     # Init the logger and config
     config = Config(args.config_file)
     init_logging(args.log_file)
+
+    # Conifigure sentry if we have the sentry_dsn
+    sentry_dsn = config.server_config.get('sentry_dsn')
+    if sentry_dsn:
+        sentry_sdk.init(sentry_dsn, traces_sample_rate=1.0)
 
     license_manager_server_endpoint = config.server_config.get(
         'license_manager_server_endpoint'

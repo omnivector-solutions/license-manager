@@ -30,6 +30,12 @@ apps:
       PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages/
     command: license_manager/bin/epilog-controller
 
+  version:
+    environment:
+      PATH: $SNAP/bin/:$PATH
+      PYTHONPATH: $SNAP/lib/python3.8/site-packages/:$SNAP/usr/lib/python3/dist-packages/
+    command: bin/license-agent --version
+
 parts:
   license-manager:
     plugin: python
