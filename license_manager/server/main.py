@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 """license_manager main module."""
+from argparse import ArgumentParser
 import os
+from pathlib import Path
+from signal import SIGINT, SIGTERM, signal
 import sys
 
-from argparse import ArgumentParser
-from pathlib import Path
-from signal import SIGINT, signal, SIGTERM
-
 import sentry_sdk
+
 from license_manager.config import Config
 from license_manager.logging import init_logging
-from license_manager.server.mgmt_server import (
-    initiate_license_tracking,
-    mgmt_server,
-)
+from license_manager.server.mgmt_server import initiate_license_tracking, mgmt_server
 
 
 def _get_shutdown_handler(message=None):
@@ -22,6 +19,7 @@ def _get_shutdown_handler(message=None):
     :param message:
         Message to display at shutdown. Defaults to none
     """
+
     def handler(signum, frame):
         # If we want to do anything on shutdown, such as stop motors on a
         # robot, you can add it here.
@@ -31,14 +29,13 @@ def _get_shutdown_handler(message=None):
         finally:
             print("Server Daemon has ended")
             sys.exit(0)
+
     return handler
 
 
 def _get_input_args(argv):
     """Create argument parser and return cli args."""
-    parser = ArgumentParser(
-        description="LICENSE_MANAGER_SERVER"
-    )
+    parser = ArgumentParser(description="LICENSE_MANAGER_SERVER")
 
     parser.add_argument(
         "-c",
@@ -46,7 +43,7 @@ def _get_input_args(argv):
         dest="config_file",
         required=True,
         type=Path,
-        help="Configuration file path."
+        help="Configuration file path.",
     )
 
     parser.add_argument(
@@ -55,7 +52,7 @@ def _get_input_args(argv):
         dest="log_file",
         required=False,
         type=Path,
-        help="Log file path."
+        help="Log file path.",
     )
     return parser.parse_args(argv)
 
@@ -63,8 +60,8 @@ def _get_input_args(argv):
 def main(argv=sys.argv[1:]):
     """License manager main."""
     # Setup handlers to to shut down properly and behave as a service
-    signal(SIGINT, _get_shutdown_handler(message='SIGINT received'))
-    signal(SIGTERM, _get_shutdown_handler(message='SIGTERM received'))
+    signal(SIGINT, _get_shutdown_handler(message="SIGINT received"))
+    signal(SIGTERM, _get_shutdown_handler(message="SIGTERM received"))
 
     # Get input arguments
     args = _get_input_args(argv)
@@ -77,7 +74,7 @@ def main(argv=sys.argv[1:]):
     pid = f"{os.getpid()}\n\r"
 
     # Conifigure sentry if we have the sentry_dsn
-    sentry_dsn = config.server_config.get('sentry_dsn')
+    sentry_dsn = config.server_config.get("sentry_dsn")
     if sentry_dsn:
         sentry_sdk.init(sentry_dsn, traces_sample_rate=1.0)
 
@@ -96,7 +93,7 @@ def main(argv=sys.argv[1:]):
             license_book=license_feature_booking_instances,
             update_interval=60,
             port=2048,
-            host='0.0.0.0',
+            host="0.0.0.0",
         )
     finally:
         # Clean up pid file

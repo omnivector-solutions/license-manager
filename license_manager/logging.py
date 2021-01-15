@@ -2,9 +2,8 @@
 """license_manager logging module."""
 import bz2
 import logging
-import os
-
 from logging.handlers import RotatingFileHandler
+import os
 
 
 DEFAULT_FORMAT = (
@@ -18,7 +17,7 @@ logger.setLevel(logging.DEBUG)
 
 def _rotator(source, dest):
     """Rotate log and compress with bz2."""
-    with open(source, 'rb') as source_file:
+    with open(source, "rb") as source_file:
         with bz2.open(dest, "wb") as bz2_file:
             bz2_file.write(source_file.read())
     os.remove(source)

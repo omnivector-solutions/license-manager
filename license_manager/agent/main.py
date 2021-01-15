@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """license_manager.main"""
+from argparse import ArgumentParser
 import logging
+from pathlib import Path
 import sys
 
-from argparse import ArgumentParser
-from pathlib import Path
-
 import sentry_sdk
+
 from license_manager import VERSION
-from license_manager.agent.handlers import (
-    run_controller_prolog_or_epilog,
-)
+from license_manager.agent.handlers import run_controller_prolog_or_epilog
 from license_manager.config import Config
 from license_manager.logging import init_logging
+
 
 logger = logging.getLogger("license-manager-agent")
 logger.setLevel(logging.DEBUG)
@@ -20,9 +19,7 @@ logger.setLevel(logging.DEBUG)
 
 def _get_input_args(argv):
     """Create argument parser and return cli args."""
-    parser = ArgumentParser(
-        description="LICENSE_MANAGER_AGENT"
-    )
+    parser = ArgumentParser(description="LICENSE_MANAGER_AGENT")
 
     parser.add_argument(
         "-t",
@@ -30,8 +27,8 @@ def _get_input_args(argv):
         dest="script_type",
         required=True,
         type=str,
-        choices=['prolog', 'epilog'],
-        help="Script type; prolog or epilog."
+        choices=["prolog", "epilog"],
+        help="Script type; prolog or epilog.",
     )
 
     parser.add_argument(
@@ -40,7 +37,7 @@ def _get_input_args(argv):
         dest="config_file",
         required=True,
         type=Path,
-        help="Configuration file path."
+        help="Configuration file path.",
     )
 
     parser.add_argument(
@@ -49,13 +46,9 @@ def _get_input_args(argv):
         dest="log_file",
         required=False,
         type=Path,
-        help="Log file path."
+        help="Log file path.",
     )
-    parser.add_argument(
-        '--version',
-        action='version',
-        version=VERSION
-    )
+    parser.add_argument("--version", action="version", version=VERSION)
     return parser.parse_args(argv)
 
 
@@ -69,19 +62,17 @@ def main(argv=sys.argv[1:]):
     init_logging(args.log_file)
 
     # Conifigure sentry if we have the sentry_dsn
-    sentry_dsn = config.server_config.get('sentry_dsn')
+    sentry_dsn = config.server_config.get("sentry_dsn")
     if sentry_dsn:
         sentry_sdk.init(sentry_dsn, traces_sample_rate=1.0)
 
     license_manager_server_endpoint = config.server_config.get(
-        'license_manager_server_endpoint'
+        "license_manager_server_endpoint"
     )
 
     # Ensure the config file contains the things we need.
     if not license_manager_server_endpoint:
-        logger.error(
-            "Need 'license_manager_server_endpoint' in config."
-        )
+        logger.error("Need 'license_manager_server_endpoint' in config.")
         sys.exit(1)
 
     # Run controller [ prolog | epilog ].

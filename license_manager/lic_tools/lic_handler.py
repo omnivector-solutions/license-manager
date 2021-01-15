@@ -3,24 +3,28 @@
 from time import time
 
 from license_manager.logging import log
-from license_manager.slurm_tools import is_slurm_job_running
-from license_manager.slurm_tools import slurm_dbd_check_used_feature_tokens
-from license_manager.slurm_tools import slurm_dbd_update_feature_tokens
+from license_manager.slurm_tools import (
+    is_slurm_job_running,
+    slurm_dbd_check_used_feature_tokens,
+    slurm_dbd_update_feature_tokens,
+)
 
 
 class LicHandler:
     """Class for handling of updates, accounting of a License resource."""
 
-    def __init__(self,
-                 license_feature,
-                 check_feature_function,
-                 check_checked_out_licenses,
-                 license_server_address,
-                 license_server_port,
-                 slurm_dbd_license,
-                 thread_lock,
-                 booking_timeout=False,
-                 debug=False):
+    def __init__(
+        self,
+        license_feature,
+        check_feature_function,
+        check_checked_out_licenses,
+        license_server_address,
+        license_server_port,
+        slurm_dbd_license,
+        thread_lock,
+        booking_timeout=False,
+        debug=False,
+    ):
         """Set initial attribute values."""
         # Debug mode for output to stdout
         self.debug = debug
@@ -49,9 +53,7 @@ class LicHandler:
         for license_server in self.license_server_address:
             # Check license server status
             server_response = self.update_license(
-                license_server,
-                self.license_server_port,
-                self.license_feature
+                license_server, self.license_server_port, self.license_feature
             )
             if server_response:
                 break
@@ -74,9 +76,7 @@ class LicHandler:
             log.debug(f"License server: {license_server}")
             # Check license server status
             server_response = self.update_license(
-                license_server,
-                self.license_server_port,
-                self.license_feature
+                license_server, self.license_server_port, self.license_feature
             )
             log.debug(f"Response from {license_server}: {server_response}")
             if server_response:
@@ -94,7 +94,7 @@ class LicHandler:
                 self.booked_no_licenses = 0
                 for job_no, job_item in self.booked_licenses.items():
                     # Sum number of booked licenses
-                    self.booked_no_licenses += job_item['required_tokens']
+                    self.booked_no_licenses += job_item["required_tokens"]
 
                 if self.debug:
                     log.debug(
@@ -105,10 +105,9 @@ class LicHandler:
                         f"Booked: {self.booked_no_licenses}"
                     )
                 # Compute number of available licenses
-                self.tokens_available = \
-                    self.tokens_issued - \
-                    self.tokens_used - \
-                    self.booked_no_licenses
+                self.tokens_available = (
+                    self.tokens_issued - self.tokens_used - self.booked_no_licenses
+                )
 
         else:
             log.warning(
@@ -125,8 +124,7 @@ class LicHandler:
         # Update tokens available at SLURM_DBD
         if self.slurm_dbd_license:
             response = slurm_dbd_check_used_feature_tokens(
-                self.license_feature,
-                self.slurm_dbd_license
+                self.license_feature, self.slurm_dbd_license
             )
             if response:
                 slurm_total, slurm_used, slurm_free = response
@@ -138,15 +136,12 @@ class LicHandler:
                 new_slurm_total = self.tokens_issued - used_by_others
 
                 # Set number of tokens available at slurm_dbd
-                slurm_dbd_update_feature_tokens(
-                    self.license_feature,
-                    new_slurm_total
-                )
+                slurm_dbd_update_feature_tokens(self.license_feature, new_slurm_total)
                 log.info("License feature tokens updated.")
             else:
                 log.info("No response from slurmdbd.")
 
-    def __update_booked_licenses__(self): # NOQA
+    def __update_booked_licenses__(self):  # NOQA
         """Update the booked licenses."""
         # Loop over license servers until a response is received, not False
         for license_server in self.license_server_address:
@@ -156,7 +151,7 @@ class LicHandler:
                 license_server,
                 self.license_server_port,
                 self.license_feature,
-                debug=False
+                debug=False,
             )
             if server_response:
                 break
@@ -168,9 +163,9 @@ class LicHandler:
 
         for job_id, job_item in self.booked_licenses.items():
 
-            compute_host = job_item['compute_host_name']
-            user_name = job_item['user_name']
-            start_time = job_item['time']
+            compute_host = job_item["compute_host_name"]
+            user_name = job_item["user_name"]
+            start_time = job_item["time"]
 
             if self.debug:
                 if user_name in server_response:
@@ -186,8 +181,9 @@ class LicHandler:
                 # reservations
                 jobs_to_remove_from_bookings.append(job_id)
 
-            elif (user_name in server_response) and\
-                    (compute_host in server_response[user_name]):
+            elif (user_name in server_response) and (
+                compute_host in server_response[user_name]
+            ):
                 # If job has checked out licenses, remove from reservations
                 log.info(
                     "License have been checked out for booking. "
@@ -216,11 +212,7 @@ class LicHandler:
                     )
                 del self.booked_licenses[job_id]
 
-    def book_license(self,
-                     job_id,
-                     user_name,
-                     compute_host_name,
-                     required_tokens):
+    def book_license(self, job_id, user_name, compute_host_name, required_tokens):
         """Book a license."""
         # Ensure correct format
         required_tokens = int(required_tokens)
@@ -232,12 +224,10 @@ class LicHandler:
         with self.thread_lock:
             if required_tokens <= self.tokens_available:
                 self.booked_licenses[job_id] = {}
-                self.booked_licenses[job_id]['compute_host_name'] = \
-                    compute_host_name
-                self.booked_licenses[job_id]['time'] = time()
-                self.booked_licenses[job_id]['required_tokens'] = \
-                    required_tokens
-                self.booked_licenses[job_id]['user_name'] = user_name
+                self.booked_licenses[job_id]["compute_host_name"] = compute_host_name
+                self.booked_licenses[job_id]["time"] = time()
+                self.booked_licenses[job_id]["required_tokens"] = required_tokens
+                self.booked_licenses[job_id]["user_name"] = user_name
 
                 log.info(
                     f"Booked tokens for job id: {job_id}. "
@@ -261,10 +251,13 @@ class LicHandler:
         """Return the license."""
         try:
             if job_id in self.booked_licenses:
-                booked_licenses_hostname = \
-                    self.booked_licenses[job_id]['compute_host_name']
-                if booked_licenses_hostname == compute_host_name and \
-                        self.booked_licenses[job_id]['user_name'] == user_name:
+                booked_licenses_hostname = self.booked_licenses[job_id][
+                    "compute_host_name"
+                ]
+                if (
+                    booked_licenses_hostname == compute_host_name
+                    and self.booked_licenses[job_id]["user_name"] == user_name
+                ):
 
                     # Acquire thread lock and remove job_id
                     with self.thread_lock:

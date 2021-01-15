@@ -25,7 +25,7 @@ class SlurmCmd:
         """Determine if we are in a snap and set the path to the slurm cmds."""
         bin_dir = "/usr/bin"
 
-        if os.environ.get('SNAP'):
+        if os.environ.get("SNAP"):
             bin_dir = "/snap/bin"
 
         self.SCONTROL = f"{bin_dir}/scontrol"

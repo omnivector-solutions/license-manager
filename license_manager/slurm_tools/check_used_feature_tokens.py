@@ -9,17 +9,9 @@ from license_manager.logging import log
 
 def slurm_dbd_check_used_feature_tokens(feature, license_server):
     """Check uesd feature tokens in slurmdbd."""
-    cmd = [
-        slurm_cmd.SCONTROL,
-        "show",
-        f"lic={feature}@{license_server}"
-    ]
+    cmd = [slurm_cmd.SCONTROL, "show", f"lic={feature}@{license_server}"]
     log.debug(" ".join(cmd))
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_out, std_err = proc.communicate()
     log.debug(f"STD OUT: {std_out}")
     log.debug(f"STD ERR: {std_err}")
@@ -43,13 +35,13 @@ def slurm_dbd_check_used_feature_tokens(feature, license_server):
 
     # Parse response
     try:
-        total = re.search('Total=(\d{0,8})', std_out) # NOQA
+        total = re.search("Total=(\d{0,8})", std_out)  # NOQA
         total = total.group(1)
 
-        used = re.search('Used=(\d{0,8})', std_out) # NOQA
+        used = re.search("Used=(\d{0,8})", std_out)  # NOQA
         used = used.group(1)
 
-        free = re.search('Free=(\d{0,8})', std_out) # NOQA
+        free = re.search("Free=(\d{0,8})", std_out)  # NOQA
         free = free.group(1)
 
         return int(total), int(used), int(free)

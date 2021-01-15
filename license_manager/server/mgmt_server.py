@@ -5,15 +5,16 @@ import sys
 import threading
 import time
 
-# from systemd.daemon import notify
-
 from license_manager.lic_tools import LicHandler
 from license_manager.lic_tools.flexlm import (
-    check_feature as flexlm_check_feature,
     get_checked_out_licenses as flexlm_get_checked_out_licenses,
 )
+from license_manager.lic_tools.flexlm import check_feature as flexlm_check_feature
 from license_manager.logging import log
 from license_manager.server.handle_request import handle_request
+
+
+# from systemd.daemon import notify
 
 
 class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
@@ -35,8 +36,8 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
             # Handle received data
             response = handle_request(
                 received_data,
-                self.server.kwargs['license_book'],
-                self.server.thread_lock
+                self.server.kwargs["license_book"],
+                self.server.thread_lock,
             )
 
             # Print response
@@ -44,7 +45,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
                 log.info(f"Thread received response: {cur_thread}")
 
             # Response to client
-            response = bytes(str(response), 'ascii')
+            response = bytes(str(response), "ascii")
             self.request.sendall(response)
 
             # Print end message
@@ -52,7 +53,7 @@ class ThreadedTCPRequestHandler(socketserver.StreamRequestHandler):
                 log.info(f"Thread finished  request: {cur_thread}")
 
         except UnicodeDecodeError:
-            response = bytes("ERROR - unknown characters received", 'ascii')
+            response = bytes("ERROR - unknown characters received", "ascii")
             self.request.sendall(response)
 
         except Exception as e:
@@ -90,8 +91,7 @@ def update_slurm_dbd(update_interval, license_book):
                 license_book[feature].__update_available_licenses__()
     except KeyboardInterrupt:
         log.error(
-            "update_slurm_dbd - Interrupt from keyboard detected, "
-            "shutting down."
+            "update_slurm_dbd - Interrupt from keyboard detected, " "shutting down."
         )
     finally:
         log.error("Callback update_slurm_dbd thread is down")
@@ -100,25 +100,21 @@ def update_slurm_dbd(update_interval, license_book):
 def mgmt_server(host="localhost", port=666, **kwargs):
     """Mgmt server."""
     # Licenses
-    license_book = kwargs['license_book']
-    update_interval = kwargs['update_interval']
+    license_book = kwargs["license_book"]
+    update_interval = kwargs["update_interval"]
 
     # Lock to allow for thread save data writing
     thread_lock = threading.Lock()
 
     # Instantiate server
     server = ThreadedTCPServer(
-        (host, port),
-        ThreadedTCPRequestHandler,
-        thread_lock,
-        **kwargs
+        (host, port), ThreadedTCPRequestHandler, thread_lock, **kwargs
     )
 
     # Initiate callback to keep Licenses updated
 
     update_callback_thread = threading.Thread(
-        target=update_slurm_dbd,
-        args=[update_interval, license_book]
+        target=update_slurm_dbd, args=[update_interval, license_book]
     )
     update_callback_thread.keep_running = True
     update_callback_thread.start()
@@ -167,8 +163,8 @@ def initiate_license_tracking(server_config):
     thread_lock = threading.Lock()
 
     for license_feature in server_config:
-        license_server_type = server_config[license_feature]['server_type']
-        license_server_port = server_config[license_feature]['port']
+        license_server_type = server_config[license_feature]["server_type"]
+        license_server_port = server_config[license_feature]["port"]
         booking_timeout = server_config[license_feature]["delay"]
         license_server_address = server_config[license_feature]["servers"]
 
@@ -176,7 +172,7 @@ def initiate_license_tracking(server_config):
         if slurm_dbd_license == "":
             slurm_dbd_license = False
 
-        if license_server_type == 'flexlm':
+        if license_server_type == "flexlm":
             check_feature_function = flexlm_check_feature
             check_checked_out_license = flexlm_get_checked_out_licenses
         else:
@@ -194,6 +190,6 @@ def initiate_license_tracking(server_config):
             license_server_port,
             slurm_dbd_license,
             thread_lock,
-            booking_timeout=booking_timeout
+            booking_timeout=booking_timeout,
         )
     return license_feature_bookings

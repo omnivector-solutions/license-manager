@@ -11,20 +11,16 @@ def is_slurm_job_running(job_id, slurm_controller, debug=False):
     """Determine whether or not a job is running."""
     cmd = [
         slurm_cmd.SACCT,
-        '-j',
+        "-j",
         str(job_id),
-        '--parsable2',
-        '--noheader',
-        '-o',
-        'State',
-        '--allocations'
+        "--parsable2",
+        "--noheader",
+        "-o",
+        "State",
+        "--allocations",
     ]
 
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_out, std_err = proc.communicate()
 
     # Decode output
@@ -39,7 +35,7 @@ def is_slurm_job_running(job_id, slurm_controller, debug=False):
         )
         return False
 
-    m = re.search('.*RUNNING.*', std_out)
+    m = re.search(".*RUNNING.*", std_out)
     if m:
         if debug:
             log.debug(f"Status RUNNING - Job id: {job_id}")

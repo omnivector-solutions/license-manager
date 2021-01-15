@@ -15,16 +15,12 @@ def slurm_dbd_update_feature_tokens(feature, tokens):
         f"name={feature}",
         "set",
         f"count={tokens}",
-        "-i"
+        "-i",
     ]
 
     log.debug(" ".join(cmd))
 
-    proc = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_out, std_err = proc.communicate()
 
     # Decode output
