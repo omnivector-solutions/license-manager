@@ -1,6 +1,14 @@
 .idea/
 .tox/
-*.snap 
+*.snap
 */__pycache__/
 */*/__pycache__/
 */*/*/__pycache__/
+
+
+/.vscode
+/*.code-workspace
+
+/license_manager.egg-info
+/dist
+/build
