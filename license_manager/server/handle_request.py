@@ -5,7 +5,7 @@ import json
 from license_manager.logging import log
 
 
-def handle_request(data, license_book, thread_lock): # NOQA
+def handle_request(data, license_book, thread_lock):  # NOQA
     """Parse and handle incoming request."""
     try:
         # Convert data to json format
@@ -20,17 +20,14 @@ def handle_request(data, license_book, thread_lock): # NOQA
     # Handle requests
     for request in json_data:
         try:
-            license_feature = request['feature']
-            required_tokens = request['required_tokens']
-            job_id = request['job_id']
-            user_name = request['user_name']
-            compute_host_name = request['compute_host_name']
-            action = request['action']
+            license_feature = request["feature"]
+            required_tokens = request["required_tokens"]
+            job_id = request["job_id"]
+            user_name = request["user_name"]
+            compute_host_name = request["compute_host_name"]
+            action = request["action"]
         except KeyError as e:
-            log.error(
-                "The request is missing mandatory information: "
-                f"key: {e}"
-            )
+            log.error("The request is missing mandatory information: " f"key: {e}")
             status_of_requests.append(False)
             break
 
@@ -43,23 +40,16 @@ def handle_request(data, license_book, thread_lock): # NOQA
             break
 
         try:
-            if action == 'book_license':
+            if action == "book_license":
                 action_is_booking = True
-                current_feature_status = \
-                    license_book[license_feature].book_license(
-                        job_id,
-                        user_name,
-                        compute_host_name,
-                        required_tokens
-                    )
+                current_feature_status = license_book[license_feature].book_license(
+                    job_id, user_name, compute_host_name, required_tokens
+                )
             elif action == "return_license":
                 action_is_booking = False
-                current_feature_status = \
-                    license_book[license_feature].return_license(
-                        job_id,
-                        user_name,
-                        compute_host_name
-                    )
+                current_feature_status = license_book[license_feature].return_license(
+                    job_id, user_name, compute_host_name
+                )
             else:
                 action_is_booking = False
                 log.debug("Unknown action was requested {action}")
@@ -81,33 +71,30 @@ def handle_request(data, license_book, thread_lock): # NOQA
         for current_feature_status, request in feature_status_zip:
             # If license was booked, return license
             if current_feature_status:
-                license_feature = request['feature']
-                job_id = request['job_id']
-                user_name = request['user_name']
-                compute_host_name = request['compute_host_name']
+                license_feature = request["feature"]
+                job_id = request["job_id"]
+                user_name = request["user_name"]
+                compute_host_name = request["compute_host_name"]
                 log.info(f"Returning license - {license_feature}")
-                current_feature_status = \
-                    license_book[license_feature].return_license(
-                        job_id,
-                        user_name,
-                        compute_host_name
-                    )
+                current_feature_status = license_book[license_feature].return_license(
+                    job_id, user_name, compute_host_name
+                )
     else:
         booking_response = True
 
     try:
         with thread_lock:
             if booking_response:
-                if action == 'book_license':
+                if action == "book_license":
                     log.info("Booking successful")
-                elif action == 'return_license':
+                elif action == "return_license":
                     log.info("Booking return successful")
                 else:
                     log.warning("Unexpected state")
             else:
-                if action == 'book_license':
+                if action == "book_license":
                     log.debug("Booking failed - Insufficient resources")
-                elif action == 'return_license':
+                elif action == "return_license":
                     log.debug("No matching booking was found, expired?")
                 else:
                     log.warning("Unexpected state")
