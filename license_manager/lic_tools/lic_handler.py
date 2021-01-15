@@ -254,9 +254,8 @@ class LicHandler:
                 booked_licenses_hostname = self.booked_licenses[job_id][
                     "compute_host_name"
                 ]
-                if (
-                    booked_licenses_hostname == compute_host_name
-                    and self.booked_licenses[job_id]["user_name"] == user_name
+                if (booked_licenses_hostname == compute_host_name) and (
+                    self.booked_licenses[job_id]["user_name"] == user_name
                 ):
 
                     # Acquire thread lock and remove job_id
