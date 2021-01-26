@@ -1,10 +1,7 @@
 .idea/
 .tox/
 *.snap
-*/__pycache__/
-*/*/__pycache__/
-*/*/*/__pycache__/
-
+*.pyc
 
 /.vscode
 /*.code-workspace
@@ -14,3 +11,8 @@
 /build
 
 function.zip
+
+*.egg-info
+
+/.coverage
+/sqlite.db
