@@ -48,16 +48,16 @@ parts:
   hooks:
     plugin: dump
     source-type: local
-    source: src/hooks/
+    source: bin/legacy_hooks/
     organize:
       bin/: snap/hooks/
 
   bins:
     plugin: dump
     source-type: local
-    source: src/bins/
+    source: bin/legacy/
 
   example-config:
     plugin: dump
     source-type: local
-    source: src/example_config/
+    source: doc/legacy/example_config/
