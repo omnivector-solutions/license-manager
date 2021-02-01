@@ -18,4 +18,4 @@ jobs:
           pip install tox
       - name: "tox tests"
         run: |
-          tox -e lint mypy
+          tox -e lint,mypy
