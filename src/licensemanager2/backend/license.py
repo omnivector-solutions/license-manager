@@ -1,7 +1,8 @@
 """
 License objects and routes
 """
-from typing import List, Optional
+import asyncio
+from typing import Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field, validator
@@ -24,18 +25,19 @@ class LicenseUseBase(BaseModel):
 
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
-    total: int
 
     class Config:
         orm_mode = True
 
 
-class LicenseUseIn(LicenseUseBase):
+class LicenseUseReconcile(LicenseUseBase):
     """
-    Booked/Total counts for a product.feature license category
+    A reconcile [PATCH] Booked/Total counts for a product.feature license category
 
-    For creating a new item.
+    For creating items through the reconcile mechanism
     """
+
+    total: int
 
 
 class LicenseUse(LicenseUseBase):
@@ -44,6 +46,8 @@ class LicenseUse(LicenseUseBase):
 
     Returned by GET queries, including `available` for convenience
     """
+
+    total: int
 
     available: Optional[int]
 
@@ -55,12 +59,18 @@ class LicenseUse(LicenseUseBase):
         return values["total"] - values["booked"]
 
 
+class LicenseUseBooking(LicenseUseBase):
+    """
+    A booking [PUT] object, specifying how many tokens are needed and no total
+    """
+
+
 @router_license.get("/all", response_model=List[LicenseUse])
 async def licenses_all():
     """
     All license counts we are tracking
     """
-    query = license_table.select()
+    query = license_table.select().order_by(license_table.c.product_feature)
     return await database.fetch_all(query)
 
 
@@ -69,8 +79,10 @@ async def licenses_product(product: str):
     """
     Booked counts of all licenses, 1 product
     """
-    query = license_table.select().where(
-        license_table.c.product_feature.like(f"{product}.%")
+    query = (
+        license_table.select()
+        .where(license_table.c.product_feature.like(f"{product}.%"))
+        .order_by(license_table.c.product_feature)
     )
     return await database.fetch_all(query)
 
@@ -88,40 +100,73 @@ async def licenses_product_feature(
     return await database.fetch_all(query)
 
 
-@router_license.patch("/reconcile", response_model=List[LicenseUse])
-async def reconcile(reconcile: List[LicenseUseIn]):
+async def _find_license_updates_and_inserts(
+    licenses: List[LicenseUseBase],
+) -> Tuple[Dict[str, LicenseUseBase], Dict[str, LicenseUseBase]]:
     """
-    Set counts for models
+    Return a dict of updates and a dict of inserts according to whether
+    one of the LicenseUses is in the database, or being created
     """
-    reconcile_dict = {i.product_feature: i.dict() for i in reconcile}
+    license_dict = {i.product_feature: i.dict() for i in licenses}
 
     q_updating = (
         select([license_table.c.product_feature])
         .column(license_table.c.product_feature)
-        .where(license_table.c.product_feature.in_(list(reconcile_dict.keys())))
+        .where(license_table.c.product_feature.in_(list(license_dict.keys())))
     )
     updating = [r[0] for r in await database.fetch_all(q_updating)]
-    updates = [reconcile_dict[i] for i in updating]
-    for k in updating:
+    not_updating = list(set(license_dict.keys()) - set(updating))
+
+    updates = {pf: license_dict[pf] for pf in updating}
+    inserts = {pf: license_dict[pf] for pf in not_updating}
+
+    return updates, inserts
+
+
+@database.transaction()
+@router_license.patch("/reconcile", response_model=List[LicenseUse])
+async def reconcile(reconcile: List[LicenseUseReconcile]):
+    """
+    Set counts for models
+    """
+    updates, inserts = await _find_license_updates_and_inserts(reconcile)
+
+    ops = []
+    # update existing licenses
+    for pf, license_use in updates.items():
         q_update = (
             update(license_table)
-            .where(license_table.c.product_feature == k)
-            .values(**reconcile_dict[k])
+            .where(license_table.c.product_feature == pf)
+            .values(**license_use)
         )
-        # FIXME this sucks, we're blocking once for each update, make asyncer
-        await database.execute(q_update)
+        ops.append(database.execute(q_update))
 
-    inserts = [item for item in reconcile_dict.values() if item not in updates]
-    await database.execute_many(query=license_table.insert(), values=inserts)
+    # insert new licenses
+    ops.append(
+        database.execute_many(query=license_table.insert(), values=inserts.values())
+    )
 
+    # wait for all updates and inserts at once
+    await asyncio.gather(*ops)
+
+    # query them back out to return them to the client
+    requested_keys = [lu.product_feature for lu in reconcile]
     fetched = select([license_table]).where(
-        license_table.c.product_feature.in_(list(reconcile_dict.keys()))
+        license_table.c.product_feature.in_(requested_keys)
     )
     ret = await database.fetch_all(fetched)
 
     return ret
 
 
-#   /booking PUT
-#   /booking DELETE
+@router_license.put("/booking", response_model=List[LicenseUse])
+async def create_booking(booking: List[LicenseUseBooking]):
+    return []
+
+
+@router_license.put("/booking", response_model=List[LicenseUse])
+async def delete_booking(booking: List[LicenseUseBooking]):
+    return []
+
+
 #   /reconcile PUT
