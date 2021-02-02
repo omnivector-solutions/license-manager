@@ -4,7 +4,7 @@ License-manager backend, command line entrypoint
 Run with e.g. `uvicorn licensemanager2.backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
-import os
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,19 +12,14 @@ from mangum import Mangum
 
 from licensemanager2.backend import storage
 from licensemanager2.backend.api import router_api_v1
+from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.common_response import OK
 
 
-ASGI_ROOT_PATH = os.getenv("ASGI_ROOT_PATH", "")
-ALLOW_ORIGINS_REGEX = os.getenv(
-    "ALLOW_ORIGINS_REGEX", r"https://.*\.omnivector\.solutions"
-)
-
-
-app = FastAPI(root_path=ASGI_ROOT_PATH)
+app = FastAPI(root_path=SETTINGS.ASGI_ROOT_PATH)
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=ALLOW_ORIGINS_REGEX,
+    allow_origin_regex=SETTINGS.ALLOW_ORIGINS_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,6 +43,29 @@ async def health():
     Healthcheck, for health monitors in the deployed environment
     """
     return OK()
+
+
+@app.on_event("startup")
+def configure_app():
+    """
+    Load app settings
+    """
+
+
+@app.on_event("startup")
+def begin_logging():
+    """
+    Configure logging
+    """
+    if SETTINGS.LOG_LEVEL_SQL:
+        level_sql = getattr(logging, SETTINGS.LOG_LEVEL_SQL)
+        engine_logger = logging.getLogger("sqlalchemy.engine")
+        engine_logger.setLevel(level_sql)
+        databases_logger = logging.getLogger("databases")
+        databases_logger.setLevel(level_sql)
+
+    level = getattr(logging, SETTINGS.LOG_LEVEL)
+    logging.getLogger().setLevel(level)
 
 
 @app.on_event("startup")

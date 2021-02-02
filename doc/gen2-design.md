@@ -161,11 +161,22 @@ the enterprise.
 - charm deployment
 - python 3.6+ fastapi-based async service
 
+
+### key components
+
+- no db; agent is stateless
+- no auth; agent lives inside a protected cluster
+- charm for durable config?
+- charm for provisioning it in the cluster
+- getsentry/craft for releases (unless this is strictly coupled to backend releases)
+
+
 ### Public API
 
 - supports all the GET methods (not the PUT/PATCH/DELETE methods), as these
   can simply be proxied and this would make it possible to build tools for use
   inside the cluster that display realtime counts
+
 
 ### Role
 

@@ -2,7 +2,7 @@
 License objects and routes
 """
 import asyncio
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field, validator
@@ -101,8 +101,8 @@ async def licenses_product_feature(
 
 
 async def _find_license_updates_and_inserts(
-    licenses: List[LicenseUseBase],
-) -> Tuple[Dict[str, LicenseUseBase], Dict[str, LicenseUseBase]]:
+    licenses: Sequence[LicenseUseBase],
+) -> Tuple[Dict, Dict]:
     """
     Return a dict of updates and a dict of inserts according to whether
     one of the LicenseUses is in the database, or being created
@@ -143,7 +143,9 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
 
     # insert new licenses
     ops.append(
-        database.execute_many(query=license_table.insert(), values=inserts.values())
+        database.execute_many(
+            query=license_table.insert(), values=list(inserts.values())
+        )
     )
 
     # wait for all updates and inserts at once
