@@ -144,7 +144,7 @@ the enterprise.
               - does not need to be a complete reconciliation of all
                 features, only those listed will be updated.
             - /reconcile (PUT)  // optional, OQ
-              - `{"reconcile": "reset-all"}` will zero all counters.
+              - a PUT to this endpoint with header `X-Reconcile-Reset: true` will reset all counters
 
 - /healthcheck (GET)
   - service status

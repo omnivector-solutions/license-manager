@@ -2,14 +2,16 @@
 License objects and routes
 """
 import asyncio
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.sql import select, update
 
+from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.backend.storage import database
 from licensemanager2.backend.storage.schema import license_table
+from licensemanager2.common_response import OK
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -159,6 +161,26 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
     ret = await database.fetch_all(fetched)
 
     return ret
+
+
+async def debug():
+    """
+    Enforce debug mode
+
+    FIXME - move this somewhere like common_dependencies
+    """
+    if not SETTINGS.DEBUG:
+        raise HTTPException(status_code=403)
+
+
+@database.transaction()
+@router_license.put("/reconcile", response_model=OK)
+async def reconcile_reset(debug: ... = Depends(debug), x_reconcile_reset: Any = Header(...)):
+    """
+    Reset all license data (only permitted in DEBUG mode)
+    """
+    await database.execute(license_table.delete())
+    return OK()
 
 
 @router_license.put("/booking", response_model=List[LicenseUse])

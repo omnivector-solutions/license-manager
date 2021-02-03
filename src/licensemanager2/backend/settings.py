@@ -5,7 +5,7 @@ from enum import Enum
 import re
 from typing import Optional
 
-from pydantic import BaseSettings, validator
+from pydantic import BaseSettings, Field
 
 
 class LogLevelEnum(str, Enum):
@@ -20,7 +20,7 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-_DB_RX = re.compile(r"^(sqlite|postgresql)://.+$")
+_DB_RX = r"^(sqlite|postgresql)://.+$"
 
 
 class _Settings(BaseSettings):
@@ -30,27 +30,26 @@ class _Settings(BaseSettings):
     If you are setting these in the environment, you must prefix "LM2_", e.g.
     LM2_ASGI_ROOT_PATH=/staging
     """
+    # debug mode turns on certain dangerous operations
+    DEBUG: bool = False
 
+    # vv should be specified as something like /staging
+    # to match where the API is deployed in API Gateway
     ASGI_ROOT_PATH: str = ""
-    ALLOW_ORIGINS_REGEX: str = r"https://.*\.omnivector\.solutions"
-    DATABASE_URL: str = "sqlite:///./sqlite.db"
 
+    # CORS origins filter
+    ALLOW_ORIGINS_REGEX: str = r"https://.*\.omnivector\.solutions"
+
+    # database to connect
+    DATABASE_URL: str = Field("sqlite:///./sqlite.db", regex=_DB_RX)
+
+    # log level (everything except sql tracing)
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
+    # log level (sql tracing)
     LOG_LEVEL_SQL: Optional[LogLevelEnum]
 
     class Config:
         env_prefix = "LM2_"
-
-    @validator("DATABASE_URL")
-    def database_url_pattern(cls, v):
-        """
-        DATABASE connection strings must match a specific pattern
-        """
-        if not _DB_RX.match(v):
-            raise ValueError(
-                f"LM2_DATABASE_URL must be sqlite:// or postgresql:// (was {v!r})"
-            )
-        return v
 
 
 SETTINGS = _Settings()
