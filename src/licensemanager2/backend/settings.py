@@ -2,7 +2,6 @@
 Configuration of the application
 """
 from enum import Enum
-import re
 from typing import Optional
 
 from pydantic import BaseSettings, Field
@@ -30,6 +29,7 @@ class _Settings(BaseSettings):
     If you are setting these in the environment, you must prefix "LM2_", e.g.
     LM2_ASGI_ROOT_PATH=/staging
     """
+
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 

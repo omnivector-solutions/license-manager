@@ -1,5 +1,6 @@
 """
 Definitions required for compatibility with other Python versions
+or database drivers
 """
 
 try:
@@ -8,4 +9,23 @@ except ImportError:  # pragma: nocover
     from typing_extensions import TypedDict
 
 
-__all__ = ["TypedDict"]
+_integrity_exceptions = []
+try:
+    from asyncpg.exceptions import IntegrityConstraintViolationError
+
+    _integrity_exceptions.append(IntegrityConstraintViolationError)
+except ImportError:
+    "asyncpg not installed"
+
+try:
+    from aiosqlite import IntegrityError
+
+    _integrity_exceptions.append(IntegrityError)
+except ImportError:
+    "aiosqlite not installed"
+
+
+INTEGRITY_CHECK_EXCEPTIONS = tuple(_integrity_exceptions)
+
+
+__all__ = ["TypedDict", "INTEGRITY_CHECK_EXCEPTIONS"]

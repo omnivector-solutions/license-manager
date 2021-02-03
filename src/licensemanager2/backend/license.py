@@ -2,7 +2,7 @@
 License objects and routes
 """
 import asyncio
-from typing import Dict, List, Optional, Sequence, Tuple, Any
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field, validator
@@ -12,6 +12,7 @@ from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.backend.storage import database
 from licensemanager2.backend.storage.schema import license_table
 from licensemanager2.common_response import OK
+from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -109,7 +110,7 @@ async def _find_license_updates_and_inserts(
     Return a dict of updates and a dict of inserts according to whether
     one of the LicenseUses is in the database, or being created
     """
-    license_dict = {i.product_feature: i.dict() for i in licenses}
+    license_dict = {i.product_feature: i for i in licenses}
 
     q_updating = (
         select([license_table.c.product_feature])
@@ -123,6 +124,16 @@ async def _find_license_updates_and_inserts(
     inserts = {pf: license_dict[pf] for pf in not_updating}
 
     return updates, inserts
+
+
+async def _get_these_licenses(product_features: Sequence[str]) -> List[Mapping]:
+    """
+    Fetch the specific list of licenses matching the argument
+    """
+    fetched = select([license_table]).where(
+        license_table.c.product_feature.in_(product_features)
+    )
+    return await database.fetch_all(fetched)
 
 
 @database.transaction()
@@ -139,14 +150,14 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
         q_update = (
             update(license_table)
             .where(license_table.c.product_feature == pf)
-            .values(**license_use)
+            .values(**license_use.dict())
         )
         ops.append(database.execute(q_update))
 
     # insert new licenses
     ops.append(
         database.execute_many(
-            query=license_table.insert(), values=list(inserts.values())
+            query=license_table.insert(), values=[i.dict() for i in inserts.values()]
         )
     )
 
@@ -155,12 +166,7 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
 
     # query them back out to return them to the client
     requested_keys = [lu.product_feature for lu in reconcile]
-    fetched = select([license_table]).where(
-        license_table.c.product_feature.in_(requested_keys)
-    )
-    ret = await database.fetch_all(fetched)
-
-    return ret
+    return await _get_these_licenses(requested_keys)
 
 
 async def debug():
@@ -175,22 +181,84 @@ async def debug():
 
 @database.transaction()
 @router_license.put("/reconcile", response_model=OK)
-async def reconcile_reset(debug: ... = Depends(debug), x_reconcile_reset: Any = Header(...)):
+async def reconcile_reset(
+    debug: Any = Depends(debug), x_reconcile_reset: Any = Header(...)
+):
     """
     Reset all license data (only permitted in DEBUG mode)
+
+    Set the header `X-Reconcile-Reset:` to anything you want.
     """
     await database.execute(license_table.delete())
     return OK()
 
 
+async def map_bookings(
+    booking: List[LicenseUseBooking],
+) -> Dict[str, LicenseUseBooking]:
+    """
+    For bookings, map the object to a dict with the pk as the dictionary key
+
+    This also validates that all the bookings are for licenses that exist.
+    """
+    updates, inserts = await _find_license_updates_and_inserts(booking)
+    if inserts:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Some requested licenses don't exist yet. "
+                "Use /reconcile first to set the totals, or remove them from the request."
+            ),
+        )
+    return updates
+
+
+@database.transaction()
 @router_license.put("/booking", response_model=List[LicenseUse])
-async def create_booking(booking: List[LicenseUseBooking]):
-    return []
+async def create_booking(booking=Depends(map_bookings)):
+    ops = []
+    for pf, license_use in booking.items():
+        q_update = (
+            update(license_table)
+            .where(license_table.c.product_feature == pf)
+            .values(booked=license_table.c.booked + license_use.booked)
+        )
+        ops.append(database.execute(q_update))
+
+    # wait for all updates at once
+    try:
+        await asyncio.gather(*ops)
+    except INTEGRITY_CHECK_EXCEPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Couldn't add one of these bookings, check that the new booked count will be <= total"
+            ),
+        )
+    return await _get_these_licenses(list(booking.keys()))
 
 
-@router_license.put("/booking", response_model=List[LicenseUse])
-async def delete_booking(booking: List[LicenseUseBooking]):
-    return []
+@database.transaction()
+@router_license.delete("/booking", response_model=List[LicenseUse])
+async def delete_booking(booking=Depends(map_bookings)):
+    ops = []
+    for pf, license_use in booking.items():
+        q_update = (
+            update(license_table)
+            .where(license_table.c.product_feature == pf)
+            .values(booked=license_table.c.booked - license_use.booked)
+        )
+        ops.append(database.execute(q_update))
 
+    # wait for all updates at once
+    try:
+        await asyncio.gather(*ops)
+    except INTEGRITY_CHECK_EXCEPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Couldn't subtract one of these bookings, check that the new booked count will be >= 0"
+            ),
+        )
 
-#   /reconcile PUT
+    return await _get_these_licenses(list(booking.keys()))
