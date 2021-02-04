@@ -46,13 +46,6 @@ async def health():
 
 
 @app.on_event("startup")
-def configure_app():
-    """
-    Load app settings
-    """
-
-
-@app.on_event("startup")
 def begin_logging():
     """
     Configure logging

@@ -4,8 +4,8 @@ Persistent data storage for the backend
 import databases
 import sqlalchemy
 
+from licensemanager2.backend.schema import metadata
 from licensemanager2.backend.settings import SETTINGS
-from licensemanager2.backend.storage.schema import metadata
 
 
 database = databases.Database(SETTINGS.DATABASE_URL)

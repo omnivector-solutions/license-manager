@@ -8,9 +8,9 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.sql import select, update
 
+from licensemanager2.backend.schema import license_table
 from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.backend.storage import database
-from licensemanager2.backend.storage.schema import license_table
 from licensemanager2.common_response import OK
 from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
 

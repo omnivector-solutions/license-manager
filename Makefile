@@ -1,10 +1,6 @@
 SHELL				:= /bin/bash
 
 
-lint: ## Run linter
-	tox -e lint
-
-
 requirements.txt: setup.py
 	python3 -m venv _virtual_tmp
 	. _virtual_tmp/bin/activate \
@@ -15,8 +11,8 @@ requirements.txt: setup.py
 
 
 format: # reformat source python files
-	isort src/licensemanager2 setup.py
-	black src/licensemanager2 setup.py
+	isort src/licensemanager2 setup.py conftest.py
+	black src/licensemanager2 setup.py conftest.py
 
 
 #FUNCTION_NAME       = serverless-fastapi

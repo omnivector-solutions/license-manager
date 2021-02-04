@@ -29,7 +29,9 @@ setuptools.setup(
             "isort",
             "mypy",
             "pytest",
+            "pytest-asyncio",
             "pytest-cov",
+            "requests",  # soft-required by starlette.testing
             "sqlalchemy-stubs",
             "tox",
             "uvicorn",
