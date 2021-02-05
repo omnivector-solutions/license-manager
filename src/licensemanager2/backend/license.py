@@ -2,9 +2,9 @@
 License objects and routes
 """
 import asyncio
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.sql import select, update
 
@@ -90,15 +90,13 @@ async def licenses_product(product: str):
     return await database.fetch_all(query)
 
 
-@router_license.get("/{product_feature}", response_model=List[LicenseUse])
-async def licenses_product_feature(
-    product_feature: str = Query(..., regex=PRODUCT_FEATURE_RX)
-):
+@router_license.get("/{product}/{feature}", response_model=List[LicenseUse])
+async def licenses_product_feature(product: str, feature: str):
     """
     Booked counts of a product.feature category
     """
     query = license_table.select().where(
-        license_table.c.product_feature == product_feature
+        license_table.c.product_feature == f"{product}.{feature}"
     )
     return await database.fetch_all(query)
 
@@ -126,14 +124,17 @@ async def _find_license_updates_and_inserts(
     return updates, inserts
 
 
-async def _get_these_licenses(product_features: Sequence[str]) -> List[Mapping]:
+async def _get_these_licenses(product_features: Sequence[str]) -> List[LicenseUse]:
     """
     Fetch the specific list of licenses matching the argument
     """
-    fetched = select([license_table]).where(
-        license_table.c.product_feature.in_(product_features)
+    fetch_query = (
+        select([license_table])
+        .where(license_table.c.product_feature.in_(product_features))
+        .order_by(license_table.c.product_feature)
     )
-    return await database.fetch_all(fetched)
+    fetched = await database.fetch_all(fetch_query)
+    return [LicenseUse.parse_obj(f) for f in fetched]
 
 
 @database.transaction()
@@ -169,7 +170,7 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
     return await _get_these_licenses(requested_keys)
 
 
-async def debug():
+def debug():
     """
     Enforce debug mode
 

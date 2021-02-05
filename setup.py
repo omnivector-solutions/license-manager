@@ -26,12 +26,12 @@ setuptools.setup(
             "black",
             "databases[sqlite]",
             "flake8",
+            "httpx",  # soft-required by starlette.testing
             "isort",
             "mypy",
             "pytest",
             "pytest-asyncio",
             "pytest-cov",
-            "requests",  # soft-required by starlette.testing
             "sqlalchemy-stubs",
             "tox",
             "uvicorn",

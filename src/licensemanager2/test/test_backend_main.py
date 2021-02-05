@@ -9,20 +9,22 @@ from pytest import mark
 from licensemanager2.backend import main
 
 
-def test_health(backend_client, ok_response):
+@mark.asyncio
+async def test_health(backend_client, ok_response):
     """
     Does a healthcheck endpoint exist?
     """
-    resp = backend_client.get("/health")
+    resp = await backend_client.get("/health")
     assert resp.status_code == 200
     assert resp.json() == ok_response.dict()
 
 
-def test_root(backend_client, ok_response):
+@mark.asyncio
+async def test_root(backend_client, ok_response):
     """
     Does a root endpoint exist?
     """
-    resp = backend_client.get("/")
+    resp = await backend_client.get("/")
     assert resp.status_code == 200
     # i'd love to know why resp.json() returns a dict instead of a string, but w/e
     assert resp.json() == ok_response.dict()
