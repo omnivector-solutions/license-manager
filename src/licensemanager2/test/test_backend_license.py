@@ -45,7 +45,7 @@ async def insert_licenses(inserts):
         query=license_table.insert(), values=[lu.dict() for lu in inserts]
     )
     objects = await database.fetch_all(license_table.select())
-    assert len(objects) == 3, "More than 2 licenses, maybe data was left in the db"
+    assert len(objects) == 3, "More than 3 licenses, maybe data was left in the db"
     return [license.LicenseUse.parse_obj(o) for o in objects]
 
 
