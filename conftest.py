@@ -26,6 +26,18 @@ async def backend_client() -> AsyncClient:
         yield ac
 
 
+@fixture
+async def agent_client() -> AsyncClient:
+    """
+    A client that can issue fake requests against endpoints in the agent
+    """
+    # defer import of main to prevent accidentally importing storage too early
+    from licensemanager2.agent import main
+
+    async with AsyncClient(app=main.app, base_url="http://test") as ac:
+        yield ac
+
+
 @fixture(scope="session", autouse=True)
 def log_sql():
     """
