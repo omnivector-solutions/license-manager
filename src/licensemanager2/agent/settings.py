@@ -27,6 +27,9 @@ class _Settings(BaseSettings):
     LM2_AGENT_LOG_LEVEL=DEBUG
     """
 
+    # base url of an endpoint serving the licensemanager2 backend
+    BACKEND_BASE_URL = "http://127.1:8000"
+
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
