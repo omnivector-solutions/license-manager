@@ -68,7 +68,7 @@ class LicenseUseBooking(LicenseUseBase):
     """
 
 
-@router_license.get("/all", response_model=List[LicenseUse])
+@router_license.get("/use/all", response_model=List[LicenseUse])
 async def licenses_all():
     """
     All license counts we are tracking
@@ -77,7 +77,7 @@ async def licenses_all():
     return await database.fetch_all(query)
 
 
-@router_license.get("/{product}", response_model=List[LicenseUse])
+@router_license.get("/use/{product}", response_model=List[LicenseUse])
 async def licenses_product(product: str):
     """
     Booked counts of all licenses, 1 product
@@ -90,7 +90,7 @@ async def licenses_product(product: str):
     return await database.fetch_all(query)
 
 
-@router_license.get("/{product}/{feature}", response_model=List[LicenseUse])
+@router_license.get("/use/{product}/{feature}", response_model=List[LicenseUse])
 async def licenses_product_feature(product: str, feature: str):
     """
     Booked counts of a product.feature category

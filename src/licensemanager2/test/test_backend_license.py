@@ -114,7 +114,7 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses):
     Do I fetch and order the licenses in the db?
     """
     await insert_licenses(some_licenses)
-    resp = await backend_client.get("/api/v1/license/hello")
+    resp = await backend_client.get("/api/v1/license/use/hello")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
@@ -134,7 +134,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
     Do I fetch and order the licenses in the db?
     """
     await insert_licenses(some_licenses)
-    resp = await backend_client.get("/api/v1/license/cool/beans")
+    resp = await backend_client.get("/api/v1/license/use/cool/beans")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
@@ -153,7 +153,7 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses):
     Do I fetch and order the licenses in the db?
     """
     await insert_licenses(some_licenses)
-    resp = await backend_client.get("/api/v1/license/all")
+    resp = await backend_client.get("/api/v1/license/use/all")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(product_feature="cool.beans", total=11, booked=11, available=0),
