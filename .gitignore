@@ -1,10 +1,7 @@
 .idea/
 .tox/
 *.snap
-*/__pycache__/
-*/*/__pycache__/
-*/*/*/__pycache__/
-
+*.pyc
 
 /.vscode
 /*.code-workspace
@@ -12,3 +9,11 @@
 /license_manager.egg-info
 /dist
 /build
+
+function.zip
+
+*.egg-info
+
+/.coverage
+/sqlite.db
+/scratch
