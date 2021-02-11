@@ -217,6 +217,14 @@ async def map_bookings(
 @database.transaction()
 @router_license.put("/booking", response_model=List[LicenseUse])
 async def create_booking(booking=Depends(map_bookings)):
+    """
+    Put a LicenseUse booking object in the database, reserving some tokens
+
+    If an existing product_feature exists for this, update it by incrementing `booked',
+    otherwise create it.
+
+    An error occurs if the new total for `booked` exceeds `total`
+    """
     ops = []
     for pf, license_use in booking.items():
         q_update = (
@@ -242,6 +250,14 @@ async def create_booking(booking=Depends(map_bookings)):
 @database.transaction()
 @router_license.delete("/booking", response_model=List[LicenseUse])
 async def delete_booking(booking=Depends(map_bookings)):
+    """
+    Deduct tokens from a LicenseUse booking in the database
+
+    It is an error to use this method with a product_feature that isn't yet in the database.
+    Use reconcile or booking[PUT] to create the target first.
+
+    An error occurs if the new total for `booked` is < 0
+    """
     ops = []
     for pf, license_use in booking.items():
         q_update = (
