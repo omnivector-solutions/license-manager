@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
 from licensemanager2.backend import storage
-from licensemanager2.backend.api import router_api_v1
+from licensemanager2.backend.api import api_v1
 from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.common_response import OK
 
@@ -78,7 +78,7 @@ async def disconnect_database():
     await storage.database.disconnect()
 
 
-app.include_router(router_api_v1, prefix="/api/v1")
+app.include_router(api_v1, prefix="/api/v1")
 
 # ASGI adapter used for environments like API gateway
 handler = Mangum(app)

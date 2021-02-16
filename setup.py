@@ -32,6 +32,7 @@ setuptools.setup(
             "pytest",
             "pytest-asyncio",
             "pytest-cov",
+            "respx",
             "sqlalchemy-stubs",
             "tox",
             "uvicorn",

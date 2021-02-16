@@ -14,14 +14,14 @@ try:
     from asyncpg.exceptions import IntegrityConstraintViolationError
 
     _integrity_exceptions.append(IntegrityConstraintViolationError)
-except ImportError:
+except ImportError:  # pragma: nocover
     "asyncpg not installed"
 
 try:
     from aiosqlite import IntegrityError
 
     _integrity_exceptions.append(IntegrityError)
-except ImportError:
+except ImportError:  # pragma: nocover
     "aiosqlite not installed"
 
 

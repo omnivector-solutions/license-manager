@@ -5,3 +5,4 @@ include license_manager/lic_tools/flexlm/lmstat.exe
 # Required files
 include README.md
 include setup.py
+include src/licensemanager2/test/*.py
