@@ -17,3 +17,4 @@ function.zip
 /.coverage
 /sqlite.db
 /scratch
+/.env

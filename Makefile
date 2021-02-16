@@ -15,29 +15,32 @@ format: # reformat source python files
 	black src/licensemanager2 setup.py conftest.py
 
 
-#FUNCTION_NAME       = serverless-fastapi
-#
-#ifndef VIRTUAL_ENV
-#$(error VIRTUAL_ENV must be defined)
-#endif
-#
-#function.zip:
-#	rm -f $@
-#	python3 -m venv _virtual_tmp
-#	. _virtual_tmp/bin/activate \
-#		&& pip install uvicorn mangum fastapi
-#	cd _virtual_tmp/lib/python*/site-packages && zip ../../../../function.zip -r . -x '*.pyc'
-#	zip -g ./function.zip -r app -x '*.pyc'
-#	rm -rf _virtual_tmp
-#
-#update-function: function.zip
-#	aws --region $(FUNCTION_REGION) \
-#		lambda update-function-code \
-#		--function-name $(FUNCTION_NAME) \
-#		--zip-file fileb://$^
-#	aws --region $(FUNCTION_REGION) \
-#		lambda update-function-configuration \
-#		--function-name $(FUNCTION_NAME) \
-#		--environment "Variables={ASGI_ROOT_PATH=/asdf}"
-#
-#
+function.zip:
+	rm -f $@
+	pip install --target _lambda_tmp .
+	cd _lambda_tmp && zip ../function.zip -r . -x '*.pyc'
+	rm -rf _lambda_tmp
+
+
+terraform-apply: function.zip
+	export TF_VAR_zipfile="$(shell realpath $^)"; \
+	cd $(TERRAFORM_LIVE_PATH); \
+	terraform taint module.license-manager-lambda.aws_lambda_function.license-manager; \
+	terraform plan; \
+	terraform apply -auto-approve -lock=true
+
+
+terraform-show:
+	cd $(TERRAFORM_LIVE_PATH); terraform show
+
+
+terraform-destroy-for-reference-only:
+	export TF_VAR_zipfile="__ignored"; \
+	cd $(TERRAFORM_LIVE_PATH); terraform destroy -lock=true
+
+
+$(TERRAFORM_LIVE_PATH)/backend.tf: deployment/backend.tf.in
+	envsubst < $^ > $@
+
+
+backend.tf: $(TERRAFORM_LIVE_PATH)/backend.tf

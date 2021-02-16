@@ -1,0 +1,9 @@
+terraform {
+    backend "s3" {
+        region         = "us-west-2"
+        bucket         = "infrastructure.tf.omnivector.solutions"
+        key            = "live/${FUNCTION_STAGE}/license-manaager/terraform.tfstate"
+        dynamodb_table = "infrastructure-terraform-state-lock"
+        encrypt        = true
+    }
+}
