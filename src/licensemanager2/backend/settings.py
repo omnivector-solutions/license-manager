@@ -19,7 +19,7 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-_DB_RX = r"^(sqlite|postgresql)://.+$"
+_DB_RX = r"^(sqlite|postgres)://.+$"
 
 
 class _Settings(BaseSettings):

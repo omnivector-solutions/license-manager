@@ -1,4 +1,16 @@
 SHELL				:= /bin/bash
+FUNCTION_REGION		:= us-west-2
+FUNCTION_STAGE		:= edge
+
+-include .env
+
+TERRAFORM_LIVE_PATH	:= ../infrastructure/live/$(FUNCTION_STAGE)/license-manager
+export AWS_REGION	:= $(FUNCTION_REGION)
+
+
+ifndef VIRTUAL_ENV
+$(error VIRTUAL_ENV must be defined)
+endif
 
 
 requirements.txt: setup.py
