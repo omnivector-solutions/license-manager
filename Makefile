@@ -29,8 +29,8 @@ format: # reformat source python files
 
 function.zip:
 	rm -f $@
-	pip install --target _lambda_tmp .
-	cd _lambda_tmp && zip ../function.zip -r . -x '*.pyc'
+	pip install -q --target _lambda_tmp .
+	cd _lambda_tmp && zip -q ../function.zip -r . -x '*.pyc'
 	rm -rf _lambda_tmp
 
 

@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
 from licensemanager2.backend import storage
+from licensemanager2.backend import logger
 from licensemanager2.backend.api import api_v1
 from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.common_response import OK
@@ -58,7 +59,9 @@ def begin_logging():
         databases_logger.setLevel(level_sql)
 
     level = getattr(logging, SETTINGS.LOG_LEVEL)
-    logging.getLogger().setLevel(level)
+    logger.setLevel(level)
+
+    logger.info(f"Logging configured 📝 Handlers: {logger.handlers} Level: {logger.level}")
 
 
 @app.on_event("startup")
@@ -68,6 +71,7 @@ async def init_database():
     """
     storage.create_all_tables()
     await storage.database.connect()
+    logger.info("Database configured 💽")
 
 
 @app.on_event("shutdown")
