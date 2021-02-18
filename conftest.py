@@ -20,9 +20,21 @@ async def backend_client() -> AsyncClient:
     A client that can issue fake requests against fastapi endpoint functions in the backend
     """
     # defer import of main to prevent accidentally importing storage too early
-    from licensemanager2.backend import main
+    from licensemanager2.backend.main import app as backend_app
 
-    async with AsyncClient(app=main.app, base_url="http://test") as ac:
+    async with AsyncClient(app=backend_app, base_url="http://test") as ac:
+        yield ac
+
+
+@fixture
+async def agent_client() -> AsyncClient:
+    """
+    A client that can issue fake requests against endpoints in the agent
+    """
+    # defer import of main to prevent accidentally importing storage too early
+    from licensemanager2.agent.main import app as agent_app
+
+    async with AsyncClient(app=agent_app, base_url="http://test") as ac:
         yield ac
 
 
