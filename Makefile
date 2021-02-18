@@ -38,8 +38,9 @@ terraform-apply: function.zip
 	export TF_VAR_zipfile="$(shell realpath $^)"; \
 	cd $(TERRAFORM_LIVE_PATH); \
 	terraform taint module.license-manager-lambda.aws_lambda_function.license-manager; \
-	terraform plan; \
-	terraform apply -auto-approve -lock=true
+	terraform plan -out /tmp/license-manager-terraform.plan; \
+	terraform apply -auto-approve -lock=true /tmp/license-manager-terraform.plan
+	rm -f /tmp/license-manager-terraform.plan
 
 
 terraform-show:
