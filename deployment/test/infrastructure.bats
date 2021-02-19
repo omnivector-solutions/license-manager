@@ -8,7 +8,7 @@ load ".env"
 
 
 TF="terraform -chdir=../infrastructure/live/$FUNCTION_STAGE/license-manager"
-CURL="curl -o- -L -i"
+CURL="curl -o- -L -i --no-progress-meter"
 
 
 @test "is terraform installed" {
@@ -31,6 +31,15 @@ CURL="curl -o- -L -i"
 
 @test "is api gateway able to access the function" {
     url=$($TF output -raw apigw-url)
+    run $CURL $url
+    assert_success
+    assert_line --partial '{"status":"ok"}'
+}
+
+
+@test "can we reach the API through the public url" {
+    # url=$($TF output -raw internet-url)
+    url=https://license-manager-us-west-2.omnivector.solutions/cory
     run $CURL $url
     assert_success
     assert_line --partial '{"status":"ok"}'
