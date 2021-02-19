@@ -1,10 +1,11 @@
-// Use this in the lambda "configure test events" console widget to test the
-// lambda without any http.
-
-// This is the ASGI data structure that the lambda would receive from API
-// Gateway
-
 {
+  "COMMENT": [
+    "Use: in lambda 'configure test events' console widget.",
+    "This is an ASGI data structure that the lambda might receive from API GW.",
+    "Or run:",
+    "aws lambda invoke --function-name license-manager-xxx --payload file://doc/example-lambda.json out.json"
+  ],
+
   "body": "eyJ0ZXN0IjoiYm9keSJ9",
   "resource": "/{proxy+}",
   "path": "/",

@@ -18,3 +18,5 @@ function.zip
 /sqlite.db
 /scratch
 /.env
+
+/node_modules
