@@ -16,8 +16,21 @@ CURL="curl -o- -L -i --no-progress-meter"
 }
 
 
+@test "is a postgres client installed" {
+    command pg_isready --version
+}
+
+
 @test "does the terraform config validate" {
     run $TF validate
+}
+
+
+@test "is the database up" {
+    pgurl=$($TF output -raw database-url)
+    PGHOST=$pgurl run pg_isready
+    assert_success
+    assert_line poopsmith
 }
 
 
@@ -38,8 +51,7 @@ CURL="curl -o- -L -i --no-progress-meter"
 
 
 @test "can we reach the API through the public url" {
-    # url=$($TF output -raw internet-url)
-    url=https://license-manager-us-west-2.omnivector.solutions/cory
+    url=$($TF output -raw internet-url)
     run $CURL $url
     assert_success
     assert_line --partial '{"status":"ok"}'
