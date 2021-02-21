@@ -28,9 +28,9 @@ CURL="curl -o- -L -i --no-progress-meter"
 
 @test "is the database up" {
     pgurl=$($TF output -raw database-url)
-    PGHOST=$pgurl run pg_isready
+    run pg_isready -d $pgurl
     assert_success
-    assert_line poopsmith
+    assert_line --partial ":5432 - accepting connections"
 }
 
 
