@@ -20,3 +20,4 @@ function.zip
 /.env
 
 /node_modules
+/venv
