@@ -7,7 +7,7 @@ load "node_modules/bats-assert/load.bash"
 load ".env"
 
 
-TF="terraform -chdir=../infrastructure/live/$FUNCTION_STAGE/license-manager"
+TF="terraform -chdir=../infrastructure/live/license-manager/$FUNCTION_STAGE"
 CURL="curl -o- -L -i --no-progress-meter"
 
 
