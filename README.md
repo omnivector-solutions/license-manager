@@ -99,7 +99,20 @@ install `terraform`.
     variable every time you activate your virtualenv.
 
 
-3. `terraform plan` and `terraform apply` can be used as normal.
+3. Run terraform commands:
+
+    ```#!bash
+    cd live/license-manager/xxxx  # plug in some stage or custom directory here
+
+    # install the modules this terraform configuration will import (like pip install)
+    terraform init
+
+    # show what resources will be changed, like a dry run
+    terraform plan
+
+    # actually create/modify resources
+    terraform apply
+    ```
 
     Terraform will output the live internet URL where you can access the HTTP API of the backend.
 
