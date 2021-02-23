@@ -4,6 +4,7 @@
 [issues-url]: https://github.com/omnivector-solutions/license-manager/issues
 [license-url]: https://github.com/omnivector-solutions/license-manager/blob/master/LICENSE
 [website]: https://www.omnivector.solutions
+[infrastructure]: https://github.com/omnivector-solutions/infrastructure
 
 [Contributors][contributors-url] •
 [Forks][forks-url] •
@@ -50,33 +51,94 @@
 ## About The Project
 `license-manager` is a license scheduling middleware that adds value in situations where multiple clusters share a license server or set of license servers.
 
-The license-manager software consists of; 1) the license-manager web server, 2) the slurmctld prolog and epilog scripts.
+(FIXME) The license-manager software consists of; 1) the license-manager web server, 2) the slurmctld prolog and epilog scripts.
+
+(FIXME) The prolog and epilog scripts are contained within the license-manager snap. Install the license-manager snap on the node(s) running slurmctld and add the `slurm.conf` configuration for `SlurmctldProlog` and `SlurmctldEpilog`.
 
 
-The prolog and epilog scripts are contained within the license-manager snap. Install the license-manager snap on the node(s) running slurmctld and add the `slurm.conf` configuration for `SlurmctldProlog` and `SlurmctldEpilog`.
+## Installation (backend)
 
-## Building license-manager
-To build the license-manager snap, install [snapcraft](https://snapcraft.io).
+```
+git clone git@github.com:omnivector-solutions/license-manager
+python3 -m venv venv
+. venv/bin/activate
+pip install wheel .[dev]
+```
 
-    sudo snap install snapcraft --classic
 
-Use snapcraft to build and install the snap.
+## Installation (agent)
 
-    snapcraft --use-lxd
+Follow the steps for Installation (backend) and you will have a checkout of
+the agent, and its dependencies, as well.
 
-## Installation
-Use the `snap install` command to install the built snap.
 
-    sudo snap install license-manager_0.1_amd64.snap --dangerous
+## Deployment (backend)
 
-## Configuration
-Aside from providing the slurmctld prolog and epilog, `license-manager` can run in `server` mode.
+1. Start by building the lambda zipfile:
 
-To run the `license-manager-server` configure the `snap.mode` to `server`:
+    ```#!bash
+    make -B function.zip
+    ```
 
-    sudo snap set license-manager snap.mode=server
+2. Use the github
+[omnivector-solutions/infrastructure][infrastructure] repository to deploy
+this software. Follow the instructions in the infrastructure README.md to
+install `terraform`.
 
-## Usage
+    Live deployments should be configured in `live/license-manager/xxxx` (stage,
+    prod, edge, or other).
+
+    You will need to set one environment variable before running terraform:
+
+    ```#!bash
+    # a path to step 1 function.zip
+    export TF_VAR_zipfile=/some/path/function.zip
+    ```
+
+    **RECOMMENDED**: Use your virtualenv `postactivate` script to set this environment
+    variable every time you activate your virtualenv.
+
+
+3. Run terraform commands:
+
+    ```#!bash
+    cd live/license-manager/xxxx  # plug in some stage or custom directory here
+
+    # install the modules this terraform configuration will import (like pip install)
+    terraform init
+
+    # show what resources will be changed, like a dry run
+    terraform plan
+
+    # actually create/modify resources
+    terraform apply
+    ```
+
+    Terraform will output the live internet URL where you can access the HTTP API of the backend.
+
+
+4. Run infrastructure tests.
+
+    ```#!bash
+    npm i
+    npx bats deployment/test
+    ```
+
+
+## Deploy (agent)
+
+TODO - snap/charm
+
+
+## Run locally
+
+```
+# backend
+uvicorn licensemanager2.backend.main:app
+# agent
+uvicorn licensemanager2.agent.main:app --port 8010
+```
+
 
 
 ## License

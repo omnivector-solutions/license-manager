@@ -23,7 +23,6 @@ def raw_connection(tmpdir):
     tmp_url = tmpdir / "sqlite.db"
     engine = sqlalchemy.create_engine(
         f"sqlite:///{tmp_url}",
-        connect_args={"check_same_thread": False},
     )
     yield engine.connect()
     shutil.rmtree(tmpdir)
