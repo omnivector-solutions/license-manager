@@ -41,7 +41,9 @@ class _Settings(BaseSettings):
     ALLOW_ORIGINS_REGEX: str = r"https://.*\.omnivector\.solutions"
 
     # database to connect
-    DATABASE_URL: str = Field("sqlite:///./sqlite.db?check_same_thread=true", regex=_DB_RX)
+    DATABASE_URL: str = Field(
+        "sqlite:///./sqlite.db?check_same_thread=true", regex=_DB_RX
+    )
 
     # log level (everything except sql tracing)
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO

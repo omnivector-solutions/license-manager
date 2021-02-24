@@ -2,17 +2,14 @@
 License objects and routes
 """
 import asyncio
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.sql import select, update
 
 from licensemanager2.backend.schema import license_table
-from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.backend.storage import database
-from licensemanager2.common_response import OK
-from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -168,114 +165,3 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
     # query them back out to return them to the client
     requested_keys = [lu.product_feature for lu in reconcile]
     return await _get_these_licenses(requested_keys)
-
-
-def debug():
-    """
-    Enforce debug mode
-
-    FIXME - move this somewhere like common_dependencies
-    """
-    if not SETTINGS.DEBUG:
-        raise HTTPException(status_code=403)
-
-
-@database.transaction()
-@router_license.put("/reconcile", response_model=OK)
-async def reconcile_reset(
-    debug: Any = Depends(debug), x_reconcile_reset: Any = Header(...)
-):
-    """
-    Reset all license data (only permitted in DEBUG mode)
-
-    Set the header `X-Reconcile-Reset:` to anything you want.
-    """
-    await database.execute(license_table.delete())
-    return OK()
-
-
-async def map_bookings(
-    booking: List[LicenseUseBooking],
-) -> Dict[str, LicenseUseBooking]:
-    """
-    For bookings, map the object to a dict with the pk as the dictionary key
-
-    This also validates that all the bookings are for licenses that exist.
-    """
-    updates, inserts = await _find_license_updates_and_inserts(booking)
-    if inserts:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Some requested licenses don't exist yet. "
-                "Use /reconcile first to set the totals, or remove them from the request."
-            ),
-        )
-    return updates
-
-
-@database.transaction()
-@router_license.put("/booking", response_model=List[LicenseUse])
-async def create_booking(booking=Depends(map_bookings)):
-    """
-    Put a LicenseUse booking object in the database, reserving some tokens
-
-    If an existing product_feature exists for this, update it by incrementing `booked',
-    otherwise create it.
-
-    An error occurs if the new total for `booked` exceeds `total`
-    """
-    ops = []
-    for pf, license_use in booking.items():
-        q_update = (
-            update(license_table)
-            .where(license_table.c.product_feature == pf)
-            .values(booked=license_table.c.booked + license_use.booked)
-        )
-        ops.append(database.execute(q_update))
-
-    # wait for all updates at once
-    try:
-        await asyncio.gather(*ops)
-    except INTEGRITY_CHECK_EXCEPTIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Couldn't add one of these bookings, check that the new booked count will be <= total"
-            ),
-        )
-    return await _get_these_licenses(list(booking.keys()))
-
-
-@database.transaction()
-@router_license.delete("/booking", response_model=List[LicenseUse])
-async def delete_booking(booking=Depends(map_bookings)):
-    """
-    Deduct tokens from a LicenseUse booking in the database
-
-    It is an error to use this method with a product_feature that isn't yet in the database.
-    Use reconcile or booking[PUT] to create the target first.
-
-    An error occurs if the new total for `booked` is < 0
-    """
-    ops = []
-    for pf, license_use in booking.items():
-        q_update = (
-            update(license_table)
-            .where(license_table.c.product_feature == pf)
-            .values(booked=license_table.c.booked - license_use.booked)
-        )
-        ops.append(database.execute(q_update))
-
-    # wait for all updates at once
-    try:
-        await asyncio.gather(*ops)
-    except INTEGRITY_CHECK_EXCEPTIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Couldn't subtract one of these bookings, check that the new booked count will be >= 0"
-            ),
-        )
-
-    return await _get_these_licenses(list(booking.keys()))
