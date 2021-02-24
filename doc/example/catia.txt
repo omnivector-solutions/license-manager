@@ -1,0 +1,28 @@
+$ ANSA_SRV=l5163p.sss.se.scania.com,l5164p.sss.se.scania.com,l5165p.sss.se.scania.com /share/apps/beta/beta_lm_stat -a
+
+ Trying 6007@l5163p.sss.se.scania.com ....
+
+ Found License daemon on l5163p.sss.se.scania.com
+Usage Report for users: all
+   USER NAME@HOST           |  FEATURE   |      PID   |       START
+  rafjdg@dcv040.maas.rnd.scania.com(:28) | META_POST  | 0          | Mon Feb 22 16:51:43 2021
+  HSARYF@RD0079221(:0)      | ANSA       | 0          | Wed Feb 24 21:01:45 2021
+
+STATUS REPORT
+      PACKAGE          |     ISSUED      |     EXPIRE      |   CREDIT
+  PRE_POST             | Sun Dec 13 2020 | Tue Mar 30 2021 | 2865
+  NEW_ANSA_CATIA_V5    | Sun Dec 13 2020 | Tue Mar 30 2021 | 25
+
+   PACKAGE:FEATURE     | MAX CREDIT | CREDIT USED | USED PERCENTAGE | USAGE
+  PRE_POST:ANSA        | 2865       | 100         |           3(%)  | 1
+  PRE_POST:ANSA_BATCH  | 2865       | 0           |           0(%)  | 0
+  PRE_POST:ANSA_CATIA_V4 | 2865       | 0           |           0(%)  | 0
+  PRE_POST:ANSA_OLD    | 2865       | 0           |           0(%)  | 0
+  PRE_POST:ANSA_TOSCA  | 2865       | 0           |           0(%)  | 0
+  PRE_POST:ANSA_UG     | 2865       | 0           |           0(%)  | 0
+  PRE_POST:EPILYSIS    | 2865       | 0           |           0(%)  | 0
+  PRE_POST:KOMVOS      | 2865       | 0           |           0(%)  | 0
+  PRE_POST:META_POST   | 2865       | 33          |           1(%)  | 1
+  PRE_POST:META_POST_BATCH | 2865       | 0           |           0(%)  | 0
+  PRE_POST:META_POST_OLD | 2865       | 0           |           0(%)  | 0
+  NEW_ANSA_CATIA_V5    | 25         | 0           |           0(%)  | 0

@@ -1,0 +1,8 @@
+$ /share/apps/femfat/Linux/femfat5.2b/platforms/linux_25_x86-64_64bit/lmx/lmxendutil -licstat -host licserv0003 -port 6300
+LM-X End-user Utility v4.7.1
+Copyright (C) 2002-2014 X-Formation. All rights reserved.
+
+++++++++++++++++++++++++++++++++++++++++
+LM-X License Server on 6300@licserv0003:
+
+XF Error: Unable to connect to license server!
