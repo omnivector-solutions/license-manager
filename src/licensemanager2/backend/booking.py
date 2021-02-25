@@ -7,11 +7,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.sql import delete
 
+from licensemanager2.backend import license
 from licensemanager2.backend.schema import booking_table
 from licensemanager2.backend.storage import database
 from licensemanager2.common_api import OK
 from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
-from licensemanager2.backend import license
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -112,9 +112,7 @@ async def create_booking(booking: Booking):
     except INTEGRITY_CHECK_EXCEPTIONS:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Couldn't book {booking.job_id}, it is already booked"
-            ),
+            detail=(f"Couldn't book {booking.job_id}, it is already booked"),
         )
 
     # update the license table
@@ -128,7 +126,9 @@ async def create_booking(booking: Booking):
         )
     edited = await license.edit_counts(booking=await license.map_bookings(lubs))
 
-    return OK(message=f"inserted {booking.job_id} to book {len(edited)} product features")
+    return OK(
+        message=f"inserted {booking.job_id} to book {len(edited)} product features"
+    )
 
 
 @database.transaction()
@@ -147,9 +147,7 @@ async def delete_booking(job_id: str):
     if not rows:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Couldn't find booking {job_id} to delete"
-            ),
+            detail=(f"Couldn't find booking {job_id} to delete"),
         )
 
     # update the booking table
@@ -161,8 +159,8 @@ async def delete_booking(job_id: str):
     for row in rows:
         lubs.append(
             license.LicenseUseBooking(
-                product_feature=row["product_feature"],
-                booked=-row["booked"],
+                product_feature=row.product_feature,
+                booked=-row.booked,
             )
         )
     edited = await license.edit_counts(booking=await license.map_bookings(lubs))

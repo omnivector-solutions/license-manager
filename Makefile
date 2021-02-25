@@ -18,12 +18,12 @@ requirements.txt: setup.py
 
 
 format: # reformat source python files
-	isort src/licensemanager2 setup.py conftest.py
-	black src/licensemanager2 setup.py conftest.py
+	isort src/licensemanager2 setup.py src/conftest.py
+	black src/licensemanager2 setup.py src/conftest.py
 
 
 function.zip:
-	rm -f $@
-	pip install -q --target _lambda_tmp .
+	rm -rf $@ _lambda_tmp
+	pip install -q --target _lambda_tmp wheel pip .
 	cd _lambda_tmp && zip -q ../function.zip -r . -x '*.pyc'
 	rm -rf _lambda_tmp

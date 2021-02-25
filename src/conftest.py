@@ -4,7 +4,6 @@ Pytest common fixtures and pytest session configuration
 import logging
 import os
 
-from httpx import AsyncClient
 from pytest import fixture
 
 from licensemanager2.backend.settings import SETTINGS
@@ -12,30 +11,6 @@ from licensemanager2.backend.settings import SETTINGS
 
 TESTING_DB_FILE = "./sqlite-testing.db"
 SETTINGS.DATABASE_URL = f"sqlite:///{TESTING_DB_FILE}"
-
-
-@fixture
-async def backend_client() -> AsyncClient:
-    """
-    A client that can issue fake requests against fastapi endpoint functions in the backend
-    """
-    # defer import of main to prevent accidentally importing storage too early
-    from licensemanager2.backend.main import app as backend_app
-
-    async with AsyncClient(app=backend_app, base_url="http://test") as ac:
-        yield ac
-
-
-@fixture
-async def agent_client() -> AsyncClient:
-    """
-    A client that can issue fake requests against endpoints in the agent
-    """
-    # defer import of main to prevent accidentally importing storage too early
-    from licensemanager2.agent.main import app as agent_app
-
-    async with AsyncClient(app=agent_app, base_url="http://test") as ac:
-        yield ac
 
 
 @fixture(scope="session", autouse=True)

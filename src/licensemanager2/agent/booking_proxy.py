@@ -3,7 +3,7 @@ Proxy a subset of the backend API to the backend
 """
 from fastapi import APIRouter, Depends
 
-from licensemanager2.common_api import ForwardOperation
+from licensemanager2.agent.forward import ForwardOperation
 
 
 booking_proxy_router = APIRouter()

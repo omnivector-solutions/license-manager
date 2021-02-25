@@ -46,7 +46,7 @@ CURL="curl -o- -L -i --no-progress-meter"
     url=$($TF output -raw apigw-url)
     run $CURL $url
     assert_success
-    assert_line --partial '{"status":"ok"}'
+    assert_line --partial '{"status":"ok","message":""}'
 }
 
 
@@ -54,5 +54,5 @@ CURL="curl -o- -L -i --no-progress-meter"
     url=$($TF output -raw internet-url)
     run $CURL $url
     assert_success
-    assert_line --partial '{"status":"ok"}'
+    assert_line --partial '{"status":"ok","message":""}'
 }

@@ -1,52 +1,13 @@
 """
 Tests of the /license API endpoints
 """
-from unittest.mock import patch
-
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 
 from licensemanager2.backend import license
 from licensemanager2.backend.schema import license_table
 from licensemanager2.backend.storage import database
-
-
-@fixture
-def some_licenses():
-    """
-    Some LicenseUse bookings
-    """
-    LUR = license.LicenseUseReconcile
-    inserts = [
-        LUR(
-            product_feature="hello.world",
-            total=100,
-            booked=19,
-        ),
-        LUR(
-            product_feature="hello.dolly",
-            total=80,
-            booked=11,
-        ),
-        LUR(
-            product_feature="cool.beans",
-            total=11,
-            booked=11,
-        ),
-    ]
-    return inserts
-
-
-async def insert_licenses(inserts):
-    """
-    Perform a database insertion for the licenses passed as the argument
-    """
-    await database.execute_many(
-        query=license_table.insert(), values=[lu.dict() for lu in inserts]
-    )
-    objects = await database.fetch_all(license_table.select())
-    assert len(objects) == 3, "More than 3 licenses, maybe data was left in the db"
-    return [license.LicenseUse.parse_obj(o) for o in objects]
+from licensemanager2.test.backend.conftest import insert_objects
 
 
 def test_license_use_available():
@@ -67,7 +28,7 @@ async def test_get_these_licenses(some_licenses):
     """
     Make sure we get these licenses
     """
-    await insert_licenses(some_licenses)
+    await insert_objects(some_licenses, license_table)
     fetched = await license._get_these_licenses(["hello.world", "cool.beans"])
     assert fetched == [
         license.LicenseUse(
@@ -113,7 +74,7 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses):
     """
     Do I fetch and order the licenses in the db?
     """
-    await insert_licenses(some_licenses)
+    await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/hello")
     assert resp.status_code == 200
     assert resp.json() == [
@@ -133,7 +94,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
     """
     Do I fetch and order the licenses in the db?
     """
-    await insert_licenses(some_licenses)
+    await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/cool/beans")
     assert resp.status_code == 200
     assert resp.json() == [
@@ -152,7 +113,7 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses):
     """
     Do I fetch and order the licenses in the db?
     """
-    await insert_licenses(some_licenses)
+    await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/all")
     assert resp.status_code == 200
     assert resp.json() == [
@@ -165,24 +126,3 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses):
         ),
         dict(product_feature="hello.world", total=100, booked=19, available=81),
     ]
-
-
-@mark.asyncio
-@database.transaction(force_rollback=True)
-async def test_reconcile_reset(backend_client: AsyncClient, some_licenses, ok_response):
-    """
-    Do I erase the licenses in the db?
-    """
-    await insert_licenses(some_licenses)
-    count = await database.fetch_all("SELECT COUNT(*) FROM license")
-    assert count[0][0] == 3
-
-    with patch("licensemanager2.backend.settings.SETTINGS.DEBUG", True):
-        resp = await backend_client.put(
-            "/api/v1/license/reconcile", headers={"X-Reconcile-Reset": "please"}
-        )
-    assert resp.status_code == 200
-    assert resp.json() == ok_response.dict()
-
-    count = await database.fetch_all("SELECT COUNT(*) FROM license")
-    assert count[0][0] == 0
