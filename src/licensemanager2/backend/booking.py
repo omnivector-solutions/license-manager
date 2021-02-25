@@ -5,12 +5,13 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy.sql import delete, func, select
+from sqlalchemy.sql import delete
 
 from licensemanager2.backend.schema import booking_table
 from licensemanager2.backend.storage import database
 from licensemanager2.common_api import OK
 from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
+from licensemanager2.backend import license
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -57,7 +58,7 @@ class BookingRow(BaseModel):
 
 
 @router_booking.get("/all", response_model=List[BookingRow])
-async def bookings_all():
+async def get_bookings_all():
     """
     All license counts we are tracking
     """
@@ -68,7 +69,7 @@ async def bookings_all():
 
 
 @router_booking.get("/job/{job_id}", response_model=List[BookingRow])
-async def bookings_job(job_id: str):
+async def get_bookings_job(job_id: str):
     """
     All bookings of a particular job
     """
@@ -91,6 +92,7 @@ async def create_booking(booking: Booking):
 
     An error occurs if the new total for `booked` exceeds `total`
     """
+    # update the booking table
     inserts = []
     for feature in booking.features:
         inserts.append(
@@ -113,14 +115,18 @@ async def create_booking(booking: Booking):
             ),
         )
 
-    # FIXME("update the license table")
+    # update the license table
+    lubs = []
+    for feat in booking.features:
+        lubs.append(
+            license.LicenseUseBooking(
+                product_feature=feat.product_feature,
+                booked=feat.booked,
+            )
+        )
+    edited = await license.edit_counts(booking=await license.map_bookings(lubs))
 
-    count_ = await database.fetch_one(
-        select([func.count()]).where(booking_table.c.job_id == booking.job_id).select_from(booking_table)
-    )
-    count = count_[0]
-
-    return OK(message=f"inserted {booking.job_id} to book {count} product features")
+    return OK(message=f"inserted {booking.job_id} to book {len(edited)} product features")
 
 
 @database.transaction()
@@ -134,17 +140,29 @@ async def delete_booking(job_id: str):
 
     An error occurs if the new total for `booked` is < 0
     """
-    exists = await bookings_job(job_id)
-    if not exists:
+    # check that we're deleting a booking that exists
+    rows = await get_bookings_job(job_id)
+    if not rows:
         raise HTTPException(
             status_code=400,
             detail=(
                 f"Couldn't find booking {job_id} to delete"
             ),
         )
+
+    # update the booking table
     q = delete(booking_table).where(booking_table.c.job_id == job_id)
+    await database.execute(q)
 
-    # FIXME("update the license table")
+    # update the license table
+    lubs = []
+    for row in rows:
+        lubs.append(
+            license.LicenseUseBooking(
+                product_feature=row["product_feature"],
+                booked=-row["booked"],
+            )
+        )
+    edited = await license.edit_counts(booking=await license.map_bookings(lubs))
 
-    count = await database.execute(q)
-    return OK(message=f"deleted {job_id} to free {count} product features booked")
+    return OK(message=f"deleted {job_id} to free {len(edited)} product features booked")

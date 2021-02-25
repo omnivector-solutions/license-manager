@@ -9,7 +9,7 @@ from fastapi import FastAPI
 
 from licensemanager2.agent.api import api_v1
 from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.common_response import OK
+from licensemanager2.common_api import OK
 
 
 app = FastAPI()

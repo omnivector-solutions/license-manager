@@ -89,6 +89,6 @@ def ok_response():
     """
     An instance of the OK response
     """
-    from licensemanager2.common_response import OK
+    from licensemanager2.common_api import OK
 
     return OK()

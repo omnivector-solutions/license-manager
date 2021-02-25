@@ -4,12 +4,13 @@ License objects and routes
 import asyncio
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.sql import select, update
 
 from licensemanager2.backend.schema import license_table
 from licensemanager2.backend.storage import database
+from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -136,7 +137,7 @@ async def _get_these_licenses(product_features: Sequence[str]) -> List[LicenseUs
 
 @database.transaction()
 @router_license.patch("/reconcile", response_model=List[LicenseUse])
-async def reconcile(reconcile: List[LicenseUseReconcile]):
+async def reconcile_changes(reconcile: List[LicenseUseReconcile]):
     """
     Set counts for models
     """
@@ -165,3 +166,57 @@ async def reconcile(reconcile: List[LicenseUseReconcile]):
     # query them back out to return them to the client
     requested_keys = [lu.product_feature for lu in reconcile]
     return await _get_these_licenses(requested_keys)
+
+
+async def map_bookings(
+    booking: List[LicenseUseBooking],
+) -> Dict[str, LicenseUseBooking]:
+    """
+    For bookings, map the object to a dict with the pk as the dictionary key
+    This also validates that all the bookings are for licenses that exist.
+    """
+    updates, inserts = await _find_license_updates_and_inserts(booking)
+    if inserts:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Some requested licenses don't exist yet. "
+                "Use /reconcile first to set the totals, or remove them from the request."
+            ),
+        )
+    return updates
+
+
+@database.transaction()
+@router_license.put("/edit-counts", response_model=List[LicenseUse])
+async def edit_counts(booking=Depends(map_bookings)):
+    """
+    Modify a LicenseUse in the database by adding or subtracting t okens.
+
+    If an existing product_feature exists for this, update it by incrementing `booked',
+    otherwise create it.
+
+    An error occurs if the new amount for `booked` exceeds `total` or is <0
+    """
+    ops = []
+    for pf, license_use in booking.items():
+        q_update = (
+            update(license_table)
+            .where(license_table.c.product_feature == pf)
+            .values(booked=license_table.c.booked + license_use.booked)
+        )
+        ops.append(database.execute(q_update))
+
+    # TODO! test decrementing a counter that doesn't exist yet (<0)
+
+    # wait for all updates at once
+    try:
+        await asyncio.gather(*ops)
+    except INTEGRITY_CHECK_EXCEPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Couldn't add one of these bookings, check that the new booked count will be <= total"
+            ),
+        )
+    return await _get_these_licenses(list(booking.keys()))

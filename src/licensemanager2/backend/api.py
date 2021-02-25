@@ -17,7 +17,7 @@ api_v1.include_router(router_booking, prefix="/booking", tags=["Booking"])
 
 @database.transaction()
 @api_v1.put("/reset", response_model=OK)
-async def reset_everything(debug=Depends(debug), x_reconcile_reset=Header(...)):
+async def reset_everything(debug=Depends(debug), x_reset=Header(...)):
     """
     Reset all database data (only permitted in DEBUG mode)
 
