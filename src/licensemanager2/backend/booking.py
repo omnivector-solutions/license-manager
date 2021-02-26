@@ -65,7 +65,8 @@ async def get_bookings_all():
     query = booking_table.select().order_by(
         booking_table.c.job_id, booking_table.c.product_feature
     )
-    return await database.fetch_all(query)
+    fetched = await database.fetch_all(query)
+    return [BookingRow.parse_obj(x) for x in fetched]
 
 
 @router_booking.get("/job/{job_id}", response_model=List[BookingRow])
@@ -78,7 +79,8 @@ async def get_bookings_job(job_id: str):
         .where(booking_table.c.job_id == job_id)
         .order_by(booking_table.c.product_feature)
     )
-    return await database.fetch_all(query)
+    fetched = await database.fetch_all(query)
+    return [BookingRow.parse_obj(x) for x in fetched]
 
 
 @database.transaction()

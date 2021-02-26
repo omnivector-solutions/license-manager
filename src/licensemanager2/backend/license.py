@@ -72,7 +72,8 @@ async def licenses_all():
     All license counts we are tracking
     """
     query = license_table.select().order_by(license_table.c.product_feature)
-    return await database.fetch_all(query)
+    fetched = await database.fetch_all(query)
+    return [LicenseUse.parse_obj(x) for x in fetched]
 
 
 @router_license.get("/use/{product}", response_model=List[LicenseUse])
@@ -85,7 +86,8 @@ async def licenses_product(product: str):
         .where(license_table.c.product_feature.like(f"{product}.%"))
         .order_by(license_table.c.product_feature)
     )
-    return await database.fetch_all(query)
+    fetched = await database.fetch_all(query)
+    return [LicenseUse.parse_obj(x) for x in fetched]
 
 
 @router_license.get("/use/{product}/{feature}", response_model=List[LicenseUse])
@@ -96,7 +98,8 @@ async def licenses_product_feature(product: str, feature: str):
     query = license_table.select().where(
         license_table.c.product_feature == f"{product}.{feature}"
     )
-    return await database.fetch_all(query)
+    fetched = await database.fetch_all(query)
+    return [LicenseUse.parse_obj(x) for x in fetched]
 
 
 async def _find_license_updates_and_inserts(
