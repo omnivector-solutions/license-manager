@@ -1,5 +1,5 @@
 """
-License objects and routes
+Booking objects and routes
 """
 from typing import List
 

@@ -14,7 +14,8 @@ from licensemanager2.backend.storage import database
 
 async def insert_objects(objects: List[BaseModel], table: sqlalchemy.Table):
     """
-    Perform a database insertion for the licenses passed as the argument
+    Perform a database insertion for the objects passed as the argument, into
+    the specified table
     """
     ModelType = type(objects[0])
     await database.execute_many(

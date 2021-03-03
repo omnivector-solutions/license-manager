@@ -57,7 +57,7 @@ async def test_bookings_all(
     backend_client: AsyncClient, some_licenses, some_booking_rows
 ):
     """
-    Do I fetch and order the licenses in the db?
+    Do I fetch all the bookings in the db?
     """
     await insert_objects(some_licenses, schema.license_table)
     await insert_objects(some_booking_rows, schema.booking_table)
