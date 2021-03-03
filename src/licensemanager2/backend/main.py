@@ -10,11 +10,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from licensemanager2.backend import storage
-from licensemanager2.backend import logger
+from licensemanager2.backend import logger, storage
 from licensemanager2.backend.api import api_v1
 from licensemanager2.backend.settings import SETTINGS
-from licensemanager2.common_response import OK
+from licensemanager2.common_api import OK
 
 
 app = FastAPI(root_path=SETTINGS.ASGI_ROOT_PATH)
@@ -61,7 +60,9 @@ def begin_logging():
     level = getattr(logging, SETTINGS.LOG_LEVEL)
     logger.setLevel(level)
 
-    logger.info(f"Logging configured 📝 Handlers: {logger.handlers} Level: {logger.level}")
+    logger.info(
+        f"Logging configured 📝 Handlers: {logger.handlers} Level: {logger.level}"
+    )
 
 
 @app.on_event("startup")

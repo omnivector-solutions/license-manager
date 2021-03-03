@@ -1,7 +1,6 @@
 """
 Boilerplate responses
 """
-
 from pydantic import BaseModel
 
 
@@ -11,3 +10,4 @@ class OK(BaseModel):
     """
 
     status: str = "ok"
+    message: str = ""

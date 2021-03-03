@@ -18,6 +18,7 @@ setuptools.setup(
         "boto3",
         "databases[postgresql]",
         "fastapi",
+        "httpx",
         "mangum",
         "aws-psycopg2",  # soft-required by sqlalchemy
         "sqlalchemy",
@@ -27,7 +28,6 @@ setuptools.setup(
             "black",
             "databases[sqlite]",
             "flake8",
-            "httpx",  # soft-required by starlette.testing
             "isort",
             "mypy",
             "pytest",

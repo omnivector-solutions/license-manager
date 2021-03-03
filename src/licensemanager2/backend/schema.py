@@ -17,3 +17,12 @@ license_table = sqlalchemy.Table(
     Column("total", Integer, CheckConstraint("total>=0")),
     CheckConstraint("booked<=total"),
 )
+
+
+booking_table = sqlalchemy.Table(
+    "booking",
+    metadata,
+    Column("job_id", String, primary_key=True),
+    Column("product_feature", String, primary_key=True),
+    Column("booked", Integer, CheckConstraint("booked>=0")),
+)
