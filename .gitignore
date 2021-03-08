@@ -10,8 +10,6 @@
 /dist
 /build
 
-function.zip
-
 *.egg-info
 
 /.coverage
@@ -21,3 +19,5 @@ function.zip
 
 /node_modules
 /venv
+
+function*.zip

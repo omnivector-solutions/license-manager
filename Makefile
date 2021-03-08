@@ -25,5 +25,16 @@ format: # reformat source python files
 function.zip:
 	rm -rf $@ _lambda_tmp
 	pip install -q --target _lambda_tmp wheel pip .
-	cd _lambda_tmp && zip -q ../function.zip -r . -x '*.pyc'
+	# cd _lambda_tmp && zip -q ../$@ -r . -x '*.pyc'
+	# anecdotally, not including pyc files slows down lambda execution
+	cd _lambda_tmp && zip -9 -q ../$@ -r .
+	rm -rf _lambda_tmp
+
+
+function-authorizer.zip: src/authorizer.py
+	rm -rf $@ _lambda_tmp
+	pip install -q --target _lambda_tmp wheel pip jwt
+	cp src/authorizer.py _lambda_tmp
+	# cd _lambda_tmp && zip -q ../$@ -r . -x '*.pyc'
+	cd _lambda_tmp && zip -q ../$@ -r .
 	rm -rf _lambda_tmp
