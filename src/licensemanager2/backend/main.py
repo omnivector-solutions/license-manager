@@ -85,5 +85,16 @@ async def disconnect_database():
 
 app.include_router(api_v1, prefix="/api/v1")
 
-# ASGI adapter used for environments like API gateway
-handler = Mangum(app)
+
+def handler(event, context):
+    """
+    Adapt inbound ASGI requests (from API Gateway) using Mangum
+
+    - Assumes non-ASGI requests (from any other source) are a cloudwatch ping
+    """
+    if not event.get("requestContext"):
+        logger.info("☁️ ☁️ ☁️ cloudwatch keep-warm ping ☁️ ☁️ ☁️")
+        return
+
+    mangum = Mangum(app)
+    return mangum(event, context)

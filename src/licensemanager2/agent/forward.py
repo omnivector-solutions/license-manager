@@ -7,6 +7,7 @@ from fastapi import Request, Response
 import httpx
 
 from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent import logger
 
 
 class ForwardOperation:
@@ -33,12 +34,17 @@ class ForwardOperation:
     @lru_cache()
     def async_client(self) -> httpx.AsyncClient:
         """
-        An httpx client
+        HTTPX client that authenticates with & makes requests to the l-m backend
 
         Memoized for reuse and connection pooling
         """
+        def _auth(request):
+            request.headers['authorization'] = f"Bearer {SETTINGS.BACKEND_API_TOKEN}"
+            return request
+
         return httpx.AsyncClient(
             base_url=SETTINGS.BACKEND_BASE_URL,
+            auth=_auth
         )
 
     @staticmethod
@@ -52,13 +58,22 @@ class ForwardOperation:
         ret.status_code = resp.status_code
         return ret
 
-    @staticmethod
-    async def _adapt_request_fastapi_to_httpx(req: Request) -> httpx.Request:
+    async def _adapt_request_fastapi_to_httpx(self, req: Request) -> httpx.Request:
         """
         FastAPI Request becomes HTTPX Request to talk to the backend
         """
         url = f"{SETTINGS.BACKEND_BASE_URL}{req.url.path}"
-        ret = httpx.Request(
-            req.method, url, headers=req.headers.items(), content=await req.body()
+        logger.debug(f"Forwarding request to {url}")
+        _headers = req.headers.mutablecopy()
+
+        # if there's authorization attached, get rid of it, we will replace it with our own
+        del _headers['authorization']
+        # the incoming host header will be the agent's netloc, we don't want to send that to a different server.
+        del _headers['host']
+
+        # both of the removed headers will be set by httpx
+
+        ret = self.async_client.build_request(
+            req.method, url, headers=_headers.items(), content=await req.body()
         )
         return ret

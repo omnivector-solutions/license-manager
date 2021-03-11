@@ -18,23 +18,27 @@ requirements.txt: setup.py
 
 
 format: # reformat source python files
-	isort src/licensemanager2 setup.py src/conftest.py
-	black src/licensemanager2 setup.py src/conftest.py
+	isort src/licensemanager2 setup.py src/conftest.py src/authorizer.py
+	black src/licensemanager2 setup.py src/conftest.py src/authorizer.py
+
+
+PIP_INSTALL_FOR_ZIP		:= pip install -q --target _lambda_tmp wheel pip
 
 
 function.zip:
 	rm -rf $@ _lambda_tmp
-	pip install -q --target _lambda_tmp wheel pip .
-	# cd _lambda_tmp && zip -q ../$@ -r . -x '*.pyc'
-	# anecdotally, not including pyc files slows down lambda execution
+	$(PIP_INSTALL_FOR_ZIP) .
+
+	# anecdotally, not including pyc files slows down lambda execution,
+	# so we don't remove them
 	cd _lambda_tmp && zip -9 -q ../$@ -r .
 	rm -rf _lambda_tmp
 
 
 function-authorizer.zip: src/authorizer.py
 	rm -rf $@ _lambda_tmp
-	pip install -q --target _lambda_tmp wheel pip jwt
+	$(PIP_INSTALL_FOR_ZIP) pyjwt
 	cp src/authorizer.py _lambda_tmp
-	# cd _lambda_tmp && zip -q ../$@ -r . -x '*.pyc'
+
 	cd _lambda_tmp && zip -q ../$@ -r .
 	rm -rf _lambda_tmp

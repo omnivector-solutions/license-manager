@@ -4,7 +4,7 @@ Configuration of the agent running in the cluster
 
 from enum import Enum
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 class LogLevelEnum(str, Enum):
@@ -19,6 +19,10 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
+_JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
+_URL_REGEX = r"http[s]?://.+"
+
+
 class _Settings(BaseSettings):
     """
     App config.
@@ -28,7 +32,11 @@ class _Settings(BaseSettings):
     """
 
     # base url of an endpoint serving the licensemanager2 backend
-    BACKEND_BASE_URL = "http://127.1:8000"
+    # ... I tried using AnyHttpUrl but mypy complained
+    BACKEND_BASE_URL: str = Field("http://127.1:8000", regex=_URL_REGEX)
+
+    # a JWT API token for accessing the backend
+    BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False

@@ -17,12 +17,20 @@ setuptools.setup(
     install_requires=[
         "databases[postgresql]",
         "fastapi",
-        "httpx",
         "mangum",
         "aws-psycopg2",  # soft-required by sqlalchemy
         "sqlalchemy",
     ],
     extras_require={
+        "agent": [
+            "httpx",
+        ],
+        "admin": [
+            # for lm-create-jwt
+            "boto3",
+            "click",
+            "pyjwt",
+        ],
         "dev": [
             "black",
             "databases[sqlite]",
@@ -37,11 +45,11 @@ setuptools.setup(
             "tox",
             "uvicorn",
             "wheel",
-        ]
+        ],
     },
     entry_points={
         "console_scripts": [
-            # "license-agent=license_manager.agent.main:main",
+            "lm-create-jwt=licensemanager2.backend.createjwt:main",
         ],
     },
     include_package_data=True,
