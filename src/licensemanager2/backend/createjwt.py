@@ -15,10 +15,14 @@ JWT_ALGO = ("HS256",)
 
 @click.command()
 @click.option(
-    "--subject", "--sub", help="Name of the subject this token identifies", required=True
+    "--subject",
+    "--sub",
+    help="Name of the subject this token identifies",
+    required=True,
 )
 @click.option(
-    "--sub2", help="(optional) more specific identifier such as cluster name or org unit"
+    "--sub2",
+    help="(optional) more specific identifier such as cluster name or org unit",
 )
 @click.option("--app-short-name", help="e.g. license-manager", required=True)
 @click.option("--stage", help="e.g. prod, staging, edge, or custom", required=True)
@@ -52,10 +56,12 @@ def get_secret(app_short_name, stage, region):
         ret = client.get_secret_value(
             SecretId=f"/{app_short_name}/{stage}/token-secret",
         )
-        return ret['SecretString']
+        return ret["SecretString"]
     except ClientError as e:
-        error = e.response['Error']
-        raise click.ClickException(message=f"({error['Code']}) {error['Message']} {e.response}")
+        error = e.response["Error"]
+        raise click.ClickException(
+            message=f"({error['Code']}) {error['Message']} {e.response}"
+        )
 
 
 def create_timed_token(
@@ -94,7 +100,7 @@ def _expiration(duration: int):
 _NO_DEFAULT = object()
 
 
-def validate_token(token: bytes, secret: str, default=_NO_DEFAULT, **kwargs):
+def validate_token(token: str, secret: str, default=_NO_DEFAULT, **kwargs):
     """
     Check a token signature and claims, and return the userid string (`sub` claim) or the supplied default
     If no default is passed in, this raises any exceptions that occur during token decode

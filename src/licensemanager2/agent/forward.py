@@ -6,8 +6,8 @@ from functools import lru_cache
 from fastapi import Request, Response
 import httpx
 
-from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.agent import logger
+from licensemanager2.agent.settings import SETTINGS
 
 
 class ForwardOperation:
@@ -26,11 +26,10 @@ class ForwardOperation:
         Make the backend request and bring back the response
         """
         httpx_req = await self._adapt_request_fastapi_to_httpx(self.request)
-        httpx_resp = await self.async_client.send(httpx_req)
+        httpx_resp = await self.async_client().send(httpx_req)
         resp = self._adapt_response_httpx_to_fastapi(httpx_resp)
         return resp
 
-    @property  # type: ignore
     @lru_cache()
     def async_client(self) -> httpx.AsyncClient:
         """
@@ -38,14 +37,12 @@ class ForwardOperation:
 
         Memoized for reuse and connection pooling
         """
+
         def _auth(request):
-            request.headers['authorization'] = f"Bearer {SETTINGS.BACKEND_API_TOKEN}"
+            request.headers["authorization"] = f"Bearer {SETTINGS.BACKEND_API_TOKEN}"
             return request
 
-        return httpx.AsyncClient(
-            base_url=SETTINGS.BACKEND_BASE_URL,
-            auth=_auth
-        )
+        return httpx.AsyncClient(base_url=SETTINGS.BACKEND_BASE_URL, auth=_auth)
 
     @staticmethod
     def _adapt_response_httpx_to_fastapi(resp: httpx.Response) -> Response:
@@ -67,13 +64,18 @@ class ForwardOperation:
         _headers = req.headers.mutablecopy()
 
         # if there's authorization attached, get rid of it, we will replace it with our own
-        del _headers['authorization']
+        if _headers["authorization"]:
+            logger.warn(
+                "Authorization header is being dropped, to substitute the value of BACKEND_API_TOKEN."
+            )
+            del _headers["authorization"]
+
         # the incoming host header will be the agent's netloc, we don't want to send that to a different server.
-        del _headers['host']
+        del _headers["host"]
 
         # both of the removed headers will be set by httpx
 
-        ret = self.async_client.build_request(
+        ret = self.async_client().build_request(
             req.method, url, headers=_headers.items(), content=await req.body()
         )
         return ret
