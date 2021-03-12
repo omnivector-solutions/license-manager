@@ -11,10 +11,6 @@ setuptools.setup(
     author="Omnivector Solutions",
     author_email="info@omnivector.solutions",
     url="https://github.com/omnivector-solutions/jwt-apigw-authorizer",
-    # packages=setuptools.find_packages(
-    #     where="./src", include=("licensemanager2", "licensemanager2.*")
-    # ),
-    # package_dir={"": "src"},
     license="MIT",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
