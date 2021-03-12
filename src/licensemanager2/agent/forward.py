@@ -65,7 +65,7 @@ class ForwardOperation:
 
         # if there's authorization attached, get rid of it, we will replace it with our own
         if _headers["authorization"]:
-            logger.warn(
+            logger.warning(
                 "Authorization header is being dropped, to substitute the value of BACKEND_API_TOKEN."
             )
             del _headers["authorization"]

@@ -65,12 +65,15 @@ def get_secret(app_short_name, stage, region):
 
 
 def create_timed_token(
-    sub: str, iss: str, secret: str, duration: typing.Optional[int], **kwargs
+    sub: str, iss: str, secret: str, duration: typing.Optional[int] = None, **kwargs
 ):
     """
     Convenience method to create tokens of a particular duration
     You can also create non-expiring tokens by setting duration=None
     """
+    if not secret or not sub or not iss:
+        raise TypeError("secret, sub, and iss cannot be empty")
+
     kwargs.setdefault("algorithm", JWT_ALGO[0])
 
     payload = {"sub": sub, "iss": iss}
@@ -108,7 +111,6 @@ def validate_token(token: str, secret: str, default=_NO_DEFAULT, **kwargs):
     kwargs.setdefault("algorithms", [JWT_ALGO[0]])
     try:
         payload = jwt.decode(token, secret, **kwargs)
-        print(f"# {payload}")
         return payload
 
     except jwt.PyJWTError:

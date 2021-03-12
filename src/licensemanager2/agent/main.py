@@ -53,7 +53,7 @@ def begin_logging():
     # as a developer you'll run this with uvicorn,
     # which takes over logging.
     uvicorn = logging.getLogger("uvicorn")
-    if uvicorn.handlers:
+    if uvicorn.handlers:  # pragma: nocover
         logger.addHandler(uvicorn.handlers[0])
 
     logger.info(f"Forwarding requests ⇒ {SETTINGS.BACKEND_BASE_URL}")

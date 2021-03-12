@@ -16,7 +16,12 @@ async def agent_client():
     """
     A client that can issue fake requests against endpoints in the agent
     """
-    async with AsyncClient(app=agent_app, base_url="http://test") as ac:
+    ac = AsyncClient(
+        app=agent_app,
+        base_url="http://test",
+        headers={"authorization": "bearer xxx.xxx.xxx"},
+    )
+    async with ac:
         yield ac
 
 

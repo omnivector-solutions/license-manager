@@ -40,6 +40,7 @@ setuptools.setup(
             "pytest",
             "pytest-asyncio",
             "pytest-cov",
+            "pytest-freezegun",
             "respx",
             "sqlalchemy-stubs",
             "tox",

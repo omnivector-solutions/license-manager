@@ -8,6 +8,16 @@ load ".env"
 
 
 TF="terraform -chdir=../infrastructure/live/license-manager/$FUNCTION_STAGE"
+AUTH_TOKEN=$(
+    lm-create-jwt \
+        --sub scania \
+        --sub2 cluster1 \
+        --app-short-name license-manager \
+        --stage cory \
+        --region us-west-2 \
+        --duration 60
+        )
+AUTH_HEADER="authorization: Bearer $AUTH_TOKEN"
 CURL="curl -o- -f -L -i --no-progress-meter"
 
 
@@ -44,8 +54,7 @@ CURL="curl -o- -f -L -i --no-progress-meter"
 
 @test "is api gateway able to access the function" {
     url=$($TF output -raw apigw-url)
-    auth_header='authorization: Bearer giant.base64-encoded.apikey'
-    run $CURL $url --header "$auth_header"
+    run $CURL --header "$AUTH_HEADER" $url
     assert_success
     assert_line --partial '{"status":"ok","message":""}'
 }
@@ -53,16 +62,14 @@ CURL="curl -o- -f -L -i --no-progress-meter"
 
 @test "does the API work, through the public url" {
     base_url=$($TF output -raw internet-url)
-    auth_header='authorization: Bearer giant.base64-encoded.apikey'
 
     # root url
-    run $CURL --header "$auth_header" \
-        $base_url
+    run $CURL --header "$AUTH_HEADER" $base_url
     assert_success
     assert_line --partial '{"status":"ok","message":""}'
 
     # insert license data
-    run $CURL --header "$auth_header" \
+    run $CURL --header "$AUTH_HEADER" \
         --request PATCH \
         --header 'content-type: application/json' \
         --data '[{"product_feature": "abaqus.abaqus","booked": 0,"total": 119},{"product_feature": "abaqus.gpu","booked": 119,"total": 1909}]' \
@@ -71,13 +78,12 @@ CURL="curl -o- -f -L -i --no-progress-meter"
     assert_line --partial '[{"product_feature":"abaqus.abaqus",'
 
     # query licenses
-    run $CURL --header "$auth_header" \
-        $base_url/api/v1/license/all
+    run $CURL --header "$AUTH_HEADER" $base_url/api/v1/license/all
     assert_success
     assert_line --partial '[{"product_feature":"abaqus.abaqus",'
 
     # reset db
-    run $CURL --header "$auth_header" \
+    run $CURL --header "$AUTH_HEADER" \
         --request PUT \
         --header 'x-reset: please' \
         $base_url/api/v1/reset
