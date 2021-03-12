@@ -14,7 +14,7 @@ This software makes the following assumptions about your deployment environment:
 In addition, you will need to build a number of AWS resources to use this software. Terraform modules exist to build these with some configuration you supply, assuming you want to run Terraform.
 
 
-## Installation (backend)
+## Installation (for running locally to debug)
 
 ```
 git clone git@github.com:omnivector-solutions/jwt-apigw-authorizer
@@ -51,6 +51,7 @@ install `terraform`.
 
     ```
 
+[infrastructure]: https://github.com/omnivector-solutions/infrastructure
 
 3. Run terraform commands:
 
@@ -80,10 +81,59 @@ install `terraform`.
 
 ## Run locally
 
+The authorizer is not intended to be deployed outside of AWS in production, and serves no useful purpose that way, but it can be debugged this way.
+
+When running locally, you still need to create an AWS Secrets Manager secret, in your region of choice, for example:
+`/my-app/edge/token-secret`. The secret name should follow this pattern, but the last part of the string **must** be `token-secret`.
+
+Install the dev dependencies:
 ```
-# TODO
+pip install .[dev]
 ```
 
+Now you can run the lambda locally with `python-lambda-local`.
+
+You will need to:
+
+- configure AWS credentials to be able to access AWS Secrets Manager
+- create the `/my-app/edge/token-secret` secret as described above. The string value of the secret can be any random sequence of characters.
+
+- create two json files:
+    - env.json, with contents:
+        ```
+        {
+            "AUTHORIZER_APP_SHORT_NAME": "my-app",
+            "AUTHORIZER_STAGE": "edge",
+            "AUTHORIZER_REGION": "us-west-2",
+            "AUTHORIZER_ALLOWED_SUBS": "*"
+        }
+        ```
+
+    - event.json, with contents:
+        ```
+        {
+            "methodArn": "arn:aws:execute-api:us-west-2:000000000000:q999999999/edge/GET/api/v1/doot/doot",
+            "authorizationToken": "Bearer xxxxxxxxxxxxxxxxxx.yyyyyyyyyyyyyyyyyyyyy.zzzzzzzzzzzzzzzzzzzzzz"
+        }
+        ```
+
+      `methodArn` should be a method ARN for an API Gateway method, but the
+      method doesn't have to actually exist just to test the authorizer. It
+      should follow this string pattern, though.
+
+      `authorizationToken` should be a legitimate token generated from the
+      `token-secret` you created earlier (unless you are testing for errors,
+      in which case put any garbage you want).
+
+      For the token payload:
+      - you must specify both `sub` and `iss` in the payload
+      - you may specify any `sub` that you want (it must glob-match AUTHORIZER_ALLOWED_SUBS)
+      - specify `iss` as: `my-app::edge::us-west-2`
+      - you may specify payload `exp` for an expiring token, and it will be checked if it is set
+
+- run: `python-lambda-local -e env.json authorizer/authorizer.py event.json`
+
+  This simulates the way API Gateway would invoke your Lambda with a Bearer Authorization token from an inbound request.
 
 
 ## License
