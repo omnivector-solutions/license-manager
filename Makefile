@@ -18,8 +18,8 @@ requirements.txt: setup.py
 
 
 format: # reformat source python files
-	isort src/licensemanager2 setup.py src/conftest.py src/authorizer.py
-	black src/licensemanager2 setup.py src/conftest.py src/authorizer.py
+	isort src/licensemanager2 setup.py src/conftest.py authorizer
+	black src/licensemanager2 setup.py src/conftest.py authorizer
 
 
 PIP_INSTALL_FOR_ZIP		:= pip install -q --target _lambda_tmp wheel pip
@@ -35,10 +35,9 @@ function.zip:
 	rm -rf _lambda_tmp
 
 
-function-authorizer.zip: src/authorizer.py
+function-authorizer.zip: authorizer/setup.py authorizer/authorizer.py
 	rm -rf $@ _lambda_tmp
-	$(PIP_INSTALL_FOR_ZIP) pyjwt
-	cp src/authorizer.py _lambda_tmp
+	$(PIP_INSTALL_FOR_ZIP) ./authorizer
 
 	cd _lambda_tmp && zip -q ../$@ -r .
 	rm -rf _lambda_tmp

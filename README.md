@@ -93,9 +93,10 @@ install `terraform`.
     ```#!bash
     # create scratch.auto.tfvars
     echo > scratch.auto.tfvars << EOF
-    # use the license-manager makefile
     zipfile = "/some/path/to/function.zip"
     zipfile_authorizer = "/some/path/to/function-authorizer.zip"
+    EOF
+
     ```
 
 
