@@ -117,10 +117,11 @@ def handler(event: dict, context: dict) -> dict:
     if not sec:
         return deny(arn)
 
-    if not re.match(r"bearer .+\..+\..+$", event["authorizationToken"], re.I):
-        logger.error(f"invalid authorization header: {event['authorizationToken']}")
+    _token = event.get("authorizationToken", "")
+    if not re.match(r"bearer .+\..+\..+$", _token, re.I):
+        logger.error(f"invalid authorization header: {_token!r}")
         return deny(arn)
-    token = event["authorizationToken"][7:]
+    token = _token.split()[1].strip()
 
     payload = validate_token(token, sec)
     if not payload or not check_claims(payload):
