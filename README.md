@@ -77,7 +77,7 @@ the agent, and its dependencies, as well.
 1. Start by building the lambda zipfile:
 
     ```#!bash
-    make -B function.zip function-authorizer.zip
+    make -B function.zip function-jawthorizer.zip
     ```
 
 2. Use the github
@@ -94,7 +94,7 @@ install `terraform`.
     # create scratch.auto.tfvars
     echo > scratch.auto.tfvars << EOF
     zipfile = "/some/path/to/function.zip"
-    zipfile_authorizer = "/some/path/to/function-authorizer.zip"
+    zipfile_authorizer = "/some/path/to/function-jawthorizer.zip"
     EOF
 
     ```

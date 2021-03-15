@@ -5,27 +5,43 @@ from fnmatch import fnmatch
 import logging
 import os
 import re
-from typing import Optional
+from typing import Iterable, Optional, Sequence
 
 import boto3
 from botocore.exceptions import ClientError
 import jwt
 
 
-logger = logging.getLogger("authorizer")
+logger = logging.getLogger("jawthorizer")
 logger.setLevel(logging.DEBUG)
 
 
-JWT_ALGO = ("HS256",)
+class Settings:
+    JWT_ALGO: Sequence[str] = ("HS256",)
+    APP_SHORT_NAME: str
+    STAGE: str
+    REGION: str
+    ALLOWED_SUBS: Iterable[str]
+    SECRET_NAME: str
+    ALLOWED_ISSUER: str
 
-APP_SHORT_NAME = os.environ["AUTHORIZER_APP_SHORT_NAME"]
-STAGE = os.environ["AUTHORIZER_STAGE"]
-REGION = os.environ["AUTHORIZER_REGION"]
-# by default, allow any sub claim; security, in that case, is based on the token secret alone.
-ALLOWED_SUBS = os.getenv("AUTHORIZER_ALLOWED_SUBS", "*").split()
+    def __init__(self, env):
+        def get(k, default="__unset__"):
+            if default == "__unset__":
+                return env[f"JAWTHORIZER_{k}"]
+            return env.get(f"JAWTHORIZER_{k}", default)
 
-SECRET_NAME = f"/{APP_SHORT_NAME}/{STAGE}/token-secret"
-ALLOWED_ISSUER = f"{APP_SHORT_NAME}::{STAGE}::{REGION}"
+        self.APP_SHORT_NAME = get("APP_SHORT_NAME")
+        self.STAGE = get("STAGE")
+        self.REGION = get("REGION")
+        self.SECRET_NAME = f"/{self.APP_SHORT_NAME}/{self.STAGE}/token-secret"
+        self.ALLOWED_ISSUER = f"{self.APP_SHORT_NAME}::{self.STAGE}::{self.REGION}"
+        # by default, allow any sub claim; security, in that case, is based on
+        # the token secret alone.
+        self.ALLOWED_SUBS = get("ALLOWED_SUBS", "*").split()
+
+
+SETTINGS = Settings(os.environ)
 
 
 def _check_sub(sub) -> bool:
@@ -34,17 +50,17 @@ def _check_sub(sub) -> bool:
 
     This uses glob-style matching so that, for example:
 
-    - given: AUTHORIZER_ALLOWED_SUBS="myuser myuser::*"
+    - given: JAWTHORIZER_ALLOWED_SUBS="myuser myuser::*"
     - this will permit a sub claim of "myuser::myorg" as well as just "myuser" by itself
     """
-    return any(fnmatch(sub, item) for item in ALLOWED_SUBS)
+    return any(fnmatch(sub, item) for item in SETTINGS.ALLOWED_SUBS)
 
 
 def _check_iss(iss) -> bool:
     """
     T/F; does a token's `iss' claim match the deployed app we are the authorizer for
     """
-    return iss == ALLOWED_ISSUER
+    return iss == SETTINGS.ALLOWED_ISSUER
 
 
 def check_claims(payload: dict) -> bool:
@@ -56,11 +72,13 @@ def check_claims(payload: dict) -> bool:
     iss = payload["iss"]
 
     if not _check_sub(sub):
-        logger.error(f"payload sub not allowed: {sub!r} not in {ALLOWED_SUBS}")
+        logger.error(f"payload sub not allowed: {sub!r} not in {SETTINGS.ALLOWED_SUBS}")
         ret = False
 
     if not _check_iss(iss):
-        logger.error(f"payload iss does not match: {iss!r} != {ALLOWED_ISSUER!r}")
+        logger.error(
+            f"payload iss does not match: {iss!r} != {SETTINGS.ALLOWED_ISSUER!r}"
+        )
         ret = False
 
     return ret
@@ -72,11 +90,12 @@ def get_token_secret() -> Optional[str]:
     """
     client = boto3.client("secretsmanager")
     try:
-        sec = client.get_secret_value(SecretId=SECRET_NAME)["SecretString"]
+        sec = client.get_secret_value(SecretId=SETTINGS.SECRET_NAME)["SecretString"]
     except ClientError as e:
         error = e.response["Error"]
         logger.error(
-            f"** ERROR FETCHING {SECRET_NAME} in {client.meta.region_name}: ({error['Code']}) {error['Message']}"
+            f"** ERROR FETCHING {SETTINGS.SECRET_NAME} in {client.meta.region_name}: "
+            f"({error['Code']}) {error['Message']}"
         )
         sec = None
 
@@ -161,7 +180,7 @@ def validate_token(token: str, secret: str, **kwargs) -> Optional[dict]:
     Check a token signature and claims, and return the userid string (`sub` claim) or the supplied default
     If no default is passed in, this raises any exceptions that occur during token decode
     """
-    kwargs.setdefault("algorithms", [JWT_ALGO[0]])
+    kwargs.setdefault("algorithms", [SETTINGS.JWT_ALGO[0]])
     try:
         payload = jwt.decode(token, secret, **kwargs)
     except jwt.PyJWTError as e:

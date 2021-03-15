@@ -19,7 +19,8 @@ setuptools.setup(
         "fastapi",
         "mangum",
         "aws-psycopg2",  # soft-required by sqlalchemy
-        "sqlalchemy",
+        "sqlalchemy>=1.3.23,<1.4",
+        # "sqlalchemy>=1.4",  # waiting for https://github.com/encode/databases/issues/298
     ],
     extras_require={
         "agent": [
@@ -40,6 +41,7 @@ setuptools.setup(
             "pytest",
             "pytest-asyncio",
             "pytest-cov",
+            "pytest-env",
             "pytest-freezegun",
             "respx",
             "sqlalchemy-stubs",

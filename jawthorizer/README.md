@@ -1,7 +1,7 @@
-# JWT-APIGW-Authorizer
+# Jawthorizer
 
 ## About The Project
-`jwt-apigw-authorizer` is a small module appropriate to be used as a "custom authorizer" (aka "lambda authorizer") in AWS API Gateway. Package and deploy this software as a lambda function and set up an API Gateway to use the lambda as your token authorizer.
+`jawthorizer` is a small module appropriate to be used as a "custom authorizer" (aka "lambda authorizer") in AWS API Gateway. Package and deploy this software as a lambda function and set up an API Gateway to use the lambda as your token authorizer.
 
 
 ## Prerequisites
@@ -17,7 +17,7 @@ In addition, you will need to build a number of AWS resources to use this softwa
 ## Installation (for running locally to debug)
 
 ```
-git clone git@github.com:omnivector-solutions/jwt-apigw-authorizer
+git clone git@github.com:omnivector-solutions/jawthorizer
 python3 -m venv venv
 . venv/bin/activate
 pip install wheel .[dev]
@@ -102,10 +102,10 @@ You will need to:
     - env.json, with contents:
         ```
         {
-            "AUTHORIZER_APP_SHORT_NAME": "my-app",
-            "AUTHORIZER_STAGE": "edge",
-            "AUTHORIZER_REGION": "us-west-2",
-            "AUTHORIZER_ALLOWED_SUBS": "*"
+            "JAWTHORIZER_APP_SHORT_NAME": "my-app",
+            "JAWTHORIZER_STAGE": "edge",
+            "JAWTHORIZER_REGION": "us-west-2",
+            "JAWTHORIZER_ALLOWED_SUBS": "*"
         }
         ```
 
@@ -127,11 +127,11 @@ You will need to:
 
       For the token payload:
       - you must specify both `sub` and `iss` in the payload
-      - you may specify any `sub` that you want (it must glob-match AUTHORIZER_ALLOWED_SUBS)
+      - you may specify any `sub` that you want (it must glob-match JAWTHORIZER_ALLOWED_SUBS)
       - specify `iss` as: `my-app::edge::us-west-2`
       - you may specify payload `exp` for an expiring token, and it will be checked if it is set
 
-- run: `python-lambda-local -e env.json authorizer/authorizer.py event.json`
+- run: `python-lambda-local -e env.json jawthorizer/src/jawthorizer/__init__.py event.json`
 
   This simulates the way API Gateway would invoke your Lambda with a Bearer Authorization token from an inbound request.
 
@@ -143,4 +143,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Contact
 Omnivector Solutions - [www.omnivector.solutions][website] - <info@omnivector.solutions>
 
-Project Link: [https://github.com/omnivector-solutions/jwt-apigw-authorizer](https://github.com/omnivector-solutions/jwt-apigw-authorizer)
+Project Link: [https://github.com/omnivector-solutions/jawthorizer](https://github.com/omnivector-solutions/jawthorizer)
