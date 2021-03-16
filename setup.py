@@ -15,15 +15,23 @@ setuptools.setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     install_requires=[
-        "boto3",
         "databases[postgresql]",
         "fastapi",
-        "httpx",
         "mangum",
         "aws-psycopg2",  # soft-required by sqlalchemy
-        "sqlalchemy",
+        "sqlalchemy>=1.3.23,<1.4",
+        # "sqlalchemy>=1.4",  # waiting for https://github.com/encode/databases/issues/298
     ],
     extras_require={
+        "agent": [
+            "httpx",
+        ],
+        "admin": [
+            # for lm-create-jwt
+            "boto3",
+            "click",
+            "pyjwt",
+        ],
         "dev": [
             "black",
             "databases[sqlite]",
@@ -33,16 +41,18 @@ setuptools.setup(
             "pytest",
             "pytest-asyncio",
             "pytest-cov",
+            "pytest-env",
+            "pytest-freezegun",
             "respx",
             "sqlalchemy-stubs",
             "tox",
             "uvicorn",
             "wheel",
-        ]
+        ],
     },
     entry_points={
         "console_scripts": [
-            # "license-agent=license_manager.agent.main:main",
+            "lm-create-jwt=licensemanager2.backend.createjwt:main",
         ],
     },
     include_package_data=True,

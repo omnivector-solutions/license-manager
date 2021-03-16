@@ -7,6 +7,7 @@ import logging
 
 from fastapi import FastAPI
 
+from licensemanager2.agent import logger
 from licensemanager2.agent.api import api_v1
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.common_api import OK
@@ -47,7 +48,15 @@ def begin_logging():
     Configure logging
     """
     level = getattr(logging, SETTINGS.LOG_LEVEL)
-    logging.getLogger().setLevel(level)
+    logger.setLevel(level)
+
+    # as a developer you'll run this with uvicorn,
+    # which takes over logging.
+    uvicorn = logging.getLogger("uvicorn")
+    if uvicorn.handlers:  # pragma: nocover
+        logger.addHandler(uvicorn.handlers[0])
+
+    logger.info(f"Forwarding requests ⇒ {SETTINGS.BACKEND_BASE_URL}")
 
 
 app.include_router(api_v1, prefix="/api/v1")

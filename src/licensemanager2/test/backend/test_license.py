@@ -1,8 +1,9 @@
 """
 Tests of the /license API endpoints
 """
+from fastapi import HTTPException
 from httpx import AsyncClient
-from pytest import mark
+from pytest import mark, raises
 
 from licensemanager2.backend import license
 from licensemanager2.backend.schema import license_table
@@ -126,3 +127,23 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses):
         ),
         dict(product_feature="hello.world", total=100, booked=19, available=81),
     ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_map_bookings(some_licenses):
+    """
+    Do I create sql updates and inserts out of a list of bookings?
+    """
+    await insert_objects(some_licenses, license_table)
+    lubs = [
+        license.LicenseUseBooking(product_feature="cool.beans", booked=19),
+        license.LicenseUseBooking(product_feature="men.with_hats", booked=19),
+    ]
+    with raises(HTTPException):
+        await license.map_bookings(lubs)
+
+    del lubs[1]
+    assert await license.map_bookings(lubs) == {
+        "cool.beans": license.LicenseUseBooking(product_feature="cool.beans", booked=19)
+    }

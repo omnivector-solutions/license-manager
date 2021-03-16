@@ -1,12 +1,11 @@
 .idea/
 .tox/
-*.snap
 *.pyc
 
 /.vscode
 /*.code-workspace
 
-/license_manager.egg-info
+/*.egg-info
 /dist
 /build
 

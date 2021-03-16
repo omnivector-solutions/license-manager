@@ -77,7 +77,7 @@ the agent, and its dependencies, as well.
 1. Start by building the lambda zipfile:
 
     ```#!bash
-    make -B function.zip
+    make -B function.zip function-jawthorizer.zip
     ```
 
 2. Use the github
@@ -88,15 +88,16 @@ install `terraform`.
     Live deployments should be configured in `live/license-manager/xxxx` (stage,
     prod, edge, or other).
 
-    You will need to set one environment variable before running terraform:
+    Before running terraform:
 
     ```#!bash
-    # a path to step 1 function.zip
-    export TF_VAR_zipfile=/some/path/function.zip
-    ```
+    # create scratch.auto.tfvars
+    echo > scratch.auto.tfvars << EOF
+    zipfile = "/some/path/to/function.zip"
+    zipfile_authorizer = "/some/path/to/function-jawthorizer.zip"
+    EOF
 
-    **RECOMMENDED**: Use your virtualenv `postactivate` script to set this environment
-    variable every time you activate your virtualenv.
+    ```
 
 
 3. Run terraform commands:
@@ -108,10 +109,10 @@ install `terraform`.
     terraform init
 
     # show what resources will be changed, like a dry run
-    terraform plan
+    terraform plan -out lm.out
 
     # actually create/modify resources
-    terraform apply
+    terraform apply lm.out
     ```
 
     Terraform will output the live internet URL where you can access the HTTP API of the backend.
