@@ -125,10 +125,53 @@ install `terraform`.
     npx bats deployment/test
     ```
 
+### NOTE: Destroying secrets with terraform
+
+AWS holds destroyed secrets for 7-30 days (depending on how they're configured). So if you use
+`terraform destroy` and then try to recreate the resources right away, AWS (via terraform) will tell you:
+
+```
+Error: error creating Secrets Manager Secret: InvalidRequestException: You can't create this 
+secret because a secret with this name is already scheduled for deletion.
+```
+
+If you get this error, you can fix it by restoring and importing the old secret into terraform:
+
+```
+# use the aws cli to restore the secret
+$ aws secretsmanager restore-secret --secret-id /license-manager/{{YOUR_STAGE_NAME}}/token-secret
+{
+    "Name": "/license-manager/cory/token-secret",
+    "ARN": "arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc"
+}
+
+
+# import the restored secret back into terraform using the ARN of the restored secret
+$ terraform import module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret  arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc
+
+module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Importing from ID "arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc"...
+module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Import prepared!
+  Prepared aws_secretsmanager_secret for import
+module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Refreshing state... [id=arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+
+
+# run terraform plan/apply as usual
+$ terraform plan -out myplan.out
+...
+Plan: 1 to add, 1 to change, 0 to destroy.
+```
+
+In the last step, terraform will create any other resources that it needs to. It will also alter-in-place
+and fix the secret so you can keep working.
 
 ## Deploy (agent)
 
-TODO - snap/charm
+TODO - pypi/charm
 
 
 ## Run locally
