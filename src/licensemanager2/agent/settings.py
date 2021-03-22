@@ -3,8 +3,9 @@ Configuration of the agent running in the cluster
 """
 
 from enum import Enum
+from pkg_resources import get_supported_platform, resource_filename
 
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings, DirectoryPath, Field
 
 
 class LogLevelEnum(str, Enum):
@@ -21,6 +22,7 @@ class LogLevelEnum(str, Enum):
 
 _JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
 _URL_REGEX = r"http[s]?://.+"
+_DEFAULT_BINDIR = resource_filename("licensemanager2.agent", get_supported_platform())
 
 
 class _Settings(BaseSettings):
@@ -37,6 +39,12 @@ class _Settings(BaseSettings):
 
     # a JWT API token for accessing the backend
     BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
+
+    # a path to a folder containing binaries for license management tools
+    BIN_PATH: DirectoryPath = _DEFAULT_BINDIR
+
+    # interval, in seconds: how long between license count checks
+    STAT_INTERVAL: int = 5*60
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False

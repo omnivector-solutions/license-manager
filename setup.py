@@ -17,6 +17,7 @@ setuptools.setup(
     install_requires=[
         "databases[postgresql]",
         "fastapi",
+        "fastapi-utils",
         "mangum",
         "aws-psycopg2",  # soft-required by sqlalchemy
         "sqlalchemy>=1.3.23,<1.4",
