@@ -1,0 +1,60 @@
+lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+Flexible License Manager status on Thu 10/29/2020 17:44
+
+License server status: server1,server2,server3
+    License file(s) on server1: f:\flexlm\AbaqusLM\License\license.dat:
+
+server1: license server UP v11.13
+server2: license server UP (MASTER) v11.13
+server3: license server UP v11.13
+
+Vendor daemon status (on server2):
+ABAQUSLM: UP v11.13
+
+Feature usage info:
+
+Users of abaqus:  (Total of 737 licenses issued;  Total of 737 licenses in use)
+
+"abaqus" v62.2, vendor: ABAQUSLM
+
+floating license
+
+
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 27 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 4 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 20 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 4 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 17 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 16 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 22 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 31 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 33 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 20 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 6 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 20 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 20 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 27 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 34 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 17 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 38 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 9 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 21 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 20 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 25 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 16 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 7 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 22 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 14 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 2 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 14 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 27 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 17 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 17 licenses
+    jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 22 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 11 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 19 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 10 licenses
+    cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 12 licenses
+    jxezha myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 38 licenses
