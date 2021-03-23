@@ -117,10 +117,19 @@ def test_fix_method_arn(some_method_arn):
     """
     Do I correct a specific method to permit a generic method?
     """
-    assert jawthorizer._fix_method_arn(some_method_arn) == "arn:aws:us-west-2:asdfasdfasdf:idc:/testy/*"
+    assert (
+        jawthorizer._fix_method_arn(some_method_arn)
+        == "arn:aws:us-west-2:asdfasdfasdf:idc:/testy/*"
+    )
 
 
-def test_handler(patched_settings, some_method_arn, token_from_settings, token_from_settings_bad, patched_botoclient):
+def test_handler(
+    patched_settings,
+    some_method_arn,
+    token_from_settings,
+    token_from_settings_bad,
+    patched_botoclient,
+):
     """
     Does it handle?
     """
@@ -162,7 +171,9 @@ def test_handler(patched_settings, some_method_arn, token_from_settings, token_f
     assert jawthorizer.handler(event, context) == OK
 
 
-def test_handler_missing_secret(patched_settings, some_method_arn, patched_botoclient_bad):
+def test_handler_missing_secret(
+    patched_settings, some_method_arn, patched_botoclient_bad
+):
     """
     Confirm a failure, when the problem is the secret is missing
     """

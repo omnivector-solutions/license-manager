@@ -11,7 +11,8 @@ from pytest import fixture
 
 USERS = "jxezha jbemfv cdxfdn".split()
 
-TPL = dedent("""\
+TPL = dedent(
+    """\
     lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
     Flexible License Manager status on Thu 10/29/2020 17:44
 
@@ -36,7 +37,8 @@ TPL = dedent("""\
     {% for job in jobs %}
         {{job.user}} myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, {{job.license_allocations}} licenses
     {%- endfor %}
-    """)
+    """
+)
 
 
 LICENSE_MAX = 1000
@@ -61,7 +63,10 @@ def _job_data():
     while tot - LICENSE_MAX > 0:
         del rows[-1]
         tot = sum(rows)
-    rows = [{"job_id": n, "user": random.choice(USERS), "license_allocations": count} for (n, count) in enumerate(rows)]
+    rows = [
+        {"job_id": n, "user": random.choice(USERS), "license_allocations": count}
+        for (n, count) in enumerate(rows)
+    ]
     return tot, rows
 
 
