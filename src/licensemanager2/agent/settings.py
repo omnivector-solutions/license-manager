@@ -3,12 +3,17 @@ Configuration of the agent running in the cluster
 """
 
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
+import sys
 import typing
 
 from pkg_resources import get_supported_platform, resource_filename
 from pydantic import BaseSettings, DirectoryPath, Field, validator
+from pydantic.error_wrappers import ValidationError
 from pydantic.main import BaseModel
+
+from licensemanager2.agent import logger
 
 
 class LogLevelEnum(str, Enum):
@@ -28,6 +33,8 @@ _URL_REGEX = r"http[s]?://.+"
 _DEFAULT_BIN_PATH = Path(
     resource_filename("licensemanager2.agent", get_supported_platform())
 )
+_ADDR_REGEX = r"\S+?:\S+?:\d+"
+_SERVICE_ADDRS_REGEX = rf"{_ADDR_REGEX}(\s+{_ADDR_REGEX})*"
 
 
 class LicenseService(BaseModel):
@@ -97,9 +104,7 @@ class _Settings(BaseSettings):
 
     # list of separated service descriptions to check.
     # see LicenseServiceCollection.from_env_string for syntax
-    SERVICE_ADDRS: LicenseServiceCollection = LicenseServiceCollection.from_env_string(
-        "flexlm:127.0.0.1:2345"
-    )
+    SERVICE_ADDRS: str = Field("flexlm:127.0.0.1:2345", regex=_SERVICE_ADDRS_REGEX)
 
     # interval, in seconds: how long between license count checks
     STAT_INTERVAL: int = 5 * 60
@@ -113,16 +118,25 @@ class _Settings(BaseSettings):
     class Config:
         env_prefix = "LM2_AGENT_"
 
-    @validator("SERVICE_ADDRS")
-    def validate_service_addrs(
-        cls, s: typing.Union[str, LicenseServiceCollection]
-    ) -> LicenseServiceCollection:
+    @lru_cache
+    def _service_addrs(self) -> LicenseServiceCollection:
         """
         Convert the string form into a LicenseServiceCollection
         """
-        if isinstance(s, LicenseServiceCollection):
-            return s
-        return LicenseServiceCollection.from_env_string(s)
+        return LicenseServiceCollection.from_env_string(self.SERVICE_ADDRS)
+
+    @property
+    def service_addrs(self) -> LicenseServiceCollection:
+        return self._service_addrs()
 
 
-SETTINGS = _Settings()
+@lru_cache
+def init_settings():
+    try:
+        return _Settings()
+    except ValidationError as e:
+        logger.error(e)
+        sys.exit(1)
+
+
+SETTINGS = init_settings()
