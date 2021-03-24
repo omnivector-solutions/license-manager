@@ -30,7 +30,7 @@ RX = re.compile(
 )
 
 
-def parse(s):
+def parse(s: str) -> dict:
     """
     Parse lines of the license output with regular expressions
     """

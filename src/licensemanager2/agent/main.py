@@ -3,14 +3,52 @@ License-manager agent, command line entrypoint
 
 Run with e.g. `uvicorn licensemanager2.agent.main:app`
 """
+from itertools import cycle
 import logging
 
 from fastapi import FastAPI
+from fastapi_utils.tasks import repeat_every
 
-from licensemanager2.agent import logger
+from licensemanager2.agent import logger, tokenstat
 from licensemanager2.agent.api import api_v1
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.common_api import OK
+
+
+def generate_primes():
+    """
+    A series of prime numbers for generating non-overlapping time intervals
+    """
+    ret = [
+        int(i)
+        for i in (
+            "877 1019 1153 1297 1453 1597 1741 1901 2063 2221 2371 2539 2689 2833 3001 3187 3343 3517"
+            " 3659 3823 4001 4153 4327 4507 4663 4861 5009 5189 5393 5527 5701 5861 6067 6229 6373 6577"
+            " 6763 6947 7109 7307 7507 7649 7841 8039 8221 8389 8599 8747 8933 9127 9293 9461 9643 9817"
+        ).split()
+    ]
+    for n in cycle(ret):
+        yield n
+
+
+primes = generate_primes()
+
+
+def interval_prime_offset(s):
+    """
+    Produce a number of seconds offset by a prime number
+
+    This creates a number of seconds from s+0.877 to s+9.817. The resulting
+    intervals will not overlap one another, even for same values of s.
+
+    This helps you to detect timed patterns in your logs based on the
+    ms interval between events, even if the timed event itself doesn't
+    log anything.
+
+    NOTE: the generator only has 54 primes, so if you need more than 54
+    similar timers, maybe improve on this.
+    """
+    return next(primes) / 1000.0 + s
 
 
 app = FastAPI()
@@ -57,6 +95,20 @@ def begin_logging():
         logger.addHandler(uvicorn.handlers[0])
 
     logger.info(f"Forwarding requests ⇒ {SETTINGS.BACKEND_BASE_URL}")
+
+
+@app.on_event("startup")
+@repeat_every(
+    seconds=interval_prime_offset(SETTINGS.STAT_INTERVAL),
+    logger=logger,
+    raise_exceptions=True,
+)
+async def collect_stats():
+    """
+    Periodically get license stats and report them to the backend
+    """
+    logger.info("⏲️ 📒 begin stat collection")
+    await tokenstat.report()
 
 
 app.include_router(api_v1, prefix="/api/v1")
