@@ -27,9 +27,6 @@ class LicenseUseBase(BaseModel):
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
 
-    class Config:
-        orm_mode = True
-
 
 class LicenseUseReconcile(LicenseUseBase):
     """
