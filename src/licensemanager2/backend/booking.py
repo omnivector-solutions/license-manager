@@ -121,7 +121,7 @@ async def create_booking(booking: Booking):
         lubs.append(
             license.LicenseUseBooking(
                 product_feature=feat.product_feature,
-                booked=feat.booked,
+                used=feat.booked,
             )
         )
     edited = await license.edit_counts(booking=await license.map_bookings(lubs))
@@ -160,7 +160,7 @@ async def delete_booking(job_id: str):
         lubs.append(
             license.LicenseUseBooking(
                 product_feature=row.product_feature,
-                booked=-row.booked,
+                used=-row.booked,
             )
         )
     edited = await license.edit_counts(booking=await license.map_bookings(lubs))

@@ -21,11 +21,11 @@ router_license = APIRouter()
 
 class LicenseUseBase(BaseModel):
     """
-    Booked/Total counts for a product.feature license category
+    Used/Total counts for a product.feature license category
     """
 
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    booked: int
+    used: int
 
     class Config:
         orm_mode = True
@@ -33,7 +33,7 @@ class LicenseUseBase(BaseModel):
 
 class LicenseUseReconcile(LicenseUseBase):
     """
-    A reconcile [PATCH] Booked/Total counts for a product.feature license category
+    A reconcile [PATCH] Used/Total counts for a product.feature license category
 
     For creating items through the reconcile mechanism
     """
@@ -43,7 +43,7 @@ class LicenseUseReconcile(LicenseUseBase):
 
 class LicenseUse(LicenseUseBase):
     """
-    Booked/Available/Total counts for a product.feature license category
+    Used/Available/Total counts for a product.feature license category
 
     Returned by GET queries, including `available` for convenience
     """
@@ -57,7 +57,7 @@ class LicenseUse(LicenseUseBase):
         """
         Set available as a function of the other fields
         """
-        return values["total"] - values["booked"]
+        return values["total"] - values["used"]
 
 
 class LicenseUseBooking(LicenseUseBase):
@@ -79,7 +79,7 @@ async def licenses_all():
 @router_license.get("/use/{product}", response_model=List[LicenseUse])
 async def licenses_product(product: str):
     """
-    Booked counts of all licenses, 1 product
+    Used counts of all licenses, 1 product
     """
     query = (
         license_table.select()
@@ -93,7 +93,7 @@ async def licenses_product(product: str):
 @router_license.get("/use/{product}/{feature}", response_model=List[LicenseUse])
 async def licenses_product_feature(product: str, feature: str):
     """
-    Booked counts of a product.feature category
+    Used counts of a product.feature category
     """
     query = license_table.select().where(
         license_table.c.product_feature == f"{product}.{feature}"
@@ -196,17 +196,17 @@ async def edit_counts(booking=Depends(map_bookings)):
     """
     Modify a LicenseUse in the database by adding or subtracting t okens.
 
-    If an existing product_feature exists for this, update it by incrementing `booked',
+    If an existing product_feature exists for this, update it by incrementing `used',
     otherwise create it.
 
-    An error occurs if the new amount for `booked` exceeds `total` or is <0
+    An error occurs if the new amount for `used` exceeds `total` or is <0
     """
     ops = []
     for pf, license_use in booking.items():
         q_update = (
             update(license_table)
             .where(license_table.c.product_feature == pf)
-            .values(booked=license_table.c.booked + license_use.booked)
+            .values(used=license_table.c.used + license_use.used)
         )
         ops.append(database.execute(q_update))
 
@@ -219,7 +219,7 @@ async def edit_counts(booking=Depends(map_bookings)):
         raise HTTPException(
             status_code=400,
             detail=(
-                "Couldn't add one of these bookings, check that the new booked count will be <= total"
+                "Couldn't add one of these counts, check that the new used count will be <= total"
             ),
         )
     return await _get_these_licenses(list(booking.keys()))

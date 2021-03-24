@@ -72,7 +72,7 @@ CURL="curl -o- -f -L -i --no-progress-meter"
     run $CURL --header "$AUTH_HEADER" \
         --request PATCH \
         --header 'content-type: application/json' \
-        --data '[{"product_feature": "abaqus.abaqus","booked": 0,"total": 119},{"product_feature": "abaqus.gpu","booked": 119,"total": 1909}]' \
+        --data '[{"product_feature": "abaqus.abaqus","used": 0,"total": 119},{"product_feature": "abaqus.gpu","used": 119,"total": 1909}]' \
         $base_url/api/v1/license/reconcile
     assert_success
     assert_line --partial '[{"product_feature":"abaqus.abaqus",'
