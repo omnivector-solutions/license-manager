@@ -10,6 +10,21 @@ from licensemanager2.agent import logger
 from licensemanager2.agent.settings import SETTINGS
 
 
+@lru_cache()
+def async_client() -> httpx.AsyncClient:
+    """
+    HTTPX client that authenticates with & makes requests to the l-m backend
+
+    Memoized for reuse and connection pooling
+    """
+
+    def _auth(request):
+        request.headers["authorization"] = f"Bearer {SETTINGS.BACKEND_API_TOKEN}"
+        return request
+
+    return httpx.AsyncClient(base_url=SETTINGS.BACKEND_BASE_URL, auth=_auth)
+
+
 class ForwardOperation:
     """
     Forward an inbound request to the agent to the backend, and return
@@ -26,23 +41,9 @@ class ForwardOperation:
         Make the backend request and bring back the response
         """
         httpx_req = await self._adapt_request_fastapi_to_httpx(self.request)
-        httpx_resp = await self.async_client().send(httpx_req)
+        httpx_resp = await async_client().send(httpx_req)
         resp = self._adapt_response_httpx_to_fastapi(httpx_resp)
         return resp
-
-    @lru_cache()
-    def async_client(self) -> httpx.AsyncClient:
-        """
-        HTTPX client that authenticates with & makes requests to the l-m backend
-
-        Memoized for reuse and connection pooling
-        """
-
-        def _auth(request):
-            request.headers["authorization"] = f"Bearer {SETTINGS.BACKEND_API_TOKEN}"
-            return request
-
-        return httpx.AsyncClient(base_url=SETTINGS.BACKEND_BASE_URL, auth=_auth)
 
     @staticmethod
     def _adapt_response_httpx_to_fastapi(resp: httpx.Response) -> Response:
@@ -75,7 +76,7 @@ class ForwardOperation:
 
         # both of the removed headers will be set by httpx
 
-        ret = self.async_client().build_request(
+        ret = async_client().build_request(
             req.method, url, headers=_headers.items(), content=await req.body()
         )
         return ret
