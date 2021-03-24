@@ -3,6 +3,7 @@ Configuration of the agent running in the cluster
 """
 
 from enum import Enum
+from pathlib import Path
 import typing
 
 from pkg_resources import get_supported_platform, resource_filename
@@ -24,7 +25,9 @@ class LogLevelEnum(str, Enum):
 
 _JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
 _URL_REGEX = r"http[s]?://.+"
-_DEFAULT_BINDIR = resource_filename("licensemanager2.agent", get_supported_platform())
+_DEFAULT_BINDIR = Path(
+    resource_filename("licensemanager2.agent", get_supported_platform())
+)
 
 
 class LicenseService(BaseModel):
@@ -32,6 +35,7 @@ class LicenseService(BaseModel):
     A license service such as "flexlm", with a set of host-port tuples
     representing the network location where the service is listening.
     """
+
     name: str
     hostports: typing.List[typing.Tuple[str, int]]
 
@@ -40,6 +44,7 @@ class LicenseServiceCollection(BaseModel):
     """
     A collection of LicenseServices, mapped by their names
     """
+
     services: typing.Dict[str, LicenseService]
 
     @classmethod
@@ -62,9 +67,11 @@ class LicenseServiceCollection(BaseModel):
         self = cls(services={})
         services = services.split()
         for item in services:
-            name, host, port = item.split(':', 2)
+            name, host, port = item.split(":", 2)
 
-            svc = self.services.setdefault(name, LicenseService(name=name, hostports=[]))
+            svc = self.services.setdefault(
+                name, LicenseService(name=name, hostports=[])
+            )
             svc.hostports.append((host, int(port)))
 
         return self
@@ -105,11 +112,11 @@ class _Settings(BaseSettings):
         env_prefix = "LM2_AGENT_"
 
     @validator("SERVICE_ADDRS")
-    def validate_service_addrs(s):
+    def validate_service_addrs(cls, s):
         """
         Convert the string form into a LicenseServiceCollection
         """
-        return LicenseServiceCollection.from_env_string(s)
+        return cls.from_env_string(s)
 
 
 SETTINGS = _Settings()

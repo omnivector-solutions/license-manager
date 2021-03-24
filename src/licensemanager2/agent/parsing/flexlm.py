@@ -2,6 +2,7 @@
 Parser for flexlm
 """
 import re
+import typing
 
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
@@ -30,7 +31,7 @@ RX = re.compile(
 )
 
 
-def parse(s: str) -> dict:
+def parse(s: str) -> typing.List[dict]:
     """
     Parse lines of the license output with regular expressions
     """

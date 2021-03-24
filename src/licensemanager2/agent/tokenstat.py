@@ -9,21 +9,22 @@ import typing
 from pydantic import BaseModel, Field
 
 from licensemanager2.agent import logger
-# from licensemanager2.agent.forward import async_client
 from licensemanager2.agent.parsing import flexlm
 from licensemanager2.agent.settings import SETTINGS
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
+ENCODING = "UTF8"
 
 
 class LicenseReportItem(BaseModel):
     """
     An item in a LicenseReport, a count of tokens for one product/feature
     """
+
     tool_name: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    total: int
+    used: int
 
     @classmethod
     def from_stdout(cls, parse_fn, tool_name, product_feature, stdout):
@@ -31,8 +32,10 @@ class LicenseReportItem(BaseModel):
         Create a LicenseReportItem by parsing the stdout from the program that produced it
         """
         parsed = parse_fn(stdout)
-        total = sum(int(x["tokens"]) for x in parsed)
-        return LicenseReportItem(tool_name=tool_name, product_feature=product_feature, total=total)
+        used = sum(int(x["tokens"]) for x in parsed)
+        return LicenseReportItem(
+            tool_name=tool_name, product_feature=product_feature, used=used
+        )
 
 
 TOOL_TIMEOUT = 6  # seconds
@@ -46,7 +49,11 @@ class ToolOptions(BaseModel):
     name: str
     path: Path
     args: str
-    parse_fn: typing.Callable[[str], dict]
+    # This runs into https://github.com/python/mypy/issues/708 if we try to specify the argument
+    # types. this is because parse_fn *looks like* a method when it's an attribute of this class;
+    # but in fact it is (usually) a simple function. As a workaround, the argument types are
+    # unspecified, but it should be `[str]`
+    parse_fn: typing.Callable[..., typing.List[dict]]
 
     def cmd_list(self) -> typing.List[str]:
         """
@@ -55,7 +62,9 @@ class ToolOptions(BaseModel):
         ret = []
         addrs = SETTINGS.SERVICE_ADDRS.services[self.name].hostports
         for host, port in addrs:
-            cl = self.args.format(exe=quote(str(self.path)), host=quote(host), port=port)
+            cl = self.args.format(
+                exe=quote(str(self.path)), host=quote(host), port=port
+            )
             ret.append(cl)
 
         return ret
@@ -68,14 +77,13 @@ class ToolOptionsCollection:
 
     tools: dict = {
         "flexlm": ToolOptions(
-                name="flexlm",
-                path=Path(f"{SETTINGS.BIN_PATH}/lmstat"),
-                args="{exe} -c {port}@{host} -f abaqus.abaqus",
-                parse_fn=flexlm.parse
-            ),
+            name="flexlm",
+            path=Path(f"{SETTINGS.BIN_PATH}/lmstat"),
+            args="{exe} -c {port}@{host} -f abaqus.abaqus",
+            parse_fn=flexlm.parse,
+        ),
         # "other_tool": ToolOptions(...)
-
-        }
+    }
 
 
 async def check_tool_ports(tool_options: ToolOptions):
@@ -86,20 +94,23 @@ async def check_tool_ports(tool_options: ToolOptions):
     for cmd in commands:
         logger.info(f"{tool_options.name}: {cmd}")
         proc = await asyncio.create_subprocess_shell(
-            cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT
-            )
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+        )
 
         # block until a check at this host:port succeeds or fails
         stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
-        stdout = str(stdout, encoding="UTF8")
+        output = str(stdout, encoding=ENCODING)
         if proc.returncode == 0:
-            return LicenseReportItem.from_stdout(tool_options.parse_fn, tool_options.name, "PROD.FEAT", stdout)
+            return LicenseReportItem.from_stdout(
+                parse_fn=tool_options.parse_fn,
+                tool_name=tool_options.name,
+                product_feature="PROD.FEAT",
+                stdout=output,
+            )
 
         else:
             logger.info(f"rc = {proc.returncode}!")
-            logger.info(stdout)
+            logger.info(output)
 
     raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
 
