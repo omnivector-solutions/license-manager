@@ -25,7 +25,7 @@ class LogLevelEnum(str, Enum):
 
 _JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
 _URL_REGEX = r"http[s]?://.+"
-_DEFAULT_BINDIR = Path(
+_DEFAULT_BIN_PATH = Path(
     resource_filename("licensemanager2.agent", get_supported_platform())
 )
 
@@ -93,11 +93,13 @@ class _Settings(BaseSettings):
     BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
 
     # a path to a folder containing binaries for license management tools
-    BIN_PATH: DirectoryPath = _DEFAULT_BINDIR
+    BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
 
     # list of separated service descriptions to check.
     # see LicenseServiceCollection.from_env_string for syntax
-    SERVICE_ADDRS: str = "flexlm:127.0.0.1:2345"
+    SERVICE_ADDRS: LicenseServiceCollection = LicenseServiceCollection.from_env_string(
+        "flexlm:127.0.0.1:2345"
+    )
 
     # interval, in seconds: how long between license count checks
     STAT_INTERVAL: int = 5 * 60
@@ -112,11 +114,15 @@ class _Settings(BaseSettings):
         env_prefix = "LM2_AGENT_"
 
     @validator("SERVICE_ADDRS")
-    def validate_service_addrs(cls, s):
+    def validate_service_addrs(
+        cls, s: typing.Union[str, LicenseServiceCollection]
+    ) -> LicenseServiceCollection:
         """
         Convert the string form into a LicenseServiceCollection
         """
-        return cls.from_env_string(s)
+        if isinstance(s, LicenseServiceCollection):
+            return s
+        return LicenseServiceCollection.from_env_string(s)
 
 
 SETTINGS = _Settings()
