@@ -10,7 +10,7 @@ from licensemanager2.agent import logger
 from licensemanager2.agent.settings import SETTINGS
 
 
-@lru_cache()
+@lru_cache
 def async_client() -> httpx.AsyncClient:
     """
     HTTPX client that authenticates with & makes requests to the l-m backend

@@ -2,8 +2,10 @@
 Invoke license stat tools to build a view of license token counts
 """
 import asyncio
+from functools import lru_cache
 from pathlib import Path
 from shlex import quote
+import traceback
 import typing
 
 from pydantic import BaseModel, Field
@@ -16,6 +18,55 @@ from licensemanager2.agent.settings import SETTINGS
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 ENCODING = "UTF8"
 
+TOOL_TIMEOUT = 6  # seconds
+
+
+class LicenseService(BaseModel):
+    """
+    A license service such as "flexlm", with a set of host-port tuples
+    representing the network location where the service is listening.
+    """
+
+    name: str
+    hostports: typing.List[typing.Tuple[str, int]]
+
+
+class LicenseServiceCollection(BaseModel):
+    """
+    A collection of LicenseServices, mapped by their names
+    """
+
+    services: typing.Dict[str, LicenseService]
+
+    @classmethod
+    def from_env_string(cls, env_str: str) -> "LicenseServiceCollection":
+        """
+        @returns LicenseServiceCollection from parsing colon-separated env input
+
+        The syntax is:
+
+        - servicename:host:port e.g. "flexlm:172.0.1.2:2345"
+
+        - each entry separated by spaces e.g.
+          "flexlm:172.0.1.2:2345 abclm:172.0.1.3:2319"
+
+        - if the same service appears twice in the list they will be
+          merged, e.g.:
+          "flexlm:173.0.1.2:2345 flexlm:172.0.1.3:2345"
+          -> (pseudodata) "flexlm": [("173.0.1.2", 2345), "173.0.1.3", 2345)]
+        """
+        self = cls(services={})
+        services = env_str.split()
+        for item in services:
+            name, host, port = item.split(":", 2)
+
+            svc = self.services.setdefault(
+                name, LicenseService(name=name, hostports=[])
+            )
+            svc.hostports.append((host, int(port)))
+
+        return self
+
 
 class LicenseReportItem(BaseModel):
     """
@@ -25,6 +76,7 @@ class LicenseReportItem(BaseModel):
     tool_name: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
+    total: int = 999999
 
     @classmethod
     def from_stdout(cls, parse_fn, tool_name, product_feature, stdout):
@@ -36,9 +88,6 @@ class LicenseReportItem(BaseModel):
         return LicenseReportItem(
             tool_name=tool_name, product_feature=product_feature, used=used
         )
-
-
-TOOL_TIMEOUT = 6  # seconds
 
 
 class ToolOptions(BaseModel):
@@ -60,7 +109,7 @@ class ToolOptions(BaseModel):
         A list of the command lines to run this tool, 1 per service host:port combination
         """
         ret = []
-        addrs = SETTINGS.SERVICE_ADDRS.services[self.name].hostports
+        addrs = _get_service_hostports(self.name)
         for host, port in addrs:
             cl = self.args.format(
                 exe=quote(str(self.path)), host=quote(host), port=port
@@ -70,12 +119,21 @@ class ToolOptions(BaseModel):
         return ret
 
 
+@lru_cache
+def _get_service_hostports(name: str) -> typing.List[typing.Tuple[str, int]]:
+    """
+    Parse service hostports from the environment and return them as a list, for the named service
+    """
+    lsc = LicenseServiceCollection.from_env_string(SETTINGS.SERVICE_ADDRS)
+    return lsc.services[name].hostports
+
+
 class ToolOptionsCollection:
     """
     Specifications for running tools to access the license servers
     """
 
-    tools: dict = {
+    tools: typing.Dict[str, ToolOptions] = {
         "flexlm": ToolOptions(
             name="flexlm",
             path=Path(f"{SETTINGS.BIN_PATH}/lmstat"),
@@ -86,9 +144,9 @@ class ToolOptionsCollection:
     }
 
 
-async def check_tool_ports(tool_options: ToolOptions):
+async def attempt_tool_checks(tool_options: ToolOptions):
     """
-    Run one checker, trying each host:port combination in turn, 1 at a time, until one succeeds
+    Run one checker tool, attempting each host:port combination in turn, 1 at a time, until one succeeds
     """
     commands = tool_options.cmd_list()
     for cmd in commands:
@@ -109,26 +167,31 @@ async def check_tool_ports(tool_options: ToolOptions):
             )
 
         else:
-            logger.info(f"rc = {proc.returncode}!")
-            logger.info(output)
+            logger.warn(f"rc = {proc.returncode}!")
+            logger.warn(output)
 
     raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
 
 
-async def report():
+async def report() -> typing.List[dict]:
     """
     Get the stat counts using a license stat tool, then send a
     reconcile to the backend
     """
     tool_awaitables = []
+    reconciliation = []
     for k in ToolOptionsCollection.tools:
         options = ToolOptionsCollection.tools[k]
-        tool_awaitables.append(check_tool_ports(options))
+        tool_awaitables.append(attempt_tool_checks(options))
 
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:
-        if isinstance(res, RuntimeError):
-            logger.error(res)
+        if isinstance(res, Exception):
+            formatted = traceback.format_exception(type(res), res, res.__traceback__)
+            logger.error("".join(formatted))
         else:
-            print(res)
+            rec_item = res.dict(exclude={"tool_name"})
+            reconciliation.append(rec_item)
+
+    return reconciliation
