@@ -1,7 +1,6 @@
 """
 Test the flexlm parser
 """
-
 import random
 from textwrap import dedent
 
@@ -28,14 +27,20 @@ TPL = dedent(
 
     Feature usage info:
 
-    Users of abaqus:  (Total of {{total_licenses}} licenses issued;  Total of {{ jobs | sum(attribute='license_allocations') }} licenses in use)
+    """
+    "    Users of abaqus:  (Total of {{total_licenses}} licenses issued;  "
+    "    Total of {{ jobs | sum(attribute='license_allocations') }} licenses in use)"
+    """
 
     "abaqus" v62.2, vendor: ABAQUSLM
 
     floating license
 
     {% for job in jobs %}
-        {{job.user}} myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, {{job.license_allocations}} licenses
+    """
+    "    {{job.user}} myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507),"
+    " start Thu 10/29 8:09, {{job.license_allocations}} licenses"
+    """
     {%- endfor %}
     """
 )

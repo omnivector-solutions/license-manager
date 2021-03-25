@@ -26,6 +26,7 @@ setuptools.setup(
     extras_require={
         "agent": [
             "httpx",
+            "jinja2",
         ],
         "admin": [
             # for lm-create-jwt
