@@ -8,11 +8,16 @@ import logging
 
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
+from httpx import ConnectError
 
 from licensemanager2.agent import logger, tokenstat
 from licensemanager2.agent.api import api_v1
+from licensemanager2.agent.forward import async_client
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.common_api import OK
+
+
+RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 
 
 def generate_primes():
@@ -108,7 +113,26 @@ async def collect_stats():
     Periodically get license stats and report them to the backend
     """
     logger.info("⏲️ 📒 begin stat collection")
-    await tokenstat.report()
+    rep = await tokenstat.report()
+    if not rep:
+        logger.error(
+            "No license data could be collected, check that tools are installed "
+            "correctly and the right hosts/ports are configured in settings"
+        )
+        return
+
+    client = async_client()
+    path = RECONCILE_URL_PATH
+    try:
+        r = await async_client().patch(path, json=rep)
+    except ConnectError as e:
+        logger.error(f"{client.base_url}{path}: {e}")
+        return
+
+    if r.status_code == 200:
+        logger.info(f"backend updated: {len(rep)} feature(s)")
+    else:
+        logger.error(f"{r.url}: {r.status_code}!: {r.text}")
 
 
 app.include_router(api_v1, prefix="/api/v1")
