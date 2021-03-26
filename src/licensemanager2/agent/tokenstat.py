@@ -76,17 +76,19 @@ class LicenseReportItem(BaseModel):
     tool_name: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
-    total: int = 999999
+    total: int
 
     @classmethod
-    def from_stdout(cls, parse_fn, tool_name, product_feature, stdout):
+    def from_stdout(cls, parse_fn, tool_name, stdout):
         """
         Create a LicenseReportItem by parsing the stdout from the program that produced it
         """
         parsed = parse_fn(stdout)
-        used = sum(int(x["tokens"]) for x in parsed)
-        return LicenseReportItem(
-            tool_name=tool_name, product_feature=product_feature, used=used
+        return cls(
+            tool_name=tool_name,
+            product_feature=f"{parsed['product']}.FEATURE",
+            used=parsed["used"],
+            total=parsed["total"],
         )
 
 
@@ -162,7 +164,6 @@ async def attempt_tool_checks(tool_options: ToolOptions):
             return LicenseReportItem.from_stdout(
                 parse_fn=tool_options.parse_fn,
                 tool_name=tool_options.name,
-                product_feature="PROD.FEAT",
                 stdout=output,
             )
 
@@ -175,8 +176,7 @@ async def attempt_tool_checks(tool_options: ToolOptions):
 
 async def report() -> typing.List[dict]:
     """
-    Get the stat counts using a license stat tool, then send a
-    reconcile to the backend
+    Get stat counts using a license stat tool
     """
     tool_awaitables = []
     reconciliation = []

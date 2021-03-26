@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+dt=$(date +"%a %m/%d/%Y %H:%M")
+
 bad() {
     cat << EOF
 lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
-Flexible License Manager status on Tue 3/23/2021 17:26
+Flexible License Manager status on $dt
 
 Error getting status: Cannot connect to license server (-15,570:111 "Connection refused")
 EOF
@@ -14,7 +16,7 @@ EOF
 good() {
     cat << EOF
 lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
-Flexible License Manager status on Thu 10/29/2020 17:44
+Flexible License Manager status on $dt
 
 License server status: server1,server2,server3
     License file(s) on server1: f:\flexlm\AbaqusLM\License\license.dat:
@@ -28,7 +30,7 @@ ABAQUSLM: UP v11.13
 
 Feature usage info:
 
-Users of abaqus:  (Total of 502 licenses issued;  Total of 502 licenses in use)
+Users of abaqus:  (Total of 1000 licenses issued;  Total of 502 licenses in use)
 
 "abaqus" v62.2, vendor: ABAQUSLM
 

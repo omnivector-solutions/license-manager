@@ -2,17 +2,18 @@
 Parser for flexlm
 """
 import re
-import typing
 
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
 NONWS = r"\S+"
+NONCOLON = r"[^:]+"
 INT = r"\d+"
 NONPAREN = r"[^() ]+"
 MMDD = rf"{INT}/{INT}"
 HHMM = rf"{INT}:{INT}"
-RX = re.compile(
+
+DATA_LINE = (
     r"^\s+"
     rf"(?P<user>{NONWS}) "
     rf"(?P<user_host>{HOSTNAME}) "
@@ -30,15 +31,38 @@ RX = re.compile(
     r"licenses$"
 )
 
+TOTALS_LINE = (
+    r"^Users of "
+    rf"(?P<product>{NONCOLON}):  "
+    r"\(Total of "
+    rf"(?P<total>{INT}) "
+    r"licenses issued;  Total of "
+    rf"(?P<used>{INT}) "
+    rf"licenses in use\)$"
+)
 
-def parse(s: str) -> typing.List[dict]:
+
+RX = re.compile(
+    rf"{DATA_LINE}|"
+    rf"{TOTALS_LINE}"
+)
+
+
+def parse(s: str) -> dict:
     """
     Parse lines of the license output with regular expressions
     """
-    ret = []
     for line in s.splitlines():
         parsed = RX.match(line)
         if parsed is None:
             continue
-        ret.append(parsed.groupdict())
-    return ret
+
+        if parsed.group("total"):
+            d = parsed.groupdict()
+            return {
+                "total": int(d["total"]),
+                "used": int(d["used"]),
+                "product": d["product"],
+            }
+
+    return {}
