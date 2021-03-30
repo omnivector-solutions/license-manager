@@ -44,7 +44,7 @@ jobs:
           git fetch --all
           git checkout master
           NEXT="$(echo ${RELEASE_VERSION} | awk -F. -v OFS=. '{$NF++;print}')-dev0"
-          ./scripts/bump-version.sh '' $NEXT
+          ./bin/bump-version.sh '' $NEXT
           git diff --quiet || git commit -anm 'meta: Bump new development version' && git pull --rebase && git push
 
       - uses: 8398a7/action-slack@v3

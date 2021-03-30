@@ -9,6 +9,7 @@ from pytest import fixture
 
 
 USERS = "jxezha jbemfv cdxfdn".split()
+LICENSE_MAX = 1000
 
 TPL = dedent(
     """\
@@ -44,9 +45,6 @@ TPL = dedent(
     {%- endfor %}
     """
 )
-
-
-LICENSE_MAX = 1000
 
 
 def bv(n: int) -> int:
