@@ -1,92 +1,63 @@
 """
 Test the flexlm parser
 """
-import random
 from textwrap import dedent
 
-from jinja2 import Template
-from pytest import fixture
+from pytest import fixture, mark
+
+from licensemanager2.agent.parsing.flexlm import parse
 
 
-USERS = "jxezha jbemfv cdxfdn".split()
-LICENSE_MAX = 1000
-
-TPL = dedent(
-    """\
-    lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
-    Flexible License Manager status on Thu 10/29/2020 17:44
-
-    License server status: server1,server2,server3
-        License file(s) on server1: f:\\flexlm\\AbaqusLM\\License\\license.dat:
-
-    server1: license server UP v11.13
-    server2: license server UP (MASTER) v11.13
-    server3: license server UP v11.13
-
-    Vendor daemon status (on server2):
-    ABAQUSLM: UP v11.13
-
-    Feature usage info:
-
+@fixture
+def lm_output_bad():
     """
-    "    Users of abaqus:  (Total of {{total_licenses}} licenses issued;  "
-    "    Total of {{ jobs | sum(attribute='license_allocations') }} licenses in use)"
+    Some unparseable lmstat output
     """
+    return dedent(
+        """\
+    lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
+    Flexible License Manager status on Wed 03/31/2021 09:12
 
-    "abaqus" v62.2, vendor: ABAQUSLM
+    Error getting status: Cannot connect to license server (-15,570:111 "Connection refused")
+    """
+    )
 
-    floating license
 
-    {% for job in jobs %}
+@fixture
+def lm_output():
     """
-    "    {{job.user}} myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507),"
-    " start Thu 10/29 8:09, {{job.license_allocations}} licenses"
+    Some lmstat output to parse
     """
-    {%- endfor %}
-    """
+    return dedent(
+        """\
+        lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
+        ...
+
+        Users of abaqus:  (Total of 1000 licenses issued;  Total of 93 licenses in use)
+
+        ...
+
+
+        """
+        "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
+        "start Thu 10/29 8:09, 29 licenses\n"
+        "           cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
+        "start Thu 10/29 8:09, 27 licenses\n"
+        "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
+        "start Thu 10/29 8:09, 37 licenses\n"
+    )
+
+
+@mark.parametrize(
+    "fixture,result",
+    [
+        ("lm_output", {"product": "abaqus", "total": 1000, "used": 93}),
+        ("lm_output_bad", {}),
+    ],
 )
-
-
-def bv(n: int) -> int:
+def test_parse(request, fixture, result):
     """
-    A cheap way to get some simulation curves with a mode near zero
+    Can we parse good and bad output?
     """
-    return int(n * random.betavariate(alpha=2, beta=3))
-
-
-def _job_data():
-    """
-    Generate a data set of random jobs
-
-    The randomly chosen load will skew near the lower end, but also has a tiny spike at the max since the
-    license server cannot give out a number of licenses >1000
-    """
-    rows = [bv(50) for n in range(bv(50))]
-    tot = sum(rows)
-    while tot - LICENSE_MAX > 0:
-        del rows[-1]
-        tot = sum(rows)
-    rows = [
-        {"job_id": n, "user": random.choice(USERS), "license_allocations": count}
-        for (n, count) in enumerate(rows)
-    ]
-    return tot, rows
-
-
-job_data = fixture(_job_data)
-
-
-def _lm_output(job_data):
-    """
-    A full template populated with jobs
-    """
-    total, rows = job_data
-    tpl = Template(TPL)
-    return tpl.render(jobs=rows, total_licenses=total)
-
-
-lm_output = fixture(_lm_output)
-
-
-def test_parse(lm_output):
-    assert 0
+    text = request.getfixturevalue(fixture)
+    assert parse(text) == result

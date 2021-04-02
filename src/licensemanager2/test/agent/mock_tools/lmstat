@@ -65,7 +65,7 @@ EOF
 }
 
 
-if [[ $RANDOM -lt 16384 ]]; then
+if [[ "$1" == "fail" ]]; then
 bad
 else
 good

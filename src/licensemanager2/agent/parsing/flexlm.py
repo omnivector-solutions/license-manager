@@ -42,10 +42,7 @@ TOTALS_LINE = (
 )
 
 
-RX = re.compile(
-    rf"{DATA_LINE}|"
-    rf"{TOTALS_LINE}"
-)
+RX = re.compile(rf"{DATA_LINE}|{TOTALS_LINE}")
 
 
 def parse(s: str) -> dict:

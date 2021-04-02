@@ -5,6 +5,7 @@ Run with e.g. `uvicorn licensemanager2.agent.main:app`
 """
 from itertools import cycle
 import logging
+import typing
 
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
@@ -39,21 +40,21 @@ def generate_primes():
 primes = generate_primes()
 
 
-def interval_prime_offset(s):
+def interval_prime_offset(seconds: typing.Union[int, float]) -> float:
     """
     Produce a number of seconds offset by a prime number
 
     This creates a number of seconds from s+0.877 to s+9.817. The resulting
-    intervals will not overlap one another, even for same values of s.
+    intervals will not overlap one another, even for same values of `seconds'
 
-    This helps you to detect timed patterns in your logs based on the
-    ms interval between events, even if the timed event itself doesn't
-    log anything.
+    This helps you to detect timed patterns in your logs based on the ms
+    interval between events, even if the timed event itself doesn't log
+    anything.
 
     NOTE: the generator only has 54 primes, so if you need more than 54
     similar timers, maybe improve on this.
     """
-    return next(primes) / 1000.0 + s
+    return next(primes) / 1000.0 + seconds
 
 
 app = FastAPI()
@@ -133,6 +134,8 @@ async def collect_stats():
         logger.info(f"backend updated: {len(rep)} feature(s)")
     else:
         logger.error(f"{r.url}: {r.status_code}!: {r.text}")
+
+    return r
 
 
 app.include_router(api_v1, prefix="/api/v1")

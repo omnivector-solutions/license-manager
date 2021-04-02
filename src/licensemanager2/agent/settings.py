@@ -62,7 +62,7 @@ class _Settings(BaseSettings):
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
-    # log level (everything except sql tracing)
+    # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 
     class Config:
@@ -70,10 +70,15 @@ class _Settings(BaseSettings):
 
 
 def init_settings() -> _Settings:
+    """
+    Build SETTINGS, and offer a way to gracefully fail from environment errors
+    """
     try:
         return _Settings()
     except ValidationError as e:
         logger.error(e)
+        # neither fastapi nor uvicorn appear to offer a way to do a graceful
+        # shutdown as of now, so this is what we've got.
         sys.exit(1)
 
 

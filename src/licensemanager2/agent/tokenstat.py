@@ -168,8 +168,8 @@ async def attempt_tool_checks(tool_options: ToolOptions):
             )
 
         else:
-            logger.warn(f"rc = {proc.returncode}!")
-            logger.warn(output)
+            logger.warning(f"rc = {proc.returncode}!")
+            logger.warning(output)
 
     raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
 
