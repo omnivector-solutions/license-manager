@@ -72,3 +72,24 @@ async def test_database_events():
         m_connect.assert_called_once_with()
         await main.disconnect_database()
         m_disconnect.assert_called_once_with()
+
+
+def test_handler():
+    """
+    Check that the handler ends up calling mangum with the original semantics,
+    and only when eventContext is present
+    """
+    p1 = patch.object(main, "Mangum", autospec=True)
+    context = 19
+
+    # cloudwatch ping
+    event1 = {"ping": True}
+    with p1 as m1:
+        main.handler(event1, context)
+    assert len(m1.return_value.call_args_list) == 0
+
+    # http request
+    event2 = {"requestContext": 19}
+    with p1 as m1:
+        main.handler(event2, context)
+    assert m1.return_value.call_args[0] == (event2, context)
