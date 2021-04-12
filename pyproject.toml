@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager"
-version = "2.0.0+dev"
+version = "2.1.0"
 description = "`license-manager` is a license scheduling middleware that adds value in situations where multiple clusters share a license server or set of license servers."
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6.8"
+python = ">=3.6.8,<4.0"
 asyncpg = ""
 aws-psycopg2 = ""
 boto3 = { version = "", optional = true }
