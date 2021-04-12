@@ -60,5 +60,5 @@ jobs:
           git fetch --all
           git checkout main
           NEXT="$(echo ${{env.RELEASE_VERSION}} | awk -F. -v OFS=. '{$NF++;print}')-dev0"
-          ./.craft/scripts/bump-version.sh '' $NEXT
+          ./.craft/bump-version.sh '' $NEXT
           git diff --quiet || git commit -anm 'meta: Bump new development version' && git pull --rebase && git push
