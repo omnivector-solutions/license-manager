@@ -73,3 +73,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 lm-create-jwt = "licensemanager2.backend.createjwt:main"
+slurmctld_prolog = "licensemanager2.workload_managers.slurm.slurmctld_prolog:main"
+slurmctld_epilog = "licensemanager2.workload_managers.slurm.slurmctld_epilog:main"
