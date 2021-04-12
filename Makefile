@@ -8,7 +8,7 @@ $(error VIRTUAL_ENV must be defined)
 endif
 
 
-requirements.txt: setup.py
+requirements.txt: pyproject.toml
 	python3 -m venv _virtual_tmp
 	. _virtual_tmp/bin/activate \
 		&& pip install wheel \
@@ -18,8 +18,8 @@ requirements.txt: setup.py
 
 
 format: # reformat source python files
-	isort src/licensemanager2 setup.py src/conftest.py jawthorizer
-	black src/licensemanager2 setup.py src/conftest.py jawthorizer
+	isort src/licensemanager2 src/conftest.py jawthorizer
+	black src/licensemanager2 src/conftest.py jawthorizer
 
 
 PIP_INSTALL_FOR_ZIP		:= pip install -q --target _lambda_tmp wheel pip

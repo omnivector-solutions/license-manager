@@ -18,7 +18,7 @@ def test_license_use_available():
     lu = license.LicenseUse(
         product_feature="hello.world",
         total=100,
-        booked=81,
+        used=81,
     )
     assert lu.available == 19
 
@@ -35,12 +35,12 @@ async def test_get_these_licenses(some_licenses):
         license.LicenseUse(
             product_feature="cool.beans",
             total=11,
-            booked=11,
+            used=11,
         ),
         license.LicenseUse(
             product_feature="hello.world",
             total=100,
-            booked=19,
+            used=19,
         ),
     ]
 
@@ -82,10 +82,10 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses):
         dict(
             product_feature="hello.dolly",
             total=80,
-            booked=11,
+            used=11,
             available=69,
         ),
-        dict(product_feature="hello.world", total=100, booked=19, available=81),
+        dict(product_feature="hello.world", total=100, used=19, available=81),
     ]
 
 
@@ -102,7 +102,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
         dict(
             product_feature="cool.beans",
             total=11,
-            booked=11,
+            used=11,
             available=0,
         ),
     ]
@@ -118,14 +118,14 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses):
     resp = await backend_client.get("/api/v1/license/all")
     assert resp.status_code == 200
     assert resp.json() == [
-        dict(product_feature="cool.beans", total=11, booked=11, available=0),
+        dict(product_feature="cool.beans", total=11, used=11, available=0),
         dict(
             product_feature="hello.dolly",
             total=80,
-            booked=11,
+            used=11,
             available=69,
         ),
-        dict(product_feature="hello.world", total=100, booked=19, available=81),
+        dict(product_feature="hello.world", total=100, used=19, available=81),
     ]
 
 
@@ -137,13 +137,13 @@ async def test_map_bookings(some_licenses):
     """
     await insert_objects(some_licenses, license_table)
     lubs = [
-        license.LicenseUseBooking(product_feature="cool.beans", booked=19),
-        license.LicenseUseBooking(product_feature="men.with_hats", booked=19),
+        license.LicenseUseBooking(product_feature="cool.beans", used=19),
+        license.LicenseUseBooking(product_feature="men.with_hats", used=19),
     ]
     with raises(HTTPException):
         await license.map_bookings(lubs)
 
     del lubs[1]
     assert await license.map_bookings(lubs) == {
-        "cool.beans": license.LicenseUseBooking(product_feature="cool.beans", booked=19)
+        "cool.beans": license.LicenseUseBooking(product_feature="cool.beans", used=19)
     }

@@ -4,6 +4,7 @@ Configuration of pytest for agent tests
 from unittest.mock import patch
 
 from httpx import AsyncClient
+import pkg_resources
 from pytest import fixture
 import respx
 
@@ -25,12 +26,19 @@ async def agent_client():
         yield ac
 
 
+MOCK_BIN_PATH = pkg_resources.resource_filename(
+    "licensemanager2.test.agent", "mock_tools"
+)
+
+
 @fixture(autouse=True)
 def backend_setting():
     """
     Force a specific host for the backend
     """
-    with patch.object(SETTINGS, "BACKEND_BASE_URL", "http://backend") as mck:
+    with patch.multiple(
+        SETTINGS, BACKEND_BASE_URL="http://backend", BIN_PATH=MOCK_BIN_PATH
+    ) as mck:
         yield mck
 
 

@@ -5,6 +5,7 @@ Run with e.g. `uvicorn licensemanager2.backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
+from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -86,7 +87,7 @@ async def disconnect_database():
 app.include_router(api_v1, prefix="/api/v1")
 
 
-def handler(event, context):
+def handler(event: dict, context: dict) -> Optional[dict]:
     """
     Adapt inbound ASGI requests (from API Gateway) using Mangum
 
@@ -94,7 +95,7 @@ def handler(event, context):
     """
     if not event.get("requestContext"):
         logger.info("☁️ ☁️ ☁️ cloudwatch keep-warm ping ☁️ ☁️ ☁️")
-        return
+        return None
 
     mangum = Mangum(app)
     return mangum(event, context)

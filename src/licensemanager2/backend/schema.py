@@ -13,9 +13,9 @@ license_table = sqlalchemy.Table(
     "license",
     metadata,
     Column("product_feature", String, primary_key=True),
-    Column("booked", Integer, CheckConstraint("booked>=0")),
+    Column("used", Integer, CheckConstraint("used>=0")),
     Column("total", Integer, CheckConstraint("total>=0")),
-    CheckConstraint("booked<=total"),
+    CheckConstraint("used<=total"),
 )
 
 

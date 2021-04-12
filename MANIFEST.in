@@ -1,8 +1,8 @@
 # Required external helper applications
-include license_manager/lic_tools/flexlm/lmstat
-include license_manager/lic_tools/flexlm/lmstat.exe
+global-include lmstat
+global-include lmstat.exe
 
 # Required files
 include README.md
 include setup.py
-include src/licensemanager2/test/*.py
+include pyproject.toml

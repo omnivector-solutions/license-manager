@@ -46,17 +46,17 @@ def some_licenses():
         LUR(
             product_feature="hello.world",
             total=100,
-            booked=19,
+            used=19,
         ),
         LUR(
             product_feature="hello.dolly",
             total=80,
-            booked=11,
+            used=11,
         ),
         LUR(
             product_feature="cool.beans",
             total=11,
-            booked=11,
+            used=11,
         ),
     ]
     return inserts

@@ -47,6 +47,6 @@ def test_async_client_cached(forward_op):
     """
     Is the ForwardOperation.async_client cached between requests?
     """
-    a1 = forward_op.async_client()
-    a2 = forward_op.async_client()
+    a1 = forward.async_client()
+    a2 = forward.async_client()
     assert a1 is a2
