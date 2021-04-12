@@ -1,8 +1,9 @@
-minVersion: "0.12.0"
+minVersion: "0.20.0"
 github:
   owner: omnivector-solutions
   repo: license-manager
-releaseBranchPrefix: releases
+releaseBranchPrefix: release
+preReleaseCommand: bash .craft/bump-version.sh
 changelog: CHANGELOG.md
 changelogPolicy: auto
 statusProvider:
