@@ -10,19 +10,19 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6.8"
+python = ">=3.8,<4.0"
 asyncpg = ""
 aws-psycopg2 = ""
 boto3 = { version = "", optional = true }
 click = { version = "", optional = true }
-databases = ""
+databases = "0.4.1"
 fastapi = ""
 fastapi-utils = ""
 httpx = { version = "", optional = true }
 jinja2 = { version = "", optional = true }
 mangum = ""
 pyjwt = { version = "", optional = true }
-sqlalchemy = "^1.3.23"
+sqlalchemy = "1.3.23"
 # sqlalchemy = "~1.4"  # waiting for https://github.com/encode/databases/issues/298
 
 # soft-required by databases:
