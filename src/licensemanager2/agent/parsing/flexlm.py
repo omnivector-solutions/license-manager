@@ -42,6 +42,11 @@ TOTALS_LINE = (
 )
 
 
+# TODO: Replace this with line parser to get vendor information
+# from license server output.
+PRODUCT_LINE = "ABAQUSLM"
+
+
 RX = re.compile(rf"{DATA_LINE}|{TOTALS_LINE}")
 
 
@@ -60,6 +65,7 @@ def parse(s: str) -> dict:
                 "total": int(d["total"]),
                 "used": int(d["used"]),
                 "feature": d["feature"],
+                "product": PRODUCT_LINE,
             }
 
     return {}

@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from licensemanager2.agent import logger
 from licensemanager2.agent.parsing import flexlm
-from licensemanager2.agent.settings import SETTINGS, LICENSE_SERVER_FEATURES
+from licensemanager2.agent.settings import SETTINGS, get_license_server_features
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -86,7 +86,7 @@ class LicenseReportItem(BaseModel):
         parsed = parse_fn(stdout)
         return cls(
             tool_name=tool_name,
-            product_feature=f"PRODUCT.{parsed['feature']}",
+            product_feature=f"{parsed['product']}.{parsed['feature']}",
             used=parsed["used"],
             total=parsed["total"],
         )
@@ -194,8 +194,8 @@ async def report() -> typing.List[dict]:
     reconciliation = []
     tools = ToolOptionsCollection.tools
 
-    # TODO: Replace LICENSE_SERVER_FEATURES with config obtained from license-manager backend.
-    for entry in LICENSE_SERVER_FEATURES:
+    # TODO: Replace get_license_server_features() with config obtained from license-manager backend.
+    for entry in get_license_server_features():
         for license_server_type in tools:
             if entry["license_server_type"] == license_server_type:
                 options = tools[license_server_type]
