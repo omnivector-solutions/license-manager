@@ -11,8 +11,9 @@ import typing
 from pydantic import BaseModel, Field
 
 from licensemanager2.agent import logger
+from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent.parsing import flexlm
-from licensemanager2.agent.settings import SETTINGS, get_license_server_features
+from licensemanager2.agent.settings import SETTINGS
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -194,7 +195,8 @@ async def report() -> typing.List[dict]:
     reconciliation = []
     tools = ToolOptionsCollection.tools
 
-    # TODO: Replace get_license_server_features() with config obtained from license-manager backend.
+    # Iterate over the license servers and features appending to list
+    # of tools/cmds to be ran.
     for entry in get_license_server_features():
         for license_server_type in tools:
             if entry["license_server_type"] == license_server_type:

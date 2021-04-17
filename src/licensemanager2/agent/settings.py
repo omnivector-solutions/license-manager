@@ -4,6 +4,7 @@ Configuration of the agent running in the cluster
 
 from enum import Enum
 from pathlib import Path
+from typing import Union
 import sys
 
 from pkg_resources import get_supported_platform, resource_filename
@@ -11,17 +12,6 @@ from pydantic import BaseSettings, DirectoryPath, Field
 from pydantic.error_wrappers import ValidationError
 
 from licensemanager2.agent import logger
-
-
-def get_license_server_features():
-    return [
-        {
-            "license_server_type": "flexlm",
-            "features": [
-                "abaqus",
-            ]
-        }
-    ]
 
 
 class LogLevelEnum(str, Enum):
@@ -59,6 +49,10 @@ class _Settings(BaseSettings):
 
     # a JWT API token for accessing the backend
     BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
+
+    # path to the license server features config file
+    LICENSE_SERVER_FEATURES_CONFIG_PATH: Union[str, None] = None
+    # Path = Path(resource_filename('licensemanager2.test.agent', "test_configs/license_server_features.yaml"))
 
     # a path to a folder containing binaries for license management tools
     BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH

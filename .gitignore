@@ -13,6 +13,7 @@
 *.egg-info
 
 /.coverage
+htmlcov/
 /sqlite.db
 /scratch
 /.env

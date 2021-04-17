@@ -1,6 +1,7 @@
 """
 Tests of tokenstat
 """
+import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -114,10 +115,14 @@ async def test_report(tool_opts: tokenstat.ToolOptions, service_env_string: str)
     """
     Do I collect the requested structured data from running all these dang tools?
     """
+    path = os.path.abspath(__file__)
+    dir_path = os.path.dirname(path)
+    license_server_features_config_path = os.path.join(dir_path, "test_configs/license_server_config.yaml")
+
     # Patch the objects needed to generate a report.
     p1 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
     p2 = patch.object(settings.SETTINGS, "SERVICE_ADDRS", service_env_string)
-    p3 = patch.object(settings, 'get_license_server_features', license_server_features)
+    p3 = patch.object(settings.SETTINGS, "LICENSE_SERVER_FEATURES_CONFIG_PATH", license_server_features_config_path)
     with p1, p2, p3:
         assert [
             {"product_feature": "ABAQUSLM.TESTFEATURE", "used": 502, "total": 1000}
