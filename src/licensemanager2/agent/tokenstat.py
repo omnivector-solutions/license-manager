@@ -150,8 +150,11 @@ async def attempt_tool_checks(tool_options: ToolOptions, feature: str):
     """
     Run one checker tool, attempting each host:port combination in turn, 1 at a time, until one succeeds
     """
+    # NOTE: Only pass the feature into this function as a temporary workaround
+    # until we fix the ToolOptions to somehow support setting the feature.
     commands = tool_options.cmd_list()
     for cmd in commands:
+        # NOTE: find a better way to get the feature to be checked into the cmd
         cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")
         proc = await asyncio.create_subprocess_shell(
