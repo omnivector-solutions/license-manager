@@ -13,6 +13,16 @@ from pydantic.error_wrappers import ValidationError
 from licensemanager2.agent import logger
 
 
+LICENSE_SERVER_FEATURES = [
+    {
+        "license_server_type": "flexlm",
+        "features": [
+            "abaqus",
+        ]
+    }
+]
+
+
 class LogLevelEnum(str, Enum):
     """
     Log level name enforcement

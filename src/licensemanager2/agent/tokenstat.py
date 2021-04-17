@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from licensemanager2.agent import logger
 from licensemanager2.agent.parsing import flexlm
-from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.settings import SETTINGS, LICENSE_SERVER_FEATURES
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -139,19 +139,20 @@ class ToolOptionsCollection:
         "flexlm": ToolOptions(
             name="flexlm",
             path=Path(f"{SETTINGS.BIN_PATH}/lmstat"),
-            args="{exe} -c {port}@{host} -f abaqus.abaqus",
+            args="{exe} -c {port}@{host} -f",
             parse_fn=flexlm.parse,
         ),
         # "other_tool": ToolOptions(...)
     }
 
 
-async def attempt_tool_checks(tool_options: ToolOptions):
+async def attempt_tool_checks(tool_options: ToolOptions, feature: str):
     """
     Run one checker tool, attempting each host:port combination in turn, 1 at a time, until one succeeds
     """
     commands = tool_options.cmd_list()
     for cmd in commands:
+        cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")
         proc = await asyncio.create_subprocess_shell(
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
@@ -177,12 +178,26 @@ async def attempt_tool_checks(tool_options: ToolOptions):
 async def report() -> typing.List[dict]:
     """
     Get stat counts using a license stat tool
+
+    This function iterates over the available license_servers and associated
+    features configured via LICENSE_SERVER_FEATURES and generates
+    a report by requesting license information from the license_server_type.
+
+    The return from the license server is used to reconcile license-manager's
+    view of what features are available with what actually exists in the
+    license server database.
     """
     tool_awaitables = []
     reconciliation = []
-    for k in ToolOptionsCollection.tools:
-        options = ToolOptionsCollection.tools[k]
-        tool_awaitables.append(attempt_tool_checks(options))
+    tools = ToolOptionsCollection.tools
+
+    # TODO: Replace LICENSE_SERVER_FEATURES with config obtained from license-manager backend.
+    for entry in LICENSE_SERVER_FEATURES:
+        for license_server_type in tools:
+            if entry["license_server_type"] == license_server_type:
+                options = tools[license_server_type]
+                for feature in entry["features"]:
+                    tool_awaitables.append(attempt_tool_checks(options, feature))
 
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)

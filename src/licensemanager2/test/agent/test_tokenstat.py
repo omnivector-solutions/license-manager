@@ -86,7 +86,7 @@ async def test_attempt_tool_checks(
     """
     # good tool
     with patch.object(SETTINGS, "SERVICE_ADDRS", service_env_string):
-        ret = await tokenstat.attempt_tool_checks(tool_opts)
+        ret = await tokenstat.attempt_tool_checks(tool_opts, "abaqus")
         assert ret == tokenstat.LicenseReportItem(
             tool_name="flexlm", product_feature="PRODUCT.abaqus", used=502, total=1000
         )
@@ -95,7 +95,7 @@ async def test_attempt_tool_checks(
     tool_opts.args = "{exe} fail"
     with patch.object(SETTINGS, "SERVICE_ADDRS", service_env_string):
         with raises(RuntimeError):
-            await tokenstat.attempt_tool_checks(tool_opts)
+            await tokenstat.attempt_tool_checks(tool_opts, "abaqus")
 
 
 @mark.asyncio
