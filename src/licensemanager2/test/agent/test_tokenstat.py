@@ -58,7 +58,7 @@ def test_lri_from_stdout():
     )
     assert lri == tokenstat.LicenseReportItem(
         tool_name="flexlm",
-        product_feature="abaqus.FEATURE",
+        product_feature="PRODUCT.abaqus",
         used=502,
         total=1000,
     )
@@ -88,7 +88,7 @@ async def test_attempt_tool_checks(
     with patch.object(SETTINGS, "SERVICE_ADDRS", service_env_string):
         ret = await tokenstat.attempt_tool_checks(tool_opts)
         assert ret == tokenstat.LicenseReportItem(
-            tool_name="flexlm", product_feature="abaqus.FEATURE", used=502, total=1000
+            tool_name="flexlm", product_feature="PRODUCT.abaqus", used=502, total=1000
         )
 
     # bad tool
@@ -107,5 +107,5 @@ async def test_report(tool_opts: tokenstat.ToolOptions, service_env_string: str)
     p2 = patch.object(SETTINGS, "SERVICE_ADDRS", service_env_string)
     with p1, p2:
         assert [
-            {"product_feature": "abaqus.FEATURE", "used": 502, "total": 1000}
+            {"product_feature": "PRODUCT.abaqus", "used": 502, "total": 1000}
         ] == await tokenstat.report()

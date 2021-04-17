@@ -33,7 +33,7 @@ DATA_LINE = (
 
 TOTALS_LINE = (
     r"^Users of "
-    rf"(?P<product>{NONCOLON}):  "
+    rf"(?P<feature>{NONCOLON}):  "
     r"\(Total of "
     rf"(?P<total>{INT}) "
     r"licenses issued;  Total of "
@@ -59,7 +59,7 @@ def parse(s: str) -> dict:
             return {
                 "total": int(d["total"]),
                 "used": int(d["used"]),
-                "product": d["product"],
+                "feature": d["feature"],
             }
 
     return {}

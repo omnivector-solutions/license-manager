@@ -86,7 +86,7 @@ class LicenseReportItem(BaseModel):
         parsed = parse_fn(stdout)
         return cls(
             tool_name=tool_name,
-            product_feature=f"{parsed['product']}.FEATURE",
+            product_feature=f"PRODUCT.{parsed['feature']}",
             used=parsed["used"],
             total=parsed["total"],
         )

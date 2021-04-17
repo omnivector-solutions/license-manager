@@ -51,7 +51,7 @@ def lm_output():
 @mark.parametrize(
     "fixture,result",
     [
-        ("lm_output", {"product": "abaqus", "total": 1000, "used": 93}),
+        ("lm_output", {"feature": "abaqus", "total": 1000, "used": 93}),
         ("lm_output_bad", {}),
     ],
 )
