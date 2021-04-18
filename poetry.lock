@@ -719,14 +719,14 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 
 [extras]
 agent = ["httpx", "jinja2"]
-dev = ["aiosqlite", "databases", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "respx", "sqlalchemy-stubs", "tox", "uvicorn"]
+dev = ["aiosqlite", "databases", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "PyYAML", "respx", "sqlalchemy-stubs", "tox", "uvicorn"]
 flexlmsim = ["jinja2"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "b5f9ede39014aee819c430152e2d41369c482a11ae08f152c4756fe803cf2e4f"
+content-hash = "e326126db8994ce233973033c0f84940b00072fa46d9b9eb4066ed9cafe0f34b"
 
 [metadata.files]
 aiosqlite = [
