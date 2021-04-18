@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union
 
 from pkg_resources import get_supported_platform, resource_filename
-from pydantic import BaseSettings, DirectoryPath, Field
+from pydantic import BaseSettings, DirectoryPath, Field, FilePath
 from pydantic.error_wrappers import ValidationError
 
 
@@ -35,6 +35,7 @@ _SERVICE_ADDRS_REGEX = rf"{_ADDR_REGEX}(\s+{_ADDR_REGEX})*"
 _DEFAULT_BIN_PATH = Path(
     resource_filename("licensemanager2.agent", get_supported_platform())
 )
+_SCONTROL_PATH = Path("/snap/bin/scontrol")
 
 
 class _Settings(BaseSettings):
@@ -48,6 +49,9 @@ class _Settings(BaseSettings):
     # base url of an endpoint serving the licensemanager2 backend
     # ... I tried using AnyHttpUrl but mypy complained
     BACKEND_BASE_URL: str = Field("http://127.1:8000", regex=_URL_REGEX)
+
+    # agent base url
+    AGENT_BASE_URL: str = Field("http://127.1:8010", regex=_URL_REGEX)
 
     # location of the log directory
     LOG_BASE_DIR: Union[str, None] = None
@@ -73,6 +77,9 @@ class _Settings(BaseSettings):
 
     # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
+
+    # location of scontrol
+    SCONTROL_PATH: FilePath = _SCONTROL_PATH
 
     class Config:
         env_prefix = "LM2_AGENT_"
