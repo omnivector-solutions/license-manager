@@ -12,6 +12,8 @@ LM2_AGENT_HEADERS = {
     "content-type": "application/json"
 }
 
+SCONTROL_PATH = "/snap/bin/scontrol"
+
 
 def get_job_context():
     """Get and return variables from the job environment."""

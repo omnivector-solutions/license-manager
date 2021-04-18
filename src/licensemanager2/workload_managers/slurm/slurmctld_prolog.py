@@ -20,6 +20,7 @@ from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.agent import log, init_logging
 from licensemanager2.workload_managers.slurm.common import (
     LM2_AGENT_HEADERS,
+    SCONTROL_PATH,
     get_job_context
 )
 
@@ -33,7 +34,7 @@ def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
     # Command to get license information back from slurm using the
     # slurm_job_id.
     cmd = [
-        str(SETTINGS.SCONTROL_PATH),
+        SCONTROL_PATH,
         "show",
         f"job={slurm_job_id}"
     ]
