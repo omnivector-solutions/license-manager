@@ -7,21 +7,6 @@ ifndef VIRTUAL_ENV
 $(error VIRTUAL_ENV must be defined)
 endif
 
-install:
-	poetry install
-
-run:
-	poetry run uvicorn --host 0.0.0.0 --port 8010 licensemanager2.agent.main:app --reload
-
-
-requirements.txt: pyproject.toml
-	python3 -m venv _virtual_tmp
-	. _virtual_tmp/bin/activate \
-		&& pip install wheel \
-		&& pip install . \
-		&& pip freeze | grep -v license-manager > requirements.txt
-	rm -rf _virtual_tmp
-
 
 format: # reformat source python files
 	isort src/licensemanager2 src/conftest.py jawthorizer
