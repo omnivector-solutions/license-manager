@@ -1,17 +1,19 @@
 """
 Configuration of the agent running in the cluster
 """
+import logging
+import sys
 
 from enum import Enum
 from pathlib import Path
 from typing import Union
-import sys
 
 from pkg_resources import get_supported_platform, resource_filename
 from pydantic import BaseSettings, DirectoryPath, Field
 from pydantic.error_wrappers import ValidationError
 
-from licensemanager2.agent import logger
+
+logger = logging.getLogger("licensemanager2.agent.setting")
 
 
 class LogLevelEnum(str, Enum):
@@ -47,12 +49,14 @@ class _Settings(BaseSettings):
     # ... I tried using AnyHttpUrl but mypy complained
     BACKEND_BASE_URL: str = Field("http://127.1:8000", regex=_URL_REGEX)
 
+    # location of the log directory
+    LOG_BASE_DIR: Union[str, None] = None
+
     # a JWT API token for accessing the backend
     BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
 
     # path to the license server features config file
     LICENSE_SERVER_FEATURES_CONFIG_PATH: Union[str, None] = None
-    # Path = Path(resource_filename('licensemanager2.test.agent', "test_configs/license_server_features.yaml"))
 
     # a path to a folder containing binaries for license management tools
     BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH

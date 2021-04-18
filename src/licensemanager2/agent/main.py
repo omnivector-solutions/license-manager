@@ -11,11 +11,16 @@ from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from httpx import ConnectError
 
-from licensemanager2.agent import logger, tokenstat
+from licensemanager2.agent import (
+    init_logging,
+    log as logger,
+    tokenstat,
+)
+from licensemanager2.common_api import OK
+
 from licensemanager2.agent.api import api_v1
 from licensemanager2.agent.forward import async_client
 from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.common_api import OK
 
 
 RECONCILE_URL_PATH = "/api/v1/license/reconcile"
@@ -91,6 +96,8 @@ def begin_logging():
     """
     Configure logging
     """
+    init_logging("license-manager-agent")
+
     level = getattr(logging, SETTINGS.LOG_LEVEL)
     logger.setLevel(level)
 

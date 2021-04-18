@@ -10,7 +10,7 @@ import typing
 
 from pydantic import BaseModel, Field
 
-from licensemanager2.agent import logger
+from licensemanager2.agent import log as logger
 from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent.parsing import flexlm
 from licensemanager2.agent.settings import SETTINGS
@@ -155,7 +155,7 @@ async def attempt_tool_checks(tool_options: ToolOptions, feature: str):
     # until we fix the ToolOptions to somehow support setting the feature.
     commands = tool_options.cmd_list()
     for cmd in commands:
-        # NOTE: find a better way to get the feature to be checked into the cmd
+        # NOTE: find a better way to get the feature into the command.
         cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")
         proc = await asyncio.create_subprocess_shell(
