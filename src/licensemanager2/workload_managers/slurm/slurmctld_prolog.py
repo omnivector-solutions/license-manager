@@ -54,7 +54,6 @@ async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
     )
     scontrol_out = str(scontrol_out, encoding="UTF8")
     log.info(scontrol_out)
-    log.info(scontrol_show_lic.returncode)
 
     # Check that the command completed successfully
     if not scontrol_show_lic.returncode == 0:
