@@ -33,7 +33,7 @@ def lm_output():
         lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
         ...
 
-        Users of abaqus:  (Total of 1000 licenses issued;  Total of 93 licenses in use)
+        Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 93 licenses in use)
 
         ...
 
@@ -51,7 +51,7 @@ def lm_output():
 @mark.parametrize(
     "fixture,result",
     [
-        ("lm_output", {"product": "abaqus", "total": 1000, "used": 93}),
+        ("lm_output", {"feature": "TESTFEATURE", "total": 1000, "used": 93}),
         ("lm_output_bad", {}),
     ],
 )

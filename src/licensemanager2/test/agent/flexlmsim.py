@@ -36,7 +36,7 @@ TPL = dedent(
     Feature usage info:
 
     """
-    "    Users of abaqus:  (Total of {{total_licenses}} licenses issued;  "
+    "    Users of TESTFEATURE:  (Total of {{total_licenses}} licenses issued;  "
     "    Total of {{ jobs | sum(attribute='license_allocations') }} licenses in use)"
     """
 

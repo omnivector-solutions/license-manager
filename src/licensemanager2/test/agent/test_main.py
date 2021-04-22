@@ -2,7 +2,7 @@
 Triggers and handlers in main
 """
 import logging
-from unittest.mock import ANY, call, patch
+from unittest.mock import call, patch
 
 from pytest import mark
 
@@ -34,10 +34,10 @@ def test_begin_logging():
     """
     Do I configure logging when the app starts up?
     """
-    p_setLevel = patch("logging.Logger.setLevel", autospec=True)
+    p_setLevel = patch("licensemanager2.agent.logger.setLevel", autospec=True)
     p_log = patch.object(main.SETTINGS, "LOG_LEVEL", "CRITICAL")
 
     with p_log, p_setLevel as m_setLevel:
         main.begin_logging()
 
-    assert m_setLevel.call_args_list == [call(ANY, logging.CRITICAL)]
+    assert m_setLevel.call_args_list == [call(logging.CRITICAL)]
