@@ -4,13 +4,14 @@ Invoke license stat tools to build a view of license token counts
 import asyncio
 from functools import lru_cache
 from pathlib import Path
-from shlex import quote
+from shlex import quote, join
 import traceback
 import typing
 
 from pydantic import BaseModel, Field
 
-from licensemanager2.agent import logger
+from licensemanager2.agent import log as logger
+from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent.parsing import flexlm
 from licensemanager2.agent.settings import SETTINGS
 
@@ -79,14 +80,15 @@ class LicenseReportItem(BaseModel):
     total: int
 
     @classmethod
-    def from_stdout(cls, parse_fn, tool_name, stdout):
+    def from_stdout(cls, product, parse_fn, tool_name, stdout):
         """
-        Create a LicenseReportItem by parsing the stdout from the program that produced it
+        Create a LicenseReportItem by parsing the stdout from the program that
+        produced it.
         """
         parsed = parse_fn(stdout)
         return cls(
             tool_name=tool_name,
-            product_feature=f"{parsed['product']}.FEATURE",
+            product_feature=f"{product}.{parsed['feature']}",
             used=parsed["used"],
             total=parsed["total"],
         )
@@ -139,19 +141,25 @@ class ToolOptionsCollection:
         "flexlm": ToolOptions(
             name="flexlm",
             path=Path(f"{SETTINGS.BIN_PATH}/lmstat"),
-            args="{exe} -c {port}@{host} -f abaqus.abaqus",
+            args="{exe} -c {port}@{host} -f",
             parse_fn=flexlm.parse,
         ),
         # "other_tool": ToolOptions(...)
     }
 
 
-async def attempt_tool_checks(tool_options: ToolOptions):
+async def attempt_tool_checks(
+        tool_options: ToolOptions, product: str, feature: str):
     """
-    Run one checker tool, attempting each host:port combination in turn, 1 at a time, until one succeeds
+    Run one checker tool, attempting each host:port combination in turn, 1 at
+    a time, until one succeeds.
     """
+    # NOTE: Only pass the feature into this function as a temporary workaround
+    # until we fix the ToolOptions to somehow support setting the feature.
     commands = tool_options.cmd_list()
     for cmd in commands:
+        # NOTE: find a better way to get the feature into the command.
+        cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")
         proc = await asyncio.create_subprocess_shell(
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
@@ -160,13 +168,40 @@ async def attempt_tool_checks(tool_options: ToolOptions):
         # block until a check at this host:port succeeds or fails
         stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
         output = str(stdout, encoding=ENCODING)
+
         if proc.returncode == 0:
-            return LicenseReportItem.from_stdout(
+            lri = LicenseReportItem.from_stdout(
                 parse_fn=tool_options.parse_fn,
                 tool_name=tool_options.name,
+                product=product,
                 stdout=output,
             )
+            available = lri.total - lri.used
 
+            update_slurm_cmd = [
+                "/snap/bin/sacctmgr",
+                "modify",
+                "resource",
+                f"name={product}.{feature}",
+                "set",
+                f"count={available}",
+                "-i",
+            ]
+            logger.info(f"{' '.join(update_slurm_cmd)}")
+            update_slurm_proc = await asyncio.create_subprocess_shell(
+                join(update_slurm_cmd),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+            )
+
+            # block until a check at this host:port succeeds or fails
+            update_slurm_stdout, _ = await asyncio.wait_for(
+                update_slurm_proc.communicate(),
+                TOOL_TIMEOUT,
+            )
+            update_slurm_output = str(update_slurm_stdout, encoding=ENCODING)
+            logger.info(f"Update slurmdbd: {update_slurm_output}")
+            return lri
         else:
             logger.warning(f"rc = {proc.returncode}!")
             logger.warning(output)
@@ -177,12 +212,33 @@ async def attempt_tool_checks(tool_options: ToolOptions):
 async def report() -> typing.List[dict]:
     """
     Get stat counts using a license stat tool
+
+    This function iterates over the available license_servers and associated
+    features configured via LICENSE_SERVER_FEATURES and generates
+    a report by requesting license information from the license_server_type.
+
+    The return from the license server is used to reconcile license-manager's
+    view of what features are available with what actually exists in the
+    license server database.
     """
     tool_awaitables = []
     reconciliation = []
-    for k in ToolOptionsCollection.tools:
-        options = ToolOptionsCollection.tools[k]
-        tool_awaitables.append(attempt_tool_checks(options))
+    tools = ToolOptionsCollection.tools
+
+    # Iterate over the license servers and features appending to list
+    # of tools/cmds to be ran.
+    for entry in get_license_server_features():
+        for license_server_type in tools:
+            if entry["license_server_type"] == license_server_type:
+                options = tools[license_server_type]
+                for feature in entry["features"]:
+                    tool_awaitables.append(
+                        attempt_tool_checks(
+                            options,
+                            entry["product"],
+                            feature
+                        )
+                    )
 
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)

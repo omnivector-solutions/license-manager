@@ -6,7 +6,7 @@ from functools import lru_cache
 from fastapi import Request, Response
 import httpx
 
-from licensemanager2.agent import logger
+from licensemanager2.agent import log as logger
 from licensemanager2.agent.settings import SETTINGS
 
 
