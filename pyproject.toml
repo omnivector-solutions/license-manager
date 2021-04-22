@@ -44,7 +44,7 @@ tox = { version = "", optional = true }
 uvicorn = { version = "", optional = true }
 
 [tool.poetry.extras]
-agent = ["httpx", "jinja2", "requests", "uvicorn", "pyyaml", "pydantic"]
+agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 
 lm-create-jwt = ["boto3", "click", "pyjwt"]
 
@@ -64,7 +64,6 @@ dev = [
     "respx",
     "sqlalchemy-stubs",
     "tox",
-    "requests",
     "uvicorn",
     "pydantic",
     ]
