@@ -70,8 +70,6 @@ def test_lri_from_stdout():
         tool_name="flexlm",
         stdout=stdout,
     )
-    # TODO: Replace ABAQUSLM with TESTPRODUCT once the PRODUCT parser is implemented.
-    # Also add the TESTPRODUCT to the mock parser output.
     assert lri == tokenstat.LicenseReportItem(
         tool_name="flexlm",
         product_feature="TESTPRODUCT.TESTFEATURE",
