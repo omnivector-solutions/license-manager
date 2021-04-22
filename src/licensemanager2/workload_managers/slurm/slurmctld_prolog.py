@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-The SlurmctldEpilog executable.
+The SlurmctldProlog executable.
 
 This prolog is responsible for checking if feature tokens are available
-and making booking requests.
-This process happens via communication with the license-manager agent
+and making booking requests by communicating with the license-manager agent
 (which should be running on the slurmctld host).
+
 Executing this script will result in either an exit(0) or exit(1). Slurm will
 proceed with scheduling the job if the exit status is 0, and will not proceed
 if the exit status is anything other then 0, e.g. 1.
