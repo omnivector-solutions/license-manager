@@ -178,7 +178,9 @@ async def attempt_tool_checks(
             )
             available = lri.total - lri.used
 
-            update_slurm_cmd = [
+            # Todo: turn this cmd into a function that returns the correct
+            # update command for the workload mgr that we are using.
+            update_cmd = [
                 "/snap/bin/sacctmgr",
                 "modify",
                 "resource",
@@ -187,9 +189,9 @@ async def attempt_tool_checks(
                 f"count={available}",
                 "-i",
             ]
-            logger.info(f"{' '.join(update_slurm_cmd)}")
+            logger.info(f"{' '.join(update_cmd)}")
             update_slurm_proc = await asyncio.create_subprocess_shell(
-                join(update_slurm_cmd),
+                join(update_cmd),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
             )
