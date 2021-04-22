@@ -103,8 +103,8 @@ async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
 
             log.debug(
                 f"Feature: {product_feature}, "
-                "Server: {lic_server}, "
-                "Tokens: {feature_tokens}"
+                f"Server: {lic_server}, "
+                f"Tokens: {feature_tokens}"
             )
     return license_request_for_job
 
