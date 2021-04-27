@@ -9,18 +9,16 @@ import typing
 
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
-from httpx import ConnectError
 
 from licensemanager2.agent import (
     init_logging,
     log as logger,
-    tokenstat,
 )
 from licensemanager2.common_api import OK
 
 from licensemanager2.agent.api import api_v1
-from licensemanager2.agent.forward import async_client
 from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.reconciliation import reconcile
 
 
 RECONCILE_URL_PATH = "/api/v1/license/reconcile"
@@ -91,6 +89,14 @@ async def health():
     return OK()
 
 
+@app.get("/reconcile")
+async def reconcile_endpoint():
+    """
+    Periodically get license stats and report them to the backend
+    """
+    return await reconcile()
+
+
 @app.on_event("startup")
 def begin_logging():
     """
@@ -120,29 +126,7 @@ async def collect_stats():
     """
     Periodically get license stats and report them to the backend
     """
-    logger.info("⏲️ 📒 begin stat collection")
-    rep = await tokenstat.report()
-    if not rep:
-        logger.error(
-            "No license data could be collected, check that tools are installed "
-            "correctly and the right hosts/ports are configured in settings"
-        )
-        return
-
-    client = async_client()
-    path = RECONCILE_URL_PATH
-    try:
-        r = await async_client().patch(path, json=rep)
-    except ConnectError as e:
-        logger.error(f"{client.base_url}{path}: {e}")
-        return
-
-    if r.status_code == 200:
-        logger.info(f"backend updated: {len(rep)} feature(s)")
-    else:
-        logger.error(f"{r.url}: {r.status_code}!: {r.text}")
-
-    return r
+    return await reconcile()
 
 
 app.include_router(api_v1, prefix="/api/v1")
