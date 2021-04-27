@@ -11,3 +11,12 @@ class OK(BaseModel):
 
     status: str = "ok"
     message: str = ""
+
+
+class NotOK(OK):
+    """
+    A response that there was no error, when no other data is required
+    """
+
+    status: str = "notok"
+    message: str = ""

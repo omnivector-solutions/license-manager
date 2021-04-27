@@ -14,7 +14,7 @@ from licensemanager2.agent import (
     init_logging,
     log as logger,
 )
-from licensemanager2.common_api import OK
+from licensemanager2.common_api import OK, NotOK
 
 from licensemanager2.agent.api import api_v1
 from licensemanager2.agent.settings import SETTINGS
@@ -95,9 +95,14 @@ async def reconcile_endpoint():
     Force a reconciliation by making a get request to this endpoint.
     """
 
-    await reconcile()
-    logger.info("Forced reconciliation complete.")
-    return OK()
+    ret = OK()
+    resp = await reconcile()
+
+    if not resp.status_code == 200:
+        logger.error("Forced reconciliation unsuccessful.")
+        ret = NotOK()
+    logger.info("Forced reconciliation successful.")
+    return ret
 
 
 @app.on_event("startup")
