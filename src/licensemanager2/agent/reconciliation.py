@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Reconcile functionality live here.
+Reconciliation functionality live here.
 """
 from httpx import ConnectError
 
@@ -15,7 +15,8 @@ RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 
 
 async def reconcile():
-    logger.info("⏲️ 📒 begin stat collection")
+    """Generate the report and reconcile the license feature token usage."""
+    # Generate the report.
     rep = await tokenstat.report()
     if not rep:
         logger.error(
@@ -24,6 +25,7 @@ async def reconcile():
         )
         return
 
+    # Send the report to the backend.
     client = async_client()
     path = RECONCILE_URL_PATH
     try:
@@ -32,6 +34,7 @@ async def reconcile():
         logger.error(f"{client.base_url}{path}: {e}")
         return
 
+    # Log the outcome.
     if r.status_code == 200:
         logger.info(f"backend updated: {len(rep)} feature(s)")
     else:

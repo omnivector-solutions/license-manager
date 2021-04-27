@@ -94,7 +94,9 @@ async def reconcile_endpoint():
     """
     Force a reconciliation by making a get request to this endpoint.
     """
+
     await reconcile()
+    logger.info("Forced reconciliation complete.")
     return OK()
 
 
@@ -127,6 +129,7 @@ async def collect_stats():
     """
     Periodically get license stats and report them to the backend
     """
+    logger.info("⏲️ 📒 begin stat collection")
     return await reconcile()
 
 
