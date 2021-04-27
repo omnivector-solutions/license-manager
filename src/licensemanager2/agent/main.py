@@ -92,9 +92,10 @@ async def health():
 @app.get("/reconcile")
 async def reconcile_endpoint():
     """
-    Periodically get license stats and report them to the backend
+    Force a reconciliation by making a get request to this endpoint.
     """
-    return await reconcile()
+    await reconcile()
+    return OK()
 
 
 @app.on_event("startup")

@@ -174,7 +174,7 @@ async def _force_reconciliation():
 
     with httpx.Client() as client:
         resp = client.get(
-            f"{SETTINGS.AGENT_BASE_URL}/api/v1/reconcile",
+            f"{SETTINGS.AGENT_BASE_URL}/reconcile",
             headers=LM2_AGENT_HEADERS,
         )
 
