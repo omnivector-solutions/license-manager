@@ -169,6 +169,20 @@ async def _make_booking_request(booking_request: dict) -> bool:
         return False
 
 
+async def _force_reconciliation():
+    """Force a reconciliation."""
+
+    with httpx.Client() as client:
+        resp = client.get(
+            f"{SETTINGS.AGENT_BASE_URL}/api/v1/reconcile",
+            headers=LM2_AGENT_HEADERS,
+        )
+
+        if resp.status_code == 200:
+            return True
+        return False
+
+
 async def main():
     # Acqure the job context
     ctxt = get_job_context()
@@ -179,6 +193,8 @@ async def main():
 
     # Check if any licenses required for the job.
     if len(licenses) > 0:
+        if not await _force_reconciliation():
+            sys.exit(1)
         # Check that there are sufficient feature tokens for the job.
         if await _check_feature_token_availablity(booking_request):
             # If we have sufficient tokens for each feature then
