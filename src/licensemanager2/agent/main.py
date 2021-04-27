@@ -95,13 +95,15 @@ async def reconcile_endpoint():
     Force a reconciliation by making a get request to this endpoint.
     """
 
-    ret = OK()
     resp = await reconcile()
 
-    if not resp.status_code == 200:
+    ret = OK()
+    if resp is not None:
+        if resp.status_code == 200:
+            logger.info("Forced reconciliation successful.")
+    else:
         logger.error("Forced reconciliation unsuccessful.")
         ret = NotOK()
-    logger.info("Forced reconciliation successful.")
     return ret
 
 

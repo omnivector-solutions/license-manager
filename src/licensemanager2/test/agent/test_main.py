@@ -30,6 +30,17 @@ async def test_root(agent_client, ok_response):
     assert resp.json() == ok_response.dict()
 
 
+@mark.asyncio
+async def test_reconcile_not_ok(agent_client, not_ok_response):
+    """
+    Does the /reconcile endpoint return the NotOK response when the report is not
+    actually generated?
+    """
+    resp = await agent_client.get("/reconcile")
+    assert resp.status_code == 200
+    assert resp.json() == not_ok_response.dict()
+
+
 def test_begin_logging():
     """
     Do I configure logging when the app starts up?

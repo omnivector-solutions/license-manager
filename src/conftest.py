@@ -67,3 +67,13 @@ def ok_response():
     from licensemanager2.common_api import OK
 
     return OK()
+
+
+@fixture
+def not_ok_response():
+    """
+    An instance of the NotOK response
+    """
+    from licensemanager2.common_api import NotOK
+
+    return NotOK()
