@@ -18,7 +18,7 @@ click = { version = "", optional = true }
 databases = "0.4.1"
 fastapi = ""
 fastapi-utils = ""
-httpx = { version = "", optional = true }
+httpx = { version = "0.17.1", optional = true }
 jinja2 = { version = "", optional = true }
 mangum = ""
 pyjwt = { version = "", optional = true }
@@ -38,7 +38,7 @@ pytest-asyncio = { version = "", optional = true }
 pytest-cov = { version = "", optional = true }
 pytest-env = { version = "", optional = true }
 pytest-freezegun = { version = "", optional = true }
-respx = { version = "", optional = true }
+respx = { version = "0.16.3", optional = true }
 sqlalchemy-stubs = { version = "", optional = true }
 tox = { version = "", optional = true }
 uvicorn = { version = "", optional = true }
