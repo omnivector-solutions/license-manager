@@ -11,9 +11,15 @@ import typing
 from pydantic import BaseModel, Field
 
 from licensemanager2.agent import log as logger
-from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent.parsing import flexlm
 from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.backend_utils import get_license_server_features
+
+from licensemanager2.workload_managers.slurm.cmd_utils import (
+    get_used_tokens_for_license,
+    scontrol_show_lic,
+    sacctmgr_modify_resource,
+)
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -148,6 +154,31 @@ class ToolOptionsCollection:
     }
 
 
+def get_used_tokens_from_slurm(product_feature_server: str) -> Optional[int]:
+    """Return used tokens from scontrol output."""
+
+    def match_product_feature_server(
+            scontrol_out: str,
+            product_feature_server: str) -> Optional[str]:
+        """Return the line after the matched product_feature line."""
+        matched = False
+        for line in scontrol_out.split("\n"):
+            if matched:
+                return line
+            if len(re.findall(rf"({product_feature_server})", line)) > 0:
+                matched = True
+        return None
+    token_str = match_product_feature_server(
+        scontrol_output, product_feature_server
+    )
+    if token_str is not None:
+        for item in token_str.split():
+            k, v = item.split("=")
+            if k == "Used":
+                return int(v)
+    return None
+
+
 async def attempt_tool_checks(
         tool_options: ToolOptions, product: str, feature: str):
     """
@@ -176,34 +207,29 @@ async def attempt_tool_checks(
                 product=product,
                 stdout=output,
             )
-            available = lri.total - lri.used
 
-            # Todo: turn this cmd into a function that returns the correct
-            # update command for the workload mgr that we are using.
-            update_cmd = [
-                "/snap/bin/sacctmgr",
-                "modify",
-                "resource",
-                f"name={product}.{feature}",
-                "set",
-                f"count={available}",
-                "-i",
-            ]
-            logger.info(f"{' '.join(update_cmd)}")
-            update_slurm_proc = await asyncio.create_subprocess_shell(
-                join(update_cmd),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT,
-            )
+            # Account for used slurm tokens
+            #
+            # License represented in format
+            #    <product>.<feature>@<license_server>
+            slurm_license = f"{product}.{feature}@{tool_options.name}"
 
-            # block until a check at this host:port succeeds or fails
-            update_slurm_stdout, _ = await asyncio.wait_for(
-                update_slurm_proc.communicate(),
-                TOOL_TIMEOUT,
+            # Get the scontrol output
+            scontrol_out = await scontrol_show_lic()
+
+            # Get the used licenses from the scontrol output
+            slurm_used = get_used_tokens_for_license(
+                slurm_license,
+                scontrol_out
             )
-            update_slurm_output = str(update_slurm_stdout, encoding=ENCODING)
-            logger.info(f"Update slurmdbd: {update_slurm_output}")
+            # Generate the new total including the used tokens for slurm
+            slurm_available = lri.total - lri.used + slurm_used
+
+            # Update slurmdbd with the licnese usage
+            sacctmgr_modify_resource(product, feature, slurm_available)
+
             return lri
+
         else:
             logger.warning(f"rc = {proc.returncode}!")
             logger.warning(output)
