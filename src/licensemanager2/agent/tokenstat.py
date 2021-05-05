@@ -17,7 +17,6 @@ from licensemanager2.agent.backend_utils import get_license_server_features
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     get_used_tokens_for_license,
-    scontrol_show_lic,
     sacctmgr_modify_resource,
 )
 
