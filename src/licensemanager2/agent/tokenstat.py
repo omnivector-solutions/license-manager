@@ -154,31 +154,6 @@ class ToolOptionsCollection:
     }
 
 
-def get_used_tokens_from_slurm(product_feature_server: str) -> Optional[int]:
-    """Return used tokens from scontrol output."""
-
-    def match_product_feature_server(
-            scontrol_out: str,
-            product_feature_server: str) -> Optional[str]:
-        """Return the line after the matched product_feature line."""
-        matched = False
-        for line in scontrol_out.split("\n"):
-            if matched:
-                return line
-            if len(re.findall(rf"({product_feature_server})", line)) > 0:
-                matched = True
-        return None
-    token_str = match_product_feature_server(
-        scontrol_output, product_feature_server
-    )
-    if token_str is not None:
-        for item in token_str.split():
-            k, v = item.split("=")
-            if k == "Used":
-                return int(v)
-    return None
-
-
 async def attempt_tool_checks(
         tool_options: ToolOptions, product: str, feature: str):
     """
@@ -226,7 +201,13 @@ async def attempt_tool_checks(
             slurm_available = lri.total - lri.used + slurm_used
 
             # Update slurmdbd with the licnese usage
-            sacctmgr_modify_resource(product, feature, slurm_available)
+            update_resource = sacctmgr_modify_resource(
+                product, feature, slurm_available
+            )
+            if update_resource:
+                logger.info(f"Slurmdbd updated successfully.")
+            else:
+                logger.info(f"Slurmdbd update unsuccessful.")
 
             return lri
 

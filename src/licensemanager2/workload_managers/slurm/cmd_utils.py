@@ -65,7 +65,8 @@ async def scontrol_show_lic():
     return output
 
 
-async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
+async def sacctmgr_modify_resource(
+        product: str, feature: str, num_tokens) -> bool:
     """
     Update the license resource in slurm.
     """
@@ -96,6 +97,5 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
     if not rc == 0:
         logger.warning(f"rc = {rc}!")
         logger.warning(modify_resource_stdout)
-
-    modify_resource_output = str(modify_resource_stdout, encoding=ENCODING)
-    logger.info(f"Slurmdbd updated successfully: {modify_resource_output}")
+        return False
+    return True
