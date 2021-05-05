@@ -189,13 +189,13 @@ async def attempt_tool_checks(
             slurm_license = f"{product}.{feature}@{tool_options.name}"
 
             # Get the used licenses from the scontrol output
-            slurm_used = get_used_tokens_for_license(slurm_license)
+            slurm_used = async get_used_tokens_for_license(slurm_license)
 
             # Generate the new total including the used tokens for slurm
             slurm_available = lri.total - lri.used + slurm_used
 
             # Update slurmdbd with the licnese usage
-            update_resource = sacctmgr_modify_resource(
+            update_resource = async sacctmgr_modify_resource(
                 product, feature, slurm_available
             )
             if update_resource:
