@@ -11,6 +11,7 @@ from licensemanager2.agent import tokenstat
 from licensemanager2.agent.parsing import flexlm
 from licensemanager2.agent import settings
 from licensemanager2.test.agent.conftest import MOCK_BIN_PATH
+from licensemanager2.workload_managers.slurm import cmd_utils
 
 
 @fixture
@@ -132,6 +133,11 @@ async def test_report(tool_opts: tokenstat.ToolOptions, service_env_string: str)
         dir_path, "test_configs/license_server_config.yaml")
 
     # Patch the objects needed to generate a report.
+    p0 = patch.object(
+        cmd_utils,
+        "get_used_tokens_for_license",
+        0
+    )
     p1 = patch.dict(
         tokenstat.ToolOptionsCollection.tools,
         {"flexlm": tool_opts}
@@ -151,5 +157,5 @@ async def test_report(tool_opts: tokenstat.ToolOptions, service_env_string: str)
         "used": 502,
         "total": 1000
     }
-    with p1, p2, p3:
+    with p0, p1, p2, p3:
         assert [license_report_item] == await tokenstat.report()
