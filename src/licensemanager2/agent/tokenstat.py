@@ -190,18 +190,18 @@ async def attempt_tool_checks(
 
             # Get the used licenses from the scontrol output
             slurm_used = await get_used_tokens_for_license(slurm_license)
+            if slurm_used is not None:
+                # Generate the new total including the used tokens for slurm
+                slurm_available = lri.total - lri.used + slurm_used
 
-            # Generate the new total including the used tokens for slurm
-            slurm_available = lri.total - lri.used + slurm_used
-
-            # Update slurmdbd with the licnese usage
-            update_resource = await sacctmgr_modify_resource(
-                product, feature, slurm_available
-            )
-            if update_resource:
-                logger.info("Slurmdbd updated successfully.")
-            else:
-                logger.info("Slurmdbd update unsuccessful.")
+                # Update slurmdbd with the licnese usage
+                update_resource = await sacctmgr_modify_resource(
+                    product, feature, slurm_available
+                )
+                if update_resource:
+                    logger.info("Slurmdbd updated successfully.")
+                else:
+                    logger.info("Slurmdbd update unsuccessful.")
 
             return lri
 
