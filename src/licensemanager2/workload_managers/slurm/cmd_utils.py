@@ -42,7 +42,7 @@ async def scontrol_show_lic():
     Get the license usage from scontrol.
     """
 
-    cmd = "scontrol show lic"
+    cmd = "/usr/bin/scontrol show lic"
     timeout = 5
     encoding = "UTF8"
 
@@ -62,7 +62,7 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
     Update the license resource in slurm.
     """
     cmd = [
-        "/snap/bin/sacctmgr",
+        "/usr/bin/sacctmgr",
         "modify",
         "resource",
         f"name={product}.{feature}",
