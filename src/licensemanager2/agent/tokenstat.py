@@ -189,14 +189,9 @@ async def attempt_tool_checks(
             #    <product>.<feature>@<license_server>
             slurm_license = f"{product}.{feature}@{tool_options.name}"
 
-            # Get the scontrol output
-            scontrol_out = await scontrol_show_lic()
-
             # Get the used licenses from the scontrol output
-            slurm_used = get_used_tokens_for_license(
-                slurm_license,
-                scontrol_out
-            )
+            slurm_used = get_used_tokens_for_license(slurm_license)
+
             # Generate the new total including the used tokens for slurm
             slurm_available = lri.total - lri.used + slurm_used
 

@@ -14,10 +14,8 @@ from licensemanager2.workload_managers.slurm.common import (
 )
 
 
-def get_used_tokens_for_license(
-        product_feature_server: str,
-        scontrol_output: str
-) -> Optional[int]:
+async def get_used_tokens_for_license(
+        product_feature_server: str) -> Optional[int]:
     """
     Return used tokens from scontrol output.
     """
@@ -34,6 +32,10 @@ def get_used_tokens_for_license(
                 matched = True
         return None
 
+    # Get the scontrol output
+    scontrol_output = await scontrol_show_lic()
+
+    # Match the product_feature_server
     token_str = match_product_feature_server()
     if token_str is not None:
         for item in token_str.split():
