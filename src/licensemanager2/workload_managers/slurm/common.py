@@ -12,8 +12,10 @@ LM2_AGENT_HEADERS = {
     "content-type": "application/json"
 }
 
-SCONTROL_PATH = "/snap/bin/scontrol"
-SCONTROL_TIMEOUT = 5
+SCONTROL_PATH = "/usr/bin/scontrol"
+SACCTMGR_PATH = "/usr/bin/sacctmgr"
+CMD_TIMEOUT = 5
+ENCODING = "UTF8"
 
 
 def get_job_context():

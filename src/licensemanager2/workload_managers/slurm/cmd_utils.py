@@ -6,6 +6,12 @@ import shlex
 from typing import Optional
 
 from licensemanager2.agent import log as logger
+from licensemanager2.workload_managers.slurm.common import (
+    CMD_TIMEOUT,
+    SCONTROL_PATH,
+    SACCTMGR_PATH,
+    ENCODING,
+)
 
 
 def get_used_tokens_for_license(
@@ -42,18 +48,20 @@ async def scontrol_show_lic():
     Get the license usage from scontrol.
     """
 
-    cmd = "/usr/bin/scontrol show lic"
-    timeout = 5
-    encoding = "UTF8"
+    cmd = [
+        SCONTROL_PATH,
+        "show",
+        "lic",
+    ]
 
     proc = await asyncio.create_subprocess_shell(
-        cmd,
+        shlex.join(cmd),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT
     )
 
-    stdout, _ = await asyncio.wait_for(proc.communicate(), timeout)
-    output = str(stdout, encoding=encoding)
+    stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
+    output = str(stdout, encoding=ENCODING)
     return output
 
 
@@ -62,7 +70,7 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
     Update the license resource in slurm.
     """
     cmd = [
-        "/usr/bin/sacctmgr",
+        SACCTMGR_PATH,
         "modify",
         "resource",
         f"name={product}.{feature}",
@@ -70,9 +78,6 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
         f"count={num_tokens}",
         "-i",
     ]
-    timeout = 5
-    encoding = "UTF8"
-
     logger.info(f"{' '.join(cmd)}")
 
     sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
@@ -83,7 +88,7 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
 
     modify_resource_stdout, _ = await asyncio.wait_for(
         sacctmgr_modify_resource.communicate(),
-        timeout,
+        CMD_TIMEOUT,
     )
 
     rc = sacctmgr_modify_resource.returncode
@@ -92,5 +97,5 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens):
         logger.warning(f"rc = {rc}!")
         logger.warning(modify_resource_stdout)
 
-    modify_resource_output = str(modify_resource_stdout, encoding=encoding)
+    modify_resource_output = str(modify_resource_stdout, encoding=ENCODING)
     logger.info(f"Slurmdbd updated successfully: {modify_resource_output}")
