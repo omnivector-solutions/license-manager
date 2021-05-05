@@ -205,9 +205,9 @@ async def attempt_tool_checks(
                 product, feature, slurm_available
             )
             if update_resource:
-                logger.info(f"Slurmdbd updated successfully.")
+                logger.info("Slurmdbd updated successfully.")
             else:
-                logger.info(f"Slurmdbd update unsuccessful.")
+                logger.info("Slurmdbd update unsuccessful.")
 
             return lri
 
