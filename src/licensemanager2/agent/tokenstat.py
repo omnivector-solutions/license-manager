@@ -4,7 +4,7 @@ Invoke license stat tools to build a view of license token counts
 import asyncio
 from functools import lru_cache
 from pathlib import Path
-from shlex import quote, join
+from shlex import quote
 import traceback
 import typing
 
