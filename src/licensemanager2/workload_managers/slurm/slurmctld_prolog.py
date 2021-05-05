@@ -21,9 +21,10 @@ import httpx
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.agent import log, init_logging
 from licensemanager2.workload_managers.slurm.common import (
+    ENCODING,
     LM2_AGENT_HEADERS,
     SCONTROL_PATH,
-    SCONTROL_TIMEOUT,
+    CMD_TIMEOUT,
     get_job_context
 )
 
@@ -50,9 +51,9 @@ async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
 
     scontrol_out, _ = await asyncio.wait_for(
         scontrol_show_lic.communicate(),
-        SCONTROL_TIMEOUT
+        CMD_TIMEOUT
     )
-    scontrol_out = str(scontrol_out, encoding="UTF8")
+    scontrol_out = str(scontrol_out, encoding=ENCODING)
     log.info(scontrol_out)
 
     # Check that the command completed successfully
