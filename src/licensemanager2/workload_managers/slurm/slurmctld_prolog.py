@@ -15,13 +15,17 @@ import re
 import sys
 
 from shlex import join
+from typing import Union, List
 
 import httpx
 
+from pydantic import BaseModel, Field
+
 from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.tokenstat import ENCODING, PRODUCT_FEATURE_RX
+from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent import log, init_logging
 from licensemanager2.workload_managers.slurm.common import (
-    ENCODING,
     LM2_AGENT_HEADERS,
     SCONTROL_PATH,
     CMD_TIMEOUT,
@@ -29,22 +33,30 @@ from licensemanager2.workload_managers.slurm.common import (
 )
 
 
-async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
-    """Retrieve the required licenses for a job."""
+class LicenseBooking(BaseModel):
+    """
+    Structure to represent a license booking.
+    """
+    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    tokens: int
+    license_server_type: Union[None, str]
 
-    # Initialize the dict to hold license information for the job.
-    license_request_for_job = {"job_id": slurm_job_id, "licenses": dict()}
+
+class LicenseBookingRequest(BaseModel):
+    """
+    Structure to represent a list of license bookings.
+    """
+    job_id: int
+    bookings: Union[List, List[LicenseBooking]]
+
+
+async def _get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
+    """Retrieve the required licenses for a job."""
 
     # Command to get license information back from slurm using the
     # slurm_job_id.
-    cmd = [
-        SCONTROL_PATH,
-        "show",
-        f"job={slurm_job_id}"
-    ]
-
     scontrol_show_lic = await asyncio.create_subprocess_shell(
-        join(cmd),
+        join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
     )
@@ -58,12 +70,15 @@ async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
 
     # Check that the command completed successfully
     if not scontrol_show_lic.returncode == 0:
-        log.error(f"Could not get SLURM data for job id: {slurm_job_id}")
-        raise Exception(f"Could not get SLURM data for job id: {slurm_job_id}")
+        msg = f"Could not get SLURM data for job id: {slurm_job_id}"
+        log.error(msg)
+        raise Exception(msg)
 
     # Parse license information from scontrol output
     m = re.search('.* Licenses=([^ ]*).*', scontrol_out)
     license_array = m.group(1).split(',')
+
+    license_booking_request = LicenseBookingRequest(job_id=slurm_job_id, bookings=[])
 
     if license_array[0] != "(null)":
         for requested_license in license_array:
@@ -71,56 +86,41 @@ async def _get_required_licenses_for_job(slurm_job_id: str) -> dict:
             # If license is given on the form feature@server
             if '@' in requested_license and ':' not in requested_license:
                 # Request on format "feature@licserver"
-                feature, license_server = requested_license.split('@')
+                product_feature, license_server_type = requested_license.split('@')
                 tokens = 1
             elif '@' in requested_license and ':' in requested_license:
-                feature, license_server_tokens = requested_license.split("@")
-                license_server, tokens = requested_license.split(":")
+                product_feature, license_server_tokens = requested_license.split("@")
+                license_server_type, tokens = requested_license.split(":")
             elif requested_license and ':' in requested_license:
                 # Request on format "feature:no_tokens"
-                feature, tokens = requested_license.split(':')
-                license_server = None
+                product_feature, tokens = requested_license.split(':')
+                license_server_type = None
             elif requested_license and ':' not in requested_license:
                 # Request on format "feature"
-                feature = requested_license
-                license_server = None
+                product_feature = requested_license
+                license_server_type = None
                 tokens = 1
             else:
                 log.error(f"Unsupported license request: {requested_license}")
                 sys.exit(1)
 
-            license_request_for_job["licenses"][feature] = {
-                "license_server": license_server,
-                "tokens": tokens
-            }
+                license_booking = LicenseBooking(
+                    product_feature=product_feature,
+                    tokens=tokens,
+                    license_server_type=license_server_type,
+                )
 
-        log.debug(f"License features requested by job id: {slurm_job_id}")
-        for product_feature in license_request_for_job["licenses"].keys():
-            feature_tokens = license_request_for_job[
-                "licenses"][product_feature]["tokens"]
-            lic_server = license_request_for_job[
-                "licenses"][product_feature]["license_server"]
+                license_booking_request.bookings.append(license_booking)
 
-            log.debug(
-                f"Feature: {product_feature}, "
-                f"Server: {lic_server}, "
-                f"Tokens: {feature_tokens}"
-            )
-    return license_request_for_job
+    return license_booking_request
 
 
-async def _check_feature_token_availablity(booking_request: dict) -> bool:
+async def _check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     """Determine if there are sufficient tokens to fill the request."""
-
-    # Set all feature availability to false initially
-    feature_availability = {
-        feature: False
-        for feature in booking_request["licenses"].keys()
-    }
 
     # We currently only have an "/all" endpoint.
     # Todo: Implement endpoint to retrieve counts for a
-    # specific feature so we dont have to get them all.
+    # specific feature, or set of features so that we dont have to get /all.
     with httpx.Client() as client:
         resp = client.get(
             f"{SETTINGS.AGENT_BASE_URL}/api/v1/license/all",
@@ -129,45 +129,35 @@ async def _check_feature_token_availablity(booking_request: dict) -> bool:
 
         for item in resp.json():
             product_feature = item["product_feature"]
-            if product_feature in feature_availability.keys():
-                tokens_requested = int(
-                    booking_request['licenses'][product_feature]["tokens"]
-                )
-                tokens_available = int(item["available"])
-                if tokens_available >= tokens_requested:
-                    feature_availability[product_feature] = True
-
-    # Check that the license-manager backend is tracking the features
-    # we request.
-    if all(feature_availability.values()):
-        return True
+            for license_booking in lbr.bookings:
+                if product_feature == license_booking.product_feature:
+                    tokens_available = int(item["available"])
+                    if tokens_available >= license_booking.tokens:
+                        return True
     return False
 
 
-async def _make_booking_request(booking_request: dict) -> bool:
-    """Book feature tokens."""
+async def _make_booking_request(lbr: LicenseBookingRequest) -> bool:
+    """Book the feature tokens."""
 
-    feature_tokens = list()
-    # Prepare data for request
-    for feature in booking_request["licenses"].keys():
-        tokens = booking_request["licenses"][feature]["tokens"]
-        feature_tokens.append({"product_feature": feature, "booked": tokens})
-
-    data = {
-        "job_id": booking_request["job_id"],
-        "features": feature_tokens
-    }
+    features = [
+        {
+            "product_feature": license_booking.product_feature,
+            "booked": license_booking.tokens,
+        }
+        for license_booking in lbr.bookings
+    ]
 
     with httpx.Client() as client:
         resp = client.put(
             f"{SETTINGS.AGENT_BASE_URL}/api/v1/booking/book",
             headers=LM2_AGENT_HEADERS,
-            json=data
+            json={"job_id": lbr.job_id, "features": features}
         )
 
-        if resp.status_code == 200:
-            return True
-        return False
+    if resp.status_code == 200:
+        return True
+    return False
 
 
 async def _force_reconciliation():
@@ -179,30 +169,50 @@ async def _force_reconciliation():
             headers=LM2_AGENT_HEADERS,
         )
 
-        if resp.status_code == 200:
-            return True
-        return False
+    if resp.status_code == 200:
+        return True
+    return False
 
 
 async def main():
+    """The PrologSlurmctld for the license-manager-agent."""
     # Acqure the job context
-    ctxt = get_job_context()
-    log.info(ctxt)
-    job_id = ctxt["job_id"]
-    booking_request = await _get_required_licenses_for_job(job_id)
-    licenses = booking_request["licenses"]
+    job_id = get_job_context()["job_id"]
 
-    # Check if any licenses required for the job.
-    if len(licenses) > 0:
-        if not await _force_reconciliation():
-            sys.exit(1)
+    license_booking_request = await _get_required_licenses_for_job(job_id)
+
+    # Create a list of tracked licenses in the form <product>.<feature>
+    tracked_licenses = list()
+    for license in get_license_server_features():
+        for feature in license["features"]:
+            tracked_licenses.append(f"{license['product']}.{feature}")
+
+    # Create a tracked LicenseBookingRequest for licenses that we actually
+    # track. These tracked licenses are what we will check feature token
+    # availability for.
+    tracked_license_booking_request = LicenseBookingRequest(
+        job_id=job_id, bookings=[]
+    )
+    for license_booking in license_booking_request.bookings:
+        if license_booking.product_feature in tracked_licenses:
+            tracked_license_booking_request.bookings.append(license_booking)
+
+    if len(tracked_license_booking_request.bookings) > 0:
+        # Force a reconciliation before we check the feature tokenavailability.
+        await _force_reconciliation()
         # Check that there are sufficient feature tokens for the job.
-        if await _check_feature_token_availablity(booking_request):
-            # If we have sufficient tokens for each feature then
-            # proceed with booking the tokens for each feature.
-            if await _make_booking_request(booking_request):
-                log.debug(f"License booking succeeded for job id: {job_id}.")
-                log.debug(f"Licenses booked: {repr(licenses)}")
+        feature_token_availability = _check_feature_token_availablity(
+            tracked_license_booking_request
+        )
+        if feature_token_availability:
+            # If we have sufficient tokens for features that are
+            # requested, proceed with booking the tokens for each feature.
+            booking_request = await _make_booking_request(
+                tracked_license_booking_request
+            )
+            if booking_request:
+                log.debug(f"License booking sucessful, job id: {job_id}.")
+                log.debug(f"Licenses booked: {repr(tracked_licenses)}")
             else:
                 log.debug("Booking request unsuccessful.")
                 sys.exit(1)
