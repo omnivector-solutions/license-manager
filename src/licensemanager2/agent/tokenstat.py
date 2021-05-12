@@ -198,18 +198,20 @@ async def attempt_tool_checks(
             # in use vs the number available, we add the number of tokens in
             # use by slurm to the number of available tokens returned from
             # the license server.
-            if slurm_used is not None:
-                # Generate the new total including the used tokens for slurm
-                slurm_available = lri.total - lri.used + slurm_used
+            if slurm_used is None:
+                slurm_used = 0
 
-                # Update slurmdbd with the modified accounting
-                update_resource = await sacctmgr_modify_resource(
-                    product, feature, slurm_available
-                )
-                if update_resource:
-                    logger.info("Slurmdbd updated successfully.")
-                else:
-                    logger.info("Slurmdbd update unsuccessful.")
+            # Generate the new total including the used tokens for slurm
+            slurm_available = lri.total - lri.used + slurm_used
+
+            # Update slurmdbd with the modified accounting
+            update_resource = await sacctmgr_modify_resource(
+                product, feature, slurm_available
+            )
+            if update_resource:
+                logger.info("Slurmdbd updated successfully.")
+            else:
+                logger.info("Slurmdbd update unsuccessful.")
 
             return lri
 
