@@ -14,11 +14,8 @@ PIP_INSTALL_FOR_ZIP		:= pip install -q --target _lambda_tmp --upgrade wheel pip
 function.zip:
 	rm -rf $@ _tmp_venv
 	python3 -m venv _tmp_venv
-	# "pip install ." - remove this when we figure out how to make poetry
-	# install do the right thing here so we dont have to use pip too.
 	. ./_tmp_venv/bin/activate && pip install --upgrade wheel pip \
-	    && pip install . \
-		&& poetry install
+	    && pip install .
 	cd _tmp_venv/lib/python3.8/site-packages \
 	    && zip -9 -q ../../../../$@ -r . \
 		&& cd ../../../../

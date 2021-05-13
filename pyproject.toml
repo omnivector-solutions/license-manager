@@ -51,7 +51,6 @@ lm-create-jwt = ["boto3", "click", "pyjwt"]
 dev = [
     "aiosqlite",
     "black",
-    "databases",
     "flake8",
     "isort",
     "mypy",
