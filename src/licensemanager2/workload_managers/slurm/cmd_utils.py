@@ -1,9 +1,8 @@
 """Utilities that interact with slurm."""
 import asyncio
+import httpx
 import re
 import shlex
-import httpx
-
 
 from pydantic import BaseModel, Field
 from licensemanager2.workload_managers.slurm.common import (
@@ -177,10 +176,11 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
     return license_list
 
 
-async def get_used_tokens_for_license(
-        product_feature_server: str) -> Optional[int]:
+async def get_tokens_for_license(
+        product_feature_server: str,
+        output_type: str) -> Optional[int]:
     """
-    Return used tokens from scontrol output.
+    Return tokens from scontrol output.
     """
 
     def match_product_feature_server() -> Optional[str]:
@@ -203,7 +203,7 @@ async def get_used_tokens_for_license(
     if token_str is not None:
         for item in token_str.split():
             k, v = item.split("=")
-            if k == "Used":
+            if k == output_type:
                 return int(v)
     return None
 

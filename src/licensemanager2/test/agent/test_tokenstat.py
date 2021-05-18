@@ -135,7 +135,7 @@ async def test_report(tool_opts: tokenstat.ToolOptions, service_env_string: str)
     # Patch the objects needed to generate a report.
     p0 = patch.object(
         cmd_utils,
-        "get_used_tokens_for_license",
+        "get_tokens_for_license",
         0
     )
     p1 = patch.dict(

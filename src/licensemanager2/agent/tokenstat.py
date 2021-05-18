@@ -22,7 +22,7 @@ from licensemanager2.agent.settings import (
 from licensemanager2.agent.backend_utils import get_license_server_features
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
-    get_used_tokens_for_license,
+    get_tokens_for_license,
     sacctmgr_modify_resource,
 )
 
@@ -189,7 +189,7 @@ async def attempt_tool_checks(
             slurm_license = f"{product}.{feature}@{tool_options.name}"
 
             # Get the used licenses from the scontrol output
-            slurm_used = await get_used_tokens_for_license(slurm_license)
+            slurm_used = await get_tokens_for_license(slurm_license, "Used")
 
             # If slurm is already tracking the license, update slurmdbd
             # with a modified view of the total licenses.
