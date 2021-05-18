@@ -2,10 +2,9 @@
 Tests of Prolog
 """
 from typing import List
-# from unittest.mock import patch
 from pytest import fixture, mark
-from unittest.mock import patch
-from licensemanager2.workload_managers.slurm.slurmctld_prolog import (
+from unittest import mock
+from licensemanager2.workload_managers.slurm.cmd_utils import (
     get_required_licenses_for_job,
 )
 
@@ -34,32 +33,33 @@ def slurm_job_id() -> str:
 
 
 @mark.asyncio
-async def test_get_required_licenses_for_job_good(slurm_job_id: str, scontrol_parsed_output_good: List[str]):
+@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.get_licenses_for_job")
+async def test_get_required_licenses_for_job_good(
+    get_licenses_for_job_mock: mock.MagicMock,
+    slurm_job_id: str, scontrol_parsed_output_good: List[str]
+):
     """
     Do I return the correct licenses when the license format matches?
     """
-    p1 = patch(
-        'licensemanager2.workload_managers.slurm.slurmctld_prolog.get_licenses_for_job',
-        return_value=scontrol_parsed_output_good
+    get_licenses_for_job_mock.return_value = scontrol_parsed_output_good
+    license_booking_request = await get_required_licenses_for_job(
+        slurm_job_id
     )
-    with p1:
-        license_booking_request = await get_required_licenses_for_job(
-            slurm_job_id
-        )
-        assert len(license_booking_request.bookings) == 3
+    assert len(license_booking_request.bookings) == 3
 
 
 @mark.asyncio
-async def test_get_required_licenses_for_job_bad(slurm_job_id: str, scontrol_parsed_output_bad: List[str]):
+@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.get_licenses_for_job")
+async def test_get_required_licenses_for_job_bad(
+    get_licenses_for_job_mock: mock.MagicMock,
+    slurm_job_id: str, scontrol_parsed_output_bad: List[str]
+):
     """
     Do I return the correct licenses when the license format doesn't match?
     """
-    p1 = patch(
-        'licensemanager2.workload_managers.slurm.slurmctld_prolog.get_licenses_for_job',
-        return_value=scontrol_parsed_output_bad
+
+    get_licenses_for_job_mock.return_value = scontrol_parsed_output_bad
+    license_booking_request = await get_required_licenses_for_job(
+        slurm_job_id
     )
-    with p1:
-        license_booking_request = await get_required_licenses_for_job(
-            slurm_job_id
-        )
-        assert len(license_booking_request.bookings) == 0
+    assert len(license_booking_request.bookings) == 0

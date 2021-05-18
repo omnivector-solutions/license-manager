@@ -2,16 +2,143 @@
 import asyncio
 import re
 import shlex
+import httpx
 
-from typing import List, Optional
 
-from licensemanager2.agent import log as logger
+from pydantic import BaseModel, Field
 from licensemanager2.workload_managers.slurm.common import (
     CMD_TIMEOUT,
     SCONTROL_PATH,
     SACCTMGR_PATH,
     ENCODING,
+    LM2_AGENT_HEADERS,
 )
+from licensemanager2.agent import log as logger
+from typing import List, Optional, Union
+from licensemanager2.agent.settings import (
+    SETTINGS,
+    PRODUCT_FEATURE_RX,
+)
+
+
+class ScontrolRetrievalFailure(Exception):
+    """
+    Could not get SLURM data for job id.
+    The following function's return code was zero:
+
+    await asyncio.create_subprocess_shell(
+        shlex.join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+    """
+    pass
+
+
+class LicenseBooking(BaseModel):
+    """
+    Structure to represent a license booking.
+    """
+    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    tokens: int
+    license_server_type: Union[None, str]
+
+
+class LicenseBookingRequest(BaseModel):
+    """
+    Structure to represent a list of license bookings.
+    """
+    job_id: int
+    bookings: Union[List, List[LicenseBooking]]
+
+
+async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
+    """Retrieve the required licenses for a job."""
+
+    license_array = await get_licenses_for_job(slurm_job_id)
+    license_booking_request = LicenseBookingRequest(
+        job_id=slurm_job_id,
+        bookings=[],
+    )
+
+    if license_array[0] != "(null)":
+        for requested_license in license_array:
+            license_regex = re.compile(r'(\w+)\.(\w+)@(\w+):(\d+)')
+            if license_regex.match(requested_license):
+                # If the regex matches, parse the values
+                product_feature, license_server_tokens = \
+                    requested_license.split("@")
+                license_server_type, tokens = requested_license.split(":")
+
+                # Create the license booking
+                license_booking = LicenseBooking(
+                    product_feature=product_feature,
+                    tokens=tokens,
+                    license_server_type=license_server_type,
+                )
+
+                license_booking_request.bookings.append(license_booking)
+
+    return license_booking_request
+
+
+async def _check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
+    """Determine if there are sufficient tokens to fill the request."""
+
+    # We currently only have an "/all" endpoint.
+    # Todo: Implement endpoint to retrieve counts for a
+    # specific feature, or set of features so that we dont have to get /all.
+    with httpx.Client() as client:
+        resp = client.get(
+            f"{SETTINGS.AGENT_BASE_URL}/api/v1/license/all",
+            headers=LM2_AGENT_HEADERS
+        )
+
+        for item in resp.json():
+            product_feature = item["product_feature"]
+            for license_booking in lbr.bookings:
+                if product_feature == license_booking.product_feature:
+                    tokens_available = int(item["available"])
+                    if tokens_available >= license_booking.tokens:
+                        return True
+    return False
+
+
+async def _make_booking_request(lbr: LicenseBookingRequest) -> bool:
+    """Book the feature tokens."""
+
+    features = [
+        {
+            "product_feature": license_booking.product_feature,
+            "booked": license_booking.tokens,
+        }
+        for license_booking in lbr.bookings
+    ]
+
+    with httpx.Client() as client:
+        resp = client.put(
+            f"{SETTINGS.AGENT_BASE_URL}/api/v1/booking/book",
+            headers=LM2_AGENT_HEADERS,
+            json={"job_id": lbr.job_id, "features": features}
+        )
+
+    if resp.status_code == 200:
+        return True
+    return False
+
+
+async def _force_reconciliation():
+    """Force a reconciliation."""
+
+    with httpx.Client() as client:
+        resp = client.get(
+            f"{SETTINGS.AGENT_BASE_URL}/reconcile",
+            headers=LM2_AGENT_HEADERS,
+        )
+
+    if resp.status_code == 200:
+        return True
+    return False
 
 
 async def get_licenses_for_job(slurm_job_id: str) -> List:
@@ -42,7 +169,7 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
     if not scontrol_show_lic.returncode == 0:
         msg = f"Could not get SLURM data for job id: {slurm_job_id}"
         logger.error(msg)
-        raise Exception(msg)
+        raise ScontrolRetrievalFailure(msg)
 
     # Parse license information from scontrol output
     m = re.search('.* Licenses=([^ ]*).*', scontrol_out)  # type: ignore

@@ -16,6 +16,11 @@ from pydantic.error_wrappers import ValidationError
 logger = logging.getLogger("licensemanager2.agent.setting")
 
 
+PRODUCT_FEATURE_RX = r"^.+?\..+$"
+ENCODING = "UTF8"
+TOOL_TIMEOUT = 6  # seconds
+
+
 class LogLevelEnum(str, Enum):
     """
     Log level name enforcement

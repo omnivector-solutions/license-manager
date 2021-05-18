@@ -11,129 +11,17 @@ proceed with scheduling the job if the exit status is 0, and will not proceed
 if the exit status is anything other then 0, e.g. 1.
 """
 import asyncio
-import httpx
-import re
 import sys
-
-from typing import Union, List
-from pydantic import BaseModel, Field
-from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.agent.tokenstat import PRODUCT_FEATURE_RX
 from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent import log, init_logging
+from licensemanager2.workload_managers.slurm.common import get_job_context
 from licensemanager2.workload_managers.slurm.cmd_utils import (
-    get_licenses_for_job,
+    LicenseBookingRequest,
+    _force_reconciliation,
+    _check_feature_token_availablity,
+    _make_booking_request,
+    get_required_licenses_for_job
 )
-from licensemanager2.workload_managers.slurm.common import (
-    LM2_AGENT_HEADERS,
-    get_job_context
-)
-
-
-class LicenseBooking(BaseModel):
-    """
-    Structure to represent a license booking.
-    """
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    tokens: int
-    license_server_type: Union[None, str]
-
-
-class LicenseBookingRequest(BaseModel):
-    """
-    Structure to represent a list of license bookings.
-    """
-    job_id: int
-    bookings: Union[List, List[LicenseBooking]]
-
-
-async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
-    """Retrieve the required licenses for a job."""
-
-    license_array = await get_licenses_for_job(slurm_job_id)
-    license_booking_request = LicenseBookingRequest(
-        job_id=slurm_job_id,
-        bookings=[],
-    )
-
-    if license_array[0] != "(null)":
-        for requested_license in license_array:
-            license_regex = re.compile(r'(\w+)\.(\w+)@(\w+):(\d+)')
-            if license_regex.match(requested_license):
-                # If the regex matches, parse the values
-                product_feature, license_server_tokens = \
-                    requested_license.split("@")
-                license_server_type, tokens = requested_license.split(":")
-
-                # Create the license booking
-                license_booking = LicenseBooking(
-                    product_feature=product_feature,
-                    tokens=tokens,
-                    license_server_type=license_server_type,
-                )
-
-                license_booking_request.bookings.append(license_booking)
-
-    return license_booking_request
-
-
-async def _check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
-    """Determine if there are sufficient tokens to fill the request."""
-
-    # We currently only have an "/all" endpoint.
-    # Todo: Implement endpoint to retrieve counts for a
-    # specific feature, or set of features so that we dont have to get /all.
-    with httpx.Client() as client:
-        resp = client.get(
-            f"{SETTINGS.AGENT_BASE_URL}/api/v1/license/all",
-            headers=LM2_AGENT_HEADERS
-        )
-
-        for item in resp.json():
-            product_feature = item["product_feature"]
-            for license_booking in lbr.bookings:
-                if product_feature == license_booking.product_feature:
-                    tokens_available = int(item["available"])
-                    if tokens_available >= license_booking.tokens:
-                        return True
-    return False
-
-
-async def _make_booking_request(lbr: LicenseBookingRequest) -> bool:
-    """Book the feature tokens."""
-
-    features = [
-        {
-            "product_feature": license_booking.product_feature,
-            "booked": license_booking.tokens,
-        }
-        for license_booking in lbr.bookings
-    ]
-
-    with httpx.Client() as client:
-        resp = client.put(
-            f"{SETTINGS.AGENT_BASE_URL}/api/v1/booking/book",
-            headers=LM2_AGENT_HEADERS,
-            json={"job_id": lbr.job_id, "features": features}
-        )
-
-    if resp.status_code == 200:
-        return True
-    return False
-
-
-async def _force_reconciliation():
-    """Force a reconciliation."""
-
-    with httpx.Client() as client:
-        resp = client.get(
-            f"{SETTINGS.AGENT_BASE_URL}/reconcile",
-            headers=LM2_AGENT_HEADERS,
-        )
-
-    if resp.status_code == 200:
-        return True
-    return False
 
 
 async def main():
@@ -185,8 +73,7 @@ async def main():
     sys.exit(0)
 
 
-if __name__ == "__main__":
-    # Initialize the logger
-    init_logging("slurmctld-prolog")
-    # Run main()
-    asyncio.run(main())
+# Initialize the logger
+init_logging("slurmctld-prolog")
+# Run main()
+asyncio.run(main())

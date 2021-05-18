@@ -12,19 +12,19 @@ from pydantic import BaseModel, Field
 
 from licensemanager2.agent import log as logger
 from licensemanager2.agent.parsing import flexlm
-from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.settings import (
+    SETTINGS,
+    PRODUCT_FEATURE_RX,
+    ENCODING,
+    TOOL_TIMEOUT
+)
+
 from licensemanager2.agent.backend_utils import get_license_server_features
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     get_used_tokens_for_license,
     sacctmgr_modify_resource,
 )
-
-
-PRODUCT_FEATURE_RX = r"^.+?\..+$"
-ENCODING = "UTF8"
-
-TOOL_TIMEOUT = 6  # seconds
 
 
 class LicenseService(BaseModel):
