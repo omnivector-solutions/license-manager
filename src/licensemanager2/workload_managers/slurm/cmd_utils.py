@@ -3,7 +3,7 @@ import asyncio
 import re
 import shlex
 
-from typing import Optional
+from typing import List, Optional
 
 from licensemanager2.agent import log as logger
 from licensemanager2.workload_managers.slurm.common import (
@@ -12,6 +12,42 @@ from licensemanager2.workload_managers.slurm.common import (
     SACCTMGR_PATH,
     ENCODING,
 )
+
+
+async def get_licenses_for_job(slurm_job_id: str) -> List:
+    """
+    Parse the scontrol output and return licenses needed for job.
+
+    Note: "type: ignore" was used to silence mypy type errors
+
+    See github issue: https://github.com/omnivector-solutions/license-manager/issues/19
+    """
+
+    # Command to get license information back from slurm using the
+    # slurm_job_id.
+    scontrol_show_lic = await asyncio.create_subprocess_shell(
+        shlex.join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+
+    scontrol_out, _ = await asyncio.wait_for(
+        scontrol_show_lic.communicate(),
+        CMD_TIMEOUT
+    )
+    scontrol_out = str(scontrol_out, ENCODING)  # type: ignore
+    logger.info(scontrol_out)
+
+    # Check that the command completed successfully
+    if not scontrol_show_lic.returncode == 0:
+        msg = f"Could not get SLURM data for job id: {slurm_job_id}"
+        logger.error(msg)
+        raise Exception(msg)
+
+    # Parse license information from scontrol output
+    m = re.search('.* Licenses=([^ ]*).*', scontrol_out)  # type: ignore
+    license_list = m.group(1).split(',')  # type: ignore
+    return license_list
 
 
 async def get_used_tokens_for_license(

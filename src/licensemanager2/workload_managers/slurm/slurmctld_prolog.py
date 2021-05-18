@@ -11,24 +11,21 @@ proceed with scheduling the job if the exit status is 0, and will not proceed
 if the exit status is anything other then 0, e.g. 1.
 """
 import asyncio
+import httpx
 import re
 import sys
 
-from shlex import join
 from typing import Union, List
-
-import httpx
-
 from pydantic import BaseModel, Field
-
 from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.agent.tokenstat import ENCODING, PRODUCT_FEATURE_RX
+from licensemanager2.agent.tokenstat import PRODUCT_FEATURE_RX
 from licensemanager2.agent.backend_utils import get_license_server_features
 from licensemanager2.agent import log, init_logging
+from licensemanager2.workload_managers.slurm.cmd_utils import (
+    get_licenses_for_job,
+)
 from licensemanager2.workload_managers.slurm.common import (
     LM2_AGENT_HEADERS,
-    SCONTROL_PATH,
-    CMD_TIMEOUT,
     get_job_context
 )
 
@@ -50,60 +47,25 @@ class LicenseBookingRequest(BaseModel):
     bookings: Union[List, List[LicenseBooking]]
 
 
-async def _get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
+async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
     """Retrieve the required licenses for a job."""
 
-    # Command to get license information back from slurm using the
-    # slurm_job_id.
-    scontrol_show_lic = await asyncio.create_subprocess_shell(
-        join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
+    license_array = await get_licenses_for_job(slurm_job_id)
+    license_booking_request = LicenseBookingRequest(
+        job_id=slurm_job_id,
+        bookings=[],
     )
-
-    scontrol_out, _ = await asyncio.wait_for(
-        scontrol_show_lic.communicate(),
-        CMD_TIMEOUT
-    )
-    scontrol_out = str(scontrol_out, encoding=ENCODING)
-    log.info(scontrol_out)
-
-    # Check that the command completed successfully
-    if not scontrol_show_lic.returncode == 0:
-        msg = f"Could not get SLURM data for job id: {slurm_job_id}"
-        log.error(msg)
-        raise Exception(msg)
-
-    # Parse license information from scontrol output
-    m = re.search('.* Licenses=([^ ]*).*', scontrol_out)
-    license_array = m.group(1).split(',')
-
-    license_booking_request = LicenseBookingRequest(job_id=slurm_job_id, bookings=[])
 
     if license_array[0] != "(null)":
         for requested_license in license_array:
-
-            # If license is given on the form feature@server
-            if '@' in requested_license and ':' not in requested_license:
-                # Request on format "feature@licserver"
-                product_feature, license_server_type = requested_license.split('@')
-                tokens = 1
-            elif '@' in requested_license and ':' in requested_license:
-                product_feature, license_server_tokens = requested_license.split("@")
+            license_regex = re.compile(r'(\w+)\.(\w+)@(\w+):(\d+)')
+            if license_regex.match(requested_license):
+                # If the regex matches, parse the values
+                product_feature, license_server_tokens = \
+                    requested_license.split("@")
                 license_server_type, tokens = requested_license.split(":")
-            elif requested_license and ':' in requested_license:
-                # Request on format "feature:no_tokens"
-                product_feature, tokens = requested_license.split(':')
-                license_server_type = None
-            elif requested_license and ':' not in requested_license:
-                # Request on format "feature"
-                product_feature = requested_license
-                license_server_type = None
-                tokens = 1
-            else:
-                log.error(f"Unsupported license request: {requested_license}")
-                sys.exit(1)
 
+                # Create the license booking
                 license_booking = LicenseBooking(
                     product_feature=product_feature,
                     tokens=tokens,
@@ -179,7 +141,7 @@ async def main():
     # Acqure the job context
     job_id = get_job_context()["job_id"]
 
-    license_booking_request = await _get_required_licenses_for_job(job_id)
+    license_booking_request = await get_required_licenses_for_job(job_id)
 
     # Create a list of tracked licenses in the form <product>.<feature>
     tracked_licenses = list()
@@ -223,7 +185,8 @@ async def main():
     sys.exit(0)
 
 
-# Initialize the logger
-init_logging("slurmctld-prolog")
-# Run main()
-asyncio.run(main())
+if __name__ == "__main__":
+    # Initialize the logger
+    init_logging("slurmctld-prolog")
+    # Run main()
+    asyncio.run(main())

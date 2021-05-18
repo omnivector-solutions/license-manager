@@ -1,10 +1,13 @@
 """
 Tests of Prolog
 """
-
 from typing import List
 # from unittest.mock import patch
 from pytest import fixture, mark
+from unittest.mock import patch
+from licensemanager2.workload_managers.slurm.slurmctld_prolog import (
+    get_required_licenses_for_job,
+)
 
 
 @fixture
@@ -25,24 +28,38 @@ def scontrol_parsed_output_bad() -> List[str]:
     ]
 
 
-@mark.asyncio
-async def test_get_required_licenses_for_job():
-    """
-    Do I collect the requested structured data from running all these dang tools?
-    """
-    p0 = patch.object(
-        cmd_utils,
-        "scontrol_show_lic",
-        scontrol_output_good_format
-    )
-    with p0:
-        licenses = await slurmctld_prolog._get_required_licenses_for_job()
-        assert len(licenses) == 3
-    
+@fixture
+def slurm_job_id() -> str:
+    return "777"
+
 
 @mark.asyncio
-async def test_get_required_licenses_for_job():
+async def test_get_required_licenses_for_job_good(slurm_job_id: str, scontrol_parsed_output_good: List[str]):
     """
-    Do I collect the requested structured data from running all these dang tools?
+    Do I return the correct licenses when the license format matches?
     """
-    assert (0 == 1)
+    p1 = patch(
+        'licensemanager2.workload_managers.slurm.slurmctld_prolog.get_licenses_for_job',
+        return_value=scontrol_parsed_output_good
+    )
+    with p1:
+        license_booking_request = await get_required_licenses_for_job(
+            slurm_job_id
+        )
+        assert len(license_booking_request.bookings) == 3
+
+
+@mark.asyncio
+async def test_get_required_licenses_for_job_bad(slurm_job_id: str, scontrol_parsed_output_bad: List[str]):
+    """
+    Do I return the correct licenses when the license format doesn't match?
+    """
+    p1 = patch(
+        'licensemanager2.workload_managers.slurm.slurmctld_prolog.get_licenses_for_job',
+        return_value=scontrol_parsed_output_bad
+    )
+    with p1:
+        license_booking_request = await get_required_licenses_for_job(
+            slurm_job_id
+        )
+        assert len(license_booking_request.bookings) == 0
