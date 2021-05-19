@@ -81,7 +81,7 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
     return license_booking_request
 
 
-async def _check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
+async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     """Determine if there are sufficient tokens to fill the request."""
 
     # We currently only have an "/all" endpoint.
@@ -103,7 +103,7 @@ async def _check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     return False
 
 
-async def _make_booking_request(lbr: LicenseBookingRequest) -> bool:
+async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     """Book the feature tokens."""
 
     features = [
@@ -126,7 +126,7 @@ async def _make_booking_request(lbr: LicenseBookingRequest) -> bool:
     return False
 
 
-async def _force_reconciliation():
+async def reconcile():
     """Force a reconciliation."""
 
     with httpx.Client() as client:

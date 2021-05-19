@@ -12,15 +12,16 @@ if the exit status is anything other then 0, e.g. 1.
 """
 import asyncio
 import sys
+
+from licensemanager2.agent import init_logging, log
 from licensemanager2.agent.backend_utils import get_license_server_features
-from licensemanager2.agent import log, init_logging
 from licensemanager2.workload_managers.slurm.common import get_job_context
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
-    _force_reconciliation,
-    _check_feature_token_availablity,
-    _make_booking_request,
-    get_required_licenses_for_job
+    check_feature_token_availablity,
+    get_required_licenses_for_job,
+    make_booking_request,
+    reconcile,
 )
 
 
@@ -49,15 +50,15 @@ async def main():
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.
-        await _force_reconciliation()
+        await reconcile()
         # Check that there are sufficient feature tokens for the job.
-        feature_token_availability = _check_feature_token_availablity(
+        feature_token_availability = check_feature_token_availablity(
             tracked_license_booking_request
         )
         if feature_token_availability:
             # If we have sufficient tokens for features that are
             # requested, proceed with booking the tokens for each feature.
-            booking_request = await _make_booking_request(
+            booking_request = await make_booking_request(
                 tracked_license_booking_request
             )
             if booking_request:
