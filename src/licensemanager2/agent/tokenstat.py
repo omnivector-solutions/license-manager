@@ -12,19 +12,19 @@ from pydantic import BaseModel, Field
 
 from licensemanager2.agent import log as logger
 from licensemanager2.agent.parsing import flexlm
-from licensemanager2.agent.settings import SETTINGS
+from licensemanager2.agent.settings import (
+    SETTINGS,
+    PRODUCT_FEATURE_RX,
+    ENCODING,
+    TOOL_TIMEOUT
+)
+
 from licensemanager2.agent.backend_utils import get_license_server_features
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
-    get_used_tokens_for_license,
+    get_tokens_for_license,
     sacctmgr_modify_resource,
 )
-
-
-PRODUCT_FEATURE_RX = r"^.+?\..+$"
-ENCODING = "UTF8"
-
-TOOL_TIMEOUT = 6  # seconds
 
 
 class LicenseService(BaseModel):
@@ -189,7 +189,7 @@ async def attempt_tool_checks(
             slurm_license = f"{product}.{feature}@{tool_options.name}"
 
             # Get the used licenses from the scontrol output
-            slurm_used = await get_used_tokens_for_license(slurm_license)
+            slurm_used = await get_tokens_for_license(slurm_license, "Used")
 
             # If slurm is already tracking the license, update slurmdbd
             # with a modified view of the total licenses.
