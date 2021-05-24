@@ -183,7 +183,27 @@ uvicorn licensemanager2.backend.main:app
 uvicorn licensemanager2.agent.main:app --port 8010
 ```
 
+## Database Migrations
+The license manager project uses alembic to manage the database and perform migrations. 
+The migrations are kept in this project in the `alembic/versions` directory, and the config file is in the root of the project, `alembic.ini`. 
 
+#### Create Migrations
+To create a migration:
+```bash
+alembic revision -m "some comment" --autogenerate
+```
+Running the command above will create a revision file in `alembic/versions`, (i.e. "b692dfd0b017_initial_revision.py")
+The revision of this file will be the string prepended to the filename. 
+
+#### Apply Migrations
+To apply a migration:
+```bash
+alembic upgrade <revision> (or "head" for latest) 
+```
+Using the example above, upgrade command looks like this:
+```bash
+alembic upgrade b692dfd0b017
+```
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
