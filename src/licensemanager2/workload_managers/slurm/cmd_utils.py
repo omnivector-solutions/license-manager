@@ -23,13 +23,21 @@ from licensemanager2.agent.settings import (
 class ScontrolRetrievalFailure(Exception):
     """
     Could not get SLURM data for job id.
-    The following function's return code was zero:
+    The following function's return code was not zero:
 
     await asyncio.create_subprocess_shell(
         shlex.join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
     )
+    """
+    pass
+
+class ScontrolProcessError(Exception):
+    """
+    ProcessExecutionError.
+    The following function's return code was not zero:
+    $ scontrol show lic
     """
     pass
 
@@ -163,15 +171,17 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
     )
     scontrol_out = str(scontrol_out, ENCODING)  # type: ignore
     logger.info(scontrol_out)
-
     # Check that the command completed successfully
-    if not scontrol_show_lic.returncode == 0:
+    if scontrol_show_lic.returncode != 0:
         msg = f"Could not get SLURM data for job id: {slurm_job_id}"
         logger.error(msg)
         raise ScontrolRetrievalFailure(msg)
 
     # Parse license information from scontrol output
     m = re.search('.* Licenses=([^ ]*).*', scontrol_out)  # type: ignore
+    license_list = []
+    if m is None:
+        return license_list
     license_list = m.group(1).split(',')  # type: ignore
     return license_list
 
@@ -226,6 +236,10 @@ async def scontrol_show_lic():
     )
 
     stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
+    if proc.returncode != 0:
+        msg = f"Scrontrol process return value was different from 0"
+        logger.error(msg)
+        raise ScontrolProcessError(msg)
     output = str(stdout, encoding=ENCODING)
     return output
 
