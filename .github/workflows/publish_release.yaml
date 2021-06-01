@@ -24,7 +24,7 @@ jobs:
         run: |
           git config user.name omnivector-qa
           git config user.email admin@omnivector.solutions
-      - uses: getsentry/craft@master
+      - uses: getsentry/craft@0.13.2
         if: ${{ success() }}
         name: "Craft Publish"
         with:
