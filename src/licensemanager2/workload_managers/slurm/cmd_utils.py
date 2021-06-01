@@ -67,7 +67,7 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
                 # If the regex matches, parse the values
                 product_feature, license_server_tokens = \
                     requested_license.split("@")
-                license_server_type, tokens = requested_license.split(":")
+                license_server_type, tokens = license_server_tokens.split(":")
 
                 # Create the license booking
                 license_booking = LicenseBooking(
