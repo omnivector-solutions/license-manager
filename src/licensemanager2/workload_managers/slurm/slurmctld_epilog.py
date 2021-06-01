@@ -52,7 +52,7 @@ async def main():
 
     # If a license booking's product feature is tracked,
     # update slurm's view of the token totals
-    for license_booking in license_booking_request:
+    for license_booking in license_booking_request.bookings:
         product_feature = license_booking.product_feature
         product, feature = product_feature.split(".")
         license_server_type = license_booking.license_server_type
@@ -60,7 +60,7 @@ async def main():
         license = f"{product_feature}@{license_server_type}"
 
         if product_feature in tracked_licenses:
-            total = get_tokens_for_license(license, "Total")
+            total = await get_tokens_for_license(license, "Total")
             update_resource = await sacctmgr_modify_resource(
                 product, feature, total - tokens_to_remove
             )
