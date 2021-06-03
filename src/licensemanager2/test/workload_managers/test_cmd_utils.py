@@ -4,7 +4,7 @@ Tests
 import pytest
 from pytest import fixture, mark
 from unittest import mock
-
+from textwrap import dedent
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
@@ -23,15 +23,15 @@ def scrontrol_output():
     """
     Some lmstat output to parse
     """
-    return (
-        """
-        LicenseName=myproduct0.myfeature0@licserve
-            Total=579 Used=0 Free=579 Reserved=0 Remote=yes
-        LicenseName=myproduct1.myfeature1@licserve
+    return dedent(
+        """\
+        LicenseName=myproduct0.myfeature0@licserver
+            Total=579 Used=2 Free=577 Reserved=0 Remote=yes
+        LicenseName=myproduct1.myfeature1@licserver
             Total=1 Used=0 Free=1 Reserved=0 Remote=yes
-        LicenseName=myproduct2.myfeature2@licserve
+        LicenseName=myproduct2.myfeature2@licserver
             Total=6 Used=0 Free=6 Reserved=0 Remote=yes
-        LicenseName=myproduct2.myfeature3@licserve
+        LicenseName=myproduct2.myfeature3@licserver
             Total=6 Used=0 Free=6 Reserved=0 Remote=yes
         """
     )
@@ -168,26 +168,20 @@ async def test_sacctmgr_modify_existing_resource(
     assert await sacctmgr_modify_resource("TESTPRODUCT", "TESTFEATURE", 5) is True
 
 
-@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
-@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.asyncio.scontrol_show_lic")
-@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.asyncio.match_product_feature_server")
+@mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mark.asyncio
 async def test_get_tokens_for_license(
-    create_subprocess_shell_mock: mock.AsyncMock,
-    match_product_feature_server_mock: mock.AsyncMock,
     scontrol_show_lic_mock: mock.AsyncMock,
+    scrontrol_output,
 ):
     """
     Testing if scontrol output returns licences needed for a job.
     """
-    match_product_feature_server_mock.return_value = mock.AsyncMock()
-    scontrol_show_lic_mock.return_value = b"test_return_value", ""
+    # scontrol_show_lic_mock.return_value = mock.AsyncMock()
+    # scontrol_show_lic_mock.match_product_feature_server = mock.AsyncMock()
+    scontrol_show_lic_mock.return_value = scrontrol_output
 
-    create_subprocess_shell_mock.return_value = mock.AsyncMock()
-    create_subprocess_shell_mock.communicate.return_value = mock.Mock()
-    create_subprocess_shell_mock.return_value.returncode = 1
-
-    assert await get_tokens_for_license("TESTPRODUCT.TESTFEATURE@TESTSERVER", "USED") == "test_return_value"
+    assert await get_tokens_for_license("myproduct0.myfeature0@licserver", "Used") == 2
 
 
 @mock.patch("licensemanager2.workload_managers.slurm.cmd_utils.asyncio.wait_for")
