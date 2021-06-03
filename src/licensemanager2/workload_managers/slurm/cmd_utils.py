@@ -120,8 +120,7 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
                         logger.debug(
                             f"##### Tokens required {license_booking.tokens} #####")
                         return True
-    logger.debug(
-        f"##### Tokens not available #####")
+    logger.debug("##### Tokens not available #####")
     return False
 
 
