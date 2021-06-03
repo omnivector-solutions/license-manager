@@ -53,6 +53,7 @@ def _rotating_file_handler(log_file: str):
     """Configure the rotating file handler."""
     global logger
 
+    # Rotate the log file at 5MB, keep 10 rotations.
     handler = RotatingFileHandler(
         log_file,
         backupCount=10,

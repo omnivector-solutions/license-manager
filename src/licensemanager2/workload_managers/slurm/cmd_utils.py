@@ -55,7 +55,7 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
-    logger.debug("##### License array #####")
+    logger.debug(f"##### License array for job id: {slurm_job_id} #####")
     logger.debug(license_array)
 
     license_booking_request = LicenseBookingRequest(
@@ -86,6 +86,8 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
 
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     """Determine if there are sufficient tokens to fill the request."""
+
+    logger.info(f"##### Checking feature token availability for: {lbr.job_id} #####")
 
     # We currently only have an "/all" endpoint.
     # Todo: Implement endpoint to retrieve counts for a
