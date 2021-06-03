@@ -55,6 +55,9 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
+    logger.debug(f"##### License array for job id: {slurm_job_id} #####")
+    logger.debug(license_array)
+
     license_booking_request = LicenseBookingRequest(
         job_id=slurm_job_id,
         bookings=[],
@@ -84,6 +87,8 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequ
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     """Determine if there are sufficient tokens to fill the request."""
 
+    logger.info(f"##### Checking feature token availability for: {lbr.job_id} #####")
+
     # We currently only have an "/all" endpoint.
     # Todo: Implement endpoint to retrieve counts for a
     # specific feature, or set of features so that we dont have to get /all.
@@ -92,6 +97,8 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
             f"{SETTINGS.AGENT_BASE_URL}/api/v1/license/all",
             headers=LM2_AGENT_HEADERS
         )
+        logger.debug("##### /api/v1/license/all #####")
+        logger.debug(resp.json())
 
         for item in resp.json():
             product_feature = item["product_feature"]
@@ -99,7 +106,21 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
                 if product_feature == license_booking.product_feature:
                     tokens_available = int(item["available"])
                     if tokens_available >= license_booking.tokens:
+                        logger.debug(
+                            f"##### {product_feature}, tokens avalable #####")
+                        logger.debug(
+                            f"##### Tokens available {tokens_available} #####")
+                        logger.debug(
+                            f"##### Tokens required {license_booking.tokens} #####")
+                    else:
+                        logger.debug(
+                            f"##### {product_feature}, tokens not available #####")
+                        logger.debug(
+                            f"##### Tokens available {tokens_available} #####")
+                        logger.debug(
+                            f"##### Tokens required {license_booking.tokens} #####")
                         return True
+    logger.debug("##### Tokens not available #####")
     return False
 
 
@@ -122,7 +143,9 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
         )
 
     if resp.status_code == 200:
+        logger.debug("##### Booking completed successfully #####")
         return True
+    logger.debug(f"##### Booking failed: {resp.status_code} #####")
     return False
 
 
@@ -136,7 +159,9 @@ async def reconcile():
         )
 
     if resp.status_code == 200:
+        logger.debug("##### Reconcile completed successfully #####")
         return True
+    logger.debug(f"##### Reconcile failed {resp.status_code} #####")
     return False
 
 
@@ -162,7 +187,8 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
         CMD_TIMEOUT
     )
     scontrol_out = str(scontrol_out, ENCODING)  # type: ignore
-    logger.info(scontrol_out)
+    logger.debug("##### scontrol out #####")
+    logger.debug(scontrol_out)
 
     # Check that the command completed successfully
     if not scontrol_show_lic.returncode == 0:
@@ -178,7 +204,8 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
 
 async def get_tokens_for_license(
         product_feature_server: str,
-        output_type: str) -> Optional[int]:
+        output_type: str,
+) -> Optional[int]:
     """
     Return tokens from scontrol output.
     """
@@ -227,6 +254,8 @@ async def scontrol_show_lic():
 
     stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
     output = str(stdout, encoding=ENCODING)
+    logger.debug("##### scontrol show lic #####")
+    logger.debug(output)
     return output
 
 
@@ -244,7 +273,8 @@ async def sacctmgr_modify_resource(
         f"count={num_tokens}",
         "-i",
     ]
-    logger.info(f"{' '.join(cmd)}")
+    logger.debug("##### sacctmgr update cmd #####")
+    logger.debug(f"{' '.join(cmd)}")
 
     sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
         shlex.join(cmd),
