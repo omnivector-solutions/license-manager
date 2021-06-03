@@ -55,8 +55,8 @@ def _rotating_file_handler(log_file: str):
 
     handler = RotatingFileHandler(
         log_file,
-        backupCount=5,
-        maxBytes=100000,
+        backupCount=10,
+        maxBytes=5242880,
     )
     handler.rotator = _rotator
     handler.namer = _namer
