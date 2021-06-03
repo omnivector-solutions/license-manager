@@ -33,6 +33,7 @@ class ScontrolRetrievalFailure(Exception):
     """
     pass
 
+
 class ScontrolProcessError(Exception):
     """
     ProcessExecutionError.
@@ -179,7 +180,7 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
 
     # Parse license information from scontrol output
     m = re.search('.* Licenses=([^ ]*).*', scontrol_out)  # type: ignore
-    license_list = []
+    license_list = []  # type: ignore
     if m is None:
         return license_list
     license_list = m.group(1).split(',')  # type: ignore
@@ -191,6 +192,7 @@ async def get_tokens_for_license(
         output_type: str) -> Optional[int]:
     """
     Return tokens from scontrol output.
+    product_feature_server is given in the format <product>.<feature>@<server>
     """
 
     def match_product_feature_server() -> Optional[str]:
@@ -237,7 +239,7 @@ async def scontrol_show_lic():
 
     stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
     if proc.returncode != 0:
-        msg = f"Scrontrol process return value was different from 0"
+        msg = "Scrontrol process return value was different from 0"
         logger.error(msg)
         raise ScontrolProcessError(msg)
     output = str(stdout, encoding=ENCODING)
@@ -265,7 +267,8 @@ async def sacctmgr_modify_resource(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
     )
-
+    logger.warning(sacctmgr_modify_resource)
+    logger.warning(sacctmgr_modify_resource.returncode)
     modify_resource_stdout, _ = await asyncio.wait_for(
         sacctmgr_modify_resource.communicate(),
         CMD_TIMEOUT,
