@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""The SlurmctldEpilog executable.
+"""
+The EpilogSlurmctld executable.
+
 This epilog is responsible for releasing the feature tokens
 that have been booked for a job back to the pool after a job has completed.
 """
+import sys
+
 import asyncio
 import httpx
 
@@ -44,38 +48,40 @@ async def main():
 
     license_booking_request = await get_required_licenses_for_job(job_id)
 
-    # Create a list of tracked licenses in the form <product>.<feature>
-    tracked_licenses = list()
-    for license in get_license_server_features():
-        for feature in license["features"]:
-            tracked_licenses.append(f"{license['product']}.{feature}")
+    if len(license_booking_request.bookings) > 0:
+        # Create a list of tracked licenses in the form <product>.<feature>
+        tracked_licenses = list()
+        for license in get_license_server_features():
+            for feature in license["features"]:
+                tracked_licenses.append(f"{license['product']}.{feature}")
 
-    # If a license booking's product feature is tracked,
-    # update slurm's view of the token totals
-    for license_booking in license_booking_request.bookings:
-        product_feature = license_booking.product_feature
-        product, feature = product_feature.split(".")
-        license_server_type = license_booking.license_server_type
-        tokens_to_remove = license_booking.tokens
-        license = f"{product_feature}@{license_server_type}"
+        # If a license booking's product feature is tracked,
+        # update slurm's view of the token totals
+        for license_booking in license_booking_request.bookings:
+            product_feature = license_booking.product_feature
+            product, feature = product_feature.split(".")
+            license_server_type = license_booking.license_server_type
+            tokens_to_remove = license_booking.tokens
+            license = f"{product_feature}@{license_server_type}"
 
-        if product_feature in tracked_licenses:
-            total = await get_tokens_for_license(license, "Total")
-            update_resource = await sacctmgr_modify_resource(
-                product, feature, total - tokens_to_remove
-            )
+            if product_feature in tracked_licenses:
+                total = await get_tokens_for_license(license, "Total")
+                update_resource = await sacctmgr_modify_resource(
+                    product, feature, total - tokens_to_remove
+                )
 
-            if update_resource:
-                log.info("Slurmdbd updated successfully.")
-            else:
-                log.info("Slurmdbd update unsuccessful.")
+                if update_resource:
+                    log.info("Slurmdbd updated successfully.")
+                else:
+                    log.info("Slurmdbd update unsuccessful.")
 
-    # Attempt to remove the booking and log the result.
-    booking_removed = await _remove_booking_for_job(job_id)
-    if booking_removed:
-        log.debug(f"Booking for job id: {job_id} successfully deleted.")
-    else:
-        log.debug(f"Booking for job id: {job_id} not removed.")
+        # Attempt to remove the booking and log the result.
+        booking_removed = await _remove_booking_for_job(job_id)
+        if booking_removed:
+            log.debug(f"Booking for job id: {job_id} successfully deleted.")
+        else:
+            log.debug(f"Booking for job id: {job_id} not removed.")
+    sys.exit(0)
 
 # Initialize the logger
 init_logging("slurmctld-epilog")
