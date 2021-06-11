@@ -3,6 +3,7 @@ Table schema for tables in the license-manager backend
 """
 import sqlalchemy
 from sqlalchemy import Integer, String
+from sqlalchemy_utils import ScalarListType  # type: ignore
 from sqlalchemy.sql.schema import CheckConstraint, Column
 
 
@@ -18,11 +19,21 @@ license_table = sqlalchemy.Table(
     CheckConstraint("used<=total"),
 )
 
-
 booking_table = sqlalchemy.Table(
     "booking",
     metadata,
     Column("job_id", String, primary_key=True),
     Column("product_feature", String, primary_key=True),
     Column("booked", Integer, CheckConstraint("booked>=0")),
+)
+
+config_table = sqlalchemy.Table(
+    "config",
+    metadata,
+    Column("config_id", Integer, primary_key=True),
+    Column("product", String, primary_key=True),
+    Column("features", ScalarListType(str), primary_key=True),
+    Column("license_servers", ScalarListType(str), primary_key=True),
+    Column("license_server_type", String, primary_key=True),
+    Column("grace_time", Integer, CheckConstraint("grace_time>=0")),
 )
