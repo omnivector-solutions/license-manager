@@ -794,7 +794,7 @@ name = "types-pkg-resources"
 version = "0.1.2"
 description = "Typing stubs for pkg_resources"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -802,7 +802,7 @@ name = "types-pyyaml"
 version = "0.1.8"
 description = "Typing stubs for PyYAML"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -865,12 +865,13 @@ agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 dev = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "tox", "uvicorn", "pydantic", "alembic"]
 flexlmsim = ["jinja2"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
-test = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "pydantic", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click", "virtualenv"]
+mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click"]
+unit = ["aiosqlite", "flake8", "isort", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "pydantic", "virtualenv"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "b8b64ed7d88a2336881d9ef28f85de7c46f3e546aaf33ec7e09c65263129d46b"
+content-hash = "b85086a7ba54a2840a416f294a5b6d695840a6116847ba47421d7eba38e47c6e"
 
 [metadata.files]
 aiosqlite = [
