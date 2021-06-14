@@ -103,7 +103,7 @@ def _expiration(duration: int):
 _NO_DEFAULT = object()
 
 
-def validate_token(token: str, secret: str, default=_NO_DEFAULT, **kwargs):
+def validate_token(token: bytes, secret: str, default=_NO_DEFAULT, **kwargs):
     """
     Check a token signature and claims, and return the userid string (`sub` claim) or the supplied default
     If no default is passed in, this raises any exceptions that occur during token decode
