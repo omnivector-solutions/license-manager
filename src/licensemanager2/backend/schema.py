@@ -5,6 +5,8 @@ import sqlalchemy
 from sqlalchemy import Integer, String
 from sqlalchemy.sql.schema import CheckConstraint, Column
 
+from sqlalchemy_utils import ScalarListType  # type: ignore
+
 
 metadata = sqlalchemy.MetaData()
 
@@ -25,4 +27,15 @@ booking_table = sqlalchemy.Table(
     Column("job_id", String, primary_key=True),
     Column("product_feature", String, primary_key=True),
     Column("booked", Integer, CheckConstraint("booked>=0")),
+)
+
+config_table = sqlalchemy.Table(
+    "config",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("product", String),
+    Column("features", ScalarListType(str)),
+    Column("license_servers", ScalarListType(str)),
+    Column("license_server_type", String),
+    Column("grace_time", Integer, CheckConstraint("grace_time>=0")),
 )
