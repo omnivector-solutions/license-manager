@@ -36,7 +36,6 @@ class LogLevelEnum(str, Enum):
 _JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
 _URL_REGEX = r"http[s]?://.+"
 _ADDR_REGEX = r"\S+?:\S+?:\d+"
-_SERVICE_ADDRS_REGEX = rf"{_ADDR_REGEX}(\s+{_ADDR_REGEX})*"
 _DEFAULT_BIN_PATH = Path(
     resource_filename("licensemanager2.agent", get_supported_platform())
 )
@@ -68,10 +67,6 @@ class _Settings(BaseSettings):
 
     # a path to a folder containing binaries for license management tools
     BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
-
-    # list of separated service descriptions to check.
-    # see LicenseServiceCollection.from_env_string for syntax
-    SERVICE_ADDRS: str = Field("flexlm:127.0.0.1:2345", regex=_SERVICE_ADDRS_REGEX)
 
     # interval, in seconds: how long between license count checks
     STAT_INTERVAL: int = 5 * 60

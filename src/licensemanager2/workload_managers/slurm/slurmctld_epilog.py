@@ -10,7 +10,7 @@ import sys
 import asyncio
 import httpx
 
-from licensemanager2.agent.backend_utils import get_license_server_features
+from licensemanager2.agent.backend_utils import get_config_from_backend
 from licensemanager2.agent import log, init_logging
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.workload_managers.slurm.common import (
@@ -51,9 +51,9 @@ async def main():
     if len(license_booking_request.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         tracked_licenses = list()
-        for license in get_license_server_features():
-            for feature in license["features"]:
-                tracked_licenses.append(f"{license['product']}.{feature}")
+        for entry in get_config_from_backend():
+            for feature in entry.features:
+                tracked_licenses.append(f"{entry.product}.{feature}")
 
         # If a license booking's product feature is tracked,
         # update slurm's view of the token totals
