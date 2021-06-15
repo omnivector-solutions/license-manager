@@ -11,7 +11,7 @@ from licensemanager2.backend.storage import database
 from licensemanager2.backend.configuration import ConfigurationRow
 
 
-@fixture(scope="session", autouse=True)
+@fixture
 def some_configuration_rows() -> List[ConfigurationRow]:
     """
     Some ConfigurationRows
@@ -21,40 +21,40 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             id=1,
             product="testproduct1",
             features=["feature1", "feature2", "feature3"],
-            license_servers=["licenseserver1"],
-            license_server_type="servertype1",
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
             grace_time=100,
         ),
         ConfigurationRow(
             id=2,
             product="testproduct2",
             features=["feature1", "feature2", "feature3"],
-            license_servers=["licenseserver2"],
-            license_server_type="servertype2",
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
             grace_time=200,
         ),
         ConfigurationRow(
             id=3,
             product="testproduct3",
             features=["feature1", "feature2", "feature3"],
-            license_servers=["licenseserver3"],
-            license_server_type="servertype3",
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
             grace_time=300,
         ),
     ]
 
 
-@fixture(scope="session", autouse=True)
+@fixture
 def one_configuration_row():
     """
     ConfigurationRows
     """
     return [ConfigurationRow(
         id=100,
-        product="testproduct100",
-        features=["feature1", "feature2", "feature3"],
-        license_servers=["licenseserver100"],
-        license_server_type="servertype100",
+        product="testproduct1",
+        features=["feature1"],
+        license_servers=["flexlm:127.0.0.1:2345"],
+        license_server_type="flexlm",
         grace_time=10000,
     )]
 

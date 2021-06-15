@@ -14,7 +14,7 @@ import asyncio
 import sys
 
 from licensemanager2.agent import init_logging, log
-from licensemanager2.agent.backend_utils import get_license_server_features
+from licensemanager2.agent.backend_utils import get_config_from_backend
 from licensemanager2.workload_managers.slurm.common import get_job_context
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
@@ -33,10 +33,12 @@ async def main():
     license_booking_request = await get_required_licenses_for_job(job_id)
 
     # Create a list of tracked licenses in the form <product>.<feature>
-    tracked_licenses = list()
-    for license in get_license_server_features():
-        for feature in license["features"]:
-            tracked_licenses.append(f"{license['product']}.{feature}")
+    if len(license_booking_request.bookings) > 0:
+        # Create a list of tracked licenses in the form <product>.<feature>
+        tracked_licenses = list()
+        for entry in get_config_from_backend():
+            for feature in entry.features:
+                tracked_licenses.append(f"{entry.product}.{feature}")
 
     # Create a tracked LicenseBookingRequest for licenses that we actually
     # track. These tracked licenses are what we will check feature token

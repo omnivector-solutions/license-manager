@@ -31,6 +31,11 @@ MOCK_BIN_PATH = pkg_resources.resource_filename(
 )
 
 
+@fixture
+def license_servers():
+    return ["172.0.1.2 2345", "172.0.1.3 2345"]
+
+
 @fixture(autouse=True)
 def backend_setting():
     """
