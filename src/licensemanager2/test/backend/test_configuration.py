@@ -1,8 +1,6 @@
 """
 Tests of the /config API endpoints
 """
-import json
-
 from httpx import AsyncClient
 from pytest import mark
 
@@ -57,14 +55,13 @@ async def test_add_configuration(
     data = {
         "id": "100",
         "product": "testproduct1",
-        "features": ["feature1,feature2,feature3"],
+        "features": ["feature1", "feature2", "feature3"],
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
     }
-    
+
     response = await backend_client.post("/api/v1/config", json=data)
-    import pdb; pdb.set_trace()
     assert response.status_code == 200
 
 
@@ -77,14 +74,14 @@ async def test_update_configuration(
     Test updating a configuration row.
     """
     await insert_objects(one_configuration_row, schema.config_table)
-    data = ConfigurationRow(
-        id=100,
-        product="testproduct1",
-        features=["feature1,feature2,feature3"],
-        license_servers=["licenseserver100"],
-        license_server_type="servertype100",
-        grace_time=10000,
-    )
-    resp = await backend_client.put("/api/v1/config/", json=data)
+    data = {
+        "id": "100",
+        "product": "testproduct1",
+        "features": ["feature1", "feature2", "feature3"],
+        "license_servers": ["licenseserver100"],
+        "license_server_type": "servertype100",
+        "grace_time": "10000",
+    }
+    resp = await backend_client.put("/api/v1/config/100", json=data)
     # r = requests.put("http://somedomain.org/endpoint", data=payload)
     assert resp.status_code == 200

@@ -63,7 +63,6 @@ async def add_configuration(configuration: ConfigurationRow):
     """
     Add a configuration to the database for the first time.
     """
-
     query = (
         config_table.insert()
         .values(**vars(configuration))
