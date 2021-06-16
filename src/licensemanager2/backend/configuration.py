@@ -86,10 +86,9 @@ async def update_configuration(configuration: ConfigurationRow, id: str):
     """
     Update a configuration to the database.
     """
-
     query = (
         config_table.update()
-        .where(config_table.c.id == id)
+        .where(config_table.c.id == configuration.id)
         .values(**vars(configuration))
     )
     try:
@@ -97,9 +96,9 @@ async def update_configuration(configuration: ConfigurationRow, id: str):
     except INTEGRITY_CHECK_EXCEPTIONS:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't insert config {id})")
+            detail=(f"Couldn't insert config {configuration.id})")
         )
 
     return OK(
-        message=f"inserted {id}"
+        message=f"inserted {configuration.id}"
     )

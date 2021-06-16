@@ -76,7 +76,7 @@ async def test_update_configuration(
     await insert_objects(one_configuration_row, schema.config_table)
     data = {
         "id": "100",
-        "product": "testproduct1",
+        "product": "updated_test_product",
         "features": ["feature1", "feature2", "feature3"],
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
@@ -84,4 +84,25 @@ async def test_update_configuration(
     }
     resp = await backend_client.put("/api/v1/config/100", json=data)
     # r = requests.put("http://somedomain.org/endpoint", data=payload)
+    assert resp.status_code == 200
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_update_nonexistant_configuration(
+    backend_client: AsyncClient,
+):
+    """
+    Test updating a configuration row.
+    """
+    # await insert_objects(one_configuration_row, schema.config_table)
+    data = {
+        "id": "100000",
+        "product": "testproduct1",
+        "features": ["feature1", "feature2", "feature3"],
+        "license_servers": ["licenseserver100"],
+        "license_server_type": "servertype100",
+        "grace_time": "10000",
+    }
+    resp = await backend_client.put("/api/v1/config/100000", json=data)
     assert resp.status_code == 200
