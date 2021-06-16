@@ -25,14 +25,6 @@ def license_server_features():
 
 
 @fixture
-def service_env_string() -> str:
-    """
-    A collection of service definitions from an env string
-    """
-    return "flexlm:172.0.1.2:2345 flexlm:172.0.1.3:2345 xyz:172.0.1.2:7171"
-
-
-@fixture
 def tool_opts() -> tokenstat.ToolOptions:
     """
     A ToolOptions set up for easy testing
@@ -43,19 +35,6 @@ def tool_opts() -> tokenstat.ToolOptions:
         args="{exe} {host} {port}",
         parse_fn=flexlm.parse,
     )
-
-
-def test_lsc_from_env_string(service_env_string: str):
-    """
-    Do I parse the env string to produce a good service?
-    """
-    lsc = tokenstat.LicenseServiceCollection.from_env_string(service_env_string)
-    assert lsc.services == {
-        "flexlm": tokenstat.LicenseService(
-            name="flexlm", hostports=[("172.0.1.2", 2345), ("172.0.1.3", 2345)]
-        ),
-        "xyz": tokenstat.LicenseService(name="xyz", hostports=[("172.0.1.2", 7171)]),
-    }
 
 
 def test_lri_from_stdout():
@@ -78,7 +57,7 @@ def test_lri_from_stdout():
 
 
 def test_tooloptions_cmd_list(
-    tool_opts: tokenstat.ToolOptions, service_env_string: str, one_configuration_row
+    tool_opts: tokenstat.ToolOptions, one_configuration_row
 ):
     """
     Do I produce a reasonable set of command lines from the tool definitions
@@ -90,7 +69,7 @@ def test_tooloptions_cmd_list(
 
 @mark.asyncio
 async def test_attempt_tool_checks(
-    tool_opts: tokenstat.ToolOptions, service_env_string: str
+    tool_opts: tokenstat.ToolOptions,
 ):
     """
     Do I run the commands corresponding to my collection of tools and service definitions?
@@ -124,7 +103,6 @@ async def test_attempt_tool_checks(
 async def test_report(
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts: tokenstat.ToolOptions,
-    service_env_string: str,
     one_configuration_row,
 ):
     """
