@@ -1,6 +1,8 @@
 """
 Tests of the /config API endpoints
 """
+import json
+
 from httpx import AsyncClient
 from pytest import mark
 
@@ -37,3 +39,52 @@ async def test_get_configuration(
     resp = await backend_client.get("/api/v1/config/100")
     assert resp.status_code == 200
     assert resp.json() == [ConfigurationRow.parse_obj(x) for x in one_configuration_row]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_add_configuration(
+    backend_client: AsyncClient, one_configuration_row
+):
+    """
+    Test adding a configuration row.
+    """
+
+    # await insert_objects(one_configuration_row, schema.config_table)
+    # resp = await backend_client.get("/api/v1/config/100")
+    # assert resp.status_code == 200
+
+    data = {
+        "id": "100",
+        "product": "testproduct1",
+        "features": ["feature1,feature2,feature3"],
+        "license_servers": ["licenseserver100"],
+        "license_server_type": "servertype100",
+        "grace_time": "10000",
+    }
+    
+    response = await backend_client.post("/api/v1/config", json=data)
+    import pdb; pdb.set_trace()
+    assert response.status_code == 200
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_update_configuration(
+    backend_client: AsyncClient, one_configuration_row
+):
+    """
+    Test updating a configuration row.
+    """
+    await insert_objects(one_configuration_row, schema.config_table)
+    data = ConfigurationRow(
+        id=100,
+        product="testproduct1",
+        features=["feature1,feature2,feature3"],
+        license_servers=["licenseserver100"],
+        license_server_type="servertype100",
+        grace_time=10000,
+    )
+    resp = await backend_client.put("/api/v1/config/", json=data)
+    # r = requests.put("http://somedomain.org/endpoint", data=payload)
+    assert resp.status_code == 200

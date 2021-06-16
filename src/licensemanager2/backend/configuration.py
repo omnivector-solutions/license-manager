@@ -4,10 +4,12 @@ License objects and routes
 from pydantic import BaseModel
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from licensemanager2.backend.schema import config_table
 from licensemanager2.backend.storage import database
+from licensemanager2.common_api import OK
+from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
 
 
 router_config = APIRouter()
@@ -53,3 +55,52 @@ async def get_configuration(id):
     )
     fetched = await database.fetch_all(query)
     return [ConfigurationRow.parse_obj(x) for x in fetched]
+
+
+@database.transaction()
+@router_config.post("/", response_model=OK)
+async def add_configuration(configuration: ConfigurationRow):
+    """
+    Add a configuration to the database for the first time.
+    """
+
+    query = (
+        config_table.insert()
+        .values(**vars(configuration))
+    )
+    try:
+        await database.execute(query)
+    except INTEGRITY_CHECK_EXCEPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Couldn't insert config {configuration.id}), it already exists.")
+        )
+
+    return OK(
+        message=f"inserted {configuration.id}"
+    )
+
+
+@database.transaction()
+@router_config.put("/{id}", response_model=OK)
+async def update_configuration(configuration: ConfigurationRow, id: str):
+    """
+    Update a configuration to the database.
+    """
+
+    query = (
+        config_table.update()
+        .where(config_table.c.id == id)
+        .values(**vars(configuration))
+    )
+    try:
+        await database.execute(query)
+    except INTEGRITY_CHECK_EXCEPTIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Couldn't insert config {id})")
+        )
+
+    return OK(
+        message=f"inserted {id}"
+    )
