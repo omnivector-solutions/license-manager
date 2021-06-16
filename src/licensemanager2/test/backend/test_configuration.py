@@ -106,3 +106,32 @@ async def test_update_nonexistant_configuration(
     }
     resp = await backend_client.put("/api/v1/config/100000", json=data)
     assert resp.status_code == 200
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_delete_configuration(
+    backend_client: AsyncClient, one_configuration_row
+):
+    """
+    Test deleting a configuration row.
+    """
+
+    await insert_objects(one_configuration_row, schema.config_table)
+    resp = await backend_client.delete("/api/v1/config/100")
+    assert resp.status_code == 200
+    assert resp.json()["message"] == "Deleted 100 from the configuration table."
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_delete_nonexistant__configuration(
+    backend_client: AsyncClient, one_configuration_row
+):
+    """
+    Test deleting a configuration row.
+    """
+
+    await insert_objects(one_configuration_row, schema.config_table)
+    resp = await backend_client.delete("/api/v1/config/99999999")
+    assert resp.status_code == 400

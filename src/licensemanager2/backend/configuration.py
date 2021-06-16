@@ -102,3 +102,32 @@ async def update_configuration(configuration: ConfigurationRow, id: str):
     return OK(
         message=f"inserted {configuration.id}"
     )
+
+
+@database.transaction()
+@router_config.delete("/{id}", response_model=OK)
+async def delete_configuration(id: str):
+    """
+    Delete a configuration from the database based on its id.
+    """
+    query = (
+        config_table.select()
+        .where(config_table.c.id == id)
+        .order_by(config_table.c.id)
+    )
+    rows = await database.fetch_all(query)
+    if not rows:
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Couldn't find config id: {id} to delete"),
+        )
+
+    q = config_table.delete().where(config_table.c.id == id)
+    try:
+        await database.execute(q)
+    except Exception:
+        raise HTTPException(
+            status_code=409,
+            detail=(f"Couldn't delete config {id})")
+        )
+    return OK(message=f"Deleted {id} from the configuration table.")
