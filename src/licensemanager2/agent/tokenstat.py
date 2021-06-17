@@ -121,6 +121,9 @@ async def attempt_tool_checks(
 
     commands = tool_options.cmd_list(license_servers)
     for cmd in commands:
+        print("debugging ******************************")
+        print(cmd)
+    for cmd in commands:
         # NOTE: find a better way to get the feature into the command.
         cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")

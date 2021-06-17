@@ -9,7 +9,8 @@ setuptools.setup(
     author_email="info@omnivector.solutions",
     extras_require={
         "dev": [
-            "python-lambda-local" "pytest",
+            "python-lambda-local",
+            "pytest",
             "pytest-cov",
             "pytest-env",
         ]

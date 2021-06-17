@@ -1,12 +1,12 @@
 """
 License objects and routes
 """
+from datetime import datetime
 from pydantic import BaseModel
-from typing import List
-
-from fastapi import APIRouter, HTTPException
-
+from typing import List, Optional
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
 from licensemanager2.backend.schema import config_table
+from licensemanager2.agent import log as logger
 from licensemanager2.backend.storage import database
 from licensemanager2.common_api import OK
 from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
@@ -68,8 +68,10 @@ async def add_configuration(configuration: ConfigurationRow):
         .values(**vars(configuration))
     )
     try:
+        print("in try")
         await database.execute(query)
     except INTEGRITY_CHECK_EXCEPTIONS:
+        logger.info("in except")
         raise HTTPException(
             status_code=400,
             detail=(f"Couldn't insert config {configuration.id}), it already exists.")
@@ -79,7 +81,7 @@ async def add_configuration(configuration: ConfigurationRow):
         message=f"inserted {configuration.id}"
     )
 
-
+'''
 @database.transaction()
 @router_config.put("/{id}", response_model=OK)
 async def update_configuration(configuration: ConfigurationRow, id: str):
@@ -101,6 +103,59 @@ async def update_configuration(configuration: ConfigurationRow, id: str):
 
     return OK(
         message=f"inserted {configuration.id}"
+    )
+'''
+
+@database.transaction()
+@router_config.put("/{config_id}", response_model=OK)
+async def update_configuration(
+    config_id: int,
+    product: Optional[str] = None,
+    features: Optional[str] = None,
+    license_servers: Optional[str] = None,
+    license_server_type: Optional[str] = None,
+    grace_time: Optional[int] = None,
+):
+    """
+    Update an application given it's id.
+    """
+    print(config_id)
+    query = config_table.select().where(config_table.c.id == config_id)
+    print("debug*************************")
+    print(query)
+    '''
+    raw_application = await database.fetch_one(query)
+    if not raw_application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Configuration {id=} not found.",
+        )
+    '''
+    update_dict = {'id': config_id}
+    if product:
+        update_dict["product"] = product
+    if features:
+        update_dict["features"] = features.split(",")
+    if license_servers:
+        update_dict["license_servers"] = license_servers.split(",")
+    if license_server_type:
+        update_dict["license_server_type"] = license_server_type
+    if grace_time:
+        update_dict["grace_time"] = grace_time
+    import pdb; pdb.set_trace()
+    q_update = (
+        config_table.update().where(config_table.c.id == config_id).values(update_dict)
+    )
+    import pdb; pdb.set_trace()
+    async with database.transaction():
+        try:
+            await database.execute(q_update)
+
+        except INTEGRITY_CHECK_EXCEPTIONS as e:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+    return OK(
+        message=f"updated configuration id: {config_id}"
     )
 
 
