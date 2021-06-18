@@ -87,20 +87,20 @@ python-versions = "*"
 
 [[package]]
 name = "boto3"
-version = "1.17.94"
+version = "1.17.97"
 description = "The AWS SDK for Python"
 category = "main"
 optional = true
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.20.94,<1.21.0"
+botocore = ">=1.20.97,<1.21.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
 [[package]]
 name = "botocore"
-version = "1.20.94"
+version = "1.20.97"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = true
@@ -119,19 +119,24 @@ name = "certifi"
 version = "2021.5.30"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
+name = "chardet"
+version = "4.0.0"
+description = "Universal encoding detector for Python 2 and 3"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "click"
-version = "8.0.1"
+version = "7.1.2"
 description = "Composable command line interface toolkit"
 category = "main"
-optional = true
-python-versions = ">=3.6"
-
-[package.dependencies]
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "colorama"
@@ -283,11 +288,11 @@ http2 = ["h2 (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "idna"
-version = "3.2"
+version = "2.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
-optional = true
-python-versions = ">=3.5"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "iniconfig"
@@ -597,6 +602,24 @@ optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [[package]]
+name = "requests"
+version = "2.25.1"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+chardet = ">=3.0.2,<5"
+idna = ">=2.5,<3"
+urllib3 = ">=1.21.1,<1.27"
+
+[package.extras]
+security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
+socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
+
+[[package]]
 name = "respx"
 version = "0.16.3"
 description = "A utility for mocking out the Python HTTPX and HTTP Core libraries."
@@ -752,6 +775,23 @@ docs = ["pygments-github-lexers (>=0.0.5)", "sphinx (>=2.0.0)", "sphinxcontrib-a
 testing = ["flaky (>=3.4.0)", "freezegun (>=0.3.11)", "psutil (>=5.6.1)", "pytest (>=4.0.0)", "pytest-cov (>=2.5.1)", "pytest-mock (>=1.10.0)", "pytest-randomly (>=1.0.0)", "pytest-xdist (>=1.22.2)", "pathlib2 (>=2.3.3)"]
 
 [[package]]
+name = "typer"
+version = "0.3.2"
+description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+click = ">=7.1.1,<7.2.0"
+
+[package.extras]
+test = ["pytest-xdist (>=1.32.0,<2.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "mypy (==0.782)", "black (>=19.10b0,<20.0b0)", "isort (>=5.0.6,<6.0.0)", "shellingham (>=1.3.0,<2.0.0)", "pytest (>=4.4.0,<5.4.0)", "pytest-cov (>=2.10.0,<3.0.0)", "coverage (>=5.2,<6.0)"]
+all = ["colorama (>=0.4.3,<0.5.0)", "shellingham (>=1.3.0,<2.0.0)"]
+dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)"]
+doc = ["mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=5.4.0,<6.0.0)", "markdown-include (>=0.5.1,<0.6.0)"]
+
+[[package]]
 name = "types-click"
 version = "7.1.1"
 description = "Typing stubs for click"
@@ -773,7 +813,7 @@ types-ipaddress = "*"
 
 [[package]]
 name = "types-enum34"
-version = "0.1.8"
+version = "0.1.6"
 description = "Typing stubs for enum34"
 category = "main"
 optional = true
@@ -781,7 +821,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-ipaddress"
-version = "0.1.5"
+version = "0.1.3"
 description = "Typing stubs for ipaddress"
 category = "main"
 optional = true
@@ -811,7 +851,7 @@ types-cryptography = "*"
 
 [[package]]
 name = "types-markupsafe"
-version = "1.1.4"
+version = "1.1.3"
 description = "Typing stubs for MarkupSafe"
 category = "main"
 optional = true
@@ -846,7 +886,7 @@ name = "urllib3"
 version = "1.26.6"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
@@ -890,16 +930,17 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 
 [extras]
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
-dev = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "tox", "uvicorn", "pydantic", "alembic"]
+dev = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "tox", "uvicorn", "pydantic", "alembic", "typer"]
 flexlmsim = ["jinja2"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
-mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click", "sqlalchemy-stubs", "httpx", "pytest", "respx", "aiosqlite"]
+lmconfigure = ["typer"]
+mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click"]
 unit = ["aiosqlite", "flake8", "isort", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "pydantic", "virtualenv"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "b3b0fbbab75f98ac5b0584203c5e22dc6604246514ecc2dda5ec3b1a3af3f9fa"
+content-hash = "046cda76ae3bceafd985be4618c6f22b290e7cac0fb97f82d26197b01fe3d232"
 
 [metadata.files]
 aiosqlite = [
@@ -948,20 +989,24 @@ aws-psycopg2 = [
     {file = "aws_psycopg2-1.2.1-py3-none-any.whl", hash = "sha256:f5eb05b280b2aa374080bf650972b8a9383d08e96a2e48b5a1ac3f55d6e5fdc6"},
 ]
 boto3 = [
-    {file = "boto3-1.17.94-py2.py3-none-any.whl", hash = "sha256:6180272094030bda3ee5c242881892cd3d9d19c05cb513945f530e396c7de1e4"},
-    {file = "boto3-1.17.94.tar.gz", hash = "sha256:95d814d16fe55ae55e1e4a3db248596f9647a0c42f4796c6e05be0bfaffb1830"},
+    {file = "boto3-1.17.97-py2.py3-none-any.whl", hash = "sha256:77ea9ff6ce1d4a64839c358a713be80256584f478289a13562d1e0c1b9c362cc"},
+    {file = "boto3-1.17.97.tar.gz", hash = "sha256:0ab5afc51461c30f27aebef944211d16f47697b98ff8d2e2f6e49e59584853bb"},
 ]
 botocore = [
-    {file = "botocore-1.20.94-py2.py3-none-any.whl", hash = "sha256:ba8a7951be535e25219a82dea15c30d7bdf0c51e7c1623c3306248493c1616ac"},
-    {file = "botocore-1.20.94.tar.gz", hash = "sha256:60a382a5b2f7d77b1b575d54fba819097526e3fdd0f3004f4d1142d50af0d642"},
+    {file = "botocore-1.20.97-py2.py3-none-any.whl", hash = "sha256:000cf4a3670ab47e14ddb5bd68fe050c6136029a478cf0b18a78779897d4175c"},
+    {file = "botocore-1.20.97.tar.gz", hash = "sha256:f7e119cf3e0f4a36100f0e983583afa91a84fb27c479a1716820aee4f2e190ab"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
     {file = "certifi-2021.5.30.tar.gz", hash = "sha256:2bbf76fd432960138b3ef6dda3dde0544f27cbf8546c458e60baf371917ba9ee"},
 ]
+chardet = [
+    {file = "chardet-4.0.0-py2.py3-none-any.whl", hash = "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"},
+    {file = "chardet-4.0.0.tar.gz", hash = "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa"},
+]
 click = [
-    {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},
-    {file = "click-8.0.1.tar.gz", hash = "sha256:8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a"},
+    {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
+    {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
 ]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
@@ -1062,8 +1107,8 @@ httpx = [
     {file = "httpx-0.17.1.tar.gz", hash = "sha256:cc2a55188e4b25272d2bcd46379d300f632045de4377682aa98a8a6069d55967"},
 ]
 idna = [
-    {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
-    {file = "idna-3.2.tar.gz", hash = "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"},
+    {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
+    {file = "idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
@@ -1275,6 +1320,10 @@ pyyaml = [
     {file = "PyYAML-5.4.1-cp39-cp39-win_amd64.whl", hash = "sha256:c20cfa2d49991c8b4147af39859b167664f2ad4561704ee74c1de03318e898db"},
     {file = "PyYAML-5.4.1.tar.gz", hash = "sha256:607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"},
 ]
+requests = [
+    {file = "requests-2.25.1-py2.py3-none-any.whl", hash = "sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e"},
+    {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
+]
 respx = [
     {file = "respx-0.16.3-py2.py3-none-any.whl", hash = "sha256:2db35e4af6bf25f58435457da7a0df52b34b8b3c2ea584d8a8cce27a7b00a614"},
     {file = "respx-0.16.3.tar.gz", hash = "sha256:3f4781a7fc02d6162f63f33c1481b31d83c0b8c54e98a077932a4197182a7312"},
@@ -1355,6 +1404,10 @@ tox = [
     {file = "tox-3.24.0-py2.py3-none-any.whl", hash = "sha256:c990028355f0d0b681e3db9baa89dd9f839a6e999c320029339f6a6b36160591"},
     {file = "tox-3.24.0.tar.gz", hash = "sha256:67636634df6569e450c4bc18fdfd8b84d7903b3902d5c65416eb6735f3d4afb8"},
 ]
+typer = [
+    {file = "typer-0.3.2-py3-none-any.whl", hash = "sha256:ba58b920ce851b12a2d790143009fa00ac1d05b3ff3257061ff69dbdfc3d161b"},
+    {file = "typer-0.3.2.tar.gz", hash = "sha256:5455d750122cff96745b0dec87368f56d023725a7ebc9d2e54dd23dc86816303"},
+]
 types-click = [
     {file = "types_click-7.1.1-py2.py3-none-any.whl", hash = "sha256:b1db0fb31a6d4a31c4282c231827cbdab628b0d504b016937822d943cd5e40a5"},
 ]
@@ -1363,12 +1416,12 @@ types-cryptography = [
     {file = "types_cryptography-3.3.3-py2.py3-none-any.whl", hash = "sha256:524afedb2e7f3fa4b22bd164efb82809a75ff960cc5d40a2fa9b7c2cda228fab"},
 ]
 types-enum34 = [
-    {file = "types-enum34-0.1.8.tar.gz", hash = "sha256:9e91a94f1f42c73bd7aa43f19a157d722522d29097f301748a034e08693a423d"},
-    {file = "types_enum34-0.1.8-py3-none-any.whl", hash = "sha256:5833cfd003d7a860e8442d04a06aaa2bef1f050933f844fa7bd3634914e1aa7f"},
+    {file = "types-enum34-0.1.6.tar.gz", hash = "sha256:93b1bfeb3654b0745f37b6d8e1b3a1d4141b371464e58ca577075fb086bd97d4"},
+    {file = "types_enum34-0.1.6-py2.py3-none-any.whl", hash = "sha256:893675130c66f1af3ff5a6f20b9c358a425873664dd2fae417f4dabd57077ab8"},
 ]
 types-ipaddress = [
-    {file = "types-ipaddress-0.1.5.tar.gz", hash = "sha256:ffa2c4fe2e8f51898465e2142d4d325fbab009aaa7822db20a4e2e3a896560d7"},
-    {file = "types_ipaddress-0.1.5-py3-none-any.whl", hash = "sha256:137ab8a5a895a48157438c8f3eea738e2c22e82c1114ab20ffd78c8637bbc008"},
+    {file = "types-ipaddress-0.1.3.tar.gz", hash = "sha256:df1d9ea04e16315ae34b77bc0ccd39b2fefd8eb45192ba85972a4e186369782c"},
+    {file = "types_ipaddress-0.1.3-py2.py3-none-any.whl", hash = "sha256:f1a08a0a635910f7be2d1cb3b8ec49ccc4f5969d9a8553e278f3d072fa6a9465"},
 ]
 types-jinja2 = [
     {file = "types_Jinja2-2.11.1-py2.py3-none-any.whl", hash = "sha256:84f66a2612376ff3c1656198b10a04c7711b6d917d4f5f7f2c2f7ecec0afa040"},
@@ -1377,8 +1430,8 @@ types-jwt = [
     {file = "types_jwt-0.1.3-py2.py3-none-any.whl", hash = "sha256:36a1d5f99b349428f9ca5695e5caf3378398ae31d7aaed1c668c81451ba79b08"},
 ]
 types-markupsafe = [
-    {file = "types-MarkupSafe-1.1.4.tar.gz", hash = "sha256:4fd2cc858fb4aea38555850f4ac2ecafae3543c88abb056669a3346c5c1b202c"},
-    {file = "types_MarkupSafe-1.1.4-py3-none-any.whl", hash = "sha256:2539a9e9b1b5a1bf1c10fdf2cb1dcb89e6f360759196883f4d5d103c53624375"},
+    {file = "types-MarkupSafe-1.1.3.tar.gz", hash = "sha256:be8975ba91bd7e672f6f57753ca7ba2979ad9b6687a0e93dd2055926f8c71b0b"},
+    {file = "types_MarkupSafe-1.1.3-py2.py3-none-any.whl", hash = "sha256:b1893d090c72204110c232d9b964d2612e15deff738bb75360030473a45cbc0e"},
 ]
 types-pkg-resources = [
     {file = "types_pkg_resources-0.1.2-py2.py3-none-any.whl", hash = "sha256:42d640500de564f1ccc21f918117afadf78039e4fa7f513c647ccf742d609aeb"},
