@@ -67,7 +67,7 @@ def add(
         typer.echo(resp.json())
     else:
         typer.echo(f"Could not add configuration, status code {resp.status_code}")
-        
+
 
 @app.command()
 def update(
@@ -99,6 +99,7 @@ def update(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
         json=ctxt
     )
+    import pdb; pdb.set_trace()
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:
