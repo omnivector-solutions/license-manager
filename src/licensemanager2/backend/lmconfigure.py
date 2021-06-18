@@ -67,54 +67,7 @@ def add(
         typer.echo(resp.json())
     else:
         typer.echo(f"Could not add configuration, status code {resp.status_code}")
-
-'''
-@app.command()
-def update(
-    id: int,
-    product: Optional[str] = typer.Argument(None),
-    features: Optional[str] = typer.Argument(None),
-    license_servers: Optional[str] = typer.Argument(None),
-    license_server_type: Optional[str] = typer.Argument(None),
-    grace_time: Optional[int] = typer.Argument(None),
-):
-    """
-    Update a configuration row.
-    """
-    if not id:
-        typer.echo("Please supply an ID")
-        return
-    resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}"
-    )
-    dd = resp.json()
-    ctxt = dict()
-    ctxt['id'] = id
-    ctxt['product'] = ''
-    ctxt['features'] = []
-    ctxt['license_servers'] = []
-    ctxt['license_server_type']  = ''
-    ctxt['grace_time'] = ''
-    if product:
-        ctxt['product'] = product
-    if features:
-        ctxt['features'] = features.split(",")
-    if license_servers:
-        ctxt['license_servers'] = license_servers.split(",")
-    if license_server_type:
-        ctxt['license_server_type'] = license_server_type
-    if grace_time:
-        ctxt['grace_time'] = grace_time
-    import pdb; pdb.set_trace()
-    resp = requests.put(
-        f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
-        json=ctxt
-    )
-    if resp.status_code == 200:
-        typer.echo(resp.json())
-    else:
-        typer.echo(f"Could not update the configuration row, status code {resp.status_code}")
-'''
+        
 
 @app.command()
 def update(
