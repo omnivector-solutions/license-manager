@@ -4,7 +4,7 @@ License objects and routes
 from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Form, HTTPException, Query, status
+from fastapi import APIRouter, Body, HTTPException, status
 from licensemanager2.backend.schema import config_table
 from licensemanager2.agent import log as logger
 from licensemanager2.backend.storage import database
@@ -110,20 +110,17 @@ async def update_configuration(configuration: ConfigurationRow, id: str):
 @router_config.put("/{config_id}", response_model=OK)
 async def update_configuration(
     config_id: int,
-    product: Optional[str] = None,
-    features: Optional[str] = None,
-    license_servers: Optional[str] = None,
-    license_server_type: Optional[str] = None,
-    grace_time: Optional[int] = None,
+    product: Optional[str] = Body(None),
+    features: Optional[List[str]] = Body(None),
+    license_servers: Optional[List[str]] = Body(None),
+    license_server_type: Optional[str] = Body(None),
+    grace_time: Optional[int] = Body(None),
 ):
     """
     Update an application given it's id.
     """
-    print(config_id)
-    query = config_table.select().where(config_table.c.id == config_id)
-    print("debug*************************")
-    print(query)
     '''
+    query = config_table.select().where(config_table.c.id == config_id)
     raw_application = await database.fetch_one(query)
     if not raw_application:
         raise HTTPException(
@@ -132,21 +129,19 @@ async def update_configuration(
         )
     '''
     update_dict = {'id': config_id}
-    if product:
+    if product is not None:
         update_dict["product"] = product
-    if features:
-        update_dict["features"] = features.split(",")
-    if license_servers:
-        update_dict["license_servers"] = license_servers.split(",")
-    if license_server_type:
+    if features is not None:
+        update_dict["features"] = features
+    if license_servers is not None:
+        update_dict["license_servers"] = license_servers
+    if license_server_type is not None:
         update_dict["license_server_type"] = license_server_type
-    if grace_time:
+    if grace_time is not None:
         update_dict["grace_time"] = grace_time
-    import pdb; pdb.set_trace()
     q_update = (
         config_table.update().where(config_table.c.id == config_id).values(update_dict)
     )
-    import pdb; pdb.set_trace()
     async with database.transaction():
         try:
             await database.execute(q_update)
