@@ -121,9 +121,6 @@ async def attempt_tool_checks(
 
     commands = tool_options.cmd_list(license_servers)
     for cmd in commands:
-        print("debugging ******************************")
-        print(cmd)
-    for cmd in commands:
         # NOTE: find a better way to get the feature into the command.
         cmd = cmd + f" {feature}"
         logger.info(f"{tool_options.name}: {cmd}")
@@ -215,9 +212,6 @@ async def report() -> typing.List[dict]:
                             entry.license_servers
                         )
                     )
-    if entries:
-        print("hello   " + entries[0].license_server_type + " " + entries[0].features[0])
-        print(tool_awaitables)
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:
