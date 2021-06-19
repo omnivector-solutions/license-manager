@@ -79,7 +79,8 @@ def update(
     grace_time: int = typer.Option(None),
 ):
     """
-    Update a configuration row.
+    Update a configuration row with optionally provided values.
+    For example, specify an argument with "--product newproduct"
     """
     if not id:
         typer.echo("Please supply an ID")
@@ -99,7 +100,6 @@ def update(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
         json=ctxt
     )
-    import pdb; pdb.set_trace()
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:

@@ -68,7 +68,6 @@ async def add_configuration(configuration: ConfigurationRow):
         .values(**vars(configuration))
     )
     try:
-        print("in try")
         await database.execute(query)
     except INTEGRITY_CHECK_EXCEPTIONS:
         logger.info("in except")
@@ -81,30 +80,6 @@ async def add_configuration(configuration: ConfigurationRow):
         message=f"inserted {configuration.id}"
     )
 
-'''
-@database.transaction()
-@router_config.put("/{id}", response_model=OK)
-async def update_configuration(configuration: ConfigurationRow, id: str):
-    """
-    Update a configuration to the database.
-    """
-    query = (
-        config_table.update()
-        .where(config_table.c.id == configuration.id)
-        .values(**vars(configuration))
-    )
-    try:
-        await database.execute(query)
-    except INTEGRITY_CHECK_EXCEPTIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=(f"Couldn't insert config {configuration.id})")
-        )
-
-    return OK(
-        message=f"inserted {configuration.id}"
-    )
-'''
 
 @database.transaction()
 @router_config.put("/{config_id}", response_model=OK)
@@ -117,17 +92,9 @@ async def update_configuration(
     grace_time: Optional[int] = Body(None),
 ):
     """
-    Update an application given it's id.
+    Update a configuration row in the database with all of the
+    optional arguments provided.
     """
-    '''
-    query = config_table.select().where(config_table.c.id == config_id)
-    raw_application = await database.fetch_one(query)
-    if not raw_application:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Configuration {id=} not found.",
-        )
-    '''
     update_dict = {'id': config_id}
     if product is not None:
         update_dict["product"] = product
@@ -171,7 +138,6 @@ async def delete_configuration(id: str):
             status_code=400,
             detail=(f"Couldn't find config id: {id} to delete"),
         )
-
     q = config_table.delete().where(config_table.c.id == id)
     try:
         await database.execute(q)
