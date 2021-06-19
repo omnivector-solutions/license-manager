@@ -135,7 +135,7 @@ name = "click"
 version = "7.1.2"
 description = "Composable command line interface toolkit"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
@@ -778,7 +778,7 @@ name = "typer"
 version = "0.3.2"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -931,15 +931,15 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 dev = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "tox", "uvicorn", "pydantic", "alembic", "typer"]
 flexlmsim = ["jinja2"]
+lm-configure = ["typer", "requests"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
-lmconfigure = ["typer"]
 mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click"]
 unit = ["aiosqlite", "flake8", "isort", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "pydantic", "virtualenv"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "046cda76ae3bceafd985be4618c6f22b290e7cac0fb97f82d26197b01fe3d232"
+content-hash = "ed0d1732d32595f6d46534a959488f92f968803244877bdb41f428a02b625e6a"
 
 [metadata.files]
 aiosqlite = [
