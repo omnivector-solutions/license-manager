@@ -205,6 +205,30 @@ Using the example above, upgrade command looks like this:
 alembic upgrade b692dfd0b017
 ```
 
+## Test with lm-configure
+To test with the lmconfigure cli run the following commands in the same environment
+the backend is running.
+To get all configurations:
+```bash
+lm-configure get-all
+```
+To get one configuration row based on an ID:
+```bash
+lm-configure get [ID]
+```
+To add a configuration:
+```bash
+lm-configure add 100 "testproduct" ["Testfeature"] ["testserver"] "testservertype" 10000
+```
+To update a configuration
+```bash
+lm-configure update 100 --[OPTION] [VALUE-TO-UPATE] ..
+```
+To delete a configuration row based on an ID:
+```bash
+lm-configure delete ID
+```
+
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
 

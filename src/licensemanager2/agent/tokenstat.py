@@ -37,43 +37,6 @@ class LicenseService(BaseModel):
     hostports: typing.List[typing.Tuple[str, int]]
 
 
-class LicenseServiceCollection(BaseModel):
-    """
-    A collection of LicenseServices, mapped by their names
-    """
-
-    services: typing.Dict[str, LicenseService]
-
-    @classmethod
-    def from_env_string(cls, env_str: str) -> "LicenseServiceCollection":
-        """
-        @returns LicenseServiceCollection from parsing colon-separated env input
-
-        The syntax is:
-
-        - servicename:host:port e.g. "flexlm:172.0.1.2:2345"
-
-        - each entry separated by spaces e.g.
-          "flexlm:172.0.1.2:2345 abclm:172.0.1.3:2319"
-
-        - if the same service appears twice in the list they will be
-          merged, e.g.:
-          "flexlm:173.0.1.2:2345 flexlm:172.0.1.3:2345"
-          -> (pseudodata) "flexlm": [("173.0.1.2", 2345), "173.0.1.3", 2345)]
-        """
-        self = cls(services={})
-        services = env_str.split()
-        for item in services:
-            name, host, port = item.split(":", 2)
-
-            svc = self.services.setdefault(
-                name, LicenseService(name=name, hostports=[])
-            )
-            svc.hostports.append((host, int(port)))
-
-        return self
-
-
 class LicenseReportItem(BaseModel):
     """
     An item in a LicenseReport, a count of tokens for one product/feature
@@ -249,9 +212,6 @@ async def report() -> typing.List[dict]:
                             entry.license_servers
                         )
                     )
-    if entries:
-        print("hello   " + entries[0].license_server_type + " " + entries[0].features[0])
-        print(tool_awaitables)
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:
