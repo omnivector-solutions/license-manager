@@ -122,5 +122,7 @@ def delete(id: int):
         typer.echo(resp.json())
     else:
         typer.echo("Could not delete the configuration row, status code {resp.status_code}")
+
+
 if __name__ == "__main__":
     app()

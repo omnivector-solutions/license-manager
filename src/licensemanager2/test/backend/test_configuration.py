@@ -122,7 +122,7 @@ async def test_delete_nonexistant__configuration(
     backend_client: AsyncClient, one_configuration_row
 ):
     """
-    Test deleting a configuration row.
+    Attempt to delete a non-existant ID from the database.
     """
 
     await insert_objects(one_configuration_row, schema.config_table)

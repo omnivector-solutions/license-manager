@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "licensemanager2"
+name = "license-manager"
 version = "0.9.2-dev0"
 description = "`license-manager` is a license scheduling middleware that adds value in situations where multiple clusters share a license server or set of license servers."
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
