@@ -6,6 +6,7 @@ from typing import Optional
 
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.backend.configuration import ConfigurationRow
+from licensemanager2.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
 
 app = typer.Typer(
@@ -18,7 +19,10 @@ def get_all():
     """
     Get all configurations from the backend.
     """
-    resp = requests.get(f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/all")
+    resp = requests.get(
+        f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/all",
+        headers=LM2_AGENT_HEADERS,
+    )
     if resp.status_code == 200:
         for item in resp.json():
             typer.echo(item)
@@ -32,7 +36,8 @@ def get(id: int):
     Return a single configuration from the backend given a configuration id.
     """
     resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}"
+        f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
+        headers=LM2_AGENT_HEADERS,
     )
     if resp.status_code == 200:
         typer.echo(resp.json())
@@ -54,6 +59,7 @@ def add(
     """
     resp = requests.post(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/",
+        headers=LM2_AGENT_HEADERS,
         json={
             "id": id,
             "product": product,
@@ -96,8 +102,10 @@ def update(
         ctxt['license_server_type'] = license_server_type
     if grace_time:
         ctxt['grace_time'] = grace_time
+
     resp = requests.put(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
+        headers=LM2_AGENT_HEADERS,
         json=ctxt
     )
     if resp.status_code == 200:
@@ -116,6 +124,7 @@ def delete(id: int):
         return
     resp = requests.delete(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",
+        headers=LM2_AGENT_HEADERS,
         data={'id': id}
     )
     if resp.status_code == 200:
