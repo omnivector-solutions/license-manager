@@ -44,6 +44,7 @@ def main(
     sub = f"{subject}::{sub2}" if sub2 else subject
     iss = f"{app_short_name}::{stage}::{region}"
     token = create_timed_token(sub=sub, iss=iss, secret=sec, duration=duration)
+    click.echo(token)
 
 
 def get_secret(app_short_name, stage, region):
