@@ -205,7 +205,7 @@ Using the example above, upgrade command looks like this:
 alembic upgrade b692dfd0b017
 ```
 
-##Test with lm-configure
+## Test with lm-configure
 To test with the lmconfigure cli run the following commands in the same environment
 the backend is running.
 To get all configurations:

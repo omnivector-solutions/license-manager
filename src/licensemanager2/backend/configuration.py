@@ -1,7 +1,6 @@
 """
 License objects and routes
 """
-from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi import APIRouter, Body, HTTPException, status

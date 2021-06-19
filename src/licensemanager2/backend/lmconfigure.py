@@ -2,10 +2,7 @@
 import typer
 import requests
 
-from typing import Optional
-
 from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.backend.configuration import ConfigurationRow
 from licensemanager2.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
 
@@ -79,7 +76,7 @@ def add(
 def update(
     id: int,
     product: str = typer.Option(None),
-    features: str= typer.Option(None),
+    features: str = typer.Option(None),
     license_servers: str = typer.Option(None),
     license_server_type: str = typer.Option(None),
     grace_time: int = typer.Option(None),
