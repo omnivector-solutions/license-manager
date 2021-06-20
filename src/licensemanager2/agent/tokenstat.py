@@ -8,7 +8,6 @@ import traceback
 import typing
 
 from pydantic import BaseModel, Field
-from typing import List
 
 from licensemanager2.agent import log as logger
 from licensemanager2.agent.parsing import flexlm
