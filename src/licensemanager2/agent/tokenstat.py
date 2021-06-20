@@ -110,7 +110,7 @@ class ToolOptionsCollection:
 
 
 async def attempt_tool_checks(
-        tool_options: ToolOptions, product: str, feature: str, license_servers: List[str]):
+        tool_options: ToolOptions, product: str, feature: str, license_servers: typing.List[str]):
     """
     Run one checker tool, attempting each host:port combination in turn, 1 at
     a time, until one succeeds.
