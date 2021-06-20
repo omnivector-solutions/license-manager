@@ -75,7 +75,7 @@ class ToolOptions(BaseModel):
     # unspecified, but it should be `[str]`
     parse_fn: typing.Callable[..., typing.List[dict]]
 
-    def cmd_list(self, license_servers) -> typing.List[str]:
+    def cmd_list(self, license_servers: typing.List[str]) -> typing.List[str]:
         """
         A list of the command lines to run this tool, 1 per service host:port combination
         """
