@@ -111,7 +111,6 @@ async def update_configuration(
     async with database.transaction():
         try:
             await database.execute(q_update)
-
         except INTEGRITY_CHECK_EXCEPTIONS as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
