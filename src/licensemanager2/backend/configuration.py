@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 from fastapi import APIRouter, Body, HTTPException, status
 from licensemanager2.backend.schema import config_table
-from licensemanager2.agent import log as logger
 from licensemanager2.backend.storage import database
 from licensemanager2.common_api import OK
 from licensemanager2.compat import INTEGRITY_CHECK_EXCEPTIONS
@@ -42,18 +41,22 @@ async def get_all_configurations():
     return [ConfigurationRow.parse_obj(x) for x in fetched]
 
 
-@router_config.get("/{id}", response_model=List[ConfigurationRow])
-async def get_configuration(id):
+@router_config.get("/{config_id}", response_model=List[ConfigurationRow])
+async def get_configuration(config_id):
     """
-    Query database for configuration based on a given product.
+    Get one configuration row based on a given id.
     """
     query = (
         config_table.select()
-        .where(config_table.c.id == id)
-        .order_by(config_table.c.product)
+        .where(config_table.c.id == config_id)
     )
-    fetched = await database.fetch_all(query)
-    return [ConfigurationRow.parse_obj(x) for x in fetched]
+    fetched = await database.fetch_one(query)
+    if not fetched:
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Couldn't get config {config_id}), it does not exist")
+        )
+    return [ConfigurationRow.parse_obj(fetched)]
 
 
 @database.transaction()
@@ -69,7 +72,6 @@ async def add_configuration(configuration: ConfigurationRow):
     try:
         await database.execute(query)
     except INTEGRITY_CHECK_EXCEPTIONS:
-        logger.info("in except")
         raise HTTPException(
             status_code=400,
             detail=(f"Couldn't insert config {configuration.id}), it already exists.")
@@ -120,8 +122,8 @@ async def update_configuration(
 
 
 @database.transaction()
-@router_config.delete("/{id}", response_model=OK)
-async def delete_configuration(id: str):
+@router_config.delete("/{config_id}", response_model=OK)
+async def delete_configuration(config_id: str):
     """
     Delete a configuration from the database based on its id.
     """
@@ -134,14 +136,14 @@ async def delete_configuration(id: str):
     if not rows:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't find config id: {id} to delete"),
+            detail=(f"Couldn't find config id: {config_id} to delete"),
         )
-    q = config_table.delete().where(config_table.c.id == id)
+    q = config_table.delete().where(config_table.c.id == config_id)
     try:
         await database.execute(q)
     except Exception:
         raise HTTPException(
             status_code=409,
-            detail=(f"Couldn't delete config {id})")
+            detail=(f"Couldn't delete config {config_id})")
         )
-    return OK(message=f"Deleted {id} from the configuration table.")
+    return OK(message=f"Deleted {config_id} from the configuration table.")

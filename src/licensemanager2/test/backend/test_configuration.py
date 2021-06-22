@@ -36,7 +36,7 @@ async def test_get_configuration(
     await insert_objects(one_configuration_row, schema.config_table)
     resp = await backend_client.get("/api/v1/config/100")
     assert resp.status_code == 200
-    assert resp.json() == [ConfigurationRow.parse_obj(x) for x in one_configuration_row]
+    assert resp.json() == [ConfigurationRow.parse_obj(one_configuration_row[0])]
 
 
 @mark.asyncio
