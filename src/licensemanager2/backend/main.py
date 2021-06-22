@@ -11,6 +11,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
+import sentry_sdk
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+
 from licensemanager2.backend import logger, storage
 from licensemanager2.backend.api import api_v1
 from licensemanager2.backend.settings import SETTINGS
@@ -25,6 +28,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if SETTINGS.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SETTINGS.SENTRY_DSN,
+        traces_sample_rate=1.0,
+    )
+
 # app.add_middleware(TrustedHostMiddleware)
 # app.add_middleware(ProxyHeadersMiddleware)
 # app.add_middleware(RateLimitMiddleware)
@@ -85,6 +95,10 @@ async def disconnect_database():
 
 
 app.include_router(api_v1, prefix="/api/v1")
+
+
+if SETTINGS.SENTRY_DSN:
+    app = SentryAsgiMiddleware(app)
 
 
 def handler(event: dict, context: dict) -> Optional[dict]:

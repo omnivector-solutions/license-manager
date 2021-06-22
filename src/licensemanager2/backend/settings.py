@@ -32,7 +32,7 @@ class _Settings(BaseSettings):
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
-
+    SENTRY_DSN: Optional[str] = None
     # vv should be specified as something like /staging
     # to match where the API is deployed in API Gateway
     ASGI_ROOT_PATH: str = ""
