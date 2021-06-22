@@ -2,6 +2,8 @@
 import typer
 import requests
 
+from tabulate import tabulate
+
 from licensemanager2.agent.settings import SETTINGS
 from licensemanager2.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
@@ -21,10 +23,12 @@ def get_all():
         headers=LM2_AGENT_HEADERS,
     )
     if resp.status_code == 200:
-        for item in resp.json():
-            typer.echo(item)
+        tabulate_response = tabulate(
+            (my_dict for my_dict in resp.json()), headers="keys"
+        )
+        typer.echo(tabulate_response)
     else:
-        typer.echo(f"Could not make request, status code: {resp.status_code}")
+        typer.echo(f"Could not get all the configurations, status code: {resp.status_code}")
 
 
 @app.command()
@@ -37,7 +41,10 @@ def get(id: int):
         headers=LM2_AGENT_HEADERS,
     )
     if resp.status_code == 200:
-        typer.echo(resp.json())
+        tabulate_response = tabulate(
+            (my_dict for my_dict in resp.json()), headers="keys"
+        )
+        typer.echo(tabulate_response)
     else:
         typer.echo(f"Could not get config {id}, status code: {resp.status_code}")
 
@@ -127,7 +134,7 @@ def delete(id: int):
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:
-        typer.echo("Could not delete the configuration row, status code {resp.status_code}")
+        typer.echo(f"Could not delete the configuration row, status code {resp.status_code}")
 
 
 if __name__ == "__main__":

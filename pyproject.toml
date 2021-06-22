@@ -59,12 +59,13 @@ types-jwt = { version = "0.1.3", optional = true }
 types-click = { version = "7.1.1", optional = true }
 virtualenv = { version = "20.4.7", optional = true }
 requests = "^2.25.1"
+tabulate = { version = "0.8.9", optional = true }
 
 [tool.poetry.extras]
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 
 lm-create-jwt = ["boto3", "click", "pyjwt"]
-lm-configure = ["typer", "requests"]
+lm-configure = ["typer", "requests", "tabulate"]
 
 dev = [
     "aiosqlite",
