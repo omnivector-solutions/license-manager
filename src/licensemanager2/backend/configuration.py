@@ -42,7 +42,7 @@ async def get_all_configurations():
 
 
 @router_config.get("/{config_id}", response_model=List[ConfigurationRow])
-async def get_configuration(config_id):
+async def get_configuration(config_id: int):
     """
     Get one configuration row based on a given id.
     """
@@ -123,13 +123,13 @@ async def update_configuration(
 
 @database.transaction()
 @router_config.delete("/{config_id}", response_model=OK)
-async def delete_configuration(config_id: str):
+async def delete_configuration(config_id: int):
     """
     Delete a configuration from the database based on its id.
     """
     query = (
         config_table.select()
-        .where(config_table.c.id == id)
+        .where(config_table.c.id == config_id)
         .order_by(config_table.c.id)
     )
     rows = await database.fetch_all(query)

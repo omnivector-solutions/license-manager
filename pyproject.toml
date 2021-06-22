@@ -60,6 +60,7 @@ types-click = { version = "7.1.1", optional = true }
 virtualenv = { version = "20.4.7", optional = true }
 requests = "^2.25.1"
 tabulate = { version = "0.8.9", optional = true }
+sentry_sdk = { version = "1.1.0", optional = false }
 
 [tool.poetry.extras]
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
