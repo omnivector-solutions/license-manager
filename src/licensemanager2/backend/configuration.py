@@ -54,7 +54,7 @@ async def get_configuration(config_id: int):
     if not fetched:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't get config {config_id}), it does not exist")
+            detail=(f"Couldn't get config {config_id}, that ID does not exist in the database")
         )
     return [ConfigurationRow.parse_obj(fetched)]
 
@@ -136,7 +136,7 @@ async def delete_configuration(config_id: int):
     if not rows:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't find config id: {config_id} to delete"),
+            detail=(f"Couldn't find config id: {config_id} to delete, it does not exist in the database."),
         )
     q = config_table.delete().where(config_table.c.id == config_id)
     try:
