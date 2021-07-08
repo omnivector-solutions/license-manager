@@ -6,6 +6,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.sql import delete
+from sqlalchemy import and_
 
 from licensemanager2.backend import license
 from licensemanager2.backend.schema import booking_table
@@ -39,6 +40,7 @@ class Booking(BaseModel):
 
     job_id: str
     features: List[BookingFeature]
+    cluster_name: str
 
     class Config:
         orm_mode = True
@@ -52,6 +54,10 @@ class BookingRow(BaseModel):
     job_id: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
+    lead_host: str
+    user_name: str
+    cluster_name: str
+    config_id: int
 
     class Config:
         orm_mode = True
@@ -70,13 +76,13 @@ async def get_bookings_all():
 
 
 @router_booking.get("/job/{job_id}", response_model=List[BookingRow])
-async def get_bookings_job(job_id: str):
+async def get_bookings_job(job_id: str, cluster_name: str):
     """
     All bookings of a particular job
     """
     query = (
         booking_table.select()
-        .where(booking_table.c.job_id == job_id)
+        .where(and_(booking_table.c.job_id == job_id, booking_table.c.cluster_name == cluster_name))
         .order_by(booking_table.c.product_feature)
     )
     fetched = await database.fetch_all(query)
@@ -102,6 +108,7 @@ async def create_booking(booking: Booking):
                 job_id=booking.job_id,
                 product_feature=feature.product_feature,
                 booked=feature.booked,
+                cluster_name=booking.cluster_name,
             )
         )
 
@@ -133,7 +140,7 @@ async def create_booking(booking: Booking):
 
 @database.transaction()
 @router_booking.delete("/book/{job_id}", response_model=OK)
-async def delete_booking(job_id: str):
+async def delete_booking(job_id: str, cluster_name: str):
     """
     Deduct tokens from a LicenseUse booking in the database
 
@@ -143,15 +150,18 @@ async def delete_booking(job_id: str):
     An error occurs if the new total for `booked` is < 0
     """
     # check that we're deleting a booking that exists
-    rows = await get_bookings_job(job_id)
+    rows = await get_bookings_job(job_id, cluster_name)
     if not rows:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't find booking {job_id} to delete"),
+            detail=(f"Couldn't find booking {job_id}:{cluster_name} to delete"),
         )
 
     # update the booking table
-    q = delete(booking_table).where(booking_table.c.job_id == job_id)
+    q = delete(booking_table).where(and_(
+        booking_table.c.job_id == job_id,
+        booking_table.c.cluster_name == cluster_name
+    ))
     await database.execute(q)
 
     # update the license table

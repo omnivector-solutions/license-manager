@@ -44,16 +44,19 @@ def some_licenses():
     """
     inserts = [
         LUR(
+            id=1,
             product_feature="hello.world",
             total=100,
             used=19,
         ),
         LUR(
+            id=2,
             product_feature="hello.dolly",
             total=80,
             used=11,
         ),
         LUR(
+            id=3,
             product_feature="cool.beans",
             total=11,
             used=11,

@@ -17,7 +17,7 @@ metadata = sqlalchemy.MetaData()
 license_table = Table(
     "license",
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", Integer, primary_key=True, nullable=True),
     Column("product_feature", String, primary_key=True),
     Column("used", Integer, CheckConstraint("used>=0")),
     Column("total", Integer, CheckConstraint("total>=0")),
@@ -37,7 +37,7 @@ booking_table = Table(
     Column("user_name", String),
     Column("cluster_name", String),
     Column("created_at", DateTime, default=datetime.datetime.utcnow),
-    Column('config_id', Integer, ForeignKey("config.id"), nullable=False),
+    Column('config_id', Integer, ForeignKey("config.id"), nullable=True),
     sqlite_autoincrement=True
 )
 
