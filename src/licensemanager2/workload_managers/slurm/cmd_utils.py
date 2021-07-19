@@ -168,10 +168,6 @@ async def reconcile():
 async def get_licenses_for_job(slurm_job_id: str) -> List:
     """
     Parse the scontrol output and return licenses needed for job.
-
-    Note: "type: ignore" was used to silence mypy type errors
-
-    See github issue: https://github.com/omnivector-solutions/license-manager/issues/19
     """
 
     # Command to get license information back from slurm using the
@@ -182,11 +178,11 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
         stderr=asyncio.subprocess.STDOUT,
     )
 
-    scontrol_out, _ = await asyncio.wait_for(
+    scontrol_out_bytes, _ = await asyncio.wait_for(
         scontrol_show_lic.communicate(),
         CMD_TIMEOUT
     )
-    scontrol_out = str(scontrol_out, ENCODING)  # type: ignore
+    scontrol_out = scontrol_out_bytes.decode(ENCODING)
     logger.debug("##### scontrol out #####")
     logger.debug(scontrol_out)
 
@@ -197,8 +193,10 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
         raise ScontrolRetrievalFailure(msg)
 
     # Parse license information from scontrol output
-    m = re.search('.* Licenses=([^ ]*).*', scontrol_out)  # type: ignore
-    license_list = m.group(1).split(',')  # type: ignore
+    m = re.search('.* Licenses=([^ ]*).*', scontrol_out)
+    if not m:
+        return []
+    license_list = m.group(1).split(',')
     return license_list
 
 
