@@ -58,7 +58,7 @@ async def test_get_licenses_for_job_good(
         JobId=2 JobName=sleep
            UserId=root(0) GroupId=root(0) MCS_label=N/A
            Priority=4294901759 Nice=0 Account=root QOS=normal
-           JobState=CANCELLED Reason=Nodes_required_for_job_are_DOWN,_DRAINED_or_reserved_for_jobs_in_higher_priority_partitions
+           JobState=CANCELLED Reason=Nodes_required_for_job_are...
        Dependency=(null)
            Requeue=1 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0
            RunTime=00:00:00 TimeLimit=UNLIMITED TimeMin=N/A
@@ -99,7 +99,7 @@ async def test_get_licenses_for_job_no_licenses(
         JobId=2 JobName=sleep
            UserId=root(0) GroupId=root(0) MCS_label=N/A
            Priority=4294901759 Nice=0 Account=root QOS=normal
-           JobState=CANCELLED Reason=Nodes_required_for_job_are_DOWN,_DRAINED_or_reserved_for_jobs_in_higher_priority_partitions
+           JobState=CANCELLED Reason=Nodes_required_for_job_are...
        Dependency=(null)
            Requeue=1 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0
            RunTime=00:00:00 TimeLimit=UNLIMITED TimeMin=N/A
