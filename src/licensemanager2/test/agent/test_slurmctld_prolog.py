@@ -51,7 +51,7 @@ async def test_get_licenses_for_job_good(
     create_process_shell_mock: mock.MagicMock,
 ):
     """
-    Do I properly parse licenses out of `scontrol show` commands?
+    Do I properly parse licenses out of the `scontrol show` command?
     """
     create_process_shell_mock.return_value = MockProcess(
         """
@@ -82,7 +82,7 @@ async def test_get_licenses_for_job_good(
         """,
         returncode=0,
     )
-    license_list = await get_licenses_for_job("some-job")
+    license_list = await get_licenses_for_job("some-job-id")
     assert license_list == ["test_feature.test_product@flexlm:10"]
 
 
@@ -92,7 +92,7 @@ async def test_get_licenses_for_job_no_licenses(
     create_process_shell_mock: mock.MagicMock,
 ):
     """
-    Do I return an empty list if the regular expression fails to match any licenses
+    Do I return an empty list if the job doesn't specify any licenses?
     """
     create_process_shell_mock.return_value = MockProcess(
         """
@@ -115,7 +115,7 @@ async def test_get_licenses_for_job_no_licenses(
            Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
            MinCPUsNode=1 MinMemoryNode=0 MinTmpDiskNode=0
            Features=(null) DelayBoot=00:00:00
-              OverSubscribe=NO Contiguous=0 Network=(null)
+              OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
            Command=sleep
            WorkDir=/home/ubuntu
            Power=
@@ -123,7 +123,7 @@ async def test_get_licenses_for_job_no_licenses(
         """,
         returncode=0,
     )
-    license_list = await get_licenses_for_job("some-job")
+    license_list = await get_licenses_for_job("some-job-id")
     assert license_list == []
 
 
@@ -139,8 +139,8 @@ async def test_get_licenses_for_job_error(
         "",
         returncode=1,
     )
-    with raises(ScontrolRetrievalFailure, match="Could not get SLURM data for job id: some-job"):
-        await get_licenses_for_job("some-job")
+    with raises(ScontrolRetrievalFailure, match="Could not get SLURM data for job id: some-job-id"):
+        await get_licenses_for_job("some-job-id")
 
 
 @mark.asyncio
