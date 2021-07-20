@@ -129,7 +129,7 @@ async def test_get_licenses_for_job_no_licenses(
 
 @mark.asyncio
 @mock.patch("asyncio.create_subprocess_shell")
-async def test_get_licenses_for_job_error(
+async def test_get_licenses_for_job_command_error(
     create_process_shell_mock: mock.MagicMock,
 ):
     """
@@ -140,6 +140,22 @@ async def test_get_licenses_for_job_error(
         returncode=1,
     )
     with raises(ScontrolRetrievalFailure, match="Could not get SLURM data for job id: some-job-id"):
+        await get_licenses_for_job("some-job-id")
+
+
+@mark.asyncio
+@mock.patch("asyncio.create_subprocess_shell")
+async def test_get_licenses_for_job_output_error(
+    create_process_shell_mock: mock.MagicMock,
+):
+    """
+    Do I raise an ScontrolRetrievalFailure exception if the command output is malformed?
+    """
+    create_process_shell_mock.return_value = MockProcess(
+        "This is bad output",
+        returncode=0,
+    )
+    with raises(ScontrolRetrievalFailure, match="Command output for slurm_job_id='some-job-id' was malformed"):
         await get_licenses_for_job("some-job-id")
 
 

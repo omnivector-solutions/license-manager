@@ -195,8 +195,15 @@ async def get_licenses_for_job(slurm_job_id: str) -> List:
     # Parse license information from scontrol output
     m = re.search('.* Licenses=([^ ]*).*', scontrol_out)
     if not m:
+        msg = f"Command output for {slurm_job_id=} was malformed: no 'Licenses' section found"
+        logger.error(msg)
+        raise ScontrolRetrievalFailure(msg)
+
+    match_string = m.group(1)
+    if match_string == "(null)":
         return []
-    license_list = m.group(1).split(',')
+
+    license_list = match_string.split(',')
     return license_list
 
 
