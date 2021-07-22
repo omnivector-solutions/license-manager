@@ -3,17 +3,19 @@ import asyncio
 import httpx
 import re
 import shlex
+import subprocess
 
 from pydantic import BaseModel, Field
 from licensemanager2.workload_managers.slurm.common import (
     CMD_TIMEOUT,
     SCONTROL_PATH,
     SACCTMGR_PATH,
+    SQUEUE_PATH,
     ENCODING,
     LM2_AGENT_HEADERS,
 )
 from licensemanager2.agent import log as logger
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from licensemanager2.agent.settings import (
     SETTINGS,
     PRODUCT_FEATURE_RX,
@@ -294,3 +296,61 @@ async def sacctmgr_modify_resource(
         logger.warning(modify_resource_stdout)
         return False
     return True
+
+
+def return_formated_squeue_out() -> str:
+    """Call squeue via Popen and return the output.
+
+    return type: str
+    """
+
+    try:
+        stdout, _ = subprocess.Popen(
+            [SQUEUE_PATH, "--noheader", "--format='%A|%M|%T'"]
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(e)
+        raise e
+
+    return stdout.decode().strip()
+
+
+def _total_time_in_seconds(time_string: str) -> int:
+    """Return the sum of the hours minutes and seconds (in seconds)."""
+    MINUTE = 60
+    HOUR = 60 * MINUTE
+    DAY = 24 * HOUR
+
+    days = 0
+    hours = 0
+    if "-" in time_string:
+        days, time_string = time_string.split("-")
+
+    measure_of_time = time_string.count(":")
+
+    if measure_of_time == 2:
+        hours, minutes, seconds = time_string.split(":")
+    else:
+        minutes, seconds = time_string.split(":")
+
+    return (
+        int(days) * DAY + int(hours) * HOUR + int(minutes) * MINUTE + int(seconds)
+    )
+
+
+def squeue_parser(squeue_formatted_output) -> List[Dict]:
+    """Parse the squeue formatted output."""
+
+    squeue_parsed_output = list()
+
+    for line in squeue_formatted_output.split():
+        job_id, run_time, state = line.split("|")
+        squeue_parsed_output.append(
+            {
+                "job_id": int(job_id),
+                "run_time_in_seconds": _total_time_in_seconds(run_time),
+                "state": state
+            }
+        )
+
+    return squeue_parsed_output
