@@ -79,7 +79,7 @@ dev = [
     "uvicorn",
     "pydantic",
     "alembic",
-    ]
+]
 
 unit = [
     "aiosqlite",
@@ -96,7 +96,7 @@ unit = [
     "sqlalchemy-stubs",
     "pydantic",
     "virtualenv",
-    ]
+]
 
 mypy = [
     "mypy",
@@ -106,7 +106,12 @@ mypy = [
     "types-Jinja2",
     "types-jwt",
     "types-click",
-    ]
+    "sqlalchemy-stubs",
+    "httpx",
+    "pytest",
+    "respx",
+    "aiosqlite",
+]
 
 
 
