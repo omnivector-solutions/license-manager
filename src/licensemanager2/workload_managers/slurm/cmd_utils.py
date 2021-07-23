@@ -22,6 +22,11 @@ from licensemanager2.agent.settings import (
 )
 
 
+class SqueueParserUnexpectedInputError(Exception):
+    """Unexpected squeue output."""
+    pass
+
+
 class ScontrolRetrievalFailure(Exception):
     """
     Could not get SLURM data for job id.
@@ -350,8 +355,18 @@ def squeue_parser(squeue_formatted_output) -> List[Dict]:
 
     squeue_parsed_output = list()
 
+    def parse_squeue_line():
+        """Parse a line from squeue formatted output."""
+        try:
+            job_id, run_time, state = line.split("|")
+        except SqueueParserUnexpectedInputError as e:
+            logger.error(e)
+            raise(e)
+        return job_id, run_time, state
+ 
+
     for line in squeue_formatted_output.split():
-        job_id, run_time, state = line.split("|")
+        job_id, run_time, state = parse_squeue_line()
         squeue_parsed_output.append(
             {
                 "job_id": int(job_id),

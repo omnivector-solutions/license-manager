@@ -1,4 +1,13 @@
-from licensemanager2.workload_managers.slurm.cmd_utils import squeue_parser
+from licensemanager2.workload_managers.slurm.cmd_utils import (
+    squeue_parser,
+    SqueueParserUnexpectedInputError,
+)
+
+
+def test_squeue_with_bad_input():
+    """Test that squeue throws the correct exception given incorrect input."""
+    with raises(SqueueParserUnexpectedInputError):
+        squeue_parsed = squeue_parser("bad input")
 
 
 def test_squeue_parser_returns_correct_output_format():
