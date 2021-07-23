@@ -315,7 +315,13 @@ def return_formated_squeue_out() -> str:
 
 
 def _total_time_in_seconds(time_string: str) -> int:
-    """Return the sum of the hours minutes and seconds (in seconds)."""
+    """
+    Return the runtime in seconds for a job.
+    
+    This function takes a slurm time string ("<days>-<hours>:<minutes>:<seconds>") as input, parses
+    and converts each of the units in the time string to seconds and returns a computed value, the sum of the days,
+    hours, minutes and seconds (in seconds).
+    """
     MINUTE = 60
     HOUR = 60 * MINUTE
     DAY = 24 * HOUR
