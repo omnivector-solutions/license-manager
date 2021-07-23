@@ -24,7 +24,6 @@ from licensemanager2.agent.settings import (
 
 class SqueueParserUnexpectedInputError(Exception):
     """Unexpected squeue output."""
-    pass
 
 
 class ScontrolRetrievalFailure(Exception):
