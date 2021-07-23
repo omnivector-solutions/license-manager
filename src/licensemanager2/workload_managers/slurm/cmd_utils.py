@@ -361,7 +361,7 @@ def squeue_parser(squeue_formatted_output) -> List[Dict]:
             job_id, run_time, state = line.split("|")
         except SqueueParserUnexpectedInputError as e:
             logger.error(e)
-            raise(e)
+            raise e
         return job_id, run_time, state
 
     for line in squeue_formatted_output.split():
