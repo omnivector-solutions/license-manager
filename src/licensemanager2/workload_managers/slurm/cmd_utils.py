@@ -299,7 +299,11 @@ async def sacctmgr_modify_resource(
 
 
 def return_formated_squeue_out() -> str:
-    """Call squeue via Popen and return the output."""
+    """
+    Call squeue via Popen and return the formatted output.
+    
+    Return the squeue output in the form "<job_id>|<run_time>|<state>".
+    """
 
     result = subprocess.run(
         [SQUEUE_PATH, "--noheader", "--format='%A|%M|%T'"],
