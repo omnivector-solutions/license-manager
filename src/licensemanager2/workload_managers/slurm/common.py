@@ -14,6 +14,7 @@ LM2_AGENT_HEADERS = {
 
 SCONTROL_PATH = "/usr/bin/scontrol"
 SACCTMGR_PATH = "/usr/bin/sacctmgr"
+SQUEUE_PATH = "/usr/bin/squeue"
 CMD_TIMEOUT = 5
 ENCODING = "UTF8"
 

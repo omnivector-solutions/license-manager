@@ -3,21 +3,27 @@ import asyncio
 import httpx
 import re
 import shlex
+import subprocess
 
 from pydantic import BaseModel, Field
 from licensemanager2.workload_managers.slurm.common import (
     CMD_TIMEOUT,
     SCONTROL_PATH,
     SACCTMGR_PATH,
+    SQUEUE_PATH,
     ENCODING,
     LM2_AGENT_HEADERS,
 )
 from licensemanager2.agent import log as logger
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from licensemanager2.agent.settings import (
     SETTINGS,
     PRODUCT_FEATURE_RX,
 )
+
+
+class SqueueParserUnexpectedInputError(Exception):
+    """Unexpected squeue output."""
 
 
 class ScontrolRetrievalFailure(Exception):
@@ -299,3 +305,77 @@ async def sacctmgr_modify_resource(
         logger.warning(modify_resource_stdout)
         return False
     return True
+
+
+def return_formated_squeue_out() -> str:
+    """
+    Call squeue via Popen and return the formatted output.
+
+    Return the squeue output in the form "<job_id>|<run_time>|<state>".
+    """
+
+    result = subprocess.run(
+        [SQUEUE_PATH, "--noheader", "--format='%A|%M|%T'"],
+        capture_output=True,
+        shell=True,
+        encoding="utf-8"
+    )
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception(result.stderr)
+
+    return result.stdout.strip()
+
+
+def _total_time_in_seconds(time_string: str) -> int:
+    """
+    Return the runtime in seconds for a job.
+
+    This function takes a slurm time string ("<days>-<hours>:<minutes>:<seconds>") as input, parses
+    and converts each of the units in the time string to seconds and returns a computed value, the sum of the days,
+    hours, minutes and seconds (in seconds).
+    """
+    MINUTE = 60
+    HOUR = 60 * MINUTE
+    DAY = 24 * HOUR
+
+    days = 0
+    hours = 0
+    splitted_time = [int(value) for value in re.split("-|:", time_string)]
+    splitted_time_len = len(splitted_time)
+
+    if splitted_time_len == 3:
+        days, hours, minutes, seconds = splitted_time
+    elif splitted_time_len == 2:
+        hours, minutes, seconds = splitted_time
+    else:
+        minutes, seconds = splitted_time
+
+    return days * DAY + hours * HOUR + minutes * MINUTE + seconds
+
+
+def squeue_parser(squeue_formatted_output) -> List[Dict]:
+    """Parse the squeue formatted output."""
+
+    squeue_parsed_output = list()
+
+    def parse_squeue_line():
+        """Parse a line from squeue formatted output."""
+        try:
+            job_id, run_time, state = line.split("|")
+        except SqueueParserUnexpectedInputError as e:
+            logger.error(e)
+            raise e
+        return job_id, run_time, state
+
+    for line in squeue_formatted_output.split():
+        job_id, run_time, state = parse_squeue_line()
+        squeue_parsed_output.append(
+            {
+                "job_id": int(job_id),
+                "run_time_in_seconds": _total_time_in_seconds(run_time),
+                "state": state
+            }
+        )
+
+    return squeue_parsed_output
