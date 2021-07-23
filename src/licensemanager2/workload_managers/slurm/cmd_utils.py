@@ -299,20 +299,19 @@ async def sacctmgr_modify_resource(
 
 
 def return_formated_squeue_out() -> str:
-    """Call squeue via Popen and return the output.
+     """Call squeue via Popen and return the output."""
 
-    return type: str
-    """
+    result = subprocess.run(
+        [SQUEUE_PATH + " --noheader --format='%A|%M|%T'"],
+        capture_output=True,
+        shell=True,
+        encoding="utf-8"
+    )
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception(result.stderr)
 
-    try:
-        stdout, _ = subprocess.Popen(
-            [SQUEUE_PATH, "--noheader", "--format='%A|%M|%T'"]
-        )
-    except subprocess.CalledProcessError as e:
-        logger.error(e)
-        raise e
-
-    return stdout.decode().strip()
+    return result.stdout.strip()
 
 
 def _total_time_in_seconds(time_string: str) -> int:
