@@ -2,7 +2,7 @@ from licensemanager2.workload_managers.slurm.cmd_utils import squeue_parser
 
 
 def test_squeue_parser_returns_correct_output_format():
-    """Test that the squeue_parsed() returns correct output."""
+    """Given the squeue formatted output, ensure the `squeue_parsed()` returns the expected values."""
     squeue_parsed_output = [
         {"job_id": 1, "run_time_in_seconds": 300, "state": "RUNNING"},
         {"job_id": 2, "run_time_in_seconds": 184981, "state": "RUNNING"},
