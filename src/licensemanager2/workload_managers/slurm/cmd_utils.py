@@ -306,7 +306,7 @@ async def sacctmgr_modify_resource(
 def return_formated_squeue_out() -> str:
     """
     Call squeue via Popen and return the formatted output.
-    
+
     Return the squeue output in the form "<job_id>|<run_time>|<state>".
     """
 
@@ -326,7 +326,7 @@ def return_formated_squeue_out() -> str:
 def _total_time_in_seconds(time_string: str) -> int:
     """
     Return the runtime in seconds for a job.
-    
+
     This function takes a slurm time string ("<days>-<hours>:<minutes>:<seconds>") as input, parses
     and converts each of the units in the time string to seconds and returns a computed value, the sum of the days,
     hours, minutes and seconds (in seconds).
@@ -363,7 +363,6 @@ def squeue_parser(squeue_formatted_output) -> List[Dict]:
             logger.error(e)
             raise(e)
         return job_id, run_time, state
- 
 
     for line in squeue_formatted_output.split():
         job_id, run_time, state = parse_squeue_line()
