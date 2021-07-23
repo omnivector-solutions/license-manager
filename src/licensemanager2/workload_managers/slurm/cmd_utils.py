@@ -323,19 +323,17 @@ def _total_time_in_seconds(time_string: str) -> int:
 
     days = 0
     hours = 0
-    if "-" in time_string:
-        days, time_string = time_string.split("-")
+    splitted_time = [int(value) for value in re.split("-|:", time_string)]
+    splitted_time_len = len(splitted_time)
 
-    measure_of_time = time_string.count(":")
-
-    if measure_of_time == 2:
-        hours, minutes, seconds = time_string.split(":")
+    if splitted_time_len == 3:
+        days, hours, minutes, seconds = splitted_time
+    elif splitted_time_len == 2:
+        hours, minutes, seconds = splitted_time
     else:
-        minutes, seconds = time_string.split(":")
+        minutes, seconds = splitted_time
 
-    return (
-        int(days) * DAY + int(hours) * HOUR + int(minutes) * MINUTE + int(seconds)
-    )
+    return days * DAY + hours * HOUR + minutes * MINUTE + seconds
 
 
 def squeue_parser(squeue_formatted_output) -> List[Dict]:
