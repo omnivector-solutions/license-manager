@@ -87,24 +87,24 @@ python-versions = "*"
 
 [[package]]
 name = "boto3"
-version = "1.17.98"
+version = "1.18.10"
 description = "The AWS SDK for Python"
 category = "main"
 optional = true
-python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.20.98,<1.21.0"
+botocore = ">=1.21.10,<1.22.0"
 jmespath = ">=0.7.1,<1.0.0"
-s3transfer = ">=0.4.0,<0.5.0"
+s3transfer = ">=0.5.0,<0.6.0"
 
 [[package]]
 name = "botocore"
-version = "1.20.98"
+version = "1.21.10"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = true
-python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+python-versions = ">= 3.6"
 
 [package.dependencies]
 jmespath = ">=0.7.1,<1.0.0"
@@ -123,12 +123,15 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "chardet"
-version = "4.0.0"
-description = "Universal encoding detector for Python 2 and 3"
+name = "charset-normalizer"
+version = "2.0.3"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.5.0"
+
+[package.extras]
+unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -288,11 +291,11 @@ http2 = ["h2 (>=3.0.0,<4.0.0)"]
 
 [[package]]
 name = "idna"
-version = "2.10"
+version = "3.2"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.5"
 
 [[package]]
 name = "iniconfig"
@@ -304,7 +307,7 @@ python-versions = "*"
 
 [[package]]
 name = "isort"
-version = "5.9.1"
+version = "5.9.3"
 description = "A Python utility / library to sort Python imports."
 category = "main"
 optional = true
@@ -355,7 +358,7 @@ lingua = ["lingua"]
 
 [[package]]
 name = "mangum"
-version = "0.12.0"
+version = "0.12.1"
 description = "AWS Lambda & API Gateway support for ASGI"
 category = "main"
 optional = false
@@ -576,11 +579,11 @@ six = ">=1.5"
 
 [[package]]
 name = "python-dotenv"
-version = "0.18.0"
+version = "0.19.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
 
 [package.extras]
 cli = ["click (>=5.0)"]
@@ -603,21 +606,21 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [[package]]
 name = "requests"
-version = "2.25.1"
+version = "2.26.0"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
-chardet = ">=3.0.2,<5"
-idna = ">=2.5,<3"
+charset-normalizer = {version = ">=2.0.0,<2.1.0", markers = "python_version >= \"3\""}
+idna = {version = ">=2.5,<4", markers = "python_version >= \"3\""}
 urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
-security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
 socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "respx"
@@ -646,11 +649,11 @@ idna2008 = ["idna"]
 
 [[package]]
 name = "s3transfer"
-version = "0.4.2"
+version = "0.5.0"
 description = "An Amazon S3 Transfer Manager"
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">= 3.6"
 
 [package.dependencies]
 botocore = ">=1.12.36,<2.0a.0"
@@ -852,7 +855,7 @@ types-ipaddress = "*"
 
 [[package]]
 name = "types-enum34"
-version = "0.1.7"
+version = "0.1.8"
 description = "Typing stubs for enum34"
 category = "main"
 optional = true
@@ -860,7 +863,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-ipaddress"
-version = "0.1.4"
+version = "0.1.5"
 description = "Typing stubs for ipaddress"
 category = "main"
 optional = true
@@ -890,7 +893,7 @@ types-cryptography = "*"
 
 [[package]]
 name = "types-markupsafe"
-version = "1.1.3"
+version = "1.1.4"
 description = "Typing stubs for MarkupSafe"
 category = "main"
 optional = true
@@ -917,7 +920,7 @@ name = "types-requests"
 version = "2.25.1"
 description = "Typing stubs for requests"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -925,7 +928,7 @@ name = "types-tabulate"
 version = "0.1.1"
 description = "Typing stubs for tabulate"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -989,13 +992,13 @@ dev = ["aiosqlite", "flake8", "isort", "mypy", "pytest", "pytest-asyncio", "pyte
 flexlmsim = ["jinja2"]
 lm-configure = ["typer", "requests", "tabulate"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
-mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-Jinja2", "types-jwt", "types-click", "sqlalchemy-stubs", "httpx", "pytest", "respx", "aiosqlite"]
+mypy = ["mypy", "types-pkg-resources", "types-PyYAML", "mypy-extensions", "types-requests", "types-tabulate", "types-Jinja2", "types-jwt", "types-click", "sqlalchemy-stubs", "httpx", "pytest", "respx", "aiosqlite"]
 unit = ["aiosqlite", "flake8", "isort", "pytest", "pytest-asyncio", "pytest-cov", "pytest-env", "pytest-freezegun", "pyyaml", "respx", "sqlalchemy-stubs", "pydantic", "virtualenv"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "09c8942b0619b57f53301619ad02b56bc216e79e2babf5b8ea8c567124a0a30f"
+content-hash = "4c51dcd1b95e07f82ee13e654c4709d9107482fa48e4853add528ad5e5268fd9"
 
 [metadata.files]
 aiosqlite = [
@@ -1044,20 +1047,20 @@ aws-psycopg2 = [
     {file = "aws_psycopg2-1.2.1-py3-none-any.whl", hash = "sha256:f5eb05b280b2aa374080bf650972b8a9383d08e96a2e48b5a1ac3f55d6e5fdc6"},
 ]
 boto3 = [
-    {file = "boto3-1.17.98-py2.py3-none-any.whl", hash = "sha256:2c2f70608934b03f9c08f4cd185de223b5abd18245dd4d4800e1fbc2a2523e31"},
-    {file = "boto3-1.17.98.tar.gz", hash = "sha256:fccfa81cda69bb2317ed97e7149d7d84d19e6ec3bfbe3f721139e7ac0c407c73"},
+    {file = "boto3-1.18.10-py3-none-any.whl", hash = "sha256:eec96aa90506b5e3736707d53b1f91dbaa4bf6728ddd60660fc34935b7e55f12"},
+    {file = "boto3-1.18.10.tar.gz", hash = "sha256:831b279c4395d5f3b360b260131e30d418ffe620ed3705a5146a90ffdd5775ab"},
 ]
 botocore = [
-    {file = "botocore-1.20.98-py2.py3-none-any.whl", hash = "sha256:b955b23fe2fbdbbc8e66f37fe2970de6b5d8169f940b200bcf434751709d38f6"},
-    {file = "botocore-1.20.98.tar.gz", hash = "sha256:b2a49de4ee04b690142c8e7240f0f5758e3f7673dd39cf398efe893bf5e11c3f"},
+    {file = "botocore-1.21.10-py3-none-any.whl", hash = "sha256:81f1bffbd2276c5360a59db1358e793d2ba3e3a378ae2bb4bc780756945fdb2b"},
+    {file = "botocore-1.21.10.tar.gz", hash = "sha256:af5baac459c9fde0eb7dda39808e7dd1e61d758c3c0a734436ec377e0dabe319"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
     {file = "certifi-2021.5.30.tar.gz", hash = "sha256:2bbf76fd432960138b3ef6dda3dde0544f27cbf8546c458e60baf371917ba9ee"},
 ]
-chardet = [
-    {file = "chardet-4.0.0-py2.py3-none-any.whl", hash = "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"},
-    {file = "chardet-4.0.0.tar.gz", hash = "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa"},
+charset-normalizer = [
+    {file = "charset-normalizer-2.0.3.tar.gz", hash = "sha256:c46c3ace2d744cfbdebceaa3c19ae691f53ae621b39fd7570f59d14fb7f2fd12"},
+    {file = "charset_normalizer-2.0.3-py3-none-any.whl", hash = "sha256:88fce3fa5b1a84fdcb3f603d889f723d1dd89b26059d0123ca435570e848d5e1"},
 ]
 click = [
     {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
@@ -1162,16 +1165,16 @@ httpx = [
     {file = "httpx-0.17.1.tar.gz", hash = "sha256:cc2a55188e4b25272d2bcd46379d300f632045de4377682aa98a8a6069d55967"},
 ]
 idna = [
-    {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
-    {file = "idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
+    {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
+    {file = "idna-3.2.tar.gz", hash = "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 isort = [
-    {file = "isort-5.9.1-py3-none-any.whl", hash = "sha256:8e2c107091cfec7286bc0f68a547d0ba4c094d460b732075b6fba674f1035c0c"},
-    {file = "isort-5.9.1.tar.gz", hash = "sha256:83510593e07e433b77bd5bff0f6f607dbafa06d1a89022616f02d8b699cfcd56"},
+    {file = "isort-5.9.3-py3-none-any.whl", hash = "sha256:e17d6e2b81095c9db0a03a8025a957f334d6ea30b26f9ec70805411e5c7c81f2"},
+    {file = "isort-5.9.3.tar.gz", hash = "sha256:9c2ea1e62d871267b78307fe511c0838ba0da28698c5732d54e2790bf3ba9899"},
 ]
 jinja2 = [
     {file = "Jinja2-3.0.1-py3-none-any.whl", hash = "sha256:1f06f2da51e7b56b8f238affdd6b4e2c61e39598a378cc49345bc1bd42a978a4"},
@@ -1186,8 +1189,8 @@ mako = [
     {file = "Mako-1.1.4.tar.gz", hash = "sha256:17831f0b7087c313c0ffae2bcbbd3c1d5ba9eeac9c38f2eb7b50e8c99fe9d5ab"},
 ]
 mangum = [
-    {file = "mangum-0.12.0-py3-none-any.whl", hash = "sha256:b6cd98d23416985a9b118ca03e4620bb215e242170aec66d6fdc82088100110c"},
-    {file = "mangum-0.12.0.tar.gz", hash = "sha256:36df161fa6894a47b3b899bd4a4430b5f075baa8d2d40b1cefc6a336e464f362"},
+    {file = "mangum-0.12.1-py3-none-any.whl", hash = "sha256:2de3fbff53bca577ce70ab4536d31e2bd9822bb9ebaf91a7939123b21b66b5eb"},
+    {file = "mangum-0.12.1.tar.gz", hash = "sha256:cec6db7a1f53210bb4b1a4fc12834319623fc9362c89ce38d540c7a9a8a53106"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.0.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:f9081981fe268bd86831e5c75f7de206ef275defcb82bc70740ae6dc507aee51"},
@@ -1334,8 +1337,8 @@ python-dateutil = [
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 python-dotenv = [
-    {file = "python-dotenv-0.18.0.tar.gz", hash = "sha256:effaac3c1e58d89b3ccb4d04a40dc7ad6e0275fda25fd75ae9d323e2465e202d"},
-    {file = "python_dotenv-0.18.0-py2.py3-none-any.whl", hash = "sha256:dd8fe852847f4fbfadabf6183ddd4c824a9651f02d51714fa075c95561959c7d"},
+    {file = "python-dotenv-0.19.0.tar.gz", hash = "sha256:f521bc2ac9a8e03c736f62911605c5d83970021e3fa95b37d769e2bbbe9b6172"},
+    {file = "python_dotenv-0.19.0-py2.py3-none-any.whl", hash = "sha256:aae25dc1ebe97c420f50b81fb0e5c949659af713f31fdb63c749ca68748f34b1"},
 ]
 python-editor = [
     {file = "python-editor-1.0.4.tar.gz", hash = "sha256:51fda6bcc5ddbbb7063b2af7509e43bd84bfc32a4ff71349ec7847713882327b"},
@@ -1376,8 +1379,8 @@ pyyaml = [
     {file = "PyYAML-5.4.1.tar.gz", hash = "sha256:607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"},
 ]
 requests = [
-    {file = "requests-2.25.1-py2.py3-none-any.whl", hash = "sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e"},
-    {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
+    {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
+    {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 respx = [
     {file = "respx-0.16.3-py2.py3-none-any.whl", hash = "sha256:2db35e4af6bf25f58435457da7a0df52b34b8b3c2ea584d8a8cce27a7b00a614"},
@@ -1388,8 +1391,8 @@ rfc3986 = [
     {file = "rfc3986-1.5.0.tar.gz", hash = "sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"},
 ]
 s3transfer = [
-    {file = "s3transfer-0.4.2-py2.py3-none-any.whl", hash = "sha256:9b3752887a2880690ce628bc263d6d13a3864083aeacff4890c1c9839a5eb0bc"},
-    {file = "s3transfer-0.4.2.tar.gz", hash = "sha256:cb022f4b16551edebbb31a377d3f09600dbada7363d8c5db7976e7f47732e1b2"},
+    {file = "s3transfer-0.5.0-py3-none-any.whl", hash = "sha256:9c1dc369814391a6bda20ebbf4b70a0f34630592c9aa520856bf384916af2803"},
+    {file = "s3transfer-0.5.0.tar.gz", hash = "sha256:50ed823e1dc5868ad40c8dc92072f757aa0e653a192845c94a3b676f4a62da4c"},
 ]
 sentry-sdk = [
     {file = "sentry-sdk-1.1.0.tar.gz", hash = "sha256:c1227d38dca315ba35182373f129c3e2722e8ed999e52584e6aca7d287870739"},
@@ -1479,12 +1482,12 @@ types-cryptography = [
     {file = "types_cryptography-3.3.3-py2.py3-none-any.whl", hash = "sha256:524afedb2e7f3fa4b22bd164efb82809a75ff960cc5d40a2fa9b7c2cda228fab"},
 ]
 types-enum34 = [
-    {file = "types-enum34-0.1.7.tar.gz", hash = "sha256:009228c0feb8a72a78ae299a8683cdb766a4cfc2499730ec78f01885d6bc6dec"},
-    {file = "types_enum34-0.1.7-py3-none-any.whl", hash = "sha256:ae44abe68ec856565fc6eabe9f54e967c5d3eb406ba75448db0c41045918c8e7"},
+    {file = "types-enum34-0.1.8.tar.gz", hash = "sha256:9e91a94f1f42c73bd7aa43f19a157d722522d29097f301748a034e08693a423d"},
+    {file = "types_enum34-0.1.8-py3-none-any.whl", hash = "sha256:5833cfd003d7a860e8442d04a06aaa2bef1f050933f844fa7bd3634914e1aa7f"},
 ]
 types-ipaddress = [
-    {file = "types-ipaddress-0.1.4.tar.gz", hash = "sha256:a03f47c0f6c9ea49b95e2af8f47742f8bbca81c2373fc1ca41109cee4d0cb8c0"},
-    {file = "types_ipaddress-0.1.4-py3-none-any.whl", hash = "sha256:570406d4ea93c7523731145adc302d8d8167aedb2d33c3b7f4fbe6105ba3ec45"},
+    {file = "types-ipaddress-0.1.5.tar.gz", hash = "sha256:ffa2c4fe2e8f51898465e2142d4d325fbab009aaa7822db20a4e2e3a896560d7"},
+    {file = "types_ipaddress-0.1.5-py3-none-any.whl", hash = "sha256:137ab8a5a895a48157438c8f3eea738e2c22e82c1114ab20ffd78c8637bbc008"},
 ]
 types-jinja2 = [
     {file = "types_Jinja2-2.11.1-py2.py3-none-any.whl", hash = "sha256:84f66a2612376ff3c1656198b10a04c7711b6d917d4f5f7f2c2f7ecec0afa040"},
@@ -1493,8 +1496,8 @@ types-jwt = [
     {file = "types_jwt-0.1.3-py2.py3-none-any.whl", hash = "sha256:36a1d5f99b349428f9ca5695e5caf3378398ae31d7aaed1c668c81451ba79b08"},
 ]
 types-markupsafe = [
-    {file = "types-MarkupSafe-1.1.3.tar.gz", hash = "sha256:be8975ba91bd7e672f6f57753ca7ba2979ad9b6687a0e93dd2055926f8c71b0b"},
-    {file = "types_MarkupSafe-1.1.3-py2.py3-none-any.whl", hash = "sha256:b1893d090c72204110c232d9b964d2612e15deff738bb75360030473a45cbc0e"},
+    {file = "types-MarkupSafe-1.1.4.tar.gz", hash = "sha256:4fd2cc858fb4aea38555850f4ac2ecafae3543c88abb056669a3346c5c1b202c"},
+    {file = "types_MarkupSafe-1.1.4-py3-none-any.whl", hash = "sha256:2539a9e9b1b5a1bf1c10fdf2cb1dcb89e6f360759196883f4d5d103c53624375"},
 ]
 types-pkg-resources = [
     {file = "types_pkg_resources-0.1.2-py2.py3-none-any.whl", hash = "sha256:42d640500de564f1ccc21f918117afadf78039e4fa7f513c647ccf742d609aeb"},
