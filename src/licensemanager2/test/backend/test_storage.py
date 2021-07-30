@@ -37,4 +37,4 @@ def test_create_all_tables(raw_connection):
     with patch.object(storage.SETTINGS, "DATABASE_URL", str(raw_connection.engine.url)):
         storage.create_all_tables()
     after = raw_connection.execute(_LIST_TABLES_SQL)
-    assert len(list(after)) == 2
+    assert len(list(after)) == 3

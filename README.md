@@ -39,10 +39,16 @@
 
 - [Table of Contents](#table-of-contents)
 - [About The Project](#about-the-project)
-- [Prerequisites](#prerequisites)
-- [Build](#build)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Installation (backend)](#installation-backend)
+- [Installation (agent)](#installation-agent)
+- [Deployment (backend)](#deployment-backend)
+  - [NOTE: Destroying secrets with terraform](#note-destroying-secrets-with-terraform)
+- [Deploy (agent)](#deploy-agent)
+- [Run locally](#run-locally)
+- [Database Migrations](#database-migrations)
+    - [Create Migrations](#create-migrations)
+    - [Apply Migrations](#apply-migrations)
+- [Test with lm-configure](#test-with-lm-configure)
 - [License](#license)
 - [Contact](#contact)
 
@@ -203,6 +209,46 @@ alembic upgrade <revision> (or "head" for latest)
 Using the example above, upgrade command looks like this:
 ```bash
 alembic upgrade b692dfd0b017
+```
+
+## Test with lm-configure
+In order to use this utility, first create a jwt for your environemnt using:
+```bash
+lm-create-jwt --subject <any> --app-short-name license-manager --stage <stage> --region <region>
+```
+where region is equal to the aws region the backend is deployed (i.e. "eu-north-1"), stage is the name
+of your environment, and subject is arbitrary.
+
+Once the token is created, run the following commands to export it.
+```bash
+export LM2_AGENT_BACKEND_API_TOKEN=<token> (use output from above)
+```
+Export the `LM2_AGENT_BACKEND_BASE_URL' to point to your backend, substituting in your stage and region.
+```bash
+export LM2_AGENT_BACKEND_BASE_URL=https://license-manager-<stage>-<region>.omnivector.solutions
+```
+
+To test with the `lm-configure` cli run the following commands in the same environment
+the backend is running.
+To get all configurations:
+```bash
+lm-configure get-all
+```
+To get one configuration row based on an ID:
+```bash
+lm-configure get [ID]
+```
+To add a configuration:
+```bash
+lm-configure add 100 "testproduct" ["Testfeature"] ["testserver"] "testservertype" 10000
+```
+To update a configuration
+```bash
+lm-configure update 100 --[OPTION] [VALUE-TO-UPATE] ..
+```
+To delete a configuration row based on an ID:
+```bash
+lm-configure delete ID
 ```
 
 ## License

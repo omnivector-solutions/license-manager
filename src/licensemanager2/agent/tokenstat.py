@@ -2,7 +2,6 @@
 Invoke license stat tools to build a view of license token counts
 """
 import asyncio
-from functools import lru_cache
 from pathlib import Path
 from shlex import quote
 import traceback
@@ -19,7 +18,7 @@ from licensemanager2.agent.settings import (
     TOOL_TIMEOUT
 )
 
-from licensemanager2.agent.backend_utils import get_license_server_features
+from licensemanager2.agent.backend_utils import get_config_from_backend
 
 from licensemanager2.workload_managers.slurm.cmd_utils import (
     get_tokens_for_license,
@@ -35,43 +34,6 @@ class LicenseService(BaseModel):
 
     name: str
     hostports: typing.List[typing.Tuple[str, int]]
-
-
-class LicenseServiceCollection(BaseModel):
-    """
-    A collection of LicenseServices, mapped by their names
-    """
-
-    services: typing.Dict[str, LicenseService]
-
-    @classmethod
-    def from_env_string(cls, env_str: str) -> "LicenseServiceCollection":
-        """
-        @returns LicenseServiceCollection from parsing colon-separated env input
-
-        The syntax is:
-
-        - servicename:host:port e.g. "flexlm:172.0.1.2:2345"
-
-        - each entry separated by spaces e.g.
-          "flexlm:172.0.1.2:2345 abclm:172.0.1.3:2319"
-
-        - if the same service appears twice in the list they will be
-          merged, e.g.:
-          "flexlm:173.0.1.2:2345 flexlm:172.0.1.3:2345"
-          -> (pseudodata) "flexlm": [("173.0.1.2", 2345), "173.0.1.3", 2345)]
-        """
-        self = cls(services={})
-        services = env_str.split()
-        for item in services:
-            name, host, port = item.split(":", 2)
-
-            svc = self.services.setdefault(
-                name, LicenseService(name=name, hostports=[])
-            )
-            svc.hostports.append((host, int(port)))
-
-        return self
 
 
 class LicenseReportItem(BaseModel):
@@ -113,28 +75,22 @@ class ToolOptions(BaseModel):
     # unspecified, but it should be `[str]`
     parse_fn: typing.Callable[..., typing.List[dict]]
 
-    def cmd_list(self) -> typing.List[str]:
+    def cmd_list(self, license_servers: typing.List[str]) -> typing.List[str]:
         """
         A list of the command lines to run this tool, 1 per service host:port combination
         """
+
+        host_ports = [
+            (server.split(":")[1], server.split(":")[2])
+            for server in license_servers
+        ]
         ret = []
-        addrs = _get_service_hostports(self.name)
-        for host, port in addrs:
+        for host, port in host_ports:
             cl = self.args.format(
                 exe=quote(str(self.path)), host=quote(host), port=port
             )
             ret.append(cl)
-
         return ret
-
-
-@lru_cache
-def _get_service_hostports(name: str) -> typing.List[typing.Tuple[str, int]]:
-    """
-    Parse service hostports from the environment and return them as a list, for the named service
-    """
-    lsc = LicenseServiceCollection.from_env_string(SETTINGS.SERVICE_ADDRS)
-    return lsc.services[name].hostports
 
 
 class ToolOptionsCollection:
@@ -154,14 +110,15 @@ class ToolOptionsCollection:
 
 
 async def attempt_tool_checks(
-        tool_options: ToolOptions, product: str, feature: str):
+        tool_options: ToolOptions, product: str, feature: str, license_servers: typing.List[str]):
     """
     Run one checker tool, attempting each host:port combination in turn, 1 at
     a time, until one succeeds.
     """
     # NOTE: Only pass the feature into this function as a temporary workaround
     # until we fix the ToolOptions to somehow support setting the feature.
-    commands = tool_options.cmd_list()
+
+    commands = tool_options.cmd_list(license_servers)
     for cmd in commands:
         # NOTE: find a better way to get the feature into the command.
         cmd = cmd + f" {feature}"
@@ -240,19 +197,20 @@ async def report() -> typing.List[dict]:
 
     # Iterate over the license servers and features appending to list
     # of tools/cmds to be ran.
-    for entry in get_license_server_features():
+    entries = await get_config_from_backend()
+    for entry in entries:
         for license_server_type in tools:
-            if entry["license_server_type"] == license_server_type:
+            if entry.license_server_type == license_server_type:
                 options = tools[license_server_type]
-                for feature in entry["features"]:
+                for feature in entry.features:
                     tool_awaitables.append(
                         attempt_tool_checks(
                             options,
-                            entry["product"],
-                            feature
+                            entry.product,
+                            feature,
+                            entry.license_servers
                         )
                     )
-
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:

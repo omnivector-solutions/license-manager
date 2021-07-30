@@ -25,6 +25,9 @@ mangum = ""
 pyjwt = { version = "", optional = true }
 sqlalchemy = "1.3.23"
 # sqlalchemy = "~1.4"  # waiting for https://github.com/encode/databases/issues/298
+sqlalchemy-utils = "0.37.4"
+typer = { version = "0.3.2", optional = true }
+
 pyyaml = { version = "5.4.1", optional = true }
 pydantic = {version = "1.8.2", extras = ["dotenv"] }
 
@@ -55,11 +58,17 @@ types-Jinja2 = { version = "2.11.1", optional = true }
 types-jwt = { version = "0.1.3", optional = true }
 types-click = { version = "7.1.1", optional = true }
 virtualenv = { version = "20.4.7", optional = true }
+requests = "^2.25.1"
+tabulate = { version = "0.8.9", optional = true }
+sentry_sdk = { version = "1.1.0", optional = false }
+types-tabulate = { version = "^0.1.1", optional = true }
+types-requests = { version = "^2.25.1", optional = true }
 
 [tool.poetry.extras]
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 
 lm-create-jwt = ["boto3", "click", "pyjwt"]
+lm-configure = ["typer", "requests", "tabulate"]
 
 dev = [
     "aiosqlite",
@@ -79,7 +88,8 @@ dev = [
     "uvicorn",
     "pydantic",
     "alembic",
-]
+    "typer",
+    ]
 
 unit = [
     "aiosqlite",
@@ -103,6 +113,8 @@ mypy = [
     "types-pkg-resources",
     "types-PyYAML",
     "mypy-extensions",
+    "types-requests",
+    "types-tabulate",
     "types-Jinja2",
     "types-jwt",
     "types-click",
@@ -123,6 +135,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
+lm-configure = "licensemanager2.backend.lmconfigure:app"
 lm-create-jwt = "licensemanager2.backend.createjwt:main"
 slurmctld-prolog = "licensemanager2.workload_managers.slurm.slurmctld_prolog:main"
 slurmctld-epilog = "licensemanager2.workload_managers.slurm.slurmctld_epilog:main"
