@@ -1,7 +1,7 @@
 """
 License objects and routes
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, List, Optional
 from fastapi import APIRouter, Body, HTTPException, status
 from licensemanager2.backend.schema import config_table
@@ -17,7 +17,7 @@ class ConfigurationRow(BaseModel):
     """
     A configuration row
     """
-    id: int
+    id: Optional[int] = Field(None)
     product: str
     features: List[str]
     license_servers: List[str]

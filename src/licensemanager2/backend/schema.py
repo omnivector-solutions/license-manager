@@ -18,11 +18,10 @@ license_table = Table(
     "license",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("product_feature", String, primary_key=True),
+    Column("product_feature", String, unique=True),
     Column("used", Integer, CheckConstraint("used>=0")),
     Column("total", Integer, CheckConstraint("total>=0")),
     CheckConstraint("used<=total"),
-    sqlite_autoincrement=True
 )
 
 
@@ -38,7 +37,6 @@ booking_table = Table(
     Column("cluster_name", String),
     Column("created_at", DateTime, default=datetime.datetime.utcnow),
     Column('config_id', Integer, ForeignKey("config.id"), nullable=False),
-    sqlite_autoincrement=True
 )
 
 
@@ -51,5 +49,4 @@ config_table = Table(
     Column("license_servers", ScalarListType(str)),
     Column("license_server_type", String),
     Column("grace_time", Integer, CheckConstraint("grace_time>=0")),
-    sqlite_autoincrement=True
 )

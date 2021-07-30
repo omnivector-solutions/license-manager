@@ -52,6 +52,7 @@ class BookingRow(BaseModel):
     job_id: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
+    config_id: int
 
     class Config:
         orm_mode = True
@@ -102,6 +103,7 @@ async def create_booking(booking: Booking):
                 job_id=booking.job_id,
                 product_feature=feature.product_feature,
                 booked=feature.booked,
+                config_id=1,  # mypy fix
             )
         )
 
