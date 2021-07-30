@@ -61,6 +61,8 @@ virtualenv = { version = "20.4.7", optional = true }
 requests = "^2.25.1"
 tabulate = { version = "0.8.9", optional = true }
 sentry_sdk = { version = "1.1.0", optional = false }
+types-tabulate = { version = "^0.1.1", optional = true }
+types-requests = { version = "^2.25.1", optional = true }
 
 [tool.poetry.extras]
 agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
@@ -111,6 +113,8 @@ mypy = [
     "types-pkg-resources",
     "types-PyYAML",
     "mypy-extensions",
+    "types-requests",
+    "types-tabulate",
     "types-Jinja2",
     "types-jwt",
     "types-click",
