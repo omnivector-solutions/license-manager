@@ -5,7 +5,7 @@ Run with e.g. `uvicorn licensemanager2.backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +20,7 @@ from licensemanager2.backend.settings import SETTINGS
 from licensemanager2.common_api import OK
 
 
-app = FastAPI(root_path=SETTINGS.ASGI_ROOT_PATH)
+app: Any = FastAPI(root_path=SETTINGS.ASGI_ROOT_PATH)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=SETTINGS.ALLOW_ORIGINS_REGEX,

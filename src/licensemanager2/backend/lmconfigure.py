@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from typing import Dict
 import typer
 import requests
 
@@ -95,7 +96,7 @@ def update(
     if not id:
         typer.echo("Please supply an ID")
         return
-    ctxt = dict()
+    ctxt: Dict = dict()
     if product:
         ctxt['product'] = product
     if features:
@@ -105,7 +106,7 @@ def update(
     if license_server_type:
         ctxt['license_server_type'] = license_server_type
     if grace_time:
-        ctxt['grace_time'] = grace_time
+        ctxt['grace_time'] = int(grace_time)
 
     resp = requests.put(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/{id}",

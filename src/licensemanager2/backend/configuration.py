@@ -2,7 +2,7 @@
 License objects and routes
 """
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Dict, List, Optional
 from fastapi import APIRouter, Body, HTTPException, status
 from licensemanager2.backend.schema import config_table
 from licensemanager2.backend.storage import database
@@ -96,7 +96,7 @@ async def update_configuration(
     Update a configuration row in the database with all of the
     optional arguments provided.
     """
-    update_dict = {'id': config_id}
+    update_dict: Dict = {'id': config_id}
     if product is not None:
         update_dict["product"] = product
     if features is not None:
