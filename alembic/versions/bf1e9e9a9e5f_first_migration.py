@@ -1,8 +1,8 @@
-"""add foreign key to config table in the booking table
+"""First migration
 
-Revision ID: 5579536ad0f6
+Revision ID: bf1e9e9a9e5f
 Revises: 
-Create Date: 2021-07-07 22:10:03.229052
+Create Date: 2021-08-03 11:54:19.474407
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlalchemy_utils
 
 
 # revision identifiers, used by Alembic.
-revision = '5579536ad0f6'
+revision = 'bf1e9e9a9e5f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,17 +26,16 @@ def upgrade():
     sa.Column('license_servers', sqlalchemy_utils.types.scalar_list.ScalarListType(), nullable=True),
     sa.Column('license_server_type', sa.String(), nullable=True),
     sa.Column('grace_time', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sqlite_autoincrement=True
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('license',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('product_feature', sa.String(), nullable=False),
+    sa.Column('product_feature', sa.String(), nullable=True),
     sa.Column('used', sa.Integer(), nullable=True),
     sa.Column('total', sa.Integer(), nullable=True),
     sa.CheckConstraint('used<=total'),
-    sa.PrimaryKeyConstraint('id', 'product_feature'),
-    sqlite_autoincrement=True
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('product_feature')
     )
     op.create_table('booking',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -49,8 +48,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('config_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['config_id'], ['config.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sqlite_autoincrement=True
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
