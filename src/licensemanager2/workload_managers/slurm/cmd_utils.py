@@ -22,7 +22,7 @@ from licensemanager2.agent.settings import (
 )
 
 
-class SqueueParserUnexpectedInputError(Exception):
+class SqueueParserUnexpectedInputError(ValueError):
     """Unexpected squeue output."""
 
 
@@ -344,9 +344,9 @@ def _total_time_in_seconds(time_string: str) -> int:
     splitted_time = [int(value) for value in re.split("-|:", time_string)]
     splitted_time_len = len(splitted_time)
 
-    if splitted_time_len == 3:
+    if splitted_time_len == 4:
         days, hours, minutes, seconds = splitted_time
-    elif splitted_time_len == 2:
+    elif splitted_time_len == 3:
         hours, minutes, seconds = splitted_time
     else:
         minutes, seconds = splitted_time
@@ -363,9 +363,9 @@ def squeue_parser(squeue_formatted_output) -> List[Dict]:
         """Parse a line from squeue formatted output."""
         try:
             job_id, run_time, state = line.split("|")
-        except SqueueParserUnexpectedInputError as e:
+        except ValueError as e:
             logger.error(e)
-            raise e
+            raise SqueueParserUnexpectedInputError()
         return job_id, run_time, state
 
     for line in squeue_formatted_output.split():
