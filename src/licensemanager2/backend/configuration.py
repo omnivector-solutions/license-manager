@@ -15,7 +15,7 @@ router_config = APIRouter()
 
 class ConfigurationRow(BaseModel):
     """
-    A configuration row
+    A configuration row.
     """
     id: Optional[int] = Field(None)
     product: str
@@ -33,15 +33,12 @@ async def get_all_configurations():
     """
     Query database for all configurations.
     """
-    query = (
-        config_table.select()
-        .order_by(config_table.c.id)
-    )
+    query = config_table.select()
     fetched = await database.fetch_all(query)
     return [ConfigurationRow.parse_obj(x) for x in fetched]
 
 
-@router_config.get("/{config_id}", response_model=List[ConfigurationRow])
+@router_config.get("/{config_id}", response_model=ConfigurationRow)
 async def get_configuration(config_id: int):
     """
     Get one configuration row based on a given id.
@@ -53,10 +50,10 @@ async def get_configuration(config_id: int):
     fetched = await database.fetch_one(query)
     if not fetched:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=(f"Couldn't get config {config_id}, that ID does not exist in the database")
         )
-    return [ConfigurationRow.parse_obj(fetched)]
+    return ConfigurationRow.parse_obj(fetched)
 
 
 @database.transaction()
@@ -73,7 +70,7 @@ async def add_configuration(configuration: ConfigurationRow):
         await database.execute(query)
     except INTEGRITY_CHECK_EXCEPTIONS:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_409_CONFLICT,
             detail=(f"Couldn't insert config {configuration.id}), it already exists.")
         )
 
@@ -130,12 +127,11 @@ async def delete_configuration(config_id: int):
     query = (
         config_table.select()
         .where(config_table.c.id == config_id)
-        .order_by(config_table.c.id)
     )
-    rows = await database.fetch_all(query)
+    rows = await database.fetch_one(query)
     if not rows:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=(f"Couldn't find config id: {config_id} to delete, it does not exist in the database."),
         )
     q = config_table.delete().where(config_table.c.id == config_id)
@@ -143,7 +139,7 @@ async def delete_configuration(config_id: int):
         await database.execute(q)
     except Exception:
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=(f"Couldn't delete config {config_id})")
         )
     return OK(message=f"Deleted {config_id} from the configuration table.")

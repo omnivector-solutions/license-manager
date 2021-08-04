@@ -52,7 +52,6 @@ def get(id: int):
 
 @app.command()
 def add(
-    id: int,
     product: str,
     features: str,
     license_servers: str,
@@ -66,7 +65,6 @@ def add(
         f"{SETTINGS.BACKEND_BASE_URL}/api/v1/config/",
         headers=LM2_AGENT_HEADERS,
         json={
-            "id": id,
             "product": product,
             "features": features.split(","),
             "license_servers": license_servers.split(","),
