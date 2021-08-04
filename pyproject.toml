@@ -70,6 +70,8 @@ agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
 lm-create-jwt = ["boto3", "click", "pyjwt"]
 lm-configure = ["typer", "requests", "tabulate"]
 
+flexlmsim = ["jinja2", "tqdm"]
+
 dev = [
     "aiosqlite",
     "black",
@@ -89,7 +91,7 @@ dev = [
     "pydantic",
     "alembic",
     "typer",
-    ]
+]
 
 unit = [
     "aiosqlite",
@@ -124,11 +126,6 @@ mypy = [
     "respx",
     "aiosqlite",
 ]
-
-
-
-flexlmsim = ["jinja2", "tqdm"]
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
