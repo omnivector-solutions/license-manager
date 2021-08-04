@@ -36,7 +36,7 @@ async def test_get_configuration(
     await insert_objects(one_configuration_row, schema.config_table)
     resp = await backend_client.get("/api/v1/config/100")
     assert resp.status_code == 200
-    assert resp.json() == [ConfigurationRow.parse_obj(one_configuration_row[0])]
+    assert resp.json() == ConfigurationRow.parse_obj(one_configuration_row[0])
 
 
 @mark.asyncio
@@ -48,7 +48,6 @@ async def test_add_configuration(
     Test adding a configuration row.
     """
     data = {
-        "id": "100",
         "product": "testproduct1",
         "features": ["feature1", "feature2", "feature3"],
         "license_servers": ["licenseserver100"],
@@ -127,4 +126,4 @@ async def test_delete_nonexistant__configuration(
 
     await insert_objects(one_configuration_row, schema.config_table)
     resp = await backend_client.delete("/api/v1/config/99999999")
-    assert resp.status_code == 400
+    assert resp.status_code == 404
