@@ -1,3 +1,3 @@
 """
-The runtimes of the various license-manager components
+The runtimes of the various license-manager components.
 """

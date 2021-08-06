@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager"
-version = "0.9.2-dev0"
+version = "2.0.0-dev1"
 description = "`license-manager` is a license scheduling middleware that adds value in situations where multiple clusters share a license server or set of license servers."
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
@@ -17,7 +17,7 @@ aws-psycopg2 = ""
 boto3 = { version = "", optional = true }
 click = { version = "", optional = true }
 databases = "0.4.1"
-fastapi = { version = "0.65.1", optional = true }
+fastapi = "0.65.1"
 fastapi-utils = ""
 httpx = { version = "0.17.1", optional = true }
 jinja2 = { version = "", optional = true }
@@ -32,7 +32,7 @@ pyyaml = { version = "5.4.1", optional = true }
 pydantic = {version = "1.8.2", extras = ["dotenv"] }
 
 # soft-required by databases:
-aiosqlite = { version = "", optional = true }
+aiosqlite = "0.17.0"
 
 flake8 = { version = "", optional = true }
 isort = { version = "", optional = true }
@@ -65,7 +65,7 @@ types-tabulate = { version = "^0.1.1", optional = true }
 types-requests = { version = "^2.25.1", optional = true }
 
 [tool.poetry.extras]
-agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic"]
+agent = ["httpx", "jinja2", "uvicorn", "pyyaml", "pydantic", "aiosqlite"]
 
 lm-create-jwt = ["boto3", "click", "pyjwt"]
 lm-configure = ["typer", "requests", "tabulate"]

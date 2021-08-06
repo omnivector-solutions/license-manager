@@ -3,7 +3,7 @@ name = "aiosqlite"
 version = "0.17.0"
 description = "asyncio bridge to the standard sqlite3 module"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -87,20 +87,23 @@ python-versions = "*"
 
 [[package]]
 name = "boto3"
-version = "1.18.10"
+version = "1.18.14"
 description = "The AWS SDK for Python"
 category = "main"
 optional = true
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.21.10,<1.22.0"
+botocore = ">=1.21.14,<1.22.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
+[package.extras]
+crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+
 [[package]]
 name = "botocore"
-version = "1.21.10"
+version = "1.21.14"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = true
@@ -124,7 +127,7 @@ python-versions = "*"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.0.3"
+version = "2.0.4"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
@@ -796,7 +799,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "tox"
-version = "3.24.0"
+version = "3.24.1"
 description = "tox is a generic virtualenv management and test command line tool"
 category = "main"
 optional = true
@@ -917,7 +920,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-requests"
-version = "2.25.1"
+version = "2.25.2"
 description = "Typing stubs for requests"
 category = "main"
 optional = true
@@ -998,7 +1001,7 @@ unit = ["aiosqlite", "flake8", "isort", "pytest", "pytest-asyncio", "pytest-cov"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4.0"
-content-hash = "4c51dcd1b95e07f82ee13e654c4709d9107482fa48e4853add528ad5e5268fd9"
+content-hash = "6c24c65c31fcf1858c7c6082f7057e95d7de73f769b4c51b338f77ca81f511fc"
 
 [metadata.files]
 aiosqlite = [
@@ -1047,20 +1050,20 @@ aws-psycopg2 = [
     {file = "aws_psycopg2-1.2.1-py3-none-any.whl", hash = "sha256:f5eb05b280b2aa374080bf650972b8a9383d08e96a2e48b5a1ac3f55d6e5fdc6"},
 ]
 boto3 = [
-    {file = "boto3-1.18.10-py3-none-any.whl", hash = "sha256:eec96aa90506b5e3736707d53b1f91dbaa4bf6728ddd60660fc34935b7e55f12"},
-    {file = "boto3-1.18.10.tar.gz", hash = "sha256:831b279c4395d5f3b360b260131e30d418ffe620ed3705a5146a90ffdd5775ab"},
+    {file = "boto3-1.18.14-py3-none-any.whl", hash = "sha256:611037785a35517d2a65339ad7531d7a223ce41a5c9a3968e2c14e64f6224f65"},
+    {file = "boto3-1.18.14.tar.gz", hash = "sha256:20516c8d0cb13d3d99496828d4b5dce82c254ce4c0163254c89d825ba9c65d30"},
 ]
 botocore = [
-    {file = "botocore-1.21.10-py3-none-any.whl", hash = "sha256:81f1bffbd2276c5360a59db1358e793d2ba3e3a378ae2bb4bc780756945fdb2b"},
-    {file = "botocore-1.21.10.tar.gz", hash = "sha256:af5baac459c9fde0eb7dda39808e7dd1e61d758c3c0a734436ec377e0dabe319"},
+    {file = "botocore-1.21.14-py3-none-any.whl", hash = "sha256:7f64424def270f3bb8e29da8c9120153a7f3ff5a32a517cc64a66f53d70ecec5"},
+    {file = "botocore-1.21.14.tar.gz", hash = "sha256:45656938d7fb043f06cc1a013f276caa0193ab7cc4d71874a32c18910c1f8f8d"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
     {file = "certifi-2021.5.30.tar.gz", hash = "sha256:2bbf76fd432960138b3ef6dda3dde0544f27cbf8546c458e60baf371917ba9ee"},
 ]
 charset-normalizer = [
-    {file = "charset-normalizer-2.0.3.tar.gz", hash = "sha256:c46c3ace2d744cfbdebceaa3c19ae691f53ae621b39fd7570f59d14fb7f2fd12"},
-    {file = "charset_normalizer-2.0.3-py3-none-any.whl", hash = "sha256:88fce3fa5b1a84fdcb3f603d889f723d1dd89b26059d0123ca435570e848d5e1"},
+    {file = "charset-normalizer-2.0.4.tar.gz", hash = "sha256:f23667ebe1084be45f6ae0538e4a5a865206544097e4e8bbcacf42cd02a348f3"},
+    {file = "charset_normalizer-2.0.4-py3-none-any.whl", hash = "sha256:0c8911edd15d19223366a194a513099a302055a962bca2cec0f54b8b63175d8b"},
 ]
 click = [
     {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
@@ -1467,8 +1470,8 @@ toml = [
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 tox = [
-    {file = "tox-3.24.0-py2.py3-none-any.whl", hash = "sha256:c990028355f0d0b681e3db9baa89dd9f839a6e999c320029339f6a6b36160591"},
-    {file = "tox-3.24.0.tar.gz", hash = "sha256:67636634df6569e450c4bc18fdfd8b84d7903b3902d5c65416eb6735f3d4afb8"},
+    {file = "tox-3.24.1-py2.py3-none-any.whl", hash = "sha256:60eda26fa47b7130e6fc1145620b1fd897963af521093c3685c3f63d1c394029"},
+    {file = "tox-3.24.1.tar.gz", hash = "sha256:9850daeb96d21b4abf049bc5f197426123039e383ebfed201764e9355fc5a880"},
 ]
 typer = [
     {file = "typer-0.3.2-py3-none-any.whl", hash = "sha256:ba58b920ce851b12a2d790143009fa00ac1d05b3ff3257061ff69dbdfc3d161b"},
@@ -1506,8 +1509,8 @@ types-pyyaml = [
     {file = "types_PyYAML-0.1.8-py2.py3-none-any.whl", hash = "sha256:8db1c8ceed4f6e86d54484e40709ad5f684a2f780308ba7a5e3850be9fb5961a"},
 ]
 types-requests = [
-    {file = "types-requests-2.25.1.tar.gz", hash = "sha256:2d514ee172088a8fc0d554537d6424bd261c18e63195cfe47c410df0de0ed96f"},
-    {file = "types_requests-2.25.1-py3-none-any.whl", hash = "sha256:6e9534281fe5d06ba8116807a8de930b90b6f92dff179f8cbfa2dfdd3bd2c465"},
+    {file = "types-requests-2.25.2.tar.gz", hash = "sha256:03122b582f5300ec35ac6692f2634207c467e602dc9ba46b5811a9f6ce0b0bc2"},
+    {file = "types_requests-2.25.2-py3-none-any.whl", hash = "sha256:a4c03c654527957a70002079ca48669b53d82eac4811abf140ea93847b65529b"},
 ]
 types-tabulate = [
     {file = "types-tabulate-0.1.1.tar.gz", hash = "sha256:d1a415a8601391bc8450a669402ad57a1b620acf8d8d206fcbb3accc1440b106"},
