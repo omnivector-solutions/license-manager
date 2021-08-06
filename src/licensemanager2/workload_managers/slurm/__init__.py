@@ -1,3 +1,0 @@
-"""
-SlurmctldProlog and SlurmctldEpilog utilities.
-"""
