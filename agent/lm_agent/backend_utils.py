@@ -6,8 +6,8 @@ from typing import List
 from httpx import ConnectError
 from pydantic import BaseModel, ValidationError
 
-from app.forward import async_client
-from app.logs import logger
+from lm_agent.forward import async_client
+from lm_agent.logs import logger
 
 GET_CONFIG_URL_PATH = "/api/v1/config/all"
 

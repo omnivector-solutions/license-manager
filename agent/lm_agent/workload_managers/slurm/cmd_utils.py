@@ -8,9 +8,9 @@ from typing import Dict, List, Optional, Union
 import httpx
 from pydantic import BaseModel, Field
 
-from app.config import PRODUCT_FEATURE_RX, settings
-from app.logs import logger
-from app.workload_managers.slurm.common import (
+from lm_agent.config import PRODUCT_FEATURE_RX, settings
+from lm_agent.logs import logger
+from lm_agent.workload_managers.slurm.common import (
     CMD_TIMEOUT,
     ENCODING,
     LM2_AGENT_HEADERS,

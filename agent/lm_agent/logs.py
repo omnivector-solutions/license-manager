@@ -3,7 +3,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-from app.config import settings
+from lm_agent.config import settings
 
 DEFAULT_FORMAT = (
     "[%(asctime)s;%(levelname)s] %(filename)s:%(lineno)s - " "%(funcName)20s %(message)s"

@@ -5,9 +5,9 @@ Reconciliation functionality live here.
 from fastapi import HTTPException, status
 from httpx import ConnectError
 
-from app.forward import async_client
-from app.logs import logger
-from app.tokenstat import report
+from lm_agent.forward import async_client
+from lm_agent.logs import logger
+from lm_agent.tokenstat import report
 
 RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 

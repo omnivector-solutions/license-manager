@@ -1,7 +1,7 @@
 """
 License-manager agent, command line entrypoint
 
-Run with e.g. `uvicorn app.main:app`
+Run with e.g. `uvicorn lm_agent.main:app`
 """
 import logging
 import typing
@@ -10,10 +10,10 @@ from itertools import cycle
 from fastapi import FastAPI, HTTPException
 from fastapi_utils.tasks import repeat_every
 
-from app.api import api_v1
-from app.config import settings
-from app.logs import init_logging, logger
-from app.reconciliation import reconcile
+from lm_agent.api import api_v1
+from lm_agent.config import settings
+from lm_agent.logs import init_logging, logger
+from lm_agent.reconciliation import reconcile
 
 app = FastAPI()
 # app.add_middleware(

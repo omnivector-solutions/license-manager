@@ -10,15 +10,15 @@ import sys
 
 import httpx
 
-from app.backend_utils import get_config_from_backend
-from app.config import settings
-from app.logs import init_logging, logger
-from app.workload_managers.slurm.cmd_utils import (
+from lm_agent.backend_utils import get_config_from_backend
+from lm_agent.config import settings
+from lm_agent.logs import init_logging, logger
+from lm_agent.workload_managers.slurm.cmd_utils import (
     get_required_licenses_for_job,
     get_tokens_for_license,
     sacctmgr_modify_resource,
 )
-from app.workload_managers.slurm.common import LM2_AGENT_HEADERS, get_job_context
+from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS, get_job_context
 
 
 async def _remove_booking_for_job(job_id: str) -> bool:

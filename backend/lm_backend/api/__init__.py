@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, Header
 
-from app.api.booking import router as router_booking
-from app.api.config import router as router_config
-from app.api.license import router as router_license
-from app.debug import debug
-from app.storage import database
-from app.table_schemas import booking_table, config_table, license_table
+from lm_backend.api.booking import router as router_booking
+from lm_backend.api.config import router as router_config
+from lm_backend.api.license import router as router_license
+from lm_backend.debug import debug
+from lm_backend.storage import database
+from lm_backend.table_schemas import booking_table, config_table, license_table
 
 api_v1 = APIRouter()
 api_v1.include_router(router_license, prefix="/license", tags=["License"])

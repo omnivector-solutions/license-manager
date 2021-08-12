@@ -6,11 +6,11 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.sql import delete
 
-from app.api.license import edit_counts, map_bookings
-from app.api_schemas import Booking, BookingRow, LicenseUseBooking
-from app.compat import INTEGRITY_CHECK_EXCEPTIONS
-from app.storage import database
-from app.table_schemas import booking_table
+from lm_backend.api.license import edit_counts, map_bookings
+from lm_backend.api_schemas import Booking, BookingRow, LicenseUseBooking
+from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.storage import database
+from lm_backend.table_schemas import booking_table
 
 router = APIRouter()
 

@@ -5,7 +5,7 @@ from textwrap import dedent
 
 from pytest import fixture, mark
 
-from app.parsing.flexlm import parse
+from lm_agent.parsing.flexlm import parse
 
 
 @fixture

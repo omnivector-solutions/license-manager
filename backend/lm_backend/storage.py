@@ -4,8 +4,8 @@ Persistent data storage for the backend
 import databases
 import sqlalchemy
 
-from app.config import settings
-from app.table_schemas import metadata
+from lm_backend.config import settings
+from lm_backend.table_schemas import metadata
 
 database = databases.Database(settings.DATABASE_URL)
 

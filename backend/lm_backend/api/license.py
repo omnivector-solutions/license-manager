@@ -4,10 +4,15 @@ from typing import Dict, List, Sequence, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.sql import select, update
 
-from app.api_schemas import LicenseUse, LicenseUseBase, LicenseUseBooking, LicenseUseReconcile
-from app.compat import INTEGRITY_CHECK_EXCEPTIONS
-from app.storage import database
-from app.table_schemas import license_table
+from lm_backend.api_schemas import (
+    LicenseUse,
+    LicenseUseBase,
+    LicenseUseBooking,
+    LicenseUseReconcile,
+)
+from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.storage import database
+from lm_backend.table_schemas import license_table
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()

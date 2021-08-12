@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from pytest import fixture, raises
 
-from app.config import init_settings
+from lm_agent.config import init_settings
 
 
 @fixture

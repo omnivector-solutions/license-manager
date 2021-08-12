@@ -9,8 +9,8 @@ import respx
 from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 
-from app.config import settings
-from app.main import app as agent_app
+from lm_agent.config import settings
+from lm_agent.main import app as agent_app
 
 
 @fixture

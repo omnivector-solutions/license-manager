@@ -6,8 +6,8 @@ from functools import lru_cache
 import httpx
 from fastapi import Request, Response
 
-from app.config import settings
-from app.logs import logger
+from lm_agent.config import settings
+from lm_agent.logs import logger
 
 
 @lru_cache

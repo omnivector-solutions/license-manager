@@ -2,9 +2,9 @@ from fastapi import HTTPException
 from httpx import AsyncClient
 from pytest import mark, raises
 
-from app.api import license
-from app.storage import database
-from app.table_schemas import license_table
+from lm_backend.api import license
+from lm_backend.storage import database
+from lm_backend.table_schemas import license_table
 
 
 def test_license_use_available():

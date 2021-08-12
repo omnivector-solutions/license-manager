@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from pytest import mark
 
-from app import main
+from lm_backend import main
 
 
 @mark.asyncio
@@ -64,9 +64,9 @@ async def test_database_events():
     """
     Do I connect, create tables, and disconnect the db?
     """
-    p_create_all_tables = patch("app.storage.create_all_tables", autospec=True)
-    p_connect = patch("app.storage.database.connect", autospec=True)
-    p_disconnect = patch("app.storage.database.disconnect", autospec=True)
+    p_create_all_tables = patch("lm_backend.storage.create_all_tables", autospec=True)
+    p_connect = patch("lm_backend.storage.database.connect", autospec=True)
+    p_disconnect = patch("lm_backend.storage.database.disconnect", autospec=True)
     with p_create_all_tables as m_create_all_tables, p_connect as m_connect, p_disconnect as m_disconnect:
         await main.init_database()
         m_create_all_tables.assert_called_once_with()

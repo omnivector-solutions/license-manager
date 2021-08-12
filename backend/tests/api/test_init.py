@@ -3,8 +3,8 @@ from unittest.mock import patch
 from httpx import AsyncClient
 from pytest import mark
 
-from app.storage import database
-from app.table_schemas import license_table
+from lm_backend.storage import database
+from lm_backend.table_schemas import license_table
 
 
 @mark.asyncio
@@ -17,7 +17,7 @@ async def test_reconcile_reset(backend_client: AsyncClient, some_licenses, inser
     count = await database.fetch_all("SELECT COUNT(*) FROM license")
     assert count[0][0] == 3
 
-    with patch("app.debug.settings.DEBUG", True):
+    with patch("lm_backend.debug.settings.DEBUG", True):
         resp = await backend_client.put("/api/v1/reset", headers={"X-Reset": "please"})
     assert resp.status_code == 200
 

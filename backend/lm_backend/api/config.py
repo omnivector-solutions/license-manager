@@ -2,10 +2,10 @@ from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Body, HTTPException, status
 
-from app.api_schemas import ConfigurationRow
-from app.compat import INTEGRITY_CHECK_EXCEPTIONS
-from app.storage import database
-from app.table_schemas import config_table
+from lm_backend.api_schemas import ConfigurationRow
+from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.storage import database
+from lm_backend.table_schemas import config_table
 
 router = APIRouter()
 

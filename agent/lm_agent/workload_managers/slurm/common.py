@@ -3,8 +3,8 @@ Common utilities for slurm commands.
 """
 import os
 
-from app.config import settings
-from app.logs import logger
+from lm_agent.config import settings
+from lm_agent.logs import logger
 
 LM2_AGENT_HEADERS = {
     "authorization": f"Bearer {settings.BACKEND_API_TOKEN}",

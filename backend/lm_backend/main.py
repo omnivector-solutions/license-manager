@@ -1,6 +1,6 @@
 """ License-manager backend, command line entrypoint
 
-Run with e.g. `uvicorn licensemanager2.backend.main:app` OR
+Run with e.g. `uvicorn lm_backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
@@ -14,9 +14,9 @@ from loguru import logger
 from mangum import Mangum
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
-from app import storage
-from app.api import api_v1
-from app.config import settings
+from lm_backend import storage
+from lm_backend.api import api_v1
+from lm_backend.config import settings
 
 app: Any = FastAPI(root_path=settings.ASGI_ROOT_PATH)
 app.add_middleware(

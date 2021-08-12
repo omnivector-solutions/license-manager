@@ -9,10 +9,10 @@ from httpx import AsyncClient
 from pydantic import BaseModel
 from pytest import fixture
 
-from app.api_schemas import LicenseUseReconcile as LUR
-from app.config import settings
-from app.main import app as backend_app
-from app.storage import database
+from lm_backend.api_schemas import LicenseUseReconcile as LUR
+from lm_backend.config import settings
+from lm_backend.main import app as backend_app
+from lm_backend.storage import database
 
 
 @fixture(scope="session", autouse=True)

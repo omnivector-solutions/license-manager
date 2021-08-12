@@ -3,9 +3,9 @@ from typing import List
 from httpx import AsyncClient
 from pytest import fixture, mark
 
-from app import table_schemas
-from app.api_schemas import ConfigurationRow
-from app.storage import database
+from lm_backend import table_schemas
+from lm_backend.api_schemas import ConfigurationRow
+from lm_backend.storage import database
 
 
 @fixture

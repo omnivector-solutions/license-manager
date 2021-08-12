@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from app.config import settings
+from lm_backend.config import settings
 
 
 def debug():

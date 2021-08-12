@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 from pytest import fixture, mark, raises
 
-from app import tokenstat
-from app.backend_utils import BackendConfigurationRow
-from app.parsing import flexlm
-from app.workload_managers.slurm import cmd_utils
+from lm_agent import tokenstat
+from lm_agent.backend_utils import BackendConfigurationRow
+from lm_agent.parsing import flexlm
+from lm_agent.workload_managers.slurm import cmd_utils
 from tests.conftest import MOCK_BIN_PATH
 
 
@@ -106,7 +106,7 @@ async def test_attempt_tool_checks(
 
 
 @mark.asyncio
-@mock.patch("app.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_report(
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts: tokenstat.ToolOptions,

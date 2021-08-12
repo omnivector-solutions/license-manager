@@ -9,21 +9,21 @@ test: install
 	poetry run pytest
 
 mypy: install
-	poetry run mypy app --pretty
+	poetry run mypy lm_backend --pretty
 
 lint: install
-	poetry run black --check app tests
-	poetry run isort --check app tests
+	poetry run black --check lm_backend tests
+	poetry run isort --check lm_backend tests
 
 qa: test mypy lint
 	echo "All tests pass! Ready for deployment"
 
 format: install
-	poetry run black app tests
-	poetry run isort app tests
+	poetry run black lm_backend tests
+	poetry run isort lm_backend tests
 
 local:
-	poetry run uvicorn --host 0.0.0.0 app.main:app --reload
+	poetry run uvicorn --host 0.0.0.0 lm_backend.main:app --reload
 
 lambda:
 	rm -f ${LAMBDA_TARGET}

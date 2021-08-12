@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.forward import ForwardOperation
+from lm_agent.forward import ForwardOperation
 
 router = APIRouter()
 

@@ -14,6 +14,7 @@ clean:
 	$(MAKE) -C backend clean
 	$(MAKE) -C agent clean
 	$(MAKE) -C jawthorizer clean
+	rm function*.zip
 
 lambda:
 	$(MAKE) -C backend lambda

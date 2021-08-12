@@ -5,18 +5,18 @@ test: install
 	poetry run pytest
 
 mypy: install
-	poetry run mypy app --pretty
+	poetry run mypy lm_agent --pretty
 
 lint: install
-	poetry run black --check app tests
-	poetry run isort --check app tests
+	poetry run black --check lm_agent tests
+	poetry run isort --check lm_agent tests
 
 qa: test mypy lint
 	echo "All tests pass! Ready for deployment"
 
 format: install
-	poetry run black app tests
-	poetry run isort app tests
+	poetry run black lm_agent tests
+	poetry run isort lm_agent tests
 
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete

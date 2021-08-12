@@ -11,7 +11,7 @@ from click import ClickException
 from click.testing import CliRunner
 from pytest import fixture, mark, raises
 
-from app import token
+from lm_agent import token
 
 SECRET = "q354809hreuinjvm "
 

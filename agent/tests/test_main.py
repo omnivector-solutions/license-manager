@@ -4,7 +4,7 @@ from unittest.mock import patch
 from fastapi import HTTPException, status
 from pytest import mark
 
-from app import main
+from lm_agent import main
 
 
 @mark.asyncio

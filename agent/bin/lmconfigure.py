@@ -5,8 +5,8 @@ import requests
 
 from tabulate import tabulate
 
-from licensemanager2.agent.settings import SETTINGS
-from licensemanager2.workload_managers.slurm.common import LM2_AGENT_HEADERS
+from lm_agent.settings import SETTINGS
+from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
 
 app = typer.Typer(

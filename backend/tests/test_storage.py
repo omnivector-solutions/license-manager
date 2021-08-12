@@ -4,13 +4,13 @@ from unittest.mock import patch
 import sqlalchemy
 from pytest import fixture
 
-from app import storage
+from lm_backend import storage
 
 _LIST_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
 
 
 @fixture
-def raw_connection(tmpdir):
+def raw_connection(backend_client, tmpdir):
     """
     Create a connection to an empty temporary sqlite db
     """

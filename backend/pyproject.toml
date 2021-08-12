@@ -4,7 +4,7 @@ version = "0.10.0"
 description = "Provides an API for managing license data"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
-packages = [{ include = "app" }]
+packages = [{ include = "lm_backend" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -38,7 +38,7 @@ sqlalchemy-stubs = "^0.4"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--random-order --cov=app --cov-report=term-missing --cov-fail-under=85"
+addopts = "--random-order --cov=lm_backend --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
 env = [
     "LM2_DATABASE_URL = sqlite:///sqlite-testing.db",
@@ -47,11 +47,11 @@ env = [
 
 [tool.black]
 line-length = 100
-src = ["app", "tests"]
+src = ["lm_backend", "tests"]
 
 [tool.isort]
 line_length = 100
-src_paths = ["app", "tests"]
+src_paths = ["lm_backend", "tests"]
 multi_line_output = 3
 include_trailing_comma = true
 

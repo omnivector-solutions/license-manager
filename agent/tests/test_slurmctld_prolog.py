@@ -6,12 +6,12 @@ from unittest import mock
 
 from pytest import fixture, mark, raises
 
-from app.workload_managers.slurm.cmd_utils import (
+from lm_agent.workload_managers.slurm.cmd_utils import (
     ScontrolRetrievalFailure,
     get_licenses_for_job,
     get_required_licenses_for_job,
 )
-from app.workload_managers.slurm.common import ENCODING
+from lm_agent.workload_managers.slurm.common import ENCODING
 
 
 @fixture
@@ -164,7 +164,7 @@ async def test_get_licenses_for_job_output_error(
 
 
 @mark.asyncio
-@mock.patch("app.workload_managers.slurm.cmd_utils.get_licenses_for_job")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.get_licenses_for_job")
 async def test_get_required_licenses_for_job_good(
     get_licenses_for_job_mock: mock.MagicMock,
     slurm_job_id: str,
@@ -179,7 +179,7 @@ async def test_get_required_licenses_for_job_good(
 
 
 @mark.asyncio
-@mock.patch("app.workload_managers.slurm.cmd_utils.get_licenses_for_job")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.get_licenses_for_job")
 async def test_get_required_licenses_for_job_bad(
     get_licenses_for_job_mock: mock.MagicMock,
     slurm_job_id: str,

@@ -1,7 +1,7 @@
 import typing
 import click
 
-from app.token import get_secret, create_timed_token
+from lm_agent.token import get_secret, create_timed_token
 
 
 # TODO: Convert this to a typer cli

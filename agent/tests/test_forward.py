@@ -9,7 +9,7 @@ from fastapi import Request, Response
 from pytest import fixture, mark
 from starlette.responses import Response
 
-from app import forward
+from lm_agent import forward
 
 
 @mark.asyncio

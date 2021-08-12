@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.api.booking_proxy import router as booking_proxy_router
-from app.api.license_proxy import router as license_proxy_router
+from lm_agent.api.booking_proxy import router as booking_proxy_router
+from lm_agent.api.license_proxy import router as license_proxy_router
 
 api_v1 = APIRouter()
 

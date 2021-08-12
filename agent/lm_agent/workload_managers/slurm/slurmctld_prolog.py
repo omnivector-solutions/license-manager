@@ -13,16 +13,16 @@ if the exit status is anything other then 0, e.g. 1.
 import asyncio
 import sys
 
-from app.backend_utils import get_config_from_backend
-from app.logs import init_logging, logger
-from app.workload_managers.slurm.cmd_utils import (
+from lm_agent.backend_utils import get_config_from_backend
+from lm_agent.logs import init_logging, logger
+from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
     check_feature_token_availablity,
     get_required_licenses_for_job,
     make_booking_request,
     reconcile,
 )
-from app.workload_managers.slurm.common import get_job_context
+from lm_agent.workload_managers.slurm.common import get_job_context
 
 
 async def main():

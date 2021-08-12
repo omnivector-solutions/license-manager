@@ -2,7 +2,7 @@ import respx
 from httpx import AsyncClient, ConnectError, Response
 from pytest import fixture, mark
 
-from app.backend_utils import get_config_from_backend
+from lm_agent.backend_utils import get_config_from_backend
 
 
 @mark.asyncio
