@@ -9,15 +9,15 @@ test: install
 	poetry run pytest
 
 lint: install
-	poetry run black --check app tests
-	poetry run isort --check app tests
+	poetry run black --check jawthorizer tests
+	poetry run isort --check jawthorizer tests
 
 qa: test lint
 	echo "All tests pass! Ready for deployment"
 
 format: install
-	poetry run black app tests
-	poetry run isort app tests
+	poetry run black jawthorizer tests
+	poetry run isort jawthorizer tests
 
 lambda:
 	rm -f ${LAMBDA_TARGET}
