@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 from typing import List
@@ -52,15 +51,20 @@ def insert_objects():
     return _helper
 
 
+@fixture(autouse=True)
+async def startup_event_force():
+    async with LifespanManager(backend_app):
+        yield
+
+
 @fixture
 async def backend_client():
     """
     A client that can issue fake requests against fastapi endpoint functions in the backend
     """
 
-    async with LifespanManager(backend_app):
-        async with AsyncClient(app=backend_app, base_url="http://test") as ac:
-            yield ac
+    async with AsyncClient(app=backend_app, base_url="http://test") as ac:
+        yield ac
 
 
 @fixture
