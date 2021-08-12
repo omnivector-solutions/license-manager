@@ -1,16 +1,15 @@
 """
 A custom (lambda) authorizer for API gateway
 """
-from fnmatch import fnmatch
 import logging
 import os
 import re
+from fnmatch import fnmatch
 from typing import Iterable, Optional, Sequence
 
 import boto3
-from botocore.exceptions import ClientError
 import jwt
-
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger("jawthorizer")
 logger.setLevel(logging.DEBUG)
