@@ -75,7 +75,7 @@ async def test_database_events(backend_client):
         m_disconnect.assert_called_once_with()
 
 
-def test_handler():
+def test_handler(backend_client):
     """
     Check that the handler ends up calling mangum with the original semantics,
     and only when eventContext is present
@@ -93,4 +93,4 @@ def test_handler():
     event2 = {"requestContext": 19}
     with p1 as m1:
         main.handler(event2, context)
-    assert m1.return_value.call_args[0] == (event2, context)
+    assert m1.return_value.cal_args[0] == (event2, context)
