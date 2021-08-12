@@ -60,7 +60,7 @@ def test_begin_logging():
 
 
 @mark.asyncio
-async def test_database_events():
+async def test_database_events(backend_client):
     """
     Do I connect, create tables, and disconnect the db?
     """
