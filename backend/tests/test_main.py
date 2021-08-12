@@ -93,4 +93,4 @@ def test_handler(backend_client):
     event2 = {"requestContext": 19}
     with p1 as m1:
         main.handler(event2, context)
-    assert m1.return_value.cal_args[0] == (event2, context)
+    assert m1.return_value.call_args[0] == (event2, context)
