@@ -4,11 +4,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pkg_resources import get_supported_platform
 from pydantic import BaseSettings, DirectoryPath, Field
 from pydantic.error_wrappers import ValidationError
 
-logger = logging.getLogger("licensemanager2.agent.config")
+logger = logging.getLogger("lm_agent.config")
 
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
@@ -31,7 +30,7 @@ class LogLevelEnum(str, Enum):
 _JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
 _URL_REGEX = r"http[s]?://.+"
 _ADDR_REGEX = r"\S+?:\S+?:\d+"
-_DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin" / get_supported_platform()
+_DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
 
 
 class Settings(BaseSettings):

@@ -3,7 +3,7 @@ import asyncio
 import re
 import shlex
 import subprocess
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import httpx
 from pydantic import BaseModel, Field
@@ -294,7 +294,7 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens) -> bo
     return True
 
 
-def return_formated_squeue_out() -> str:
+def return_formatted_squeue_out() -> str:
     """
     Call squeue via Popen and return the formatted output.
 
@@ -302,7 +302,7 @@ def return_formated_squeue_out() -> str:
     """
 
     result = subprocess.run(
-        [SQUEUE_PATH, "--noheader", "--format='%A|%M|%T'"],
+        f"{shlex.quote(SQUEUE_PATH)} --noheader --format='%A|%M|%T'",
         capture_output=True,
         shell=True,
         encoding="utf-8",
@@ -341,10 +341,13 @@ def _total_time_in_seconds(time_string: str) -> int:
     return days * DAY + hours * HOUR + minutes * MINUTE + seconds
 
 
-def squeue_parser(squeue_formatted_output) -> List[Dict]:
+def squeue_parser(squeue_formatted_output) -> List:
     """Parse the squeue formatted output."""
 
-    squeue_parsed_output = list()
+    squeue_parsed_output: List = []
+
+    if not squeue_formatted_output:
+        return squeue_parsed_output
 
     def parse_squeue_line():
         """Parse a line from squeue formatted output."""

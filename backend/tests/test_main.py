@@ -75,7 +75,7 @@ async def test_database_events(backend_client):
         m_disconnect.assert_called_once_with()
 
 
-def test_handler():
+def test_handler(backend_client):
     """
     Check that the handler ends up calling mangum with the original semantics,
     and only when eventContext is present
