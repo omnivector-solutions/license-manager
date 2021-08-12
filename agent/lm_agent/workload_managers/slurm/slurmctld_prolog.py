@@ -36,7 +36,8 @@ async def main():
     if len(license_booking_request.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         tracked_licenses = list()
-        for entry in get_config_from_backend():
+        entries = await get_config_from_backend()
+        for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{entry.product}.{feature}")
 
