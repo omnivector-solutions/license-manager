@@ -5,6 +5,7 @@ description = "Provides an agent for interacting with license manager"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
 packages = [{ include = "lm_agent" }]
+include = ["bin/lmstat"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -31,7 +32,6 @@ pytest-sugar = "^0.9.4"
 pytest-freezegun = "^0.4.2"
 mypy = "^0.910"
 sqlalchemy-stubs = "^0.4"
-types-setuptools = "^57.0.2"
 types-click = "^7.1.5"
 
 [tool.pytest.ini_options]
