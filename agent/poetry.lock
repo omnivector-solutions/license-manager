@@ -69,14 +69,14 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.18.19"
+version = "1.18.20"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.21.19,<1.22.0"
+botocore = ">=1.21.20,<1.22.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
@@ -85,7 +85,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.21.19"
+version = "1.21.20"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -695,14 +695,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "types-setuptools"
-version = "57.0.2"
-description = "Typing stubs for setuptools"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "3.10.0.0"
 description = "Backported and Experimental Type Hints for Python 3.5+"
@@ -726,7 +718,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "99525d2b94c1143cc3429d324c2c6cc1602587f5cce48ebf8e41be3f7c51defc"
+content-hash = "96b624c97038d2d4ce571c87eceb6db47e778514e2c242b9cebc42859e024d5b"
 
 [metadata.files]
 anyio = [
@@ -750,12 +742,12 @@ black = [
     {file = "black-21.7b0.tar.gz", hash = "sha256:c8373c6491de9362e39271630b65b964607bc5c79c83783547d76c839b3aa219"},
 ]
 boto3 = [
-    {file = "boto3-1.18.19-py3-none-any.whl", hash = "sha256:72b1f70a5a42dff0a9c26a71486d3dcb3e098fac5b36126bc8fdcdec8c4d3cf4"},
-    {file = "boto3-1.18.19.tar.gz", hash = "sha256:096f771c259484dc7140af2b7a9078e9c3efba28e2a298d1e8e40fed404fa38e"},
+    {file = "boto3-1.18.20-py3-none-any.whl", hash = "sha256:3ab8b36870e130d9c615f1a72ee88071135afa148b47354d5b28b4624860b224"},
+    {file = "boto3-1.18.20.tar.gz", hash = "sha256:1ef5fdbd554d7c5878223ab54d400f02a47b6802f06216c18cbf66bc3fb7f8ca"},
 ]
 botocore = [
-    {file = "botocore-1.21.19-py3-none-any.whl", hash = "sha256:2fa40a39b338888c9492dc1e36734d8807f9e1c6f5dd3514247338e97f4da0f6"},
-    {file = "botocore-1.21.19.tar.gz", hash = "sha256:7dce88db827e9b5c88701c978df00742c854d2b751fbda8db7656fb9a571afc5"},
+    {file = "botocore-1.21.20-py3-none-any.whl", hash = "sha256:adf70e966b63bb2f847dba8478de2d5f5c2d03c57fc0aafee35cdbf38b7ad0c0"},
+    {file = "botocore-1.21.20.tar.gz", hash = "sha256:dd1a6177006e93695ee745871718d85a81412e586f93d7c666bce7bc107ce90f"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
@@ -1151,10 +1143,6 @@ typer = [
 types-click = [
     {file = "types-click-7.1.5.tar.gz", hash = "sha256:ced04123d857f5b05df7c6b10e9710e66cf2ec7d99d4ee48d04a07f4c1a83ad4"},
     {file = "types_click-7.1.5-py3-none-any.whl", hash = "sha256:3547c4346884551d8c5a6320aa26a26f16a3257aebd975843fdeb2cbaf156911"},
-]
-types-setuptools = [
-    {file = "types-setuptools-57.0.2.tar.gz", hash = "sha256:4ead432cc394b8de5ee94a312494f3c730d21dbfef37f300a6ac5e742271d735"},
-    {file = "types_setuptools-57.0.2-py3-none-any.whl", hash = "sha256:62c8dc465f29eeaad6b9025645138738d3df1cafc70cb0b14aea700946f2cbb7"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
