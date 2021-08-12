@@ -26,6 +26,10 @@ def booking_rows_json():
             "job_id": "1",
             "config_id": 2,
         },
+        {
+            "job_id": "1",
+            "config_id": 3,
+        },
     ]
 
 
@@ -36,9 +40,10 @@ def test_get_greatest_grace_time(booking_rows_json):
     grace_times = {
         1: 100,
         2: 20,
+        3: 400,
     }
     greatest_grace_time = get_greatest_grace_time("1", grace_times, booking_rows_json)
-    assert greatest_grace_time == 100
+    assert greatest_grace_time == 400
     greatest_grace_time = get_greatest_grace_time("2", grace_times, booking_rows_json)
     assert greatest_grace_time == 20
 
@@ -60,7 +65,7 @@ async def test_clean_booked_grace_time(
     """
     asyncio_mock.gather.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
-    get_all_grace_times_mock.return_value = {1: 100, 2: 30}
+    get_all_grace_times_mock.return_value = {1: 100, 2: 30, 3: 10}
     await clean_booked_grace_time()
     remove_booked_for_job_id_mock.assert_awaited_once_with(1)
     get_all_grace_times_mock.assert_awaited_once()
@@ -83,7 +88,7 @@ async def test_clean_booked_grace_time_dont_delete(
     """
     asyncio_mock.gather.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
-    get_all_grace_times_mock.return_value = {1: 1000, 2: 3000}
+    get_all_grace_times_mock.return_value = {1: 1000, 2: 3000, 3: 1000}
     await clean_booked_grace_time()
     remove_booked_for_job_id_mock.assert_not_awaited()
     get_all_grace_times_mock.assert_awaited_once()
@@ -129,7 +134,7 @@ async def test_clean_booked_grace_time_failed_to_delete(
     """
     asyncio_mock.gather.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
-    get_all_grace_times_mock.return_value = {1: 100, 2: 100}
+    get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
     remove_booked_for_job_id_mock.side_effect = FailedToRemoveBookedViaGraceTime()
     with pytest.raises(FailedToRemoveBookedViaGraceTime):
         await clean_booked_grace_time()
