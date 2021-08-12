@@ -1,3 +1,0 @@
-"""
-Workload manager commands.
-"""
