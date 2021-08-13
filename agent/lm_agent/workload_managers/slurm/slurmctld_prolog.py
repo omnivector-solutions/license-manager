@@ -53,9 +53,7 @@ async def main():
         # Force a reconciliation before we check the feature tokenavailability.
         await reconcile()
         # Check that there are sufficient feature tokens for the job.
-        feature_token_availability = check_feature_token_availablity(
-            tracked_license_booking_request
-        )
+        feature_token_availability = check_feature_token_availablity(tracked_license_booking_request)
         if feature_token_availability:
             # If we have sufficient tokens for features that are
             # requested, proceed with booking the tokens for each feature.

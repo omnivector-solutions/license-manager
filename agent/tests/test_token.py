@@ -142,11 +142,7 @@ def test_main(runner: CliRunner, patched_botoclient):
     """
     result = runner.invoke(
         createjwt.main,
-        "--sub hello "
-        "--sub2 world "
-        "--app-short-name helloworld "
-        "--stage tester "
-        "--region us-west-2",
+        "--sub hello " "--sub2 world " "--app-short-name helloworld " "--stage tester " "--region us-west-2",
     )
     expected_token = (
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"

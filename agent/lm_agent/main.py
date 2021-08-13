@@ -4,10 +4,8 @@ License-manager agent, command line entrypoint
 Run with e.g. `uvicorn lm_agent.main:app`
 """
 import logging
-import typing
-from itertools import cycle
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 
 from lm_agent.api import api_v1

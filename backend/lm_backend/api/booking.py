@@ -63,9 +63,7 @@ async def create_booking(booking: Booking):
         )
 
     try:
-        await database.execute_many(
-            query=booking_table.insert(), values=[i.dict() for i in inserts]
-        )
+        await database.execute_many(query=booking_table.insert(), values=[i.dict() for i in inserts])
     except INTEGRITY_CHECK_EXCEPTIONS:
         raise HTTPException(
             status_code=400,

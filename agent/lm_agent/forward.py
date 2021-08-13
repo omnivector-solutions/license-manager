@@ -71,7 +71,8 @@ class ForwardOperation:
             )
             del _headers["authorization"]
 
-        # the incoming host header will be the agent's netloc, we don't want to send that to a different server.
+        # the incoming host header will be the agent's netloc, we don't want to send that to a different
+        # server.
         del _headers["host"]
 
         # both of the removed headers will be set by httpx

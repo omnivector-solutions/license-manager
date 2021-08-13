@@ -4,12 +4,7 @@ from typing import Dict, List, Sequence, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.sql import select, update
 
-from lm_backend.api_schemas import (
-    LicenseUse,
-    LicenseUseBase,
-    LicenseUseBooking,
-    LicenseUseReconcile,
-)
+from lm_backend.api_schemas import LicenseUse, LicenseUseBase, LicenseUseBooking, LicenseUseReconcile
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
 from lm_backend.table_schemas import license_table
@@ -100,17 +95,13 @@ async def reconcile_changes(reconcile: List[LicenseUseReconcile]):
     # update existing licenses
     for pf, license_use in updates.items():
         q_update = (
-            update(license_table)
-            .where(license_table.c.product_feature == pf)
-            .values(**license_use.dict())
+            update(license_table).where(license_table.c.product_feature == pf).values(**license_use.dict())
         )
         ops.append(database.execute(q_update))
 
     # insert new licenses
     ops.append(
-        database.execute_many(
-            query=license_table.insert(), values=[i.dict() for i in inserts.values()]
-        )
+        database.execute_many(query=license_table.insert(), values=[i.dict() for i in inserts.values()])
     )
 
     # wait for all updates and inserts at once
@@ -169,9 +160,6 @@ async def edit_counts(booking=Depends(map_bookings)):
     except INTEGRITY_CHECK_EXCEPTIONS:
         raise HTTPException(
             status_code=400,
-            detail=(
-                "Couldn't add one of these counts, "
-                "check that the new used count will be <= total"
-            ),
+            detail=("Couldn't add one of these counts, " "check that the new used count will be <= total"),
         )
     return await _get_these_licenses(list(booking.keys()))

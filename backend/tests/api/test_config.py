@@ -152,9 +152,7 @@ async def test_update_nonexistant_configuration(backend_client: AsyncClient):
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_delete_configuration(
-    backend_client: AsyncClient, one_configuration_row, insert_objects
-):
+async def test_delete_configuration(backend_client: AsyncClient, one_configuration_row, insert_objects):
     """
     Test deleting a configuration row.
     """

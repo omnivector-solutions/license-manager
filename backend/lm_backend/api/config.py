@@ -99,10 +99,7 @@ async def delete_configuration(config_id: int):
     if not rows:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                f"Couldn't find config id: {config_id} to delete, "
-                "it does not exist in the database."
-            ),
+            detail=(f"Couldn't find config id: {config_id} to delete, " "it does not exist in the database."),
         )
     q = config_table.delete().where(config_table.c.id == config_id)
     try:

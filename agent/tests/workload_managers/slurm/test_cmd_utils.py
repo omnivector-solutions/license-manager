@@ -1,9 +1,6 @@
 from pytest import raises
 
-from lm_agent.workload_managers.slurm.cmd_utils import (
-    SqueueParserUnexpectedInputError,
-    squeue_parser,
-)
+from lm_agent.workload_managers.slurm.cmd_utils import SqueueParserUnexpectedInputError, squeue_parser
 
 
 def test_squeue_with_bad_input():

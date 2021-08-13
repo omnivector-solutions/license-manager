@@ -13,10 +13,7 @@ from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm
-from lm_agent.workload_managers.slurm.cmd_utils import (
-    get_tokens_for_license,
-    sacctmgr_modify_resource,
-)
+from lm_agent.workload_managers.slurm.cmd_utils import get_tokens_for_license, sacctmgr_modify_resource
 
 
 class LicenseService(BaseModel):

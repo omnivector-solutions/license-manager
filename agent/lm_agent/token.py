@@ -24,9 +24,7 @@ def get_secret(app_short_name, stage, region):
         raise click.ClickException(message=f"({error['Code']}) {error['Message']} {e.response}")
 
 
-def create_timed_token(
-    sub: str, iss: str, secret: str, duration: typing.Optional[int] = None, **kwargs
-):
+def create_timed_token(sub: str, iss: str, secret: str, duration: typing.Optional[int] = None, **kwargs):
     """
     Convenience method to create tokens of a particular duration
     You can also create non-expiring tokens by setting duration=None

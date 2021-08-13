@@ -5,9 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 from lm_agent.config import settings
 
-DEFAULT_FORMAT = (
-    "[%(asctime)s;%(levelname)s] %(filename)s:%(lineno)s - " "%(funcName)20s %(message)s"
-)
+DEFAULT_FORMAT = "[%(asctime)s;%(levelname)s] %(filename)s:%(lineno)s - " "%(funcName)20s %(message)s"
 
 level = getattr(logging, settings.LOG_LEVEL)
 logger = logging.getLogger("license-manager-agent-logger")
