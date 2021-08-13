@@ -27,9 +27,9 @@ async def test_root(backend_client):
 
 
 @mark.asyncio
-async def test_health(backend_client):
+async def test_version(backend_client):
     """
-    Does a healthcheck endpoint exist?
+    Does a version endpoint exist?
     """
     resp = await backend_client.get("/version")
     assert resp.status_code == 200
