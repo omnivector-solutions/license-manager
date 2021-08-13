@@ -6,7 +6,7 @@ authors = ["OmniVector SOlutions <info@omnivector.solutions>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.9"
 boto3 = "^1.18.18"
 PyJWT = "^2.1.0"
 
