@@ -26,6 +26,16 @@ async def test_root(backend_client):
     # TODO: If root is ever made to return anything meaningful, we should test that here
 
 
+@mark.asyncio
+async def test_health(backend_client):
+    """
+    Does a healthcheck endpoint exist?
+    """
+    resp = await backend_client.get("/version")
+    assert resp.status_code == 200
+    assert resp.json()["version"] != None
+
+
 def test_begin_logging():
     """
     Do I configure logging when the app starts up?
