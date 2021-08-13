@@ -66,7 +66,7 @@ async def backend_version_check():
     if backend_version.split(".")[0] != AGENT_VERSION.split(".")[0]:
         logger.error(f"license-manager-backend incompatible version: {backend_version}.")
         raise LicenseManagerBackendVersionError()
-    logger.info(f"license-manager-backend successfully connected.")
+    logger.info("license-manager-backend successfully connected.")
 
 
 @app.on_event("startup")
