@@ -3,7 +3,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from fastapi import HTTPException, status
-from pytest import mark
+from pytest import mark, raises
 
 from lm_agent import backend_utils, main
 
