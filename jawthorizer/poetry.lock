@@ -52,14 +52,14 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.18.18"
+version = "1.18.20"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.21.18,<1.22.0"
+botocore = ">=1.21.20,<1.22.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
@@ -68,7 +68,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.21.18"
+version = "1.21.20"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -352,8 +352,8 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.8"
-content-hash = "7981693469b590ad4ea9d2323cc7792e00d793f26f932ca653bffd045902427f"
+python-versions = ">=3.8,<3.9"
+content-hash = "124ed2b5b37d99cb7f8eeb6863c977609f334c82493a9b1b8eeeee1a5e804493"
 
 [metadata.files]
 appdirs = [
@@ -373,12 +373,12 @@ black = [
     {file = "black-21.7b0.tar.gz", hash = "sha256:c8373c6491de9362e39271630b65b964607bc5c79c83783547d76c839b3aa219"},
 ]
 boto3 = [
-    {file = "boto3-1.18.18-py3-none-any.whl", hash = "sha256:3faa0e4b5b6ae5bee43103477c6e141fbed61c84570cc787f2b563cfb3792342"},
-    {file = "boto3-1.18.18.tar.gz", hash = "sha256:325456ceae7144693bf86786b4d9c6202f46886d9d30b29780dd6a5b377f5a24"},
+    {file = "boto3-1.18.20-py3-none-any.whl", hash = "sha256:3ab8b36870e130d9c615f1a72ee88071135afa148b47354d5b28b4624860b224"},
+    {file = "boto3-1.18.20.tar.gz", hash = "sha256:1ef5fdbd554d7c5878223ab54d400f02a47b6802f06216c18cbf66bc3fb7f8ca"},
 ]
 botocore = [
-    {file = "botocore-1.21.18-py3-none-any.whl", hash = "sha256:a916f4e9ad1166cd58ee8b5373885ceceeb6cef89a03f52ec71e0008303b8db2"},
-    {file = "botocore-1.21.18.tar.gz", hash = "sha256:604ce93417f990782f4a4d528678cdd9eed80a6bd059fc1deedc6662825cc615"},
+    {file = "botocore-1.21.20-py3-none-any.whl", hash = "sha256:adf70e966b63bb2f847dba8478de2d5f5c2d03c57fc0aafee35cdbf38b7ad0c0"},
+    {file = "botocore-1.21.20.tar.gz", hash = "sha256:dd1a6177006e93695ee745871718d85a81412e586f93d7c666bce7bc107ce90f"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},
