@@ -4,6 +4,7 @@ License-manager agent, command line entrypoint
 Run with e.g. `uvicorn lm_agent.main:app`
 """
 import logging
+import pkg_resources
 import typing
 from itertools import cycle
 
@@ -11,9 +12,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi_utils.tasks import repeat_every
 
 from lm_agent.api import api_v1
+from lm_agent.backend_utils import (
+    LicenseManagerBackendVersionError,
+    LicenseManagerBackendConnectionError,
+)
 from lm_agent.config import settings
+from lm_agent.forward import async_client
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
+
 
 app = FastAPI()
 # app.add_middleware(
@@ -50,6 +57,25 @@ async def reconcile_endpoint():
     Force a reconciliation by making a get request to this endpoint.
     """
     await reconcile()
+
+
+@app.on_event("startup")
+def backend_version_check():
+    """Check that the license-manager-backend version matches our own."""
+    # Get the license-manager-backend version.
+    resp = await async_client().get("/version")
+    # Check that we have a valid response.
+    if resp.status_code != status.HTTP_200_OK:
+        logger.error("license-manager-backend version could not be obtained.")
+        raise LicenseManagerBackendConnectionError()
+
+    # Check the version of the backend matches the version of the agent.
+    backend_version = resp.json()["version"]
+    agent_version = pkg_resources.get_distribution('license-manager-agent').version
+    if backend_version != agent_version:
+        logger.error(f"license-manager-backend incompatible version: {backend_version}.")
+        raise LicenseManagerBackendVersionError()
+    logger.info(f"license-manager-backend successfully connected. Version: {backend_version}.")
 
 
 @app.on_event("startup")

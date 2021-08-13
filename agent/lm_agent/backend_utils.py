@@ -9,7 +9,16 @@ from pydantic import BaseModel, ValidationError
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 
+
 GET_CONFIG_URL_PATH = "/api/v1/config/all"
+
+
+class LicenseManagerBackendConnectionError(Exception):
+    """Exception for backend connection issues."""
+
+
+class LicenseManagerBackendVersionError(Exception):
+    """Exception for backend/agent version mismatches."""
 
 
 class BackendConfigurationRow(BaseModel):

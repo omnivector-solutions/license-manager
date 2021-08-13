@@ -4,6 +4,7 @@ Run with e.g. `uvicorn lm_backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
+import pkg_resources
 import sys
 from typing import Any, Optional
 
@@ -54,6 +55,15 @@ async def health():
     Healthcheck, for health monitors in the deployed environment
     """
     return dict(message="OK")
+
+
+@app.get("/version")
+async def version():
+    """
+    Return the license-manager-backend version.""
+    """
+    version = pkg_resources.get_distribution('license-manager-backend').version
+    return dict(message="OK", version=version)
 
 
 @app.on_event("startup")
