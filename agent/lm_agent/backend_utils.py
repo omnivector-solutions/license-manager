@@ -3,6 +3,7 @@ Provide utilities that communicate with the backend.
 """
 from typing import List
 
+from fastapi import status
 from httpx import ConnectError
 from pydantic import BaseModel, ValidationError
 
@@ -18,6 +19,16 @@ class LicenseManagerBackendConnectionError(Exception):
 
 class LicenseManagerBackendVersionError(Exception):
     """Exception for backend/agent version mismatches."""
+
+
+async def get_license_manager_backend_version():
+    """Return the license-manager-backend version."""
+    resp = await async_client().get("/version")
+    # Check that we have a valid response.
+    if resp.status_code != status.HTTP_200_OK:
+        logger.error("license-manager-backend version could not be obtained.")
+        raise LicenseManagerBackendConnectionError()
+    return resp.json()["version"]
 
 
 class BackendConfigurationRow(BaseModel):
