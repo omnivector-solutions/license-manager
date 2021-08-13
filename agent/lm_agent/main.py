@@ -48,7 +48,7 @@ async def root():
 
 
 @app.get("/debug")
-async def version():
+async def debug():
     """
     Expose version information for the license-manager-{agent,backend}.
     """
