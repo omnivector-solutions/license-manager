@@ -45,17 +45,6 @@ async def root():
     return dict(message="OK")
 
 
-@app.get("/debug")
-async def debug():
-    """
-    Expose version information for the license-manager-{agent,backend}.
-    """
-    return dict(
-        agent_version=AGENT_VERSION,
-        backend_version=await get_license_manager_backend_version(),
-    )
-
-
 @app.get("/health")
 async def health():
     """
@@ -75,12 +64,15 @@ async def reconcile_endpoint():
 @app.on_event("startup")
 async def backend_version_check():
     """Check that the license-manager-backend version matches our own."""
-    # Check the version of the backend matches the version of the agent.
+
+    # Get the backend_version and check that the major version matches our own.
     backend_version = await get_license_manager_backend_version()
+    logger.info(f"Agent Version: {AGENT_VERSION}")
+    logger.info(f"Backend Version: {backend_version}")
     if backend_version.split(".")[0] != AGENT_VERSION.split(".")[0]:
         logger.error(f"license-manager-backend incompatible version: {backend_version}.")
         raise LicenseManagerBackendVersionError()
-    logger.info(f"license-manager-backend successfully connected. Version: {backend_version}.")
+    logger.info(f"license-manager-backend successfully connected.")
 
 
 @app.on_event("startup")

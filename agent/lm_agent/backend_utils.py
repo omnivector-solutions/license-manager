@@ -21,7 +21,7 @@ class LicenseManagerBackendVersionError(Exception):
     """Exception for backend/agent version mismatches."""
 
 
-async def get_license_manager_backend_version():
+async def get_license_manager_backend_version() -> str:
     """Return the license-manager-backend version."""
     resp = await async_client().get("/version")
     # Check that we have a valid response.
