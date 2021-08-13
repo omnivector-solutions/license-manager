@@ -12,6 +12,7 @@ mypy: install
 	poetry run mypy lm_backend --pretty
 
 lint: install
+	poetry run flake8 lm_backend --max-line-length=110
 	poetry run black --check lm_backend tests
 	poetry run isort --check lm_backend tests
 

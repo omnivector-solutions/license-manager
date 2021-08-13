@@ -8,6 +8,7 @@ mypy: install
 	poetry run mypy lm_agent --pretty
 
 lint: install
+	poetry run flake8 lm_agent --max-line-length=110
 	poetry run black --check lm_agent tests
 	poetry run isort --check lm_agent tests
 
