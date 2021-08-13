@@ -21,7 +21,6 @@ from lm_agent.forward import async_client
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
-
 AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 BACKEND_VERSION = str()
 
