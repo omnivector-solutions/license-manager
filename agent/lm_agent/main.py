@@ -59,7 +59,7 @@ async def reconcile_endpoint():
 
 
 @app.on_event("startup")
-def backend_version_check():
+async def backend_version_check():
     """Check that the license-manager-backend version matches our own."""
     # Get the license-manager-backend version.
     resp = await async_client().get("/version")
