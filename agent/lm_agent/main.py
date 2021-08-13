@@ -21,6 +21,11 @@ from lm_agent.forward import async_client
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
+
+AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
+BACKEND_VERSION = str()
+
+
 app = FastAPI()
 # app.add_middleware(
 #     CORSMiddleware,
@@ -40,6 +45,17 @@ async def root():
     Well, *something* should happen here.
     """
     return dict(message="OK")
+
+
+@app.get("/debug")
+async def version():
+    """
+    Expose version information for the license-manager-{agent,backend}.
+    """
+    return dict(
+        agent_version=AGENT_VERSION,
+        backend_version=BACKEND_VERSION,
+    )
 
 
 @app.get("/health")
@@ -62,6 +78,7 @@ async def reconcile_endpoint():
 async def backend_version_check():
     """Check that the license-manager-backend version matches our own."""
     # Get the license-manager-backend version.
+    global BACKEND_VERSION
     resp = await async_client().get("/version")
     # Check that we have a valid response.
     if resp.status_code != status.HTTP_200_OK:
@@ -69,12 +86,11 @@ async def backend_version_check():
         raise LicenseManagerBackendConnectionError()
 
     # Check the version of the backend matches the version of the agent.
-    backend_version = resp.json()["version"]
-    agent_version = pkg_resources.get_distribution("license-manager-agent").version
-    if backend_version != agent_version:
-        logger.error(f"license-manager-backend incompatible version: {backend_version}.")
+    BACKEND_VERSION = resp.json()["version"]
+    if BACKEND_VERSION != AGENT_VERSION:
+        logger.error(f"license-manager-backend incompatible version: {BACKEND_VERSION}.")
         raise LicenseManagerBackendVersionError()
-    logger.info(f"license-manager-backend successfully connected. Version: {backend_version}.")
+    logger.info(f"license-manager-backend successfully connected. Version: {BACKEND_VERSION}.")
 
 
 @app.on_event("startup")
