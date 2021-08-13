@@ -7,6 +7,7 @@ import logging
 import sys
 from typing import Any, Optional
 
+import pkg_resources
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,6 +55,15 @@ async def health():
     Healthcheck, for health monitors in the deployed environment
     """
     return dict(message="OK")
+
+
+@app.get("/version")
+async def version():
+    """
+    Return the license-manager-backend version.""
+    """
+    version = pkg_resources.get_distribution("license-manager-backend").version
+    return dict(message="OK", version=version)
 
 
 @app.on_event("startup")

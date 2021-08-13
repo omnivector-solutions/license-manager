@@ -1,8 +1,34 @@
 import respx
 from httpx import AsyncClient, ConnectError, Response
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 
-from lm_agent.backend_utils import get_config_from_backend
+from lm_agent.backend_utils import (
+    LicenseManagerBackendConnectionError,
+    get_config_from_backend,
+    get_license_manager_backend_version,
+)
+
+
+@mark.asyncio
+async def test_get_license_manager_backend_version__returns_version_on_two_hundred():
+    test_backend_version = "2.5.4"
+    with respx.mock:
+        respx.get("http://backend/version").mock(
+            return_value=Response(
+                200,
+                json=dict(version=test_backend_version),
+            ),
+        )
+        backend_version = await get_license_manager_backend_version()
+        assert backend_version == test_backend_version
+
+
+@mark.asyncio
+async def test_get_license_manager_backend_version__raises_exception_on_non_two_hundred():
+    with respx.mock:
+        respx.get("http://backend/version").mock(return_value=Response(500))
+        with raises(LicenseManagerBackendConnectionError):
+            await get_license_manager_backend_version()
 
 
 @mark.asyncio
