@@ -64,9 +64,7 @@ async def main():
 
             if product_feature in tracked_licenses:
                 total = await get_tokens_for_license(license, "Total")
-                update_resource = await sacctmgr_modify_resource(
-                    product, feature, total - tokens_to_remove
-                )
+                update_resource = await sacctmgr_modify_resource(product, feature, total - tokens_to_remove)
 
                 if update_resource:
                     logger.info("Slurmdbd updated successfully.")

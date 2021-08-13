@@ -82,9 +82,7 @@ async def clean_booked_grace_time():
     # get the greatest grace_time for each job
     for job in squeue_running_jobs:
         job_id = job["job_id"]
-        greatest_grace_time = get_greatest_grace_time(
-            job_id, grace_times, booking_rows_for_running_jobs
-        )
+        greatest_grace_time = get_greatest_grace_time(job_id, grace_times, booking_rows_for_running_jobs)
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time:
             await remove_booked_for_job_id(job_id)

@@ -55,9 +55,7 @@ async def test_find_license_updates_and_inserts(some_licenses):
 
     # let's insert 2 of the three
     del inserts["cool.beans"]
-    await database.execute_many(
-        query=license_table.insert(), values=[i.dict() for i in inserts.values()]
-    )
+    await database.execute_many(query=license_table.insert(), values=[i.dict() for i in inserts.values()])
 
     # try again, now 2 should be updates and 2 should be inserts
     updates, inserts = await license._find_license_updates_and_inserts(some_licenses)

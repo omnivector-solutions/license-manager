@@ -99,9 +99,7 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     # Todo: Implement endpoint to retrieve counts for a
     # specific feature, or set of features so that we dont have to get /all.
     with httpx.Client() as client:
-        resp = client.get(
-            f"{settings.AGENT_BASE_URL}/api/v1/license/all", headers=LM2_AGENT_HEADERS
-        )
+        resp = client.get(f"{settings.AGENT_BASE_URL}/api/v1/license/all", headers=LM2_AGENT_HEADERS)
         logger.debug("##### /api/v1/license/all #####")
         logger.debug(resp.json())
 
@@ -319,8 +317,8 @@ def _total_time_in_seconds(time_string: str) -> int:
     Return the runtime in seconds for a job.
 
     This function takes a slurm time string ("<days>-<hours>:<minutes>:<seconds>") as input, parses
-    and converts each of the units in the time string to seconds and returns a computed value, the sum of the days,
-    hours, minutes and seconds (in seconds).
+    and converts each of the units in the time string to seconds and returns a computed value, the sum of
+    the days, hours, minutes and seconds (in seconds).
     """
     MINUTE = 60
     HOUR = 60 * MINUTE

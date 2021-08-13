@@ -29,9 +29,7 @@ def license_server_features():
     """
     The license server type, product and features.
     """
-    return [
-        {"features": ["TESTFEATURE"], "license_server_type": "flexlm", "product": "TESTPRODUCT"}
-    ]
+    return [{"features": ["TESTFEATURE"], "license_server_type": "flexlm", "product": "TESTPRODUCT"}]
 
 
 @fixture
