@@ -35,7 +35,6 @@ black = "^21.7b0"
 alembic = "^1.6.5"
 mypy = "^0.910"
 sqlalchemy-stubs = "^0.4"
-types-setuptools = "^57.0.2"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
