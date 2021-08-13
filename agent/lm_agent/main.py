@@ -87,7 +87,7 @@ async def backend_version_check():
 
     # Check the version of the backend matches the version of the agent.
     BACKEND_VERSION = resp.json()["version"]
-    if BACKEND_VERSION != AGENT_VERSION:
+    if BACKEND_VERSION.split(".")[0] != AGENT_VERSION.split(".")[0]:
         logger.error(f"license-manager-backend incompatible version: {BACKEND_VERSION}.")
         raise LicenseManagerBackendVersionError()
     logger.info(f"license-manager-backend successfully connected. Version: {BACKEND_VERSION}.")
