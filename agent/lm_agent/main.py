@@ -4,23 +4,22 @@ License-manager agent, command line entrypoint
 Run with e.g. `uvicorn lm_agent.main:app`
 """
 import logging
-import pkg_resources
 import typing
 from itertools import cycle
 
+import pkg_resources
 from fastapi import FastAPI, HTTPException
 from fastapi_utils.tasks import repeat_every
 
 from lm_agent.api import api_v1
 from lm_agent.backend_utils import (
-    LicenseManagerBackendVersionError,
     LicenseManagerBackendConnectionError,
+    LicenseManagerBackendVersionError,
 )
 from lm_agent.config import settings
 from lm_agent.forward import async_client
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
-
 
 app = FastAPI()
 # app.add_middleware(
@@ -71,7 +70,7 @@ def backend_version_check():
 
     # Check the version of the backend matches the version of the agent.
     backend_version = resp.json()["version"]
-    agent_version = pkg_resources.get_distribution('license-manager-agent').version
+    agent_version = pkg_resources.get_distribution("license-manager-agent").version
     if backend_version != agent_version:
         logger.error(f"license-manager-backend incompatible version: {backend_version}.")
         raise LicenseManagerBackendVersionError()

@@ -4,10 +4,10 @@ Run with e.g. `uvicorn lm_backend.main:app` OR
 set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
-import pkg_resources
 import sys
 from typing import Any, Optional
 
+import pkg_resources
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,7 +62,7 @@ async def version():
     """
     Return the license-manager-backend version.""
     """
-    version = pkg_resources.get_distribution('license-manager-backend').version
+    version = pkg_resources.get_distribution("license-manager-backend").version
     return dict(message="OK", version=version)
 
 
