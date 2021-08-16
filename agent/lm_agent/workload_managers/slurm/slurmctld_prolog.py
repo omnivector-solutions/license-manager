@@ -28,14 +28,17 @@ from lm_agent.workload_managers.slurm.common import get_job_context
 async def main():
     """The PrologSlurmctld for the license-manager-agent."""
     # Acqure the job context
-    job_id = get_job_context()["job_id"]
+    job_context = get_job_context()
+    job_id = job_context.get("job_id", "")
+    user_name = job_context.get("user_name")
+    lead_host = job_context.get("lead_host")
 
-    license_booking_request = await get_required_licenses_for_job(job_id)
+    required_features = await get_required_licenses_for_job(job_id)
 
+    tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
-    if len(license_booking_request.bookings) > 0:
+    if len(required_features) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
-        tracked_licenses = list()
         entries = await get_config_from_backend()
         for entry in entries:
             for feature in entry.features:
@@ -44,8 +47,10 @@ async def main():
     # Create a tracked LicenseBookingRequest for licenses that we actually
     # track. These tracked licenses are what we will check feature token
     # availability for.
-    tracked_license_booking_request = LicenseBookingRequest(job_id=job_id, bookings=[])
-    for license_booking in license_booking_request.bookings:
+    tracked_license_booking_request = LicenseBookingRequest(
+        job_id=job_id, bookings=[], user_name=user_name, lead_host=lead_host
+    )
+    for license_booking in required_features:
         if license_booking.product_feature in tracked_licenses:
             tracked_license_booking_request.bookings.append(license_booking)
 

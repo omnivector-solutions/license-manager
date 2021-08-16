@@ -56,38 +56,29 @@ class LicenseBookingRequest(BaseModel):
 
     job_id: int
     bookings: Union[List, List[LicenseBooking]]
+    user_name: str
+    lead_host: str
 
 
-async def get_required_licenses_for_job(slurm_job_id: str) -> LicenseBookingRequest:
+async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
     logger.debug(f"##### License array for job id: {slurm_job_id} #####")
     logger.debug(license_array)
 
-    license_booking_request = LicenseBookingRequest(
-        job_id=slurm_job_id,
-        bookings=[],
-    )
+    required_features = list()
 
     if license_array[0] != "(null)":
         for requested_license in license_array:
             license_regex = re.compile(r"(\w+)\.(\w+)@(\w+):(\d+)")
             if license_regex.match(requested_license):
                 # If the regex matches, parse the values
-                product_feature, license_server_tokens = requested_license.split("@")
-                license_server_type, tokens = license_server_tokens.split(":")
+                product_feature, _ = requested_license.split("@")
 
-                # Create the license booking
-                license_booking = LicenseBooking(
-                    product_feature=product_feature,
-                    tokens=tokens,
-                    license_server_type=license_server_type,
-                )
+                required_features.append(product_feature)
 
-                license_booking_request.bookings.append(license_booking)
-
-    return license_booking_request
+    return required_features
 
 
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
@@ -136,7 +127,12 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
         resp = client.put(
             f"{settings.AGENT_BASE_URL}/api/v1/booking/book",
             headers=LM2_AGENT_HEADERS,
-            json={"job_id": lbr.job_id, "features": features},
+            json={
+                "job_id": lbr.job_id,
+                "features": features,
+                "user_name": lbr.lead_host,
+                "lead_host": lbr.lead_host,
+            },
         )
 
     if resp.status_code == 200:

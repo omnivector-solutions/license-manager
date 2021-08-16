@@ -1,16 +1,16 @@
 """
 Booking objects and routes
 """
-from typing import List
+from typing import List, Union
 
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.sql import delete
 
 from lm_backend.api.license import edit_counts, map_bookings
-from lm_backend.api_schemas import Booking, BookingRow, LicenseUseBooking
+from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table
+from lm_backend.table_schemas import booking_table, config_table
 
 router = APIRouter()
 
@@ -39,6 +39,14 @@ async def get_bookings_job(job_id: str):
     return [BookingRow.parse_obj(x) for x in fetched]
 
 
+async def get_config_id_for_product_features(product_feature: str) -> Union[int, None]:
+    product, _ = product_feature.split(".")
+    query = config_table.select().where(config_table.c.product == product)
+    fetched = await database.fetch_one(query)
+    config_row = ConfigurationRow.parse_obj(fetched)
+    return config_row.id
+
+
 @database.transaction()
 @router.put("/book")
 async def create_booking(booking: Booking):
@@ -52,15 +60,16 @@ async def create_booking(booking: Booking):
     """
     # update the booking table
     inserts = []
+
     for feature in booking.features:
         inserts.append(
             BookingRow(
                 job_id=booking.job_id,
                 product_feature=feature.product_feature,
                 booked=feature.booked,
-                config_id=1,  # mypy fix
-                lead_host=feature.lead_host,
-                user_name=feature.user_name,
+                config_id=await get_config_id_for_product_features(feature.product_feature),
+                lead_host=booking.lead_host,
+                user_name=booking.user_name,
             )
         )
 

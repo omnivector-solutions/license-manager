@@ -12,6 +12,7 @@ def some_config_rows():
     """Sample config_table row"""
     return [
         ConfigurationRow(
+            id=1,
             product="hello",
             features=["world", "dolly"],
             license_servers=["bla"],
@@ -19,6 +20,7 @@ def some_config_rows():
             grace_time=10,
         ),
         ConfigurationRow(
+            id=2,
             product="cool",
             features=["beans"],
             license_servers=["bla"],
@@ -89,6 +91,18 @@ async def test_get_bookings_job(
             user_name="user1",
         ),
     ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_config_id_for_product_feature(
+    some_config_rows,
+    insert_objects,
+):
+    await insert_objects(some_config_rows, table_schemas.config_table)
+
+    config_id = await booking.get_config_id_for_product_features("hello.world")
+    assert config_id == 1
 
 
 @mark.asyncio
