@@ -39,18 +39,24 @@ def some_booking_rows():
             product_feature="hello.world",
             booked=19,
             config_id=1,
+            lead_host="host1",
+            user_name="user1",
         ),
         booking.BookingRow(
             job_id="hellodollybeans",
             product_feature="hello.dolly",
             booked=11,
             config_id=1,
+            lead_host="host1",
+            user_name="user1",
         ),
         booking.BookingRow(
             job_id="coolbeans",
             product_feature="cool.beans",
             booked=11,
             config_id=2,
+            lead_host="host1",
+            user_name="user1",
         ),
     ]
     return inserts
@@ -74,7 +80,14 @@ async def test_get_bookings_job(
     resp = await backend_client.get("/api/v1/booking/job/coolbeans")
     assert resp.status_code == 200
     assert resp.json() == [
-        dict(job_id="coolbeans", product_feature="cool.beans", booked=11, config_id=2),
+        dict(
+            job_id="coolbeans",
+            product_feature="cool.beans",
+            booked=11,
+            config_id=2,
+            lead_host="host1",
+            user_name="user1",
+        ),
     ]
 
 
@@ -101,17 +114,23 @@ async def test_bookings_all(
             product_feature="cool.beans",
             booked=11,
             config_id=2,
+            lead_host="host1",
+            user_name="user1",
         ),
         dict(
             job_id="hellodollybeans",
             product_feature="hello.dolly",
             booked=11,
             config_id=1,
+            lead_host="host1",
+            user_name="user1",
         ),
         dict(
             job_id="hellodollybeans",
             product_feature="hello.world",
             booked=19,
             config_id=1,
+            lead_host="host1",
+            user_name="user1",
         ),
     ]

@@ -34,6 +34,7 @@ class BookingFeature(BaseModel):
     booked: int
     lead_host: str
     user_name: str
+    config_id: int
 
     class Config:
         orm_mode = True
@@ -60,6 +61,8 @@ class BookingRow(BaseModel):
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
     config_id: int
+    lead_host: str
+    user_name: str
 
     class Config:
         orm_mode = True

@@ -59,6 +59,8 @@ async def create_booking(booking: Booking):
                 product_feature=feature.product_feature,
                 booked=feature.booked,
                 config_id=1,  # mypy fix
+                lead_host=feature.lead_host,
+                user_name=feature.user_name,
             )
         )
 
