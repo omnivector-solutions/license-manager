@@ -40,7 +40,7 @@ def some_booking_rows():
     """
     inserts = [
         booking.BookingRow(
-            job_id="hellodollybeans",
+            job_id="helloworld",
             product_feature="hello.world",
             booked=19,
             config_id=1,
@@ -48,7 +48,7 @@ def some_booking_rows():
             user_name="user1",
         ),
         booking.BookingRow(
-            job_id="hellodollybeans",
+            job_id="hellodolly",
             product_feature="hello.dolly",
             booked=11,
             config_id=1,
@@ -135,7 +135,7 @@ async def test_bookings_all(
             user_name="user1",
         ),
         dict(
-            job_id="hellodollybeans",
+            job_id="hellodolly",
             product_feature="hello.dolly",
             booked=11,
             config_id=1,
@@ -143,7 +143,7 @@ async def test_bookings_all(
             user_name="user1",
         ),
         dict(
-            job_id="hellodollybeans",
+            job_id="helloworld",
             product_feature="hello.world",
             booked=19,
             config_id=1,
@@ -168,3 +168,49 @@ async def test_booking_create(
     assert resp.status_code == status.HTTP_200_OK
     edit_counts_mock.assert_awaited_once()
     map_bookings_mock.assert_awaited_once()
+
+
+@mark.asyncio
+@mock.patch("lm_backend.api.booking.edit_counts")
+@mock.patch("lm_backend.api.booking.map_bookings")
+@database.transaction(force_rollback=True)
+async def test_booking_create_negative_booked_error(
+    edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, some_licenses, insert_objects
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    features = BookingFeature(booked=-1, product_feature="hello.world")
+    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
+
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+    edit_counts_mock.assert_not_awaited()
+    map_bookings_mock.assert_not_awaited()
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_booking_create_booked_greater_than_total(
+    backend_client, some_config_rows, some_licenses, insert_objects
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    features = BookingFeature(booked=1000, product_feature="hello.world")
+    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
+
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+    assert "<= total" in resp.json()["detail"]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_booking_delete(
+    backend_client, some_config_rows, some_licenses, some_booking_rows, insert_objects
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+
+    resp = await backend_client.delete("/api/v1/booking/book/helloworld")
+    assert resp.status_code == status.HTTP_200_OK
