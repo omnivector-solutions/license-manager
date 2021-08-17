@@ -198,7 +198,10 @@ async def test_booking_create_negative_booked_error(
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_booking_create_booked_greater_than_total(
-        backend_client, some_config_rows, some_licenses, insert_objects,
+    backend_client,
+    some_config_rows,
+    some_licenses,
+    insert_objects,
 ):
     """This test proves that the correct response (400) is returned when a booking
     request exceeds the total available by asserting that the response detail contains
@@ -218,7 +221,11 @@ async def test_booking_create_booked_greater_than_total(
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_booking_delete(
-    backend_client, some_config_rows, some_licenses, some_booking_rows, insert_objects,
+    backend_client,
+    some_config_rows,
+    some_licenses,
+    some_booking_rows,
+    insert_objects,
 ):
     """This test proves that the correct response is returned (200) when a booking
     is successfully deleted and that the functions map_bookings() and edit_counts()
