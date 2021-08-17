@@ -40,6 +40,7 @@ def some_booking_rows():
     """
     inserts = [
         booking.BookingRow(
+            id=1,
             job_id="helloworld",
             product_feature="hello.world",
             booked=19,
@@ -48,6 +49,7 @@ def some_booking_rows():
             user_name="user1",
         ),
         booking.BookingRow(
+            id=2,
             job_id="hellodolly",
             product_feature="hello.dolly",
             booked=11,
@@ -56,6 +58,7 @@ def some_booking_rows():
             user_name="user1",
         ),
         booking.BookingRow(
+            id=3,
             job_id="coolbeans",
             product_feature="cool.beans",
             booked=11,
@@ -86,6 +89,7 @@ async def test_get_bookings_job(
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
+            id=3,
             job_id="coolbeans",
             product_feature="cool.beans",
             booked=11,
@@ -127,6 +131,7 @@ async def test_bookings_all(
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
+            id=3,
             job_id="coolbeans",
             product_feature="cool.beans",
             booked=11,
@@ -135,6 +140,7 @@ async def test_bookings_all(
             user_name="user1",
         ),
         dict(
+            id=2,
             job_id="hellodolly",
             product_feature="hello.dolly",
             booked=11,
@@ -143,6 +149,7 @@ async def test_bookings_all(
             user_name="user1",
         ),
         dict(
+            id=1,
             job_id="helloworld",
             product_feature="hello.world",
             booked=19,

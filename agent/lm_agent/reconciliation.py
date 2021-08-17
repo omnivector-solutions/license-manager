@@ -24,7 +24,7 @@ async def remove_booked_for_job_id(job_id: str):
     """
     Send DELETE to /api/v1/booking/book/{job_id}.
     """
-    response = await async_client().delete("/api/v1/booking/book{job_id}")
+    response = await async_client().delete(f"/api/v1/booking/book{job_id}")
     if response.status_code != status.HTTP_200_OK:
         logger.error("{job_id} could not be deleted.")
         raise FailedToRemoveBookedViaGraceTime()
@@ -44,7 +44,7 @@ async def get_booked_for_job_id(job_id: str) -> Dict:
     """
     Return the booking row for the given job_id.
     """
-    response = await async_client().get("/api/v1/booking/job/{job_id}")
+    response = await async_client().get(f"/api/v1/booking/job/{job_id}")
     book_row = response.json()
     return book_row
 
