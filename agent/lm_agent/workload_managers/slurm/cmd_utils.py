@@ -68,6 +68,8 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     logger.debug(license_array)
 
     required_features = list()
+    if not license_array:
+        return []
 
     if license_array[0] != "(null)":
         for requested_license in license_array:
@@ -130,7 +132,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
             json={
                 "job_id": lbr.job_id,
                 "features": features,
-                "user_name": lbr.lead_host,
+                "user_name": lbr.user_name,
                 "lead_host": lbr.lead_host,
             },
         )

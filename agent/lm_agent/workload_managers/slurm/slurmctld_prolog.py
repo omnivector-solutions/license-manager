@@ -50,9 +50,9 @@ async def main():
     tracked_license_booking_request = LicenseBookingRequest(
         job_id=job_id, bookings=[], user_name=user_name, lead_host=lead_host
     )
-    for license_booking in required_features:
-        if license_booking.product_feature in tracked_licenses:
-            tracked_license_booking_request.bookings.append(license_booking)
+    for product_feature in required_features:
+        if product_feature in tracked_licenses:
+            tracked_license_booking_request.bookings.append(product_feature)
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.

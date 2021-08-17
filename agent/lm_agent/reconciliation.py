@@ -123,5 +123,5 @@ async def reconcile():
             detail="reconciliation failed",
         )
 
-    logger.info("Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")
+    logger.info(f"Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")
     return r
