@@ -31,6 +31,7 @@ lambda:
 	python3 -m venv _tmp_venv
 	source _tmp_venv/bin/activate && pip install -U pip wheel .
 	cd _tmp_venv/lib/python*.*/site-packages && zip -qr9 ${LAMBDA_TARGET} .
+	rm -rf _tmp_venv
 
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete

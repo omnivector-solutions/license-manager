@@ -1,9 +1,12 @@
+from unittest import mock
+
+from fastapi import status
 from httpx import AsyncClient
 from pytest import fixture, mark
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
-from lm_backend.api_schemas import ConfigurationRow
+from lm_backend.api_schemas import Booking, BookingFeature, ConfigurationRow
 from lm_backend.storage import database
 
 
@@ -148,3 +151,20 @@ async def test_bookings_all(
             user_name="user1",
         ),
     ]
+
+
+@mark.asyncio
+@mock.patch("lm_backend.api.booking.edit_counts")
+@mock.patch("lm_backend.api.booking.map_bookings")
+@database.transaction(force_rollback=True)
+async def test_booking_create(
+    edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, insert_objects
+):
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    features = BookingFeature(booked=10, product_feature="hello.world")
+    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
+
+    assert resp.status_code == status.HTTP_200_OK
+    edit_counts_mock.assert_awaited_once()
+    map_bookings_mock.assert_awaited_once()

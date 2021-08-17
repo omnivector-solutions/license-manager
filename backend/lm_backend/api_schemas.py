@@ -32,7 +32,6 @@ class BookingFeature(BaseModel):
 
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
-    config_id: int
 
     class Config:
         orm_mode = True
