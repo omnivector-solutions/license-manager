@@ -104,7 +104,13 @@ async def delete_if_in_use_booking(license: LicenseUseReconcileRequest):
         )
         queries.append(database.fetch_one(query))
     fetched = await asyncio.gather(*queries)
-    bookings = [BookingRow.parse_obj(x) for x in fetched]
+    bookings = []
+    for item in fetched:
+        if item is None:
+            continue
+        bookings.append(BookingRow.parse_obj(item))
+    if not bookings:
+        return
 
     delete_queries = []
     for booking in bookings:
