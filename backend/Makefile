@@ -29,11 +29,9 @@ local:
 lambda:
 	rm -f ${LAMBDA_TARGET}
 	python3 -m venv _tmp_venv
-	poetry config virtualenvs.create false --local
-	source _tmp_venv/bin/activate && poetry install --no-dev
+	source _tmp_venv/bin/activate && pip install -U pip wheel .
 	cd _tmp_venv/lib/python*.*/site-packages && zip -qr9 ${LAMBDA_TARGET} .
 	rm -rf _tmp_venv
-	rm poetry.toml
 
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete

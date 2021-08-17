@@ -25,8 +25,8 @@ def get_job_context():
         ctxt = {
             "cluster_name": os.environ["SLURM_CLUSTER_NAME"],
             "job_id": os.environ["SLURM_JOB_ID"],
-            "compute_host": os.environ["SLURM_JOB_NODELIST"].split(",")[0],
-            "user": os.environ["SLURM_JOB_USER"],
+            "lead_host": os.environ["SLURM_JOB_NODELIST"].split(",")[0],
+            "user_name": os.environ["SLURM_JOB_USER"],
         }
     except KeyError as e:
         # If not all keys could be assigned, then return non 0 exit status
