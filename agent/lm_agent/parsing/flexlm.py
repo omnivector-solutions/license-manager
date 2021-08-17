@@ -48,6 +48,7 @@ def parse(s: str) -> dict:
     """
     Parse lines of the license output with regular expressions
     """
+    parsed_data: dict = {"uses": [], "total": None}
     for line in s.splitlines():
         parsed = RX.match(line)
         if parsed is None:
@@ -55,10 +56,18 @@ def parse(s: str) -> dict:
 
         if parsed.group("total"):
             d = parsed.groupdict()
-            return {
+            parsed_data["total"] = {
                 "total": int(d["total"]),
                 "used": int(d["used"]),
                 "feature": d["feature"],
             }
-
-    return {}
+        if parsed.group("user"):
+            d = parsed.groupdict()
+            parsed_data["uses"].append(
+                {
+                    "user_name": d["user"],
+                    "lead_host": d["user_host"],
+                    "booked": int(d["tokens"]),
+                }
+            )
+    return parsed_data

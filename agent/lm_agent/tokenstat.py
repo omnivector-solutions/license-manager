@@ -35,6 +35,7 @@ class LicenseReportItem(BaseModel):
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
     total: int
+    used_licenses: typing.List
 
     @classmethod
     def from_stdout(cls, product, parse_fn, tool_name, stdout):
@@ -45,9 +46,10 @@ class LicenseReportItem(BaseModel):
         parsed = parse_fn(stdout)
         return cls(
             tool_name=tool_name,
-            product_feature=f"{product}.{parsed['feature']}",
-            used=parsed["used"],
-            total=parsed["total"],
+            product_feature=f"{product}.{parsed['total']['feature']}",
+            used=parsed["total"]["used"],
+            total=parsed["total"]["total"],
+            used_licenses=parsed["uses"],
         )
 
 

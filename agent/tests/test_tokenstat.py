@@ -45,22 +45,26 @@ def tool_opts() -> tokenstat.ToolOptions:
     )
 
 
-def test_lri_from_stdout():
+def test_lri_from_stdout(lm_output):
     """
     Do I parse the stdout string from flexlm to produce structured data?
     """
-    stdout = "Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 502 licenses in use)"
     lri = tokenstat.LicenseReportItem.from_stdout(
         product="TESTPRODUCT",
         parse_fn=flexlm.parse,
         tool_name="flexlm",
-        stdout=stdout,
+        stdout=lm_output,
     )
     assert lri == tokenstat.LicenseReportItem(
         tool_name="flexlm",
         product_feature="TESTPRODUCT.TESTFEATURE",
-        used=502,
+        used=93,
         total=1000,
+        used_licenses=[
+            {"booked": 29, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
+            {"booked": 27, "user_name": "cdxfdn", "lead_host": "myserver.example.com"},
+            {"booked": 37, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
+        ],
     )
 
 
@@ -89,7 +93,36 @@ async def test_attempt_tool_checks(
         ["flexlm:127.0.0.1:2345"],
     )
     assert ret == tokenstat.LicenseReportItem(
-        tool_name="flexlm", product_feature="TESTPRODUCT.TESTFEATURE", used=502, total=1000
+        tool_name="flexlm",
+        product_feature="TESTPRODUCT.TESTFEATURE",
+        used=502,
+        total=1000,
+        used_licenses=[
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 29},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 27},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 23},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 9},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 8},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 15},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 43},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 13},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 23},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 28},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 17},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 38},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 25},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 35},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 38},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 4},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 9},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 19},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 15},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 14},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 37},
+        ],
     )
 
     # bad tool
@@ -121,6 +154,32 @@ async def test_report(
         "product_feature": "testproduct1.TESTFEATURE",
         "used": 502,
         "total": 1000,
+        "used_licenses": [
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 29},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 27},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 23},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 9},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 8},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 15},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 43},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 13},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 23},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 28},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 17},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 38},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 25},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 35},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 38},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 4},
+            {"user_name": "jxezha", "lead_host": "myserver.example.com", "booked": 9},
+            {"user_name": "cdxfdn", "lead_host": "myserver.example.com", "booked": 11},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 19},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 15},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 14},
+            {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 37},
+        ],
     }
     with p0, p1:
         assert [license_report_item] == await tokenstat.report()
