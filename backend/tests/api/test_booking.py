@@ -160,6 +160,9 @@ async def test_bookings_all(
 async def test_booking_create(
     edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, insert_objects
 ):
+    """This test proves that a booking can be created by showing that edit_counts and map_bookings
+    are awaited one time and the response status is 200.
+    """
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=10, product_feature="hello.world")
     booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
@@ -177,6 +180,10 @@ async def test_booking_create(
 async def test_booking_create_negative_booked_error(
     edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, some_licenses, insert_objects
 ):
+    """This test proves that a 400 response code is returned when a `-` (negative) booking creation is attempted
+    by checking the response code of a booking request containing a negative booking and by asserting that
+    edit_counts() and map_bookings() were not awaited.
+    """
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=-1, product_feature="hello.world")
@@ -191,8 +198,13 @@ async def test_booking_create_negative_booked_error(
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_booking_create_booked_greater_than_total(
-    backend_client, some_config_rows, some_licenses, insert_objects
+        backend_client, some_config_rows, some_licenses, insert_objects,
 ):
+    """This test proves that the correct response (400) is returned when a booking
+    request exceeds the total available by asserting that the response detail contains
+    the string "<= total" and asserting that the functions map_booking() and edit_counts()
+    are not awaited.
+    """
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=1000, product_feature="hello.world")
@@ -206,8 +218,12 @@ async def test_booking_create_booked_greater_than_total(
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_booking_delete(
-    backend_client, some_config_rows, some_licenses, some_booking_rows, insert_objects
+    backend_client, some_config_rows, some_licenses, some_booking_rows, insert_objects,
 ):
+    """This test proves that the correct response is returned (200) when a booking
+    is successfully deleted and that the functions map_bookings() and edit_counts()
+    are awaited.
+    """
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
