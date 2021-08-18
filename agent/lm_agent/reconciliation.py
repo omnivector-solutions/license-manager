@@ -16,18 +16,14 @@ from lm_agent.workload_managers.slurm.cmd_utils import return_formatted_squeue_o
 RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 
 
-class FailedToRemoveBookedViaGraceTime(Exception):
-    """Unable to delete booking row."""
-
-
 async def remove_booked_for_job_id(job_id: str):
     """
     Send DELETE to /api/v1/booking/book/{job_id}.
     """
-    response = await async_client().delete(f"/api/v1/booking/book{job_id}")
+    response = await async_client().delete(f"/api/v1/booking/book/{job_id}")
+    logger.debug(f"response from delete: {response.__dict__}")
     if response.status_code != status.HTTP_200_OK:
         logger.error(f"{job_id} could not be deleted.")
-        raise FailedToRemoveBookedViaGraceTime()
 
 
 async def get_all_grace_times() -> Dict[int, int]:

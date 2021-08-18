@@ -144,7 +144,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
     with httpx.Client() as client:
         resp = client.put(
-            f"{settings.AGENT_BASE_URL}/booking/book",
+            f"{settings.AGENT_BASE_URL}/api/v1/booking/book",
             headers=LM2_AGENT_HEADERS,
             json={
                 "job_id": lbr.job_id,

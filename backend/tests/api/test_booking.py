@@ -131,11 +131,11 @@ async def test_bookings_all(
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
-            id=3,
-            job_id="coolbeans",
-            product_feature="cool.beans",
-            booked=11,
-            config_id=2,
+            id=1,
+            job_id="helloworld",
+            product_feature="hello.world",
+            booked=19,
+            config_id=1,
             lead_host="host1",
             user_name="user1",
         ),
@@ -149,11 +149,11 @@ async def test_bookings_all(
             user_name="user1",
         ),
         dict(
-            id=1,
-            job_id="helloworld",
-            product_feature="hello.world",
-            booked=19,
-            config_id=1,
+            id=3,
+            job_id="coolbeans",
+            product_feature="cool.beans",
+            booked=11,
+            config_id=2,
             lead_host="host1",
             user_name="user1",
         ),
