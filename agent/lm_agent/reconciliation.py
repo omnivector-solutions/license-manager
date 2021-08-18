@@ -26,7 +26,7 @@ async def remove_booked_for_job_id(job_id: str):
     """
     response = await async_client().delete(f"/api/v1/booking/book{job_id}")
     if response.status_code != status.HTTP_200_OK:
-        logger.error("{job_id} could not be deleted.")
+        logger.error(f"{job_id} could not be deleted.")
         raise FailedToRemoveBookedViaGraceTime()
 
 
@@ -55,12 +55,23 @@ def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_ro
     """
     greatest_grace_time = 0
     for book in booking_rows:
-        if str(book["job_id"]) != str(job_id):
+        if not book:
             continue
-        config_id_for_grace_times = book["config_id"]
-        if grace_times[config_id_for_grace_times] > greatest_grace_time:
-            greatest_grace_time = grace_times[config_id_for_grace_times]
+        for inner_book in book:
+            if str(inner_book["job_id"]) != str(job_id):
+                continue
+            config_id_for_grace_times = inner_book["config_id"]
+            if grace_times[config_id_for_grace_times] > greatest_grace_time:
+                greatest_grace_time = grace_times[config_id_for_grace_times]
     return greatest_grace_time
+
+
+def get_running_jobs(squeue_result: List) -> List:
+    squeue_running_jobs = []
+    for job in squeue_result:
+        if job["state"] == "RUNNING":
+            squeue_running_jobs.append(job)
+    return squeue_running_jobs
 
 
 async def clean_booked_grace_time():
@@ -70,14 +81,19 @@ async def clean_booked_grace_time():
     formatted_squeue_output = return_formatted_squeue_out()
     if not formatted_squeue_output:
         return
-    squeue_running_jobs = squeue_parser(formatted_squeue_output)
+    squeue_result = squeue_parser(formatted_squeue_output)
+    squeue_running_jobs = get_running_jobs(squeue_result)
+
     grace_times = await get_all_grace_times()
     get_booked_call = []
     for job in squeue_running_jobs:
         job_id = job["job_id"]
         get_booked_call.append(get_booked_for_job_id(job_id))
 
-    booking_rows_for_running_jobs = asyncio.gather(*get_booked_call)
+    booking_rows_for_running_jobs = []
+    for coroutine in get_booked_call:
+        booking_rows_for_running_jobs.append(await coroutine)
+    # booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call)
 
     # get the greatest grace_time for each job
     for job in squeue_running_jobs:

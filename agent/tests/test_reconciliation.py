@@ -7,6 +7,7 @@ from lm_agent.reconciliation import (
     FailedToRemoveBookedViaGraceTime,
     clean_booked_grace_time,
     get_all_grace_times,
+    get_booked_for_job_id,
     get_greatest_grace_time,
 )
 
@@ -42,20 +43,20 @@ def test_get_greatest_grace_time(booking_rows_json):
         2: 20,
         3: 400,
     }
-    greatest_grace_time = get_greatest_grace_time("1", grace_times, booking_rows_json)
+    greatest_grace_time = get_greatest_grace_time("1", grace_times, [booking_rows_json])
     assert greatest_grace_time == 400
-    greatest_grace_time = get_greatest_grace_time("2", grace_times, booking_rows_json)
+    greatest_grace_time = get_greatest_grace_time("2", grace_times, [booking_rows_json])
     assert greatest_grace_time == 20
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -63,7 +64,7 @@ async def test_clean_booked_grace_time(
     """
     Test for when the running time is greater than the grace_time, then delete the booking.
     """
-    asyncio_mock.gather.return_value = booking_rows_json
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 100, 2: 30, 3: 10}
     await clean_booked_grace_time()
@@ -74,11 +75,11 @@ async def test_clean_booked_grace_time(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time_dont_delete(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -86,7 +87,7 @@ async def test_clean_booked_grace_time_dont_delete(
     """
     Test for when the running time is smaller than the grace_time, then don't delete the booking.
     """
-    asyncio_mock.gather.return_value = booking_rows_json
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 1000, 2: 3000, 3: 1000}
     await clean_booked_grace_time()
@@ -97,11 +98,11 @@ async def test_clean_booked_grace_time_dont_delete(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -109,7 +110,7 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     """
     Test for when there are no jobs running, don't delete.
     """
-    asyncio_mock.gather.return_value = {}
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = ""
     get_all_grace_times_mock.return_value = {1: 10, 2: 10}
     await clean_booked_grace_time()
@@ -120,11 +121,11 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time_failed_to_delete(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -132,7 +133,7 @@ async def test_clean_booked_grace_time_failed_to_delete(
     """
     Test for when the remove_booked_for_job_id raises an exception.
     """
-    asyncio_mock.gather.return_value = booking_rows_json
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
     remove_booked_for_job_id_mock.side_effect = FailedToRemoveBookedViaGraceTime()

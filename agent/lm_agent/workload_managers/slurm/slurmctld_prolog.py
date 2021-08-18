@@ -35,12 +35,12 @@ async def main():
 
     logger.info(f"Prolog started for job id: {job_id}")
 
-    required_features = await get_required_licenses_for_job(job_id)
-    logger.debug(f"Required features: {required_features}")
+    required_licenses = await get_required_licenses_for_job(job_id, user_name, lead_host)
+    logger.debug(f"Required licenses: {required_licenses}")
 
     tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
-    if len(required_features) > 0:
+    if len(required_licenses.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         entries = await get_config_from_backend()
         for entry in entries:
@@ -54,16 +54,16 @@ async def main():
     tracked_license_booking_request = LicenseBookingRequest(
         job_id=job_id, bookings=[], user_name=user_name, lead_host=lead_host
     )
-    for product_feature in required_features:
-        if product_feature in tracked_licenses:
-            tracked_license_booking_request.bookings.append(product_feature)
+    for booking in required_licenses.bookings:
+        if booking.product_feature in tracked_licenses:
+            tracked_license_booking_request.bookings.append(booking)
     logger.debug(f"Tracked license bookings: {tracked_license_booking_request}")
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.
         await reconcile()
         # Check that there are sufficient feature tokens for the job.
-        feature_token_availability = check_feature_token_availablity(tracked_license_booking_request)
+        feature_token_availability = await check_feature_token_availablity(tracked_license_booking_request)
         if feature_token_availability:
             # If we have sufficient tokens for features that are
             # requested, proceed with booking the tokens for each feature.

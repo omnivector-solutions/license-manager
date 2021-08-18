@@ -3,7 +3,7 @@ import asyncio
 import re
 import shlex
 import subprocess
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import httpx
 from pydantic import BaseModel, Field
@@ -60,14 +60,19 @@ class LicenseBookingRequest(BaseModel):
     lead_host: str
 
 
-async def get_required_licenses_for_job(slurm_job_id: str) -> List:
+async def get_required_licenses_for_job(slurm_job_id: str, user_name: str, lead_host: str) -> Any:
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
     logger.debug(f"##### License array for job id: {slurm_job_id} #####")
     logger.debug(license_array)
 
-    required_features = list()
+    license_booking_request = LicenseBookingRequest(
+        job_id=slurm_job_id,
+        bookings=[],
+        user_name=user_name,
+        lead_host=lead_host,
+    )
     if not license_array:
         return []
 
@@ -76,11 +81,18 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> List:
             license_regex = re.compile(r"(\w+)\.(\w+)@(\w+):(\d+)")
             if license_regex.match(requested_license):
                 # If the regex matches, parse the values
-                product_feature, _ = requested_license.split("@")
+                product_feature, license_server_tokens = requested_license.split("@")
+                license_server_type, tokens = license_server_tokens.split(":")
 
-                required_features.append(product_feature)
+                # Create the license booking
+                license_booking = LicenseBooking(
+                    product_feature=product_feature,
+                    tokens=tokens,
+                    license_server_type=license_server_type,
+                )
+                license_booking_request.bookings.append(license_booking)
 
-    return required_features
+    return license_booking_request
 
 
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
@@ -94,9 +106,11 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     with httpx.Client() as client:
         resp = client.get(f"{settings.AGENT_BASE_URL}/api/v1/license/all", headers=LM2_AGENT_HEADERS)
         logger.debug("##### /api/v1/license/all #####")
-        logger.debug(resp.json())
+        data = resp.json()
+        logger.debug(f"response data: {data}")
+        logger.debug(f"lbr: {lbr}")
 
-        for item in resp.json():
+        for item in data:
             product_feature = item["product_feature"]
             for license_booking in lbr.bookings:
                 if product_feature == license_booking.product_feature:
@@ -105,11 +119,11 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
                         logger.debug(f"##### {product_feature}, tokens avalable #####")
                         logger.debug(f"##### Tokens available {tokens_available} #####")
                         logger.debug(f"##### Tokens required {license_booking.tokens} #####")
+                        return True
                     else:
                         logger.debug(f"##### {product_feature}, tokens not available #####")
                         logger.debug(f"##### Tokens available {tokens_available} #####")
                         logger.debug(f"##### Tokens required {license_booking.tokens} #####")
-                        return True
     logger.debug("##### Tokens not available #####")
     return False
 
@@ -125,9 +139,12 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
         for license_booking in lbr.bookings
     ]
 
+    logger.debug(f"features: {features}")
+    logger.debug(f"lbr: {lbr}")
+
     with httpx.Client() as client:
         resp = client.put(
-            f"{settings.AGENT_BASE_URL}/api/v1/booking/book",
+            f"{settings.AGENT_BASE_URL}/booking/book",
             headers=LM2_AGENT_HEADERS,
             json={
                 "job_id": lbr.job_id,

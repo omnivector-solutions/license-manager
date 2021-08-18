@@ -32,12 +32,6 @@ app: Any = FastAPI()
 # app.add_middleware(TrustedHostMiddleware)
 # app.add_middleware(ProxyHeadersMiddleware)
 # app.add_middleware(RateLimitMiddleware)
-if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        traces_sample_rate=1.0,
-    )
-    app = SentryAsgiMiddleware(app)
 
 
 @app.get("/")
@@ -112,3 +106,10 @@ async def collect_stats():
 
 
 app.include_router(api_v1, prefix="/api/v1")
+
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+    )
+    app = SentryAsgiMiddleware(app)

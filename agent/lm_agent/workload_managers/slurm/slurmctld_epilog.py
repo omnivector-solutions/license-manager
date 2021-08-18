@@ -42,8 +42,10 @@ async def main():
     # Acqure the job context and get the job_id.
     ctxt = get_job_context()
     job_id = ctxt["job_id"]
+    user_name = ctxt["user_name"]
+    lead_host = ctxt["lead_host"]
 
-    license_booking_request = await get_required_licenses_for_job(job_id)
+    license_booking_request = await get_required_licenses_for_job(job_id, user_name, lead_host)
 
     if len(license_booking_request.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
