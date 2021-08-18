@@ -33,7 +33,10 @@ async def main():
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
 
+    logger.info(f"Prolog started for job id: {job_id}")
+
     required_features = await get_required_licenses_for_job(job_id)
+    logger.debug(f"Required features: {required_features}")
 
     tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
@@ -43,6 +46,7 @@ async def main():
         for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{entry.product}.{feature}")
+    logger.debug(f"Tracked licenses: {tracked_licenses}")
 
     # Create a tracked LicenseBookingRequest for licenses that we actually
     # track. These tracked licenses are what we will check feature token
@@ -53,6 +57,7 @@ async def main():
     for product_feature in required_features:
         if product_feature in tracked_licenses:
             tracked_license_booking_request.bookings.append(product_feature)
+    logger.debug(f"Tracked license bookings: {tracked_license_booking_request}")
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.
