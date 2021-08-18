@@ -2,7 +2,7 @@
 """
 Reconciliation functionality live here.
 """
-import asyncio  # noqa
+import asyncio
 from typing import Dict, List
 
 from fastapi import HTTPException, status
@@ -86,10 +86,7 @@ async def clean_booked_grace_time():
         job_id = job["job_id"]
         get_booked_call.append(get_booked_for_job_id(job_id))
 
-    booking_rows_for_running_jobs = []
-    for coroutine in get_booked_call:
-        booking_rows_for_running_jobs.append(await coroutine)
-    # booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call)
+    booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call, return_exceptions=True)
 
     # get the greatest grace_time for each job
     for job in squeue_running_jobs:
