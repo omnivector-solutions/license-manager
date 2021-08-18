@@ -74,8 +74,8 @@ async def create_booking(booking: Booking):
         )
 
     inserts_without_id = []
-    for booking in inserts:
-        inserts_without_id.append(booking.dict(exclude={"id"}))
+    for insert in inserts:
+        inserts_without_id.append(insert.dict(exclude={"id"}))
     try:
         await database.execute_many(query=booking_table.insert(), values=[i for i in inserts_without_id])
     except INTEGRITY_CHECK_EXCEPTIONS as e:
