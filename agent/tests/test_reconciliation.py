@@ -94,6 +94,28 @@ async def test_clean_booked_grace_time_dont_delete(
     get_all_grace_times_mock.assert_awaited_once()
 
 
+pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
+@mock.patch("lm_agent.reconciliation.get_all_grace_times")
+@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+async def test_clean_booked_grace_time_dont_delete_if_grace_time_invalid(
+    remove_booked_for_job_id_mock,
+    asyncio_mock,
+    get_all_grace_times_mock,
+    return_formatted_squeue_out_mock,
+):
+    """
+    Test for when the remove_booked_for_job_id raises an exception.
+    """
+    asyncio_mock.gather.return_value = [[]]
+    return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
+    get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
+    await clean_booked_grace_time()
+    remove_booked_for_job_id_mock.assert_not_awaited()
+    get_all_grace_times_mock.assert_awaited_once()
+
+
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
