@@ -49,7 +49,7 @@ def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_ro
     """
     Find the greatest grace_time for the given job_id.
     """
-    greatest_grace_time = 0
+    greatest_grace_time = -1
     for book in booking_rows:
         if not book:
             continue
@@ -93,7 +93,7 @@ async def clean_booked_grace_time():
         job_id = job["job_id"]
         greatest_grace_time = get_greatest_grace_time(job_id, grace_times, booking_rows_for_running_jobs)
         # if the running_time is greater than the greatest grace_time, delete the booking for it
-        if job["run_time_in_seconds"] > greatest_grace_time:
+        if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time >= 0:
             await remove_booked_for_job_id(job_id)
 
 
