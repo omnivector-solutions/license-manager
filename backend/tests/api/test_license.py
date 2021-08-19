@@ -1,6 +1,6 @@
 from unittest import mock
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from httpx import AsyncClient
 from pytest import mark, raises
 
@@ -74,7 +74,7 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses, inse
     """
     await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/hello")
-    assert resp.status_code == 200
+    assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
             product_feature="hello.dolly",
@@ -94,7 +94,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
     """
     await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/cool/beans")
-    assert resp.status_code == 200
+    assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
             product_feature="cool.beans",
@@ -227,3 +227,31 @@ async def test_clean_up_in_use_booking_conversion(delete_in_use_mock: mock.Async
     assert isinstance(license_reconciles[0], LicenseUseReconcile)
     assert isinstance(license_reconciles[1], LicenseUseReconcile)
     assert delete_in_use_mock.await_count == 2
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_reconcile_changes_clean_up_in_use_bookings(
+    insert_objects, some_licenses, some_config_rows, some_booking_rows, backend_client
+):
+    """
+    Make sure the /reconcile endpoint correct handle the in use cleanup.
+    """
+    await insert_objects(some_config_rows, config_table)
+    await insert_objects(some_booking_rows, booking_table)
+    await insert_objects(some_licenses, license_table)
+
+    used_licenses = [
+        {"booked": 19, "lead_host": "host1", "user_name": "user1"},
+    ]
+    license_reconcile_request = LicenseUseReconcileRequest(
+        used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+    )
+
+    response = await backend_client.patch(
+        "/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    booking_rows = [BookingRow.parse_obj(x) for x in await database.fetch_all(booking_table.select())]
+    assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted
