@@ -2,72 +2,12 @@ from unittest import mock
 
 from fastapi import status
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
-from lm_backend.api_schemas import Booking, BookingFeature, ConfigurationRow
+from lm_backend.api_schemas import Booking, BookingFeature
 from lm_backend.storage import database
-
-
-@fixture
-def some_config_rows():
-    """Sample config_table row"""
-    return [
-        ConfigurationRow(
-            id=1,
-            product="hello",
-            features=["world", "dolly"],
-            license_servers=["bla"],
-            license_server_type="test",
-            grace_time=10,
-        ),
-        ConfigurationRow(
-            id=2,
-            product="cool",
-            features=["beans"],
-            license_servers=["bla"],
-            license_server_type="test",
-            grace_time=10,
-        ),
-    ]
-
-
-@fixture
-def some_booking_rows():
-    """
-    Some BookingRows
-    """
-    inserts = [
-        booking.BookingRow(
-            id=1,
-            job_id="helloworld",
-            product_feature="hello.world",
-            booked=19,
-            config_id=1,
-            lead_host="host1",
-            user_name="user1",
-        ),
-        booking.BookingRow(
-            id=2,
-            job_id="hellodolly",
-            product_feature="hello.dolly",
-            booked=11,
-            config_id=1,
-            lead_host="host1",
-            user_name="user1",
-        ),
-        booking.BookingRow(
-            id=3,
-            job_id="coolbeans",
-            product_feature="cool.beans",
-            booked=11,
-            config_id=2,
-            lead_host="host1",
-            user_name="user1",
-        ),
-    ]
-    return inserts
 
 
 @mark.asyncio

@@ -90,7 +90,7 @@ async def _get_these_licenses(product_features: Sequence[str]) -> List[LicenseUs
     return [LicenseUse.parse_obj(f) for f in fetched]
 
 
-async def delete_if_in_use_booking(license: LicenseUseReconcileRequest):
+async def _delete_if_in_use_booking(license: LicenseUseReconcileRequest):
     """
     Check the database for the license, if it is booked, then delete it.
     """
@@ -101,6 +101,7 @@ async def delete_if_in_use_booking(license: LicenseUseReconcileRequest):
             .where(booking_table.c.lead_host == used_license["lead_host"])
             .where(booking_table.c.user_name == used_license["user_name"])
             .where(booking_table.c.booked == used_license["booked"])
+            .where(booking_table.c.product_feature == license.product_feature)
         )
         queries.append(database.fetch_one(query))
     fetched = await asyncio.gather(*queries)
@@ -119,7 +120,7 @@ async def delete_if_in_use_booking(license: LicenseUseReconcileRequest):
     await asyncio.gather(*delete_queries)
 
 
-async def clean_up_in_use_booking(
+async def _clean_up_in_use_booking(
     reconcile_request: List[LicenseUseReconcileRequest],
 ) -> List[LicenseUseReconcile]:
     """
@@ -128,7 +129,7 @@ async def clean_up_in_use_booking(
     """
     reconcile = []
     for license in reconcile_request:
-        await delete_if_in_use_booking(license)
+        await _delete_if_in_use_booking(license)
         reconcile.append(LicenseUseReconcile(**license.dict(exclude={"used_licenses"})))
 
     return reconcile
@@ -140,7 +141,7 @@ async def reconcile_changes(reconcile_request: List[LicenseUseReconcileRequest])
     """
     Set counts for models
     """
-    reconcile = await clean_up_in_use_booking(reconcile_request)
+    reconcile = await _clean_up_in_use_booking(reconcile_request)
     updates, inserts = await _find_license_updates_and_inserts(reconcile)
 
     ops = []
