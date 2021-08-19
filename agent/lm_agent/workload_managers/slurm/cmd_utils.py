@@ -3,7 +3,7 @@ import asyncio
 import re
 import shlex
 import subprocess
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 import httpx
 from pydantic import BaseModel, Field
@@ -60,7 +60,9 @@ class LicenseBookingRequest(BaseModel):
     lead_host: str
 
 
-async def get_required_licenses_for_job(slurm_job_id: str, user_name: str, lead_host: str) -> Any:
+async def get_required_licenses_for_job(
+    slurm_job_id: str, user_name: str, lead_host: str
+) -> Union[LicenseBookingRequest, None]:
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
@@ -74,7 +76,7 @@ async def get_required_licenses_for_job(slurm_job_id: str, user_name: str, lead_
         lead_host=lead_host,
     )
     if not license_array:
-        return []
+        return None
 
     if license_array[0] != "(null)":
         for requested_license in license_array:

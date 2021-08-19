@@ -57,17 +57,12 @@ def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_ro
             if str(inner_book["job_id"]) != str(job_id):
                 continue
             config_id_for_grace_times = inner_book["config_id"]
-            if grace_times[config_id_for_grace_times] > greatest_grace_time:
-                greatest_grace_time = grace_times[config_id_for_grace_times]
+            greatest_grace_time = max(greatest_grace_time, grace_times[config_id_for_grace_times])
     return greatest_grace_time
 
 
 def get_running_jobs(squeue_result: List) -> List:
-    squeue_running_jobs = []
-    for job in squeue_result:
-        if job["state"] == "RUNNING":
-            squeue_running_jobs.append(job)
-    return squeue_running_jobs
+    return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
 async def clean_booked_grace_time():
@@ -86,7 +81,7 @@ async def clean_booked_grace_time():
         job_id = job["job_id"]
         get_booked_call.append(get_booked_for_job_id(job_id))
 
-    booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call, return_exceptions=True)
+    booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call)
 
     # get the greatest grace_time for each job
     for job in squeue_running_jobs:
