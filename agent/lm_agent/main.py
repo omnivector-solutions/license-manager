@@ -4,7 +4,6 @@ License-manager agent, command line entrypoint
 Run with e.g. `uvicorn lm_agent.main:app`
 """
 import logging
-from typing import Any
 
 import pkg_resources
 import sentry_sdk
@@ -21,17 +20,13 @@ from lm_agent.reconciliation import reconcile
 AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
 
-app: Any = FastAPI()
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-# app.add_middleware(TrustedHostMiddleware)
-# app.add_middleware(ProxyHeadersMiddleware)
-# app.add_middleware(RateLimitMiddleware)
+app = FastAPI()
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+    )
+    app.add_middleware(SentryAsgiMiddleware)
 
 
 @app.get("/")
@@ -106,10 +101,3 @@ async def collect_stats():
 
 
 app.include_router(api_v1, prefix="/api/v1")
-
-if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        traces_sample_rate=1.0,
-    )
-    app = SentryAsgiMiddleware(app)
