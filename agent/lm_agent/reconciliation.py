@@ -21,9 +21,9 @@ async def remove_booked_for_job_id(job_id: str):
     Send DELETE to /api/v1/booking/book/{job_id}.
     """
     response = await async_client().delete(f"/api/v1/booking/book/{job_id}")
-    logger.debug(f"response from delete: {response.__dict__}")
     if response.status_code != status.HTTP_200_OK:
         logger.error(f"{job_id} could not be deleted.")
+        logger.debug(f"response from delete: {response.__dict__}")
 
 
 async def get_all_grace_times() -> Dict[int, int]:
@@ -41,8 +41,7 @@ async def get_booked_for_job_id(job_id: str) -> Dict:
     Return the booking row for the given job_id.
     """
     response = await async_client().get(f"/api/v1/booking/job/{job_id}")
-    book_row = response.json()
-    return book_row
+    return response.json()
 
 
 def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_rows: List) -> int:
@@ -88,7 +87,7 @@ async def clean_booked_grace_time():
         job_id = job["job_id"]
         greatest_grace_time = get_greatest_grace_time(job_id, grace_times, booking_rows_for_running_jobs)
         # if the running_time is greater than the greatest grace_time, delete the booking for it
-        if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time >= 0:
+        if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             await remove_booked_for_job_id(job_id)
 
 

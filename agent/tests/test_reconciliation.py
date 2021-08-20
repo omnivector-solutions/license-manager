@@ -1,13 +1,14 @@
 from unittest import mock
 
 import pytest
+from fastapi import HTTPException, status
 from httpx import Response
 
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     get_all_grace_times,
-    get_booked_for_job_id,
     get_greatest_grace_time,
+    reconcile,
 )
 
 
@@ -140,14 +141,14 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
 
 
 @pytest.mark.asyncio
-@pytest.mark.respx(base_url="https://foo.bar")
+@pytest.mark.respx(base_url="http://backend")
 async def test_get_all_grace_times(respx_mock):
     """
     Check the return value for the get_all_grace_times.
     """
     respx_mock.get("/api/v1/config/all").mock(
         return_value=Response(
-            status_code=200,
+            status_code=status.HTTP_200_OK,
             json=[
                 {"id": 1, "grace_time": 100},
                 {"id": 2, "grace_time": 300},
@@ -156,3 +157,51 @@ async def test_get_all_grace_times(respx_mock):
     )
     grace_times = await get_all_grace_times()
     assert grace_times == {1: 100, 2: 300}
+
+
+@pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.report")
+async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
+    """
+    Check the correct behavior when the report is empty in reconcile.
+    """
+    report_mock.return_value = []
+    with pytest.raises(HTTPException):
+        await reconcile()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
+    """
+    Check if reconcile does a patch to /license/reconcile and await for clean_booked_grace_time.
+    """
+    respx_mock.patch("/api/v1/license/reconcile").mock(
+        return_value=Response(
+            status_code=status.HTTP_200_OK,
+        )
+    )
+    report_mock.return_value = [{"foo": "bar"}]
+    await reconcile()
+    clean_booked_grace_time_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock, respx_mock):
+    """
+    Check that when patch to /license/reconcile response status_code is not 200, should raise exception.
+    """
+    respx_mock.patch("/api/v1/license/reconcile").mock(
+        return_value=Response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    )
+    report_mock.return_value = [{"foo": "bar"}]
+    with pytest.raises(HTTPException):
+        await reconcile()
+        clean_booked_grace_time_mock.assert_awaited_once()
