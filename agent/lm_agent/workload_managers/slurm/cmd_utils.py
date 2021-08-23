@@ -60,6 +60,20 @@ class LicenseBookingRequest(BaseModel):
     lead_host: str
 
 
+def _match_requested_license(requested_license: str) -> Union[dict, None]:
+    license_regex = re.compile(r"(?P<product>\w+)\.(?P<feature>\w+)@(?P<server_type>\w+):(?P<tokens>\d+)")
+    matches = license_regex.match(requested_license)
+
+    if not matches:
+        return None
+    groups = matches.groupdict()
+    return {
+        "product_feature": groups["product"] + "." + groups["feature"],
+        "server_type": groups["server_type"],
+        "tokens": int(groups["tokens"]),
+    }
+
+
 async def get_required_licenses_for_job(
     slurm_job_id: str, user_name: str, lead_host: str
 ) -> Union[LicenseBookingRequest, None]:
@@ -78,21 +92,23 @@ async def get_required_licenses_for_job(
     if not license_array:
         return None
 
-    if license_array[0] != "(null)":
-        for requested_license in license_array:
-            license_regex = re.compile(r"(\w+)\.(\w+)@(\w+):(\d+)")
-            if license_regex.match(requested_license):
-                # If the regex matches, parse the values
-                product_feature, license_server_tokens = requested_license.split("@")
-                license_server_type, tokens = license_server_tokens.split(":")
+    if license_array[0] == "(null)":
+        return None
 
-                # Create the license booking
-                license_booking = LicenseBooking(
-                    product_feature=product_feature,
-                    tokens=tokens,
-                    license_server_type=license_server_type,
-                )
-                license_booking_request.bookings.append(license_booking)
+    for requested_license in license_array:
+        matched_license_items = _match_requested_license(requested_license)
+        if not matched_license_items:
+            continue
+        product_feature = matched_license_items["product_feature"]
+        license_server_type = matched_license_items["server_type"]
+        tokens = matched_license_items["tokens"]
+        # Create the license booking
+        license_booking = LicenseBooking(
+            product_feature=product_feature,
+            tokens=tokens,
+            license_server_type=license_server_type,
+        )
+        license_booking_request.bookings.append(license_booking)
 
     return license_booking_request
 
