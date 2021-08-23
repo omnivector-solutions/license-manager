@@ -170,7 +170,7 @@ async def test_delete_if_in_use_booking(insert_objects, some_licenses, some_conf
 
     await license._delete_if_in_use_booking(license_reconcile_request)
 
-    booking_rows = [BookingRow.parse_obj(x) for x in await database.fetch_all(booking_table.select())]
+    booking_rows = await database.fetch_all(booking_table.select())
     assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted
 
 
@@ -194,7 +194,7 @@ async def test_delete_if_in_use_booking_empty(
 
     await license._delete_if_in_use_booking(license_reconcile_request)
 
-    booking_rows = [BookingRow.parse_obj(x) for x in await database.fetch_all(booking_table.select())]
+    booking_rows = await database.fetch_all(booking_table.select())
     assert len(booking_rows) == len(some_booking_rows)
 
 
@@ -253,5 +253,5 @@ async def test_reconcile_changes_clean_up_in_use_bookings(
     )
     assert response.status_code == status.HTTP_200_OK
 
-    booking_rows = [BookingRow.parse_obj(x) for x in await database.fetch_all(booking_table.select())]
+    booking_rows = await database.fetch_all(booking_table.select())
     assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted
