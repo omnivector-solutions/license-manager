@@ -43,7 +43,7 @@ async def test_main_error_in_get_required_licenses_for_job(
     get_job_context_mock, get_required_licenses_for_job_mock, sys_mock
 ):
     get_required_licenses_for_job_mock.side_effect = Exception
-    get_job_context_mock.return_value = {"job_id": 1, "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
 
     with pytest.raises(Exception):
         await main()
@@ -57,7 +57,7 @@ async def test_main_error_in_get_required_licenses_for_job(
 async def test_main_error_in_get_config_from_backend(
     get_config_from_backend_mock, get_job_context_mock, get_required_licenses_for_job_mock, sys_mock
 ):
-    get_job_context_mock.return_value = {"job_id": 1, "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
     licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
@@ -69,6 +69,8 @@ async def test_main_error_in_get_config_from_backend(
 
     with pytest.raises(Exception):
         await main()
+
+    get_required_licenses_for_job_mock.assert_awaited_once_with("1", "user1", "host1")
 
 
 @pytest.mark.asyncio
@@ -84,7 +86,7 @@ async def test_main_error_in_get_tokens_for_license(
     get_required_licenses_for_job_mock,
     sys_mock,
 ):
-    get_job_context_mock.return_value = {"job_id": 1, "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
     licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
@@ -96,6 +98,9 @@ async def test_main_error_in_get_tokens_for_license(
 
     with pytest.raises(Exception):
         await main()
+
+    get_required_licenses_for_job_mock.assert_awaited_once_with("1", "user1", "host1")
+    get_config_from_backend_mock.assert_awaited_once()
 
 
 @pytest.mark.asyncio
