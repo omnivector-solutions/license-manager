@@ -39,18 +39,29 @@ async def _remove_booking_for_job(job_id: str) -> bool:
 
 
 async def main():
+    # Initialize the logger
+    init_logging("slurmctld-epilog")
+
     # Acqure the job context and get the job_id.
     ctxt = get_job_context()
     job_id = ctxt["job_id"]
     user_name = ctxt["user_name"]
     lead_host = ctxt["lead_host"]
 
-    license_booking_request = await get_required_licenses_for_job(job_id, user_name, lead_host)
+    try:
+        license_booking_request = await get_required_licenses_for_job(job_id, user_name, lead_host)
+    except Exception as e:
+        logger.error(f"Failed to call get_required_licenses_for_job with {e}")
+        sys.exit(1)
 
     if len(license_booking_request.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         tracked_licenses = list()
-        entries = await get_config_from_backend()
+        try:
+            entries = await get_config_from_backend()
+        except Exception as e:
+            logger.error(f"Failed to call get_config_from_backend with {e}")
+            sys.exit(1)
         for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{entry.product}.{feature}")
@@ -65,7 +76,11 @@ async def main():
             license = f"{product_feature}@{license_server_type}"
 
             if product_feature in tracked_licenses:
-                total = await get_tokens_for_license(license, "Total")
+                try:
+                    total = await get_tokens_for_license(license, "Total")
+                except Exception as e:
+                    logger.error(f"Failed to call get_tokens_for_license with {e}")
+                    sys.exit(1)
                 update_resource = await sacctmgr_modify_resource(product, feature, total - tokens_to_remove)
 
                 if update_resource:
@@ -82,7 +97,6 @@ async def main():
     sys.exit(0)
 
 
-# Initialize the logger
-init_logging("slurmctld-epilog")
-# Run main()
-asyncio.run(main())
+if __name__ == "__main__":
+    # Run main()
+    asyncio.run(main())

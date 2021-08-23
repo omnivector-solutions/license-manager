@@ -27,6 +27,8 @@ from lm_agent.workload_managers.slurm.common import get_job_context
 
 async def main():
     """The PrologSlurmctld for the license-manager-agent."""
+    # Initialize the logger
+    init_logging("slurmctld-prolog")
     # Acqure the job context
     job_context = get_job_context()
     job_id = job_context.get("job_id", "")
@@ -35,14 +37,22 @@ async def main():
 
     logger.info(f"Prolog started for job id: {job_id}")
 
-    required_licenses = await get_required_licenses_for_job(job_id, user_name, lead_host)
-    logger.debug(f"Required licenses: {required_licenses}")
+    try:
+        required_licenses = await get_required_licenses_for_job(job_id, user_name, lead_host)
+        logger.debug(f"Required licenses: {required_licenses}")
+    except Exception as e:
+        logger.error(f"Failed to call get_required_licenses_for_job with {e}")
+        sys.exit(1)
 
     tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
     if len(required_licenses.bookings) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
-        entries = await get_config_from_backend()
+        try:
+            entries = await get_config_from_backend()
+        except Exception as e:
+            logger.error(f"Failed to call get_config_from_backend with {e}")
+            sys.exit(1)
         for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{entry.product}.{feature}")
@@ -61,9 +71,19 @@ async def main():
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.
-        await reconcile()
+        try:
+            await reconcile()
+        except Exception as e:
+            logger.error(f"Failed to call reconcile with {e}")
+            sys.exit(1)
         # Check that there are sufficient feature tokens for the job.
-        feature_token_availability = await check_feature_token_availablity(tracked_license_booking_request)
+        try:
+            feature_token_availability = await check_feature_token_availablity(
+                tracked_license_booking_request
+            )
+        except Exception as e:
+            logger.error(f"Failed to call check_feature_token_availablity with {e}")
+            sys.exit(1)
         if feature_token_availability:
             # If we have sufficient tokens for features that are
             # requested, proceed with booking the tokens for each feature.
@@ -81,7 +101,6 @@ async def main():
     sys.exit(0)
 
 
-# Initialize the logger
-init_logging("slurmctld-prolog")
-# Run main()
-asyncio.run(main())
+if __name__ == "__main__":
+    # Run main()
+    asyncio.run(main())
