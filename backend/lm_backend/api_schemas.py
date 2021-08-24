@@ -56,6 +56,7 @@ class BookingRow(BaseModel):
     A flattened booking, suitable to be inserted into the database
     """
 
+    id: Optional[int] = Field(None)
     job_id: str
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     booked: int
@@ -84,6 +85,14 @@ class LicenseUseReconcile(LicenseUseBase):
     """
 
     total: int
+
+
+class LicenseUseReconcileRequest(LicenseUseReconcile):
+    """
+    Used in the /reconcile request.
+    """
+
+    used_licenses: List
 
 
 class LicenseUse(LicenseUseBase):

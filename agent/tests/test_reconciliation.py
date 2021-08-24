@@ -1,13 +1,14 @@
 from unittest import mock
 
 import pytest
+from fastapi import HTTPException, status
 from httpx import Response
 
 from lm_agent.reconciliation import (
-    FailedToRemoveBookedViaGraceTime,
     clean_booked_grace_time,
     get_all_grace_times,
     get_greatest_grace_time,
+    reconcile,
 )
 
 
@@ -42,20 +43,20 @@ def test_get_greatest_grace_time(booking_rows_json):
         2: 20,
         3: 400,
     }
-    greatest_grace_time = get_greatest_grace_time("1", grace_times, booking_rows_json)
+    greatest_grace_time = get_greatest_grace_time("1", grace_times, [booking_rows_json])
     assert greatest_grace_time == 400
-    greatest_grace_time = get_greatest_grace_time("2", grace_times, booking_rows_json)
+    greatest_grace_time = get_greatest_grace_time("2", grace_times, [booking_rows_json])
     assert greatest_grace_time == 20
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -63,7 +64,7 @@ async def test_clean_booked_grace_time(
     """
     Test for when the running time is greater than the grace_time, then delete the booking.
     """
-    asyncio_mock.gather.return_value = booking_rows_json
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 100, 2: 30, 3: 10}
     await clean_booked_grace_time()
@@ -74,11 +75,11 @@ async def test_clean_booked_grace_time(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time_dont_delete(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -86,7 +87,7 @@ async def test_clean_booked_grace_time_dont_delete(
     """
     Test for when the running time is smaller than the grace_time, then don't delete the booking.
     """
-    asyncio_mock.gather.return_value = booking_rows_json
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 1000, 2: 3000, 3: 1000}
     await clean_booked_grace_time()
@@ -97,11 +98,33 @@ async def test_clean_booked_grace_time_dont_delete(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+async def test_clean_booked_grace_time_dont_delete_if_grace_time_invalid(
+    remove_booked_for_job_id_mock,
+    get_booked_for_job_id_mock,
+    get_all_grace_times_mock,
+    return_formatted_squeue_out_mock,
+):
+    """
+    Test for when the remove_booked_for_job_id raises an exception.
+    """
+    get_booked_for_job_id_mock.return_value = []
+    return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
+    get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
+    await clean_booked_grace_time()
+    remove_booked_for_job_id_mock.assert_not_awaited()
+    get_all_grace_times_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
+@mock.patch("lm_agent.reconciliation.get_all_grace_times")
+@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
 async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     remove_booked_for_job_id_mock,
-    asyncio_mock,
+    get_booked_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -109,7 +132,7 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     """
     Test for when there are no jobs running, don't delete.
     """
-    asyncio_mock.gather.return_value = {}
+    get_booked_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = ""
     get_all_grace_times_mock.return_value = {1: 10, 2: 10}
     await clean_booked_grace_time()
@@ -118,37 +141,14 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
-@mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.asyncio")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
-async def test_clean_booked_grace_time_failed_to_delete(
-    remove_booked_for_job_id_mock,
-    asyncio_mock,
-    get_all_grace_times_mock,
-    return_formatted_squeue_out_mock,
-    booking_rows_json,
-):
-    """
-    Test for when the remove_booked_for_job_id raises an exception.
-    """
-    asyncio_mock.gather.return_value = booking_rows_json
-    return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
-    get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
-    remove_booked_for_job_id_mock.side_effect = FailedToRemoveBookedViaGraceTime()
-    with pytest.raises(FailedToRemoveBookedViaGraceTime):
-        await clean_booked_grace_time()
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="https://foo.bar")
+@pytest.mark.respx(base_url="http://backend")
 async def test_get_all_grace_times(respx_mock):
     """
     Check the return value for the get_all_grace_times.
     """
     respx_mock.get("/api/v1/config/all").mock(
         return_value=Response(
-            status_code=200,
+            status_code=status.HTTP_200_OK,
             json=[
                 {"id": 1, "grace_time": 100},
                 {"id": 2, "grace_time": 300},
@@ -157,3 +157,51 @@ async def test_get_all_grace_times(respx_mock):
     )
     grace_times = await get_all_grace_times()
     assert grace_times == {1: 100, 2: 300}
+
+
+@pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.report")
+async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
+    """
+    Check the correct behavior when the report is empty in reconcile.
+    """
+    report_mock.return_value = []
+    with pytest.raises(HTTPException):
+        await reconcile()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
+    """
+    Check if reconcile does a patch to /license/reconcile and await for clean_booked_grace_time.
+    """
+    respx_mock.patch("/api/v1/license/reconcile").mock(
+        return_value=Response(
+            status_code=status.HTTP_200_OK,
+        )
+    )
+    report_mock.return_value = [{"foo": "bar"}]
+    await reconcile()
+    clean_booked_grace_time_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock, respx_mock):
+    """
+    Check that when patch to /license/reconcile response status_code is not 200, should raise exception.
+    """
+    respx_mock.patch("/api/v1/license/reconcile").mock(
+        return_value=Response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    )
+    report_mock.return_value = [{"foo": "bar"}]
+    with pytest.raises(HTTPException):
+        await reconcile()
+        clean_booked_grace_time_mock.assert_awaited_once()

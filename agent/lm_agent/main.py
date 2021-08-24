@@ -6,8 +6,10 @@ Run with e.g. `uvicorn lm_agent.main:app`
 import logging
 
 import pkg_resources
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_agent.api import api_v1
 from lm_agent.backend_utils import LicenseManagerBackendVersionError, get_license_manager_backend_version
@@ -19,16 +21,12 @@ AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
 
 app = FastAPI()
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-# app.add_middleware(TrustedHostMiddleware)
-# app.add_middleware(ProxyHeadersMiddleware)
-# app.add_middleware(RateLimitMiddleware)
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+    )
+    app.add_middleware(SentryAsgiMiddleware)
 
 
 @app.get("/")

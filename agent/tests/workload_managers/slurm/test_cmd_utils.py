@@ -1,6 +1,10 @@
-from pytest import raises
+from pytest import mark, raises
 
-from lm_agent.workload_managers.slurm.cmd_utils import SqueueParserUnexpectedInputError, squeue_parser
+from lm_agent.workload_managers.slurm.cmd_utils import (
+    SqueueParserUnexpectedInputError,
+    _match_requested_license,
+    squeue_parser,
+)
 
 
 def test_squeue_with_bad_input():
@@ -26,3 +30,31 @@ def test_squeue_parser_returns_correct_output_format():
         )
     )
     assert squeue_parsed == squeue_parsed_output
+
+
+def test_match_requested_license():
+    requested_license = "product.feature@flexlm:123"
+
+    return_value = _match_requested_license(requested_license)
+
+    assert return_value == {
+        "product_feature": "product.feature",
+        "server_type": "flexlm",
+        "tokens": 123,
+    }
+
+
+@mark.parametrize(
+    "requested_license",
+    [
+        ("productfeature@flexlm:bla"),
+        ("productfeature@flexlm:999"),
+        ("product.featureflexlm:999"),
+        ("product.feature@flexlm999"),
+        ("productfeatureflexlm999"),
+        (""),
+        ("product.feature:flexlm@999"),
+    ],
+)
+def test_match_requested_license_wrong_string(requested_license):
+    assert _match_requested_license(requested_license) == None

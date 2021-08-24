@@ -1,10 +1,13 @@
-from fastapi import HTTPException
+from unittest import mock
+
+from fastapi import HTTPException, status
 from httpx import AsyncClient
 from pytest import mark, raises
 
 from lm_backend.api import license
+from lm_backend.api_schemas import BookingRow, LicenseUseReconcile, LicenseUseReconcileRequest
 from lm_backend.storage import database
-from lm_backend.table_schemas import license_table
+from lm_backend.table_schemas import booking_table, config_table, license_table
 
 
 def test_license_use_available():
@@ -71,7 +74,7 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses, inse
     """
     await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/hello")
-    assert resp.status_code == 200
+    assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
             product_feature="hello.dolly",
@@ -91,7 +94,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
     """
     await insert_objects(some_licenses, license_table)
     resp = await backend_client.get("/api/v1/license/use/cool/beans")
-    assert resp.status_code == 200
+    assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
             product_feature="cool.beans",
@@ -141,3 +144,114 @@ async def test_map_bookings(some_licenses, insert_objects):
     assert await license.map_bookings(lubs) == {
         "cool.beans": license.LicenseUseBooking(product_feature="cool.beans", used=19)
     }
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_delete_if_in_use_booking(insert_objects, some_licenses, some_config_rows, some_booking_rows):
+    """
+    Make sure the given LicenseUseReconcileRequest gets deleted only if the pair booked, lead_host,
+    user_name and product_feature exists in the booking table.
+    """
+    await insert_objects(some_config_rows, config_table)
+    await insert_objects(some_booking_rows, booking_table)
+    await insert_objects(some_licenses, license_table)
+
+    used_licenses = [
+        {"booked": 19, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 11, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 12, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 13, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 14, "lead_host": "host1", "user_name": "user1"},
+    ]
+    license_reconcile_request = LicenseUseReconcileRequest(
+        used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+    )
+
+    await license._delete_if_in_use_booking(license_reconcile_request)
+
+    booking_rows = await database.fetch_all(booking_table.select())
+    assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_delete_if_in_use_booking_empty(
+    insert_objects, some_licenses, some_config_rows, some_booking_rows
+):
+    """
+    Check if the function works well given a used_liceses empty and don't delete anything from the
+    booking_table.
+    """
+    await insert_objects(some_config_rows, config_table)
+    await insert_objects(some_booking_rows, booking_table)
+    await insert_objects(some_licenses, license_table)
+
+    used_licenses = []
+    license_reconcile_request = LicenseUseReconcileRequest(
+        used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+    )
+
+    await license._delete_if_in_use_booking(license_reconcile_request)
+
+    booking_rows = await database.fetch_all(booking_table.select())
+    assert len(booking_rows) == len(some_booking_rows)
+
+
+@mark.asyncio
+@mock.patch("lm_backend.api.license._delete_if_in_use_booking")
+@database.transaction(force_rollback=True)
+async def test_clean_up_in_use_booking_conversion(delete_in_use_mock: mock.AsyncMock):
+    """
+    Check if the _clean_up_in_use_booking actually converts the data type and calls the
+    _delete_if_in_use_booking.
+    """
+    used_licenses = [
+        {"booked": 19, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 11, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 12, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 13, "lead_host": "host1", "user_name": "user1"},
+        {"booked": 14, "lead_host": "host1", "user_name": "user1"},
+    ]
+    license_reconcile_requests = [
+        LicenseUseReconcileRequest(
+            used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+        ),
+        LicenseUseReconcileRequest(
+            used=11, product_feature="hello.dolly", total=100, used_licenses=used_licenses
+        ),
+    ]
+
+    license_reconciles = await license._clean_up_in_use_booking(license_reconcile_requests)
+    assert len(license_reconciles) == len(license_reconcile_requests)
+    assert isinstance(license_reconciles[0], LicenseUseReconcile)
+    assert isinstance(license_reconciles[1], LicenseUseReconcile)
+    assert delete_in_use_mock.await_count == 2
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_reconcile_changes_clean_up_in_use_bookings(
+    insert_objects, some_licenses, some_config_rows, some_booking_rows, backend_client
+):
+    """
+    Make sure the /reconcile endpoint correct handle the in use cleanup.
+    """
+    await insert_objects(some_config_rows, config_table)
+    await insert_objects(some_booking_rows, booking_table)
+    await insert_objects(some_licenses, license_table)
+
+    used_licenses = [
+        {"booked": 19, "lead_host": "host1", "user_name": "user1"},
+    ]
+    license_reconcile_request = LicenseUseReconcileRequest(
+        used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+    )
+
+    response = await backend_client.patch(
+        "/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    booking_rows = await database.fetch_all(booking_table.select())
+    assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted

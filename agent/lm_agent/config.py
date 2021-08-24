@@ -66,6 +66,8 @@ class Settings(BaseSettings):
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
+    SENTRY_DSN: Optional[str] = None
+
     # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 

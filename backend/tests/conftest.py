@@ -77,16 +77,19 @@ def some_licenses():
             product_feature="hello.world",
             total=100,
             used=19,
+            used_licenses=[{"booked": 19, "lead_host": "host1", "user_name": "user1"}],
         ),
         LUR(
             product_feature="hello.dolly",
             total=80,
             used=11,
+            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
         ),
         LUR(
             product_feature="cool.beans",
             total=11,
             used=11,
+            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
         ),
     ]
     return inserts

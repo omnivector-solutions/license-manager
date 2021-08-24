@@ -4,10 +4,17 @@ from typing import Dict, List, Sequence, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.sql import select, update
 
-from lm_backend.api_schemas import LicenseUse, LicenseUseBase, LicenseUseBooking, LicenseUseReconcile
+from lm_backend.api_schemas import (
+    BookingRow,
+    LicenseUse,
+    LicenseUseBase,
+    LicenseUseBooking,
+    LicenseUseReconcile,
+    LicenseUseReconcileRequest,
+)
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
-from lm_backend.table_schemas import license_table
+from lm_backend.table_schemas import booking_table, license_table
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
@@ -83,12 +90,54 @@ async def _get_these_licenses(product_features: Sequence[str]) -> List[LicenseUs
     return [LicenseUse.parse_obj(f) for f in fetched]
 
 
+async def _delete_if_in_use_booking(license: LicenseUseReconcileRequest):
+    """
+    Check the database for the license, if it is booked, then delete it.
+    """
+    queries = []
+    for used_license in license.used_licenses:
+        query = (
+            booking_table.select()
+            .where(booking_table.c.lead_host == used_license["lead_host"])
+            .where(booking_table.c.user_name == used_license["user_name"])
+            .where(booking_table.c.booked == used_license["booked"])
+            .where(booking_table.c.product_feature == license.product_feature)
+        )
+        queries.append(database.fetch_one(query))
+    fetched = await asyncio.gather(*queries)
+    bookings = [BookingRow.parse_obj(item) for item in fetched if item is not None]
+    if not bookings:
+        return
+
+    delete_queries = []
+    for booking in bookings:
+        delete_query = booking_table.delete().where(booking_table.c.id == booking.id)
+        delete_queries.append(database.execute(delete_query))
+    await asyncio.gather(*delete_queries)
+
+
+async def _clean_up_in_use_booking(
+    reconcile_request: List[LicenseUseReconcileRequest],
+) -> List[LicenseUseReconcile]:
+    """
+    For each license in the reconcile check if the {lead_host}{user_name}{booked} matches something in the
+    database, then delete these bookings because they are already in use.
+    """
+    reconcile = []
+    for license in reconcile_request:
+        await _delete_if_in_use_booking(license)
+        reconcile.append(LicenseUseReconcile(**license.dict(exclude={"used_licenses"})))
+
+    return reconcile
+
+
 @database.transaction()
 @router.patch("/reconcile", response_model=List[LicenseUse])
-async def reconcile_changes(reconcile: List[LicenseUseReconcile]):
+async def reconcile_changes(reconcile_request: List[LicenseUseReconcileRequest]):
     """
     Set counts for models
     """
+    reconcile = await _clean_up_in_use_booking(reconcile_request)
     updates, inserts = await _find_license_updates_and_inserts(reconcile)
 
     ops = []

@@ -5,7 +5,7 @@ set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
 import sys
-from typing import Any, Optional
+from typing import Optional
 
 import pkg_resources
 import sentry_sdk
@@ -19,7 +19,7 @@ from lm_backend import storage
 from lm_backend.api import api_v1
 from lm_backend.config import settings
 
-app: Any = FastAPI(root_path=settings.ASGI_ROOT_PATH)
+app = FastAPI(root_path=settings.ASGI_ROOT_PATH)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
@@ -35,10 +35,7 @@ if settings.SENTRY_DSN:
         dsn=settings.SENTRY_DSN,
         traces_sample_rate=1.0,
     )
-
-# app.add_middleware(TrustedHostMiddleware)
-# app.add_middleware(ProxyHeadersMiddleware)
-# app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(SentryAsgiMiddleware)
 
 
 @app.get("/")
@@ -103,10 +100,6 @@ async def disconnect_database():
     Disconnect the database
     """
     await storage.database.disconnect()
-
-
-if settings.SENTRY_DSN:
-    app = SentryAsgiMiddleware(app)
 
 
 def handler(event: dict, context: dict) -> Optional[dict]:

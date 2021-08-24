@@ -60,6 +60,20 @@ class LicenseBookingRequest(BaseModel):
     lead_host: str
 
 
+def _match_requested_license(requested_license: str) -> Union[dict, None]:
+    license_regex = re.compile(r"(?P<product>\w+)\.(?P<feature>\w+)@(?P<server_type>\w+):(?P<tokens>\d+)")
+    matches = license_regex.match(requested_license)
+
+    if not matches:
+        return None
+    groups = matches.groupdict()
+    return {
+        "product_feature": groups["product"] + "." + groups["feature"],
+        "server_type": groups["server_type"],
+        "tokens": int(groups["tokens"]),
+    }
+
+
 async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     """Retrieve the required licenses for a job."""
 
@@ -67,18 +81,30 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     logger.debug(f"##### License array for job id: {slurm_job_id} #####")
     logger.debug(license_array)
 
-    required_features = list()
+    required_liceses: List = []
 
-    if license_array[0] != "(null)":
-        for requested_license in license_array:
-            license_regex = re.compile(r"(\w+)\.(\w+)@(\w+):(\d+)")
-            if license_regex.match(requested_license):
-                # If the regex matches, parse the values
-                product_feature, _ = requested_license.split("@")
+    if not license_array:
+        return required_liceses
 
-                required_features.append(product_feature)
+    if license_array[0] == "(null)":
+        return required_liceses
 
-    return required_features
+    for requested_license in license_array:
+        matched_license_items = _match_requested_license(requested_license)
+        if not matched_license_items:
+            continue
+        product_feature = matched_license_items["product_feature"]
+        license_server_type = matched_license_items["server_type"]
+        tokens = matched_license_items["tokens"]
+        # Create the license booking
+        license_booking = LicenseBooking(
+            product_feature=product_feature,
+            tokens=tokens,
+            license_server_type=license_server_type,
+        )
+        required_liceses.append(license_booking)
+
+    return required_liceses
 
 
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
@@ -92,9 +118,11 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
     with httpx.Client() as client:
         resp = client.get(f"{settings.AGENT_BASE_URL}/api/v1/license/all", headers=LM2_AGENT_HEADERS)
         logger.debug("##### /api/v1/license/all #####")
-        logger.debug(resp.json())
+        data = resp.json()
+        logger.debug(f"response data: {data}")
+        logger.debug(f"lbr: {lbr}")
 
-        for item in resp.json():
+        for item in data:
             product_feature = item["product_feature"]
             for license_booking in lbr.bookings:
                 if product_feature == license_booking.product_feature:
@@ -103,11 +131,11 @@ async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
                         logger.debug(f"##### {product_feature}, tokens avalable #####")
                         logger.debug(f"##### Tokens available {tokens_available} #####")
                         logger.debug(f"##### Tokens required {license_booking.tokens} #####")
+                        return True
                     else:
                         logger.debug(f"##### {product_feature}, tokens not available #####")
                         logger.debug(f"##### Tokens available {tokens_available} #####")
                         logger.debug(f"##### Tokens required {license_booking.tokens} #####")
-                        return True
     logger.debug("##### Tokens not available #####")
     return False
 
@@ -123,6 +151,9 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
         for license_booking in lbr.bookings
     ]
 
+    logger.debug(f"features: {features}")
+    logger.debug(f"lbr: {lbr}")
+
     with httpx.Client() as client:
         resp = client.put(
             f"{settings.AGENT_BASE_URL}/api/v1/booking/book",
@@ -130,7 +161,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
             json={
                 "job_id": lbr.job_id,
                 "features": features,
-                "user_name": lbr.lead_host,
+                "user_name": lbr.user_name,
                 "lead_host": lbr.lead_host,
             },
         )

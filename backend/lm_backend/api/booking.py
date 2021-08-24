@@ -20,7 +20,7 @@ async def get_bookings_all():
     """
     All license counts we are tracking
     """
-    query = booking_table.select().order_by(booking_table.c.job_id, booking_table.c.product_feature)
+    query = booking_table.select()
     fetched = await database.fetch_all(query)
     return [BookingRow.parse_obj(x) for x in fetched]
 
@@ -73,12 +73,15 @@ async def create_booking(booking: Booking):
             )
         )
 
+    inserts_without_id = []
+    for insert in inserts:
+        inserts_without_id.append(insert.dict(exclude={"id"}))
     try:
-        await database.execute_many(query=booking_table.insert(), values=[i.dict() for i in inserts])
-    except INTEGRITY_CHECK_EXCEPTIONS:
+        await database.execute_many(query=booking_table.insert(), values=[i for i in inserts_without_id])
+    except INTEGRITY_CHECK_EXCEPTIONS as e:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't book {booking.job_id}, it is already booked"),
+            detail=(f"Couldn't book {booking.job_id}, it is already booked\n{e}"),
         )
 
     # update the license table
