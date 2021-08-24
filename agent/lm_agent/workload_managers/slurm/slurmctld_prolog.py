@@ -38,7 +38,7 @@ async def main():
     logger.info(f"Prolog started for job id: {job_id}")
 
     try:
-        required_licenses = await get_required_licenses_for_job(job_id, user_name, lead_host)
+        required_licenses = await get_required_licenses_for_job(job_id)
         logger.debug(f"Required licenses: {required_licenses}")
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
@@ -46,7 +46,7 @@ async def main():
 
     tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
-    if len(required_licenses.bookings) > 0:
+    if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
             entries = await get_config_from_backend()
@@ -64,7 +64,7 @@ async def main():
     tracked_license_booking_request = LicenseBookingRequest(
         job_id=job_id, bookings=[], user_name=user_name, lead_host=lead_host
     )
-    for booking in required_licenses.bookings:
+    for booking in required_licenses:
         if booking.product_feature in tracked_licenses:
             tracked_license_booking_request.bookings.append(booking)
     logger.debug(f"Tracked license bookings: {tracked_license_booking_request}")

@@ -45,16 +45,14 @@ async def main():
     # Acqure the job context and get the job_id.
     ctxt = get_job_context()
     job_id = ctxt["job_id"]
-    user_name = ctxt["user_name"]
-    lead_host = ctxt["lead_host"]
 
     try:
-        license_booking_request = await get_required_licenses_for_job(job_id, user_name, lead_host)
+        required_licenses = await get_required_licenses_for_job(job_id)
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
 
-    if len(license_booking_request.bookings) > 0:
+    if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         tracked_licenses = list()
         try:
@@ -68,7 +66,7 @@ async def main():
 
         # If a license booking's product feature is tracked,
         # update slurm's view of the token totals
-        for license_booking in license_booking_request.bookings:
+        for license_booking in required_licenses:
             product_feature = license_booking.product_feature
             product, feature = product_feature.split(".")
             license_server_type = license_booking.license_server_type

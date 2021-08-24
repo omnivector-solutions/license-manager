@@ -174,8 +174,8 @@ async def test_get_required_licenses_for_job_good(
     Do I return the correct licenses when the license format matches?
     """
     get_licenses_for_job_mock.return_value = scontrol_parsed_output_good
-    required_licenses = await get_required_licenses_for_job(slurm_job_id, "user1", "host1")
-    assert len(required_licenses.bookings) == 3
+    required_licenses = await get_required_licenses_for_job(slurm_job_id)
+    assert len(required_licenses) == 3
 
 
 @mark.asyncio
@@ -190,5 +190,5 @@ async def test_get_required_licenses_for_job_bad(
     """
 
     get_licenses_for_job_mock.return_value = scontrol_parsed_output_bad
-    required_licenses = await get_required_licenses_for_job(slurm_job_id, "user1", "host1")
-    assert len(required_licenses.bookings) == 0
+    required_licenses = await get_required_licenses_for_job(slurm_job_id)
+    assert len(required_licenses) == 0

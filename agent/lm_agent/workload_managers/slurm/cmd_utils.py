@@ -74,26 +74,20 @@ def _match_requested_license(requested_license: str) -> Union[dict, None]:
     }
 
 
-async def get_required_licenses_for_job(
-    slurm_job_id: str, user_name: str, lead_host: str
-) -> Union[LicenseBookingRequest, None]:
+async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     """Retrieve the required licenses for a job."""
 
     license_array = await get_licenses_for_job(slurm_job_id)
     logger.debug(f"##### License array for job id: {slurm_job_id} #####")
     logger.debug(license_array)
 
-    license_booking_request = LicenseBookingRequest(
-        job_id=slurm_job_id,
-        bookings=[],
-        user_name=user_name,
-        lead_host=lead_host,
-    )
+    required_liceses: List = []
+
     if not license_array:
-        return None
+        return required_liceses
 
     if license_array[0] == "(null)":
-        return None
+        return required_liceses
 
     for requested_license in license_array:
         matched_license_items = _match_requested_license(requested_license)
@@ -108,9 +102,9 @@ async def get_required_licenses_for_job(
             tokens=tokens,
             license_server_type=license_server_type,
         )
-        license_booking_request.bookings.append(license_booking)
+        required_liceses.append(license_booking)
 
-    return license_booking_request
+    return required_liceses
 
 
 async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:

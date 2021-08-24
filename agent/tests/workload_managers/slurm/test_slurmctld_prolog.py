@@ -29,13 +29,11 @@ async def test_main_error_in_get_config_from_backend(
     get_config_from_backend_mock, get_required_licenses_for_job_mock, get_job_context_mock, sys_mock
 ):
     get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
-    licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
     bookings_mock.tokens = 10
-    licenses_mock.bookings = [bookings_mock]
-    get_required_licenses_for_job_mock.return_value = licenses_mock
+    get_required_licenses_for_job_mock.return_value = [bookings_mock]
     get_config_from_backend_mock.side_effect = Exception
 
     with pytest.raises(Exception):
@@ -57,13 +55,11 @@ async def test_main_error_in_reconcile(
     sys_mock,
 ):
     get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
-    licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
     bookings_mock.tokens = 10
-    licenses_mock.bookings = [bookings_mock]
-    get_required_licenses_for_job_mock.return_value = licenses_mock
+    get_required_licenses_for_job_mock.return_value = [bookings_mock]
 
     backend_return_mock = mock.MagicMock()
     backend_return_mock.product = "test"
@@ -95,13 +91,11 @@ async def test_main_error_in_check_feature_token_availability(
     sys_mock,
 ):
     get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
-    licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
     bookings_mock.tokens = 10
-    licenses_mock.bookings = [bookings_mock]
-    get_required_licenses_for_job_mock.return_value = licenses_mock
+    get_required_licenses_for_job_mock.return_value = [bookings_mock]
 
     backend_return_mock = mock.MagicMock()
     backend_return_mock.product = "test"
@@ -136,13 +130,11 @@ async def test_main(
     sys_mock,
 ):
     get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
-    licenses_mock = mock.MagicMock()
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
     bookings_mock.tokens = 10
-    licenses_mock.bookings = [bookings_mock]
-    get_required_licenses_for_job_mock.return_value = licenses_mock
+    get_required_licenses_for_job_mock.return_value = [bookings_mock]
 
     backend_return_mock = mock.MagicMock()
     backend_return_mock.product = "test"
@@ -155,6 +147,6 @@ async def test_main(
 
     check_feature_token_availablity_mock.assert_awaited_once()
     get_config_from_backend_mock.assert_awaited_once()
-    get_required_licenses_for_job_mock.assert_awaited_once_with("1", "user1", "host1")
+    get_required_licenses_for_job_mock.assert_awaited_once_with("1")
     reconcile_mock.assert_awaited_once()
     make_booking_request_mock.assert_awaited_once()
