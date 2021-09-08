@@ -39,9 +39,6 @@ async def _remove_booking_for_job(job_id: str) -> bool:
 
 
 async def main():
-    # Initialize the logger
-    init_logging("slurmctld-epilog")
-
     # Acqure the job context and get the job_id.
     ctxt = get_job_context()
     job_id = ctxt["job_id"]
@@ -51,6 +48,10 @@ async def main():
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
+
+    if not required_licenses:
+        logger.debug("No licenses required, exiting!")
+        sys.exit(0)
 
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
@@ -95,6 +96,7 @@ async def main():
     sys.exit(0)
 
 
-if __name__ == "__main__":
-    # Run main()
-    asyncio.run(main())
+# Initialize the logger
+# init_logging("slurmctld-epilog")
+# Run main()
+asyncio.run(main())
