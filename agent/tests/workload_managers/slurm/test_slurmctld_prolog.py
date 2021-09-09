@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from lm_agent.workload_managers.slurm.common import get_job_context
-from lm_agent.workload_managers.slurm.slurmctld_prolog import main
+from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as main
 
 
 @pytest.mark.asyncio

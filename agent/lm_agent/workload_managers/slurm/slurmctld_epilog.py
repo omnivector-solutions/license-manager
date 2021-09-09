@@ -38,7 +38,9 @@ async def _remove_booking_for_job(job_id: str) -> bool:
     return False
 
 
-async def main():
+async def epilog():
+    # Initialize the logger
+    init_logging("slurmctld-epilog")
     # Acqure the job context and get the job_id.
     ctxt = get_job_context()
     job_id = ctxt["job_id"]
@@ -96,7 +98,9 @@ async def main():
     sys.exit(0)
 
 
-# Initialize the logger
-# init_logging("slurmctld-epilog")
-# Run main()
-asyncio.run(main())
+def main():
+    asyncio.run(epilog())
+
+
+if __name__ == "__main__":
+    main()

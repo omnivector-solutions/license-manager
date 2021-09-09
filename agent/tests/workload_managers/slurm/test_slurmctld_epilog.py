@@ -4,7 +4,8 @@ import pytest
 from fastapi import status
 from httpx import Response
 
-from lm_agent.workload_managers.slurm.slurmctld_epilog import _remove_booking_for_job, main
+from lm_agent.workload_managers.slurm.slurmctld_epilog import _remove_booking_for_job
+from lm_agent.workload_managers.slurm.slurmctld_epilog import epilog as main
 
 
 @pytest.mark.asyncio

@@ -25,8 +25,10 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 
-async def main():
+async def prolog():
     """The PrologSlurmctld for the license-manager-agent."""
+    # Initialize the logger
+    init_logging("slurmctld-prolog")
     # Acqure the job context
     job_context = get_job_context()
     job_id = job_context.get("job_id", "")
@@ -103,7 +105,10 @@ async def main():
 
     sys.exit(0)
 
-# Initialize the logger
-# init_logging("slurmctld-prolog")
-# Run main()
-asyncio.run(main())
+
+def main():
+    asyncio.run(prolog())
+
+
+if __name__ == "__main__":
+    main()
