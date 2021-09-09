@@ -25,7 +25,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 
-async def main():
+async def prolog():
     """The PrologSlurmctld for the license-manager-agent."""
     # Initialize the logger
     init_logging("slurmctld-prolog")
@@ -44,8 +44,13 @@ async def main():
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
 
+    if not required_licenses:
+        logger.debug("No licenses required, exiting!")
+        sys.exit(0)
+
     tracked_licenses = list()
     # Create a list of tracked licenses in the form <product>.<feature>
+
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
@@ -101,6 +106,9 @@ async def main():
     sys.exit(0)
 
 
+def main():
+    asyncio.run(prolog())
+
+
 if __name__ == "__main__":
-    # Run main()
-    asyncio.run(main())
+    main()
