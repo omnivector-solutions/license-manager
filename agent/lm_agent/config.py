@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     # base url of an endpoint serving the licensemanager2 backend
     # ... I tried using AnyHttpUrl but mypy complained
-    BACKEND_BASE_URL: str = Field("http://127.0.0.1:8000", regex=_URL_REGEX)
+    BACKEND_BASE_URL: str = Field("http://127.0.0.1:8000")
 
     # agent base url
     AGENT_BASE_URL: str = Field("http://127.0.0.1:8010", regex=_URL_REGEX)
