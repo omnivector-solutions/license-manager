@@ -7,10 +7,10 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy.sql import delete
 
 from lm_backend.api.license import edit_counts, map_bookings
-from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUseBooking
+from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table, config_table
+from lm_backend.table_schemas import booking_table, config_table, license_table
 
 router = APIRouter()
 
@@ -47,6 +47,34 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
     return config_row.id
 
 
+async def _is_booking_available(booking: Booking):
+    query = booking_table.select()
+    fetched = await database.fetch_all(query)
+    all_bookings = [BookingRow.parse_obj(x) for x in fetched]
+
+    query = license_table.select()
+    fetched = await database.fetch_all(query)
+    product_feature_licenses = [LicenseUse.parse_obj(x) for x in fetched]
+
+    in_use_total = 0
+    total = 0
+    for license in product_feature_licenses:
+        if license.product_feature not in booking.features:
+            continue
+        in_use_total += license.used
+        total += license.total
+    for book in all_bookings:
+        if book.product_feature not in booking.features:
+            continue
+        in_use_total += book.booked
+
+    insert_quantity = 0
+    for feature in booking.features:
+        insert_quantity += feature.booked
+
+    return insert_quantity + in_use_total <= total
+
+
 @database.transaction()
 @router.put("/book")
 async def create_booking(booking: Booking):
@@ -58,6 +86,11 @@ async def create_booking(booking: Booking):
 
     An error occurs if the new total for `booked` exceeds `total`
     """
+    if not _is_booking_available(booking):
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Couldn't book {booking.job_id}, not enough licenses available."),
+        )
     # update the booking table
     inserts = []
 
