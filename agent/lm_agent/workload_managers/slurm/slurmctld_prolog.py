@@ -17,7 +17,6 @@ from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.logs import init_logging, logger
 from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
-    check_feature_token_availablity,
     get_required_licenses_for_job,
     make_booking_request,
     reconcile,
@@ -81,28 +80,13 @@ async def prolog():
         except Exception as e:
             logger.error(f"Failed to call reconcile with {e}")
             sys.exit(1)
-        # Check that there are sufficient feature tokens for the job.
-        try:
-            feature_token_availability = await check_feature_token_availablity(
-                tracked_license_booking_request
-            )
-        except Exception as e:
-            logger.error(f"Failed to call check_feature_token_availablity with {e}")
-            sys.exit(1)
-        if feature_token_availability:
-            # If we have sufficient tokens for features that are
-            # requested, proceed with booking the tokens for each feature.
-            booking_request = await make_booking_request(tracked_license_booking_request)
-            if booking_request:
-                logger.debug(f"License booking sucessful, job id: {job_id}.")
-                logger.debug(f"Licenses booked: {repr(tracked_licenses)}")
-            else:
-                logger.debug("Booking request unsuccessful.")
-                sys.exit(1)
+        booking_request = await make_booking_request(tracked_license_booking_request)
+        if booking_request:
+            logger.debug(f"License booking sucessful, job id: {job_id}.")
+            logger.debug(f"Licenses booked: {repr(tracked_licenses)}")
         else:
-            logger.debug("Not enough feature tokens for job to proceed.")
+            logger.debug("Booking request unsuccessful.")
             sys.exit(1)
-
     sys.exit(0)
 
 
