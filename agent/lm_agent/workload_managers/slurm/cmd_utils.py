@@ -136,7 +136,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     if resp.status_code == 200:
         logger.debug("##### Booking completed successfully #####")
         return True
-    logger.debug(f"##### Booking failed: {resp.status_code}\n{resp.content} #####")
+    logger.debug(f"##### Booking failed: {str(resp.content)} #####")
     return False
 
 
