@@ -51,10 +51,6 @@ async def _is_booking_available(booking: Booking):
     """For each product_feature in the booking.features, check if the total of in_use_total + new_booked
     is <= the total.
     """
-    query = booking_table.select()
-    fetched = await database.fetch_all(query)
-    all_bookings = [BookingRow.parse_obj(x) for x in fetched]
-
     query = license_table.select()
     fetched = await database.fetch_all(query)
     product_feature_licenses = [LicenseUse.parse_obj(x) for x in fetched]
@@ -66,11 +62,6 @@ async def _is_booking_available(booking: Booking):
             if product_feature.product_feature == license.product_feature:
                 in_use_total = license.used
                 total = license.total
-        for book in all_bookings:
-            if product_feature.product_feature != book.product_feature:
-                continue
-            in_use_total += book.booked
-
         insert_quantity = product_feature.booked
 
         if insert_quantity + in_use_total > total:

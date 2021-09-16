@@ -105,11 +105,12 @@ async def test_bookings_all(
 @mock.patch("lm_backend.api.booking.map_bookings")
 @database.transaction(force_rollback=True)
 async def test_booking_create(
-    edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, insert_objects
+    edit_counts_mock, map_bookings_mock, backend_client, some_config_rows, some_licenses, insert_objects
 ):
     """This test proves that a booking can be created by showing that edit_counts and map_bookings
     are awaited one time and the response status is 200.
     """
+    await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=10, product_feature="hello.world")
     booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
@@ -162,7 +163,7 @@ async def test_booking_create_booked_greater_than_total(
     resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
-    assert "<= total" in resp.json()["detail"]
+    assert "not enough" in resp.json()["detail"]
 
 
 @mark.asyncio
@@ -184,3 +185,37 @@ async def test_booking_delete(
 
     resp = await backend_client.delete("/api/v1/booking/book/helloworld")
     assert resp.status_code == status.HTTP_200_OK
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_is_booking_available_not_available(
+    some_config_rows,
+    some_licenses,
+    some_booking_rows,
+    insert_objects,
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+    features = BookingFeature(booked=100, product_feature="hello.world")
+    booking_row = Booking(job_id="new", features=[features], lead_host="host1", user_name="user2")
+
+    assert await booking._is_booking_available(booking_row) is False
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_is_booking_available(
+    some_config_rows,
+    some_licenses,
+    some_booking_rows,
+    insert_objects,
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+    features = BookingFeature(booked=81, product_feature="hello.world")
+    booking_row = Booking(job_id="new", features=[features], lead_host="host1", user_name="user2")
+
+    assert await booking._is_booking_available(booking_row) is True
