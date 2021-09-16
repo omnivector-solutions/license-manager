@@ -48,6 +48,9 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
 
 
 async def _is_booking_available(booking: Booking):
+    """For each product_feature in the booking.features, check if the total of in_use_total + new_booked
+    is <= the total.
+    """
     query = booking_table.select()
     fetched = await database.fetch_all(query)
     all_bookings = [BookingRow.parse_obj(x) for x in fetched]
@@ -56,23 +59,23 @@ async def _is_booking_available(booking: Booking):
     fetched = await database.fetch_all(query)
     product_feature_licenses = [LicenseUse.parse_obj(x) for x in fetched]
 
-    in_use_total = 0
-    total = 0
-    for license in product_feature_licenses:
-        if license.product_feature not in booking.features:
-            continue
-        in_use_total += license.used
-        total += license.total
-    for book in all_bookings:
-        if book.product_feature not in booking.features:
-            continue
-        in_use_total += book.booked
+    for product_feature in booking.features:
+        in_use_total = 0
+        total = 0
+        for license in product_feature_licenses:
+            if product_feature.product_feature == license.product_feature:
+                in_use_total = license.used
+                total = license.total
+        for book in all_bookings:
+            if product_feature.product_feature != book.product_feature:
+                continue
+            in_use_total += book.booked
 
-    insert_quantity = 0
-    for feature in booking.features:
-        insert_quantity += feature.booked
+        insert_quantity = product_feature.booked
 
-    return insert_quantity + in_use_total <= total
+        if insert_quantity + in_use_total > total:
+            return False
+    return True
 
 
 @database.transaction()
@@ -86,7 +89,7 @@ async def create_booking(booking: Booking):
 
     An error occurs if the new total for `booked` exceeds `total`
     """
-    if not _is_booking_available(booking):
+    if not await _is_booking_available(booking):
         raise HTTPException(
             status_code=400,
             detail=(f"Couldn't book {booking.job_id}, not enough licenses available."),
