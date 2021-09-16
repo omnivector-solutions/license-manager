@@ -6,7 +6,6 @@ from typing import List, Union
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.sql import delete
 
-from lm_backend.api.license import edit_counts, map_bookings
 from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
@@ -51,6 +50,10 @@ async def _is_booking_available(booking: Booking):
     """For each product_feature in the booking.features, check if the total of in_use_total + new_booked
     is <= the total.
     """
+    query = booking_table.select()
+    fetched = await database.fetch_all(query)
+    all_bookings = [BookingRow.parse_obj(x) for x in fetched]
+
     query = license_table.select()
     fetched = await database.fetch_all(query)
     product_feature_licenses = [LicenseUse.parse_obj(x) for x in fetched]
@@ -62,6 +65,11 @@ async def _is_booking_available(booking: Booking):
             if product_feature.product_feature == license.product_feature:
                 in_use_total = license.used
                 total = license.total
+                break
+        for book in all_bookings:
+            if product_feature.product_feature == book.product_feature:
+                in_use_total += book.booked
+
         insert_quantity = product_feature.booked
 
         if insert_quantity + in_use_total > total:
@@ -120,9 +128,7 @@ async def create_booking(booking: Booking):
                 used=feat.booked,
             )
         )
-    edited = await edit_counts(booking=await map_bookings(lubs))
-
-    return dict(message=f"inserted {booking.job_id} to book {len(edited)} product features")
+    return dict(message=f"inserted {booking.job_id}")
 
 
 @database.transaction()
@@ -157,8 +163,7 @@ async def delete_booking(job_id: str):
                 used=-row.booked,
             )
         )
-    edited = await edit_counts(booking=await map_bookings(lubs))
 
     return dict(
-        message=f"deleted {job_id} to free {len(edited)} product features booked",
+        message=f"deleted {job_id}",
     )
