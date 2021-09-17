@@ -47,8 +47,8 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
 
 
 async def _is_booking_available(booking: Booking):
-    """For each product_feature in the booking.features, check if the total of in_use_total + new_booked
-    is <= the total.
+    """Check if the total available is greater than the sum of in_use_total and new_booked, if it is then
+    there is no more bookings available. The in_use_total is calculated accounting for all bookings.
     """
     query = booking_table.select()
     fetched = await database.fetch_all(query)
@@ -91,7 +91,7 @@ async def create_booking(booking: Booking):
     if not await _is_booking_available(booking):
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't book {booking.job_id}, not enough licenses available."),
+            detail=f"Couldn't book {booking.job_id}, not enough licenses available.",
         )
     # update the booking table
     inserts = []
@@ -116,7 +116,7 @@ async def create_booking(booking: Booking):
     except INTEGRITY_CHECK_EXCEPTIONS as e:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't book {booking.job_id}, it is already booked\n{e}"),
+            detail=f"Couldn't book {booking.job_id}, it is already booked\n{e}",
         )
 
     # update the license table

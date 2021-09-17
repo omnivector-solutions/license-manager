@@ -81,12 +81,11 @@ async def prolog():
             logger.error(f"Failed to call reconcile with {e}")
             sys.exit(1)
         booking_request = await make_booking_request(tracked_license_booking_request)
-        if booking_request:
-            logger.debug(f"License booking sucessful, job id: {job_id}.")
-            logger.debug(f"Licenses booked: {repr(tracked_licenses)}")
-        else:
-            logger.debug("Booking request unsuccessful.")
+        if not booking_request:
+            logger.error("Booking request unsuccessful.")
             sys.exit(1)
+        logger.debug(f"License booking sucessful, job id: {job_id}.")
+        logger.debug(f"Licenses booked: {repr(tracked_licenses)}")
     sys.exit(0)
 
 
