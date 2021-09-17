@@ -56,21 +56,21 @@ async def _is_booking_available(booking: Booking):
 
     query = license_table.select()
     fetched = await database.fetch_all(query)
-    product_feature_licenses = [LicenseUse.parse_obj(x) for x in fetched]
+    all_licenses = [LicenseUse.parse_obj(x) for x in fetched]
 
-    for product_feature in booking.features:
+    for feature in booking.features:
         in_use_total = 0
         total = 0
-        for license in product_feature_licenses:
-            if product_feature.product_feature == license.product_feature:
+        for license in all_licenses:
+            if feature.product_feature == license.product_feature:
                 in_use_total = license.used
                 total = license.total
                 break
         for book in all_bookings:
-            if product_feature.product_feature == book.product_feature:
+            if feature.product_feature == book.product_feature:
                 in_use_total += book.booked
 
-        insert_quantity = product_feature.booked
+        insert_quantity = feature.booked
 
         if insert_quantity + in_use_total > total:
             return False
