@@ -107,39 +107,6 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> List:
     return required_liceses
 
 
-async def check_feature_token_availablity(lbr: LicenseBookingRequest) -> bool:
-    """Determine if there are sufficient tokens to fill the request."""
-
-    logger.info(f"##### Checking feature token availability for: {lbr.job_id} #####")
-
-    # We currently only have an "/all" endpoint.
-    # Todo: Implement endpoint to retrieve counts for a
-    # specific feature, or set of features so that we dont have to get /all.
-    with httpx.Client() as client:
-        resp = client.get(f"{settings.AGENT_BASE_URL}/api/v1/license/all", headers=LM2_AGENT_HEADERS)
-        logger.debug("##### /api/v1/license/all #####")
-        data = resp.json()
-        logger.debug(f"response data: {data}")
-        logger.debug(f"lbr: {lbr}")
-
-        for item in data:
-            product_feature = item["product_feature"]
-            for license_booking in lbr.bookings:
-                if product_feature == license_booking.product_feature:
-                    tokens_available = int(item["available"])
-                    if tokens_available >= license_booking.tokens:
-                        logger.debug(f"##### {product_feature}, tokens avalable #####")
-                        logger.debug(f"##### Tokens available {tokens_available} #####")
-                        logger.debug(f"##### Tokens required {license_booking.tokens} #####")
-                        return True
-                    else:
-                        logger.debug(f"##### {product_feature}, tokens not available #####")
-                        logger.debug(f"##### Tokens available {tokens_available} #####")
-                        logger.debug(f"##### Tokens required {license_booking.tokens} #####")
-    logger.debug("##### Tokens not available #####")
-    return False
-
-
 async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     """Book the feature tokens."""
 
@@ -169,7 +136,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     if resp.status_code == 200:
         logger.debug("##### Booking completed successfully #####")
         return True
-    logger.debug(f"##### Booking failed: {resp.status_code} #####")
+    logger.debug(f"##### Booking failed: {str(resp.content)} #####")
     return False
 
 

@@ -6,11 +6,10 @@ from typing import List, Union
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.sql import delete
 
-from lm_backend.api.license import edit_counts, map_bookings
-from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUseBooking
+from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table, config_table
+from lm_backend.table_schemas import booking_table, config_table, license_table
 
 router = APIRouter()
 
@@ -47,6 +46,37 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
     return config_row.id
 
 
+async def _is_booking_available(booking: Booking):
+    """Check if the total available is greater than the sum of in_use_total and new_booked, if it is then
+    there is no more bookings available. The in_use_total is calculated accounting for all bookings.
+    """
+    query = booking_table.select()
+    fetched = await database.fetch_all(query)
+    all_bookings = [BookingRow.parse_obj(x) for x in fetched]
+
+    query = license_table.select()
+    fetched = await database.fetch_all(query)
+    all_licenses = [LicenseUse.parse_obj(x) for x in fetched]
+
+    for feature in booking.features:
+        in_use_total = 0
+        total = 0
+        for license in all_licenses:
+            if feature.product_feature == license.product_feature:
+                in_use_total = license.used
+                total = license.total
+                break
+        for book in all_bookings:
+            if feature.product_feature == book.product_feature:
+                in_use_total += book.booked
+
+        insert_quantity = feature.booked
+
+        if insert_quantity + in_use_total > total:
+            return False
+    return True
+
+
 @database.transaction()
 @router.put("/book")
 async def create_booking(booking: Booking):
@@ -58,6 +88,11 @@ async def create_booking(booking: Booking):
 
     An error occurs if the new total for `booked` exceeds `total`
     """
+    if not await _is_booking_available(booking):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Couldn't book {booking.job_id}, not enough licenses available.",
+        )
     # update the booking table
     inserts = []
 
@@ -81,7 +116,7 @@ async def create_booking(booking: Booking):
     except INTEGRITY_CHECK_EXCEPTIONS as e:
         raise HTTPException(
             status_code=400,
-            detail=(f"Couldn't book {booking.job_id}, it is already booked\n{e}"),
+            detail=f"Couldn't book {booking.job_id}, it is already booked\n{e}",
         )
 
     # update the license table
@@ -93,9 +128,7 @@ async def create_booking(booking: Booking):
                 used=feat.booked,
             )
         )
-    edited = await edit_counts(booking=await map_bookings(lubs))
-
-    return dict(message=f"inserted {booking.job_id} to book {len(edited)} product features")
+    return dict(message=f"inserted {booking.job_id}")
 
 
 @database.transaction()
@@ -130,8 +163,7 @@ async def delete_booking(job_id: str):
                 used=-row.booked,
             )
         )
-    edited = await edit_counts(booking=await map_bookings(lubs))
 
     return dict(
-        message=f"deleted {job_id} to free {len(edited)} product features booked",
+        message=f"deleted {job_id}",
     )

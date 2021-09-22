@@ -128,26 +128,6 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses, insert_o
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_map_bookings(some_licenses, insert_objects):
-    """
-    Do I create sql updates and inserts out of a list of bookings?
-    """
-    await insert_objects(some_licenses, license_table)
-    lubs = [
-        license.LicenseUseBooking(product_feature="cool.beans", used=19),
-        license.LicenseUseBooking(product_feature="men.with_hats", used=19),
-    ]
-    with raises(HTTPException):
-        await license.map_bookings(lubs)
-
-    del lubs[1]
-    assert await license.map_bookings(lubs) == {
-        "cool.beans": license.LicenseUseBooking(product_feature="cool.beans", used=19)
-    }
-
-
-@mark.asyncio
-@database.transaction(force_rollback=True)
 async def test_delete_if_in_use_booking(insert_objects, some_licenses, some_config_rows, some_booking_rows):
     """
     Make sure the given LicenseUseReconcileRequest gets deleted only if the pair booked, lead_host,
