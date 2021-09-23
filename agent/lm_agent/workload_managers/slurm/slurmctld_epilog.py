@@ -1,41 +1,18 @@
 #!/usr/bin/env python3
 """
 The EpilogSlurmctld executable.
-
-This epilog is responsible for releasing the feature tokens
-that have been booked for a job back to the pool after a job has completed.
 """
 import asyncio
 import sys
 
-import httpx
-
 from lm_agent.backend_utils import get_config_from_backend
-from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_required_licenses_for_job,
     get_tokens_for_license,
     sacctmgr_modify_resource,
 )
-from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS, get_job_context
-
-
-async def _remove_booking_for_job(job_id: str) -> bool:
-    """Remove token bookings used by job."""
-
-    # Remove the booking for the job.
-
-    with httpx.Client() as client:
-        resp = client.delete(
-            f"{settings.AGENT_BASE_URL}/api/v1/booking/book/{job_id}",
-            headers=LM2_AGENT_HEADERS,
-        )
-
-        # Return True if the request to delete the booking was successful.
-        if resp.status_code == 200:
-            return True
-    return False
+from lm_agent.workload_managers.slurm.common import get_job_context
 
 
 async def epilog():
@@ -89,12 +66,6 @@ async def epilog():
                 else:
                     logger.info("Slurmdbd update unsuccessful.")
 
-        # Attempt to remove the booking and log the result.
-        booking_removed = await _remove_booking_for_job(job_id)
-        if booking_removed:
-            logger.debug(f"Booking for job id: {job_id} successfully deleted.")
-        else:
-            logger.debug(f"Booking for job id: {job_id} not removed.")
     sys.exit(0)
 
 
