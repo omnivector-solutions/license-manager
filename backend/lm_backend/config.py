@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # database to connect
     DATABASE_URL: str = Field(
-        "sqlite:///./sqlite.db?check_same_thread=true", regex=r"^(sqlite|postgres)://.+$"
+        "sqlite:///./sqlite.db?check_same_thread=true", regex=r"^(sqlite|postgresql)://.+$"
     )
 
     # log level (everything except sql tracing)
@@ -44,6 +44,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_prefix = "LM2_"
+        env_file = ".env"
 
 
 settings = Settings()
