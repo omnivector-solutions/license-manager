@@ -9,11 +9,11 @@ from shlex import quote
 
 from pydantic import BaseModel, Field
 
-from lm_agent.backend_utils import get_config_from_backend
+from lm_agent.backend_utils import get_all_bookings_from_backend, get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm
-from lm_agent.workload_managers.slurm.cmd_utils import get_tokens_for_license, sacctmgr_modify_resource
+from lm_agent.workload_managers.slurm.cmd_utils import sacctmgr_modify_resource
 
 
 class LicenseService(BaseModel):
@@ -127,27 +127,20 @@ async def attempt_tool_checks(
                 stdout=output,
             )
 
-            # Account for used slurm tokens
-            #
-            # License represented in format
-            #    <product>.<feature>@<license_server>
-            slurm_license = f"{product}.{feature}@{tool_options.name}"
-
-            # Get the used licenses from the scontrol output
-            slurm_used = await get_tokens_for_license(slurm_license, "Used")
-
-            # If slurm is already tracking the license, update slurmdbd
-            # with a modified view of the total licenses.
-            #
-            # To give slurm a more accurate view of the number of tokens
-            # in use vs the number available, we add the number of tokens in
-            # use by slurm to the number of available tokens returned from
-            # the license server.
-            if slurm_used is None:
-                slurm_used = 0
+            all_bookings = await get_all_bookings_from_backend()
+            total_booked = sum(
+                [
+                    booking.booked
+                    for booking in all_bookings
+                    if booking.product_feature == f"{product}.{feature}"
+                ]
+            )
 
             # Generate the new total including the used tokens for slurm
-            slurm_available = lri.total - lri.used + slurm_used
+            slurm_available = lri.total - lri.used - total_booked
+
+            if slurm_available < 0:
+                slurm_available = 0
 
             # Update slurmdbd with the modified accounting
             update_resource = await sacctmgr_modify_resource(product, feature, slurm_available)
