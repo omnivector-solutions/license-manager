@@ -48,6 +48,40 @@ class BackendConfigurationRow(BaseModel):
     grace_time: int
 
 
+class BackendBookingRow(BaseModel):
+    """
+    NOTE: This is a copy of the schema from the backend.
+          If the schema changes upstream in a non-reverse-compatible
+          way, this schema should cause errors in deserialization.
+    """
+
+    job_id: str
+    product_feature: str
+    booked: int
+    config_id: int
+    lead_host: str
+    user_name: str
+
+    class Config:
+        extra = "ignore"
+
+
+async def get_all_bookings_from_backend() -> List[BackendBookingRow]:
+    client = async_client()
+    bookings: List = []
+    try:
+        resp = await client.get("/api/v1/booking/all")
+    except ConnectError as e:
+        logger.error(f"Connection failed to backend: {e}")
+        return bookings
+    for booking in resp.json():
+        try:
+            bookings.append(BackendBookingRow.parse_obj(booking))
+        except ValidationError as err:
+            logger.error(f"Wrong format for booking: {str(err)}")
+    return bookings
+
+
 async def get_config_from_backend() -> List[BackendConfigurationRow]:
     client = async_client()
     path = GET_CONFIG_URL_PATH
