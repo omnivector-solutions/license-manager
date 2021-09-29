@@ -89,7 +89,12 @@ async def test_main(
     get_job_context_mock,
     sys_mock,
 ):
-    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {
+        "job_id": "1",
+        "user_name": "user1",
+        "lead_host": "host1",
+        "cluster_name": "cluster1",
+    }
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"

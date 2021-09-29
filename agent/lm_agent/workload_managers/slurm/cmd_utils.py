@@ -58,6 +58,7 @@ class LicenseBookingRequest(BaseModel):
     bookings: Union[List, List[LicenseBooking]]
     user_name: str
     lead_host: str
+    cluster_name: str
 
 
 def _match_requested_license(requested_license: str) -> Union[dict, None]:
@@ -130,6 +131,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
                 "features": features,
                 "user_name": lbr.user_name,
                 "lead_host": lbr.lead_host,
+                "cluster_name": lbr.cluster_name,
             },
         )
 

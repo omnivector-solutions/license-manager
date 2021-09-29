@@ -33,6 +33,7 @@ async def prolog():
     job_id = job_context.get("job_id", "")
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
+    cluster_name = job_context.get("cluster_name")
 
     logger.info(f"Prolog started for job id: {job_id}")
 
@@ -66,7 +67,11 @@ async def prolog():
     # track. These tracked licenses are what we will check feature token
     # availability for.
     tracked_license_booking_request = LicenseBookingRequest(
-        job_id=job_id, bookings=[], user_name=user_name, lead_host=lead_host
+        job_id=job_id,
+        bookings=[],
+        user_name=user_name,
+        lead_host=lead_host,
+        cluster_name=cluster_name,
     )
     for booking in required_licenses:
         if booking.product_feature in tracked_licenses:
