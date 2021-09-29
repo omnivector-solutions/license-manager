@@ -42,6 +42,7 @@ def some_booking_rows():
             config_id=1,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
         BookingRow(
             id=2,
@@ -51,6 +52,7 @@ def some_booking_rows():
             config_id=1,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
         BookingRow(
             id=3,
@@ -60,5 +62,6 @@ def some_booking_rows():
             config_id=2,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
     ]

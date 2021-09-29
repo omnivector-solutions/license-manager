@@ -46,6 +46,7 @@ class Booking(BaseModel):
     features: List[BookingFeature]
     lead_host: str
     user_name: str
+    cluster_name: str
 
     class Config:
         orm_mode = True
@@ -63,6 +64,7 @@ class BookingRow(BaseModel):
     config_id: int
     lead_host: str
     user_name: str
+    cluster_name: str
 
     class Config:
         orm_mode = True
