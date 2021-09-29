@@ -6,7 +6,7 @@ from pytest import mark
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
-from lm_backend.api_schemas import Booking, BookingFeature
+from lm_backend.api_schemas import Booking, BookingFeature, BookingRow
 from lm_backend.storage import database
 
 
@@ -36,6 +36,49 @@ async def test_get_bookings_job(
             config_id=2,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
+        ),
+    ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_bookings_for_cluster_name(
+    backend_client: AsyncClient,
+    some_licenses,
+    some_booking_rows,
+    some_config_rows,
+    insert_objects,
+):
+    """
+    Do I fetch a booking using the cluster_name?
+    """
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+    booking = BookingRow(
+        id=4,
+        job_id="99",
+        product_feature="hello.world",
+        booked=1,
+        lead_host="host10",
+        user_name="user10",
+        cluster_name="cluster2",
+        config_id=2,
+    )
+    await insert_objects([booking], table_schemas.booking_table)
+    resp = await backend_client.get("/api/v1/booking/all?cluster_name=cluster2")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(
+            id=4,
+            job_id="99",
+            product_feature="hello.world",
+            booked=1,
+            config_id=2,
+            lead_host="host10",
+            user_name="user10",
+            cluster_name="cluster2",
         ),
     ]
 
@@ -78,6 +121,7 @@ async def test_bookings_all(
             config_id=1,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
         dict(
             id=2,
@@ -87,6 +131,7 @@ async def test_bookings_all(
             config_id=1,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
         dict(
             id=3,
@@ -96,6 +141,7 @@ async def test_bookings_all(
             config_id=2,
             lead_host="host1",
             user_name="user1",
+            cluster_name="cluster1",
         ),
     ]
 
@@ -107,7 +153,9 @@ async def test_booking_create(backend_client, some_config_rows, some_licenses, i
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=10, product_feature="hello.world")
-    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    booking = Booking(
+        job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
+    )
     resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_200_OK
@@ -124,7 +172,9 @@ async def test_booking_create_negative_booked_error(
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=-1, product_feature="hello.world")
-    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    booking = Booking(
+        job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
+    )
     resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
@@ -145,7 +195,9 @@ async def test_booking_create_booked_greater_than_total(
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=1000, product_feature="hello.world")
-    booking = Booking(job_id=1, features=[features], lead_host="host1", user_name="user1")
+    booking = Booking(
+        job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
+    )
     resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
@@ -184,7 +236,9 @@ async def test_is_booking_available_not_available(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
     features = BookingFeature(booked=100, product_feature="hello.world")
-    booking_row = Booking(job_id="new", features=[features], lead_host="host1", user_name="user2")
+    booking_row = Booking(
+        job_id="new", features=[features], lead_host="host1", user_name="user2", cluster_name="cluster1"
+    )
 
     assert await booking._is_booking_available(booking_row) is False
 
@@ -199,6 +253,8 @@ async def test_is_booking_available(
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     features = BookingFeature(booked=81, product_feature="hello.world")
-    booking_row = Booking(job_id="new", features=[features], lead_host="host1", user_name="user2")
+    booking_row = Booking(
+        job_id="new", features=[features], lead_host="host1", user_name="user2", cluster_name="cluster1"
+    )
 
     assert await booking._is_booking_available(booking_row) is True

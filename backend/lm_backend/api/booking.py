@@ -1,9 +1,9 @@
 """
 Booking objects and routes
 """
-from typing import List, Union
+from typing import List, Optional, Union
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.sql import delete
 
 from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
@@ -15,11 +15,13 @@ router = APIRouter()
 
 
 @router.get("/all", response_model=List[BookingRow])
-async def get_bookings_all():
+async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
     """
-    All license counts we are tracking
+    All license counts we are tracking, with the possibility to filter by cluster_name.
     """
     query = booking_table.select()
+    if cluster_name:
+        query = query.where(booking_table.c.cluster_name == cluster_name)
     fetched = await database.fetch_all(query)
     return [BookingRow.parse_obj(x) for x in fetched]
 
@@ -105,6 +107,7 @@ async def create_booking(booking: Booking):
                 config_id=await get_config_id_for_product_features(feature.product_feature),
                 lead_host=booking.lead_host,
                 user_name=booking.user_name,
+                cluster_name=booking.cluster_name,
             )
         )
 
