@@ -15,11 +15,11 @@ import sys
 
 from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.logs import init_logging, logger
+from lm_agent.reconciliation import reconcile
 from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
     get_required_licenses_for_job,
     make_booking_request,
-    reconcile,
 )
 from lm_agent.workload_managers.slurm.common import get_job_context
 
@@ -81,7 +81,7 @@ async def prolog():
     if len(tracked_license_booking_request.bookings) > 0:
         # Force a reconciliation before we check the feature tokenavailability.
         try:
-            await reconcile()
+            await reconcile(cluster_name=cluster_name)
         except Exception as e:
             logger.error(f"Failed to call reconcile with {e}")
             sys.exit(1)

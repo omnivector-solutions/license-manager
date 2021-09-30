@@ -65,7 +65,7 @@ def get_running_jobs(squeue_result: List) -> List:
     return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
-async def clean_booked_grace_time():
+async def clean_booked_grace_time(cluster_name: str = None):
     """
     Clean the booked licenses if the job's running time is greater than the grace_time.
     """
@@ -90,11 +90,12 @@ async def clean_booked_grace_time():
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             await remove_booked_for_job_id(job_id)
-    await clean_bookings(squeue_result)
+    if cluster_name:
+        await clean_bookings(squeue_result, cluster_name)
 
 
-async def clean_bookings(squeue_result):
-    cluster_bookings = [booking.job_id for booking in await get_bookings_from_backend()]
+async def clean_bookings(squeue_result, cluster_name):
+    cluster_bookings = [booking.job_id for booking in await get_bookings_from_backend(cluster_name)]
     jobs_not_running = [job["job_id"] for job in squeue_result if job["state"] != "RUNNING"]
     all_jobs_squeue = [job["job_id"] for job in squeue_result]
     delete_booking_call = []
@@ -106,7 +107,7 @@ async def clean_bookings(squeue_result):
     await asyncio.gather(*delete_booking_call)
 
 
-async def reconcile():
+async def reconcile(cluster_name: str = None):
     """Generate the report and reconcile the license feature token usage."""
     # Generate the report.
     logger.info("Beginning forced reconciliation process")
@@ -121,7 +122,7 @@ async def reconcile():
             detail="report failed",
         )
     # Clean booked using grace_time
-    await clean_booked_grace_time()
+    await clean_booked_grace_time(cluster_name)
     # Send the report to the backend.
     client = async_client()
     path = RECONCILE_URL_PATH
