@@ -148,6 +148,8 @@ async def attempt_tool_checks(
 
             # Generate the new total including the used tokens for slurm
             slurm_available = lri.total - lri.used + slurm_used
+            if slurm_available < 0:
+                slurm_available = 0
 
             # Update slurmdbd with the modified accounting
             update_resource = await sacctmgr_modify_resource(product, feature, slurm_available)

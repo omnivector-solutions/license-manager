@@ -8,6 +8,7 @@ from typing import Dict, List
 from fastapi import HTTPException, status
 from httpx import ConnectError
 
+from lm_agent.backend_utils import get_bookings_from_backend
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
@@ -89,6 +90,20 @@ async def clean_booked_grace_time():
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             await remove_booked_for_job_id(job_id)
+    await clean_bookings(squeue_result)
+
+
+async def clean_bookings(squeue_result):
+    cluster_bookings = [booking.job_id for booking in await get_bookings_from_backend()]
+    jobs_not_running = [job["job_id"] for job in squeue_result if job["state"] != "RUNNING"]
+    all_jobs_squeue = [job["job_id"] for job in squeue_result]
+    delete_booking_call = []
+    for job_id in cluster_bookings:
+        if job_id in jobs_not_running:
+            delete_booking_call.append(remove_booked_for_job_id(job_id))
+        if job_id not in all_jobs_squeue:
+            delete_booking_call.append(remove_booked_for_job_id(job_id))
+    await asyncio.gather(*delete_booking_call)
 
 
 async def reconcile():
