@@ -159,6 +159,8 @@ async def reconcile(cluster_name: str = None):
         if slurm_used is None:
             slurm_used = 0
         new_quantity = license_total - license_used - bookings_sum + slurm_used
+        if new_quantity > license_total:
+            new_quantity = license_total
         product, feature = product_feature.split(".")
         update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
         if update_resource:
