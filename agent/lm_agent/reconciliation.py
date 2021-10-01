@@ -12,7 +12,12 @@ from lm_agent.backend_utils import get_bookings_from_backend
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
-from lm_agent.workload_managers.slurm.cmd_utils import return_formatted_squeue_out, squeue_parser
+from lm_agent.workload_managers.slurm.cmd_utils import (
+    get_tokens_for_license,
+    return_formatted_squeue_out,
+    sacctmgr_modify_resource,
+    squeue_parser,
+)
 
 RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 
@@ -90,8 +95,8 @@ async def clean_booked_grace_time(cluster_name: str = None):
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             await remove_booked_for_job_id(job_id)
-    if cluster_name:
-        await clean_bookings(squeue_result, cluster_name)
+    # cluster_name = await get_cluster_name()
+    # await clean_bookings(squeue_result, cluster_name)
 
 
 async def clean_bookings(squeue_result, cluster_name):
@@ -143,4 +148,21 @@ async def reconcile(cluster_name: str = None):
         )
 
     logger.info(f"Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")
+    response = await client.get("/api/v1/license/cluster_update")
+    licenses_to_update = response.json()
+    for license_data in licenses_to_update:
+        product_feature = license_data["product_feature"]
+        bookings_sum = license_data["bookings_sum"]
+        license_total = license_data["license_total"]
+        license_used = license_data["license_used"]
+        slurm_used = await get_tokens_for_license(product_feature + "@flexlm", "Used")
+        if slurm_used is None:
+            slurm_used = 0
+        new_quantity = license_total - license_used - bookings_sum + slurm_used
+        product, feature = product_feature.split(".")
+        update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
+        if update_resource:
+            logger.info("Slurmdbd updated successfully.")
+        else:
+            logger.info("Slurmdbd update unsuccessful.")
     return r

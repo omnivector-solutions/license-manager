@@ -28,6 +28,38 @@ async def licenses_all():
     return [LicenseUse.parse_obj(x) for x in fetched]
 
 
+@router.get("/cluster_update", response_model=List[Dict])
+async def licenses_and_bookings_to_update():
+    """
+    Get the actual value to update the cluster for each license.
+    """
+    query = license_table.select()
+    fetched = await database.fetch_all(query)
+    all_licenses = [LicenseUse.parse_obj(x) for x in fetched]
+
+    query = booking_table.select()
+    fetched = await database.fetch_all(query)
+    all_bookings = [BookingRow.parse_obj(x) for x in fetched]
+
+    licenses_to_update_data: List = []
+    for license in all_licenses:
+        licenses_to_update_data.append(
+            {
+                "product_feature": license.product_feature,
+                "bookings_sum": sum(
+                    [
+                        booking.booked
+                        for booking in all_bookings
+                        if booking.product_feature == license.product_feature
+                    ]
+                ),
+                "license_total": license.total,
+                "license_used": license.used,
+            }
+        )
+    return licenses_to_update_data
+
+
 @router.get("/use/{product}", response_model=List[LicenseUse])
 async def licenses_product(product: str):
     """

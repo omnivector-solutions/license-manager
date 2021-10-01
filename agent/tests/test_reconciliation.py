@@ -183,6 +183,19 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
             status_code=status.HTTP_200_OK,
         )
     )
+    respx_mock.get("/api/v1/license/cluster_update").mock(
+        return_value=Response(
+            status_code=status.HTTP_200_OK,
+            json=[
+                {
+                    "product_feature": "product.feature",
+                    "bookings_sum": 100,
+                    "license_total": 1000,
+                    "license_used": 200,
+                },
+            ],
+        )
+    )
     report_mock.return_value = [{"foo": "bar"}]
     await reconcile()
     clean_booked_grace_time_mock.assert_awaited_once()
