@@ -9,6 +9,7 @@ from lm_agent.reconciliation import (
     get_all_grace_times,
     get_greatest_grace_time,
     reconcile,
+    update_report,
 )
 
 
@@ -167,7 +168,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
     """
     report_mock.return_value = []
     with pytest.raises(HTTPException):
-        await reconcile()
+        await update_report()
 
 
 @pytest.mark.asyncio

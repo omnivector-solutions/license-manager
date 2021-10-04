@@ -13,6 +13,7 @@ from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
+    get_cluster_name,
     get_tokens_for_license,
     return_formatted_squeue_out,
     sacctmgr_modify_resource,
@@ -70,7 +71,7 @@ def get_running_jobs(squeue_result: List) -> List:
     return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
-async def clean_booked_grace_time(cluster_name: str = None):
+async def clean_booked_grace_time():
     """
     Clean the booked licenses if the job's running time is greater than the grace_time.
     """
@@ -95,8 +96,8 @@ async def clean_booked_grace_time(cluster_name: str = None):
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             await remove_booked_for_job_id(job_id)
-    # cluster_name = await get_cluster_name()
-    # await clean_bookings(squeue_result, cluster_name)
+    cluster_name = await get_cluster_name()
+    await clean_bookings(squeue_result, cluster_name)
 
 
 async def clean_bookings(squeue_result, cluster_name):
@@ -112,9 +113,35 @@ async def clean_bookings(squeue_result, cluster_name):
     await asyncio.gather(*delete_booking_call)
 
 
-async def reconcile(cluster_name: str = None):
+async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
-    # Generate the report.
+    await clean_booked_grace_time()
+    r = await update_report()
+    response = await async_client().get("/api/v1/license/cluster_update")
+    licenses_to_update = response.json()
+    for license_data in licenses_to_update:
+        product_feature = license_data["product_feature"]
+        bookings_sum = license_data["bookings_sum"]
+        license_total = license_data["license_total"]
+        license_used = license_data["license_used"]
+        slurm_used = await get_tokens_for_license(product_feature + "@flexlm", "Used")
+        if slurm_used is None:
+            slurm_used = 0
+        new_quantity = license_total - license_used - bookings_sum + slurm_used
+        if new_quantity > license_total:
+            new_quantity = license_total
+        if new_quantity < 0:
+            new_quantity = 0
+        product, feature = product_feature.split(".")
+        update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
+        if update_resource:
+            logger.info("Slurmdbd updated successfully.")
+        else:
+            logger.info("Slurmdbd update unsuccessful.")
+    return r
+
+
+async def update_report():
     logger.info("Beginning forced reconciliation process")
     rep = await report()
     if not rep:
@@ -126,15 +153,11 @@ async def reconcile(cluster_name: str = None):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="report failed",
         )
-    # Clean booked using grace_time
-    await clean_booked_grace_time(cluster_name)
-    # Send the report to the backend.
     client = async_client()
-    path = RECONCILE_URL_PATH
     try:
-        r = await client.patch(path, json=rep)
+        r = await client.patch(RECONCILE_URL_PATH, json=rep)
     except ConnectError as e:
-        logger.error(f"{client.base_url}{path}: {e}")
+        logger.error(f"{client.base_url}{RECONCILE_URL_PATH}: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="connection to reconcile api failed",
@@ -148,23 +171,3 @@ async def reconcile(cluster_name: str = None):
         )
 
     logger.info(f"Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")
-    response = await client.get("/api/v1/license/cluster_update")
-    licenses_to_update = response.json()
-    for license_data in licenses_to_update:
-        product_feature = license_data["product_feature"]
-        bookings_sum = license_data["bookings_sum"]
-        license_total = license_data["license_total"]
-        license_used = license_data["license_used"]
-        slurm_used = await get_tokens_for_license(product_feature + "@flexlm", "Used")
-        if slurm_used is None:
-            slurm_used = 0
-        new_quantity = license_total - license_used - bookings_sum + slurm_used
-        if new_quantity > license_total:
-            new_quantity = license_total
-        product, feature = product_feature.split(".")
-        update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
-        if update_resource:
-            logger.info("Slurmdbd updated successfully.")
-        else:
-            logger.info("Slurmdbd update unsuccessful.")
-    return r
