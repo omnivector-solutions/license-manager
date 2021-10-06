@@ -75,8 +75,13 @@ async def clean_booked_grace_time():
     """
     Clean the booked licenses if the job's running time is greater than the grace_time.
     """
+    logger.debug("GRACE_TIME START")
     formatted_squeue_output = return_formatted_squeue_out()
+    cluster_name = await get_cluster_name()
     if not formatted_squeue_output:
+        logger.debug("GRACE_TIME no squeue")
+        await clean_bookings(None, cluster_name)
+        logger.debug("GRACE_TIME cleaned bookings that are not in the queue")
         return
     squeue_result = squeue_parser(formatted_squeue_output)
     squeue_running_jobs = get_running_jobs(squeue_result)
@@ -95,21 +100,29 @@ async def clean_booked_grace_time():
         greatest_grace_time = get_greatest_grace_time(job_id, grace_times, booking_rows_for_running_jobs)
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
+            logger.debug(f"GRACE_TIME: {greatest_grace_time}, {job_id}")
             await remove_booked_for_job_id(job_id)
-    cluster_name = await get_cluster_name()
     await clean_bookings(squeue_result, cluster_name)
 
 
 async def clean_bookings(squeue_result, cluster_name):
-    cluster_bookings = [booking.job_id for booking in await get_bookings_from_backend(cluster_name)]
-    jobs_not_running = [job["job_id"] for job in squeue_result if job["state"] != "RUNNING"]
-    all_jobs_squeue = [job["job_id"] for job in squeue_result]
+    logger.debug(f"CLEAN_BOOKINGS: start")
+    cluster_bookings = [str(booking.job_id) for booking in await get_bookings_from_backend(cluster_name)]
+    if squeue_result is None:
+        squeue_result = []
+    jobs_not_running = [str(job["job_id"]) for job in squeue_result if job["state"] != "RUNNING"]
+    all_jobs_squeue = [str(job["job_id"]) for job in squeue_result]
     delete_booking_call = []
+    logger.debug(f"CLEAN_BOOKINGS: after building lists")
     for job_id in cluster_bookings:
         if job_id in jobs_not_running:
             delete_booking_call.append(remove_booked_for_job_id(job_id))
         if job_id not in all_jobs_squeue:
             delete_booking_call.append(remove_booked_for_job_id(job_id))
+    logger.debug(f"CLEAN_BOOKINGS: {cluster_bookings}, {jobs_not_running}, {all_jobs_squeue}")
+    if not delete_booking_call:
+        logger.debug(f"CLEAN_BOOKINGS: no need to clean")
+        return
     await asyncio.gather(*delete_booking_call)
 
 
@@ -130,8 +143,8 @@ async def reconcile():
         new_quantity = license_total - license_used - bookings_sum + slurm_used
         if new_quantity > license_total:
             new_quantity = license_total
-        if new_quantity < 0:
-            new_quantity = 0
+        if new_quantity < license_total / 2:
+            new_quantity = int(license_total / 2)
         product, feature = product_feature.split(".")
         update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
         if update_resource:
