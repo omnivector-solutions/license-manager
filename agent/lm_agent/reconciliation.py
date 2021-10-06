@@ -106,14 +106,14 @@ async def clean_booked_grace_time():
 
 
 async def clean_bookings(squeue_result, cluster_name):
-    logger.debug(f"CLEAN_BOOKINGS: start")
+    logger.debug("CLEAN_BOOKINGS: start")
     cluster_bookings = [str(booking.job_id) for booking in await get_bookings_from_backend(cluster_name)]
     if squeue_result is None:
         squeue_result = []
     jobs_not_running = [str(job["job_id"]) for job in squeue_result if job["state"] != "RUNNING"]
     all_jobs_squeue = [str(job["job_id"]) for job in squeue_result]
     delete_booking_call = []
-    logger.debug(f"CLEAN_BOOKINGS: after building lists")
+    logger.debug("CLEAN_BOOKINGS: after building lists")
     for job_id in cluster_bookings:
         if job_id in jobs_not_running:
             delete_booking_call.append(remove_booked_for_job_id(job_id))
@@ -121,7 +121,7 @@ async def clean_bookings(squeue_result, cluster_name):
             delete_booking_call.append(remove_booked_for_job_id(job_id))
     logger.debug(f"CLEAN_BOOKINGS: {cluster_bookings}, {jobs_not_running}, {all_jobs_squeue}")
     if not delete_booking_call:
-        logger.debug(f"CLEAN_BOOKINGS: no need to clean")
+        logger.debug("CLEAN_BOOKINGS: no need to clean")
         return
     await asyncio.gather(*delete_booking_call)
 
