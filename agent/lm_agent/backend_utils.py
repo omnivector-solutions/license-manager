@@ -1,7 +1,7 @@
 """
 Provide utilities that communicate with the backend.
 """
-from typing import List
+from typing import List, Optional
 
 from fastapi import status
 from httpx import ConnectError
