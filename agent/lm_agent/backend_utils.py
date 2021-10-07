@@ -67,7 +67,7 @@ class BackendBookingRow(BaseModel):
     cluster_name: str
 
 
-async def get_bookings_from_backend(cluster_name: str = None) -> List[BackendBookingRow]:
+async def get_bookings_from_backend(cluster_name: Optional[str] = None) -> List[BackendBookingRow]:
     client = async_client()
     bookings: List = []
     try:
