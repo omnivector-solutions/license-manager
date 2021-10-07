@@ -115,9 +115,7 @@ async def clean_bookings(squeue_result, cluster_name):
     delete_booking_call = []
     logger.debug("CLEAN_BOOKINGS: after building lists")
     for job_id in cluster_bookings:
-        if job_id in jobs_not_running:
-            delete_booking_call.append(remove_booked_for_job_id(job_id))
-        if job_id not in all_jobs_squeue:
+        if job_id in jobs_not_running or job_id not in all_jobs_squeue:
             delete_booking_call.append(remove_booked_for_job_id(job_id))
     logger.debug(f"CLEAN_BOOKINGS: {cluster_bookings}, {jobs_not_running}, {all_jobs_squeue}")
     if not delete_booking_call:
