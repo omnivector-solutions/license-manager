@@ -13,7 +13,6 @@ from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm
-from lm_agent.workload_managers.slurm.cmd_utils import get_tokens_for_license, sacctmgr_modify_resource
 
 
 class LicenseService(BaseModel):
@@ -126,35 +125,6 @@ async def attempt_tool_checks(
                 product=product,
                 stdout=output,
             )
-
-            # Account for used slurm tokens
-            #
-            # License represented in format
-            #    <product>.<feature>@<license_server>
-            slurm_license = f"{product}.{feature}@{tool_options.name}"
-
-            # Get the used licenses from the scontrol output
-            slurm_used = await get_tokens_for_license(slurm_license, "Used")
-
-            # If slurm is already tracking the license, update slurmdbd
-            # with a modified view of the total licenses.
-            #
-            # To give slurm a more accurate view of the number of tokens
-            # in use vs the number available, we add the number of tokens in
-            # use by slurm to the number of available tokens returned from
-            # the license server.
-            if slurm_used is None:
-                slurm_used = 0
-
-            # Generate the new total including the used tokens for slurm
-            slurm_available = lri.total - lri.used + slurm_used
-
-            # Update slurmdbd with the modified accounting
-            update_resource = await sacctmgr_modify_resource(product, feature, slurm_available)
-            if update_resource:
-                logger.info("Slurmdbd updated successfully.")
-            else:
-                logger.info("Slurmdbd update unsuccessful.")
 
             return lri
 

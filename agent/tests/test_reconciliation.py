@@ -6,9 +6,11 @@ from httpx import Response
 
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
+    clean_bookings,
     get_all_grace_times,
     get_greatest_grace_time,
     reconcile,
+    update_report,
 )
 
 
@@ -167,7 +169,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
     """
     report_mock.return_value = []
     with pytest.raises(HTTPException):
-        await reconcile()
+        await update_report()
 
 
 @pytest.mark.asyncio
@@ -181,6 +183,19 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
     respx_mock.patch("/api/v1/license/reconcile").mock(
         return_value=Response(
             status_code=status.HTTP_200_OK,
+        )
+    )
+    respx_mock.get("/api/v1/license/cluster_update").mock(
+        return_value=Response(
+            status_code=status.HTTP_200_OK,
+            json=[
+                {
+                    "product_feature": "product.feature",
+                    "bookings_sum": 100,
+                    "license_total": 1000,
+                    "license_used": 200,
+                },
+            ],
         )
     )
     report_mock.return_value = [{"foo": "bar"}]
@@ -205,3 +220,37 @@ async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock,
     with pytest.raises(HTTPException):
         await reconcile()
         clean_booked_grace_time_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.get_bookings_from_backend")
+@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+async def test_clean_bookings(remove_booked_for_job_id_mock, get_bookings_from_backend_mock):
+    squeue_parsed = [
+        {"job_id": 1, "state": "RUNNING"},
+        {"job_id": 2, "state": "PENDING"},
+        {"job_id": 3, "state": "PENDING"},
+    ]
+    booking_mock_2 = mock.Mock()
+    booking_mock_2.job_id = 2
+    booking_mock_3 = mock.Mock()
+    booking_mock_3.job_id = 3
+    get_bookings_from_backend_mock.return_value = [booking_mock_2, booking_mock_3]
+    await clean_bookings(squeue_parsed, "test_cluster_name")
+
+    remove_booked_for_job_id_mock.call_count == 2
+
+
+@pytest.mark.asyncio
+@mock.patch("lm_agent.reconciliation.get_bookings_from_backend")
+@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+async def test_clean_bookings_not_in_squeue(remove_booked_for_job_id_mock, get_bookings_from_backend_mock):
+    squeue_parsed = [{"job_id": 1, "state": "RUNNING"}]
+    booking_mock_1 = mock.Mock()
+    booking_mock_1.job_id = 1
+    booking_mock_2 = mock.Mock()
+    booking_mock_2.job_id = 2
+    get_bookings_from_backend_mock.return_value = [booking_mock_1, booking_mock_2]
+    await clean_bookings(squeue_parsed, "test_cluster_name")
+
+    remove_booked_for_job_id_mock.call_count == 1

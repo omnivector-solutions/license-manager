@@ -252,6 +252,30 @@ async def scontrol_show_lic():
     return output
 
 
+async def get_cluster_name() -> str:
+    cmd = [
+        SACCTMGR_PATH,
+        "list",
+        "cluster",
+        "-nP",
+        "format=Cluster",
+    ]
+    logger.debug("##### sacctmgr get cluster name cmd #####")
+    logger.debug(f"{' '.join(cmd)}")
+
+    sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
+        shlex.join(cmd),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+
+    cluster_name_stdout, _ = await asyncio.wait_for(
+        sacctmgr_modify_resource.communicate(),
+        CMD_TIMEOUT,
+    )
+    return cluster_name_stdout.decode("utf8").strip()
+
+
 async def sacctmgr_modify_resource(product: str, feature: str, num_tokens) -> bool:
     """
     Update the license resource in slurm.
