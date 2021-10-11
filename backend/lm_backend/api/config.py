@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from fastapi import APIRouter, Body, HTTPException, status
 
-from lm_backend.api_schemas import ConfigurationRow, ConfigurationItem
+from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
 from lm_backend.table_schemas import config_table
@@ -19,7 +19,10 @@ async def get_all_configurations():
     query = config_table.select()
     fetched = await database.fetch_all(query)
     config_rows = [ConfigurationRow.parse_obj(x) for x in fetched]
-    return [ConfigurationItem(**item.dict(exclude={"features"}), features=literal_eval(item.features)) for item in config_rows]
+    return [
+        ConfigurationItem(**item.dict(exclude={"features"}), features=literal_eval(item.features))
+        for item in config_rows
+    ]
 
 
 @router.get("/{config_id}", response_model=ConfigurationRow)
@@ -50,6 +53,7 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
 async def get_config_id(product_feature: str):
     _id = await get_config_id_for_product_features(product_feature)
     return _id
+
 
 @database.transaction()
 @router.post("/")

@@ -6,8 +6,8 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.sql import delete
 
-from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
 from lm_backend.api.config import get_config_id_for_product_features
+from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, config_table, license_table
