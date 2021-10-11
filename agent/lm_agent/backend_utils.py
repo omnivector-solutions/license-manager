@@ -41,6 +41,7 @@ class BackendConfigurationRow(BaseModel):
     class Config:
         extra = "ignore"
 
+    id: Optional[int] = None
     product: str
     features: dict
     license_servers: List[str]
