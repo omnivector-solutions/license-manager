@@ -146,6 +146,7 @@ async def reconcile():
         for config in configs:
             if config.id == config_id:
                 minimum_value = config.features[product_feature.split(".")[1]]
+                break
         if slurm_used is None:
             slurm_used = 0
         new_quantity = license_total - license_used - bookings_sum + slurm_used
