@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.sql import delete
 
 from lm_backend.api_schemas import Booking, BookingRow, ConfigurationRow, LicenseUse, LicenseUseBooking
+from lm_backend.api.config import get_config_id_for_product_features
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, config_table, license_table
@@ -38,14 +39,6 @@ async def get_bookings_job(job_id: str):
     )
     fetched = await database.fetch_all(query)
     return [BookingRow.parse_obj(x) for x in fetched]
-
-
-async def get_config_id_for_product_features(product_feature: str) -> Union[int, None]:
-    product, _ = product_feature.split(".")
-    query = config_table.select().where(config_table.c.product == product)
-    fetched = await database.fetch_one(query)
-    config_row = ConfigurationRow.parse_obj(fetched)
-    return config_row.id
 
 
 async def _is_booking_available(booking: Booking):

@@ -158,7 +158,7 @@ async def report() -> typing.List[dict]:
         for license_server_type in tools:
             if entry.license_server_type == license_server_type:
                 options = tools[license_server_type]
-                for feature in entry.features:
+                for feature in entry.features.keys():
                     tool_awaitables.append(
                         attempt_tool_checks(options, entry.product, feature, entry.license_servers)
                     )

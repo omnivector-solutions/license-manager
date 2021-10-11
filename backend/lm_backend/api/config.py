@@ -1,5 +1,5 @@
 from ast import literal_eval
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from fastapi import APIRouter, Body, HTTPException, status
 
@@ -36,6 +36,20 @@ async def get_configuration(config_id: int):
         )
     config_row = ConfigurationRow.parse_obj(fetched)
     return ConfigurationItem(**config_row.dict(exclude={"features"}, features=config_row.features))
+
+
+async def get_config_id_for_product_features(product_feature: str) -> Union[int, None]:
+    product, _ = product_feature.split(".")
+    query = config_table.select().where(config_table.c.product == product)
+    fetched = await database.fetch_one(query)
+    config_row = ConfigurationRow.parse_obj(fetched)
+    return config_row.id
+
+
+@router.get("/", response_model=int)
+async def get_config_id(product_feature: str):
+    _id = await get_config_id_for_product_features(product_feature)
+    return _id
 
 @database.transaction()
 @router.post("/")
