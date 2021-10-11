@@ -44,6 +44,7 @@ async def get_configuration(config_id: int):
 
 
 async def get_config_id_for_product_features(product_feature: str) -> Union[int, None]:
+    """Return the config id for the given product_feature."""
     product, _ = product_feature.split(".")
     query = config_table.select().where(config_table.c.product == product)
     fetched = await database.fetch_one(query)
@@ -53,6 +54,7 @@ async def get_config_id_for_product_features(product_feature: str) -> Union[int,
 
 @router.get("/", response_model=int)
 async def get_config_id(product_feature: str):
+    """Given the product_feature return the config_id."""
     _id = await get_config_id_for_product_features(product_feature)
     return _id
 

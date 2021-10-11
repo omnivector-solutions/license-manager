@@ -88,12 +88,14 @@ async def get_bookings_from_backend(cluster_name: Optional[str] = None) -> List[
 
 
 async def get_config_id_from_backend(product_feature: str) -> int:
+    """Given the product_feature return return the config id."""
     path = "/api/v1/config/"
     resp = await async_client().get(path, params={"product_feature": product_feature})
     return resp.json()
 
 
 async def get_config_from_backend() -> List[BackendConfigurationRow]:
+    """Get all config rows from the backend."""
     client = async_client()
     path = GET_CONFIG_URL_PATH
 
