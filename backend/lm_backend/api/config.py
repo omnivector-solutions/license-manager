@@ -25,7 +25,7 @@ async def get_all_configurations():
     ]
 
 
-@router.get("/{config_id}", response_model=ConfigurationRow)
+@router.get("/{config_id}", response_model=ConfigurationItem)
 async def get_configuration(config_id: int):
     """
     Get one configuration row based on a given id.
@@ -38,7 +38,9 @@ async def get_configuration(config_id: int):
             detail=(f"Couldn't get config {config_id}, " "that ID does not exist in the database"),
         )
     config_row = ConfigurationRow.parse_obj(fetched)
-    return ConfigurationItem(**config_row.dict(exclude={"features"}, features=config_row.features))
+    return ConfigurationItem(
+        **config_row.dict(exclude={"features"}), features=literal_eval(config_row.features)
+    )
 
 
 async def get_config_id_for_product_features(product_feature: str) -> Union[int, None]:
