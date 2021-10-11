@@ -1,8 +1,9 @@
+from ast import literal_eval
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Body, HTTPException, status
 
-from lm_backend.api_schemas import ConfigurationRow
+from lm_backend.api_schemas import ConfigurationRow, ConfigurationItem
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.storage import database
 from lm_backend.table_schemas import config_table
@@ -10,14 +11,15 @@ from lm_backend.table_schemas import config_table
 router = APIRouter()
 
 
-@router.get("/all", response_model=List[ConfigurationRow])
+@router.get("/all", response_model=List[ConfigurationItem])
 async def get_all_configurations():
     """
     Query database for all configurations.
     """
     query = config_table.select()
     fetched = await database.fetch_all(query)
-    return [ConfigurationRow.parse_obj(x) for x in fetched]
+    config_rows = [ConfigurationRow.parse_obj(x) for x in fetched]
+    return [ConfigurationItem(**item.dict(exclude={"features"}), features=literal_eval(item.features)) for item in config_rows]
 
 
 @router.get("/{config_id}", response_model=ConfigurationRow)
@@ -32,8 +34,8 @@ async def get_configuration(config_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=(f"Couldn't get config {config_id}, " "that ID does not exist in the database"),
         )
-    return ConfigurationRow.parse_obj(fetched)
-
+    config_row = ConfigurationRow.parse_obj(fetched)
+    return ConfigurationItem(**config_row.dict(exclude={"features"}, features=config_row.features))
 
 @database.transaction()
 @router.post("/")
@@ -58,7 +60,7 @@ async def add_configuration(configuration: ConfigurationRow):
 async def update_configuration(
     config_id: int,
     product: Optional[str] = Body(None),
-    features: Optional[List[str]] = Body(None),
+    features: Optional[str] = Body(None),
     license_servers: Optional[List[str]] = Body(None),
     license_server_type: Optional[str] = Body(None),
     grace_time: Optional[int] = Body(None),

@@ -43,7 +43,7 @@ config_table = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("product", String),
-    Column("features", ScalarListType(str)),
+    Column("features", String),
     Column("license_servers", ScalarListType(str)),
     Column("license_server_type", String),
     Column("grace_time", Integer, CheckConstraint("grace_time>=0")),

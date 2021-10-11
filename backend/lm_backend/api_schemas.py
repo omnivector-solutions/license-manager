@@ -13,7 +13,23 @@ class ConfigurationRow(BaseModel):
 
     id: Optional[int] = Field(None)
     product: str
-    features: List[str]
+    features: str
+    license_servers: List[str]
+    license_server_type: str
+    grace_time: int
+
+    class Config:
+        orm_mode = True
+
+
+class ConfigurationItem(BaseModel):
+    """
+    A configuration parsed item.
+    """
+
+    id: Optional[int] = Field(None)
+    product: str
+    features: dict
     license_servers: List[str]
     license_server_type: str
     grace_time: int

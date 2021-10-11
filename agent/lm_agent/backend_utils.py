@@ -42,7 +42,7 @@ class BackendConfigurationRow(BaseModel):
         extra = "ignore"
 
     product: str
-    features: List[str]
+    features: dict
     license_servers: List[str]
     license_server_type: str
     grace_time: int

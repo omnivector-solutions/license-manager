@@ -12,7 +12,7 @@ def some_config_rows():
         ConfigurationRow(
             id=1,
             product="hello",
-            features=["world", "dolly"],
+            features='{"world": 10, "dolly": 10}',
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
@@ -20,7 +20,7 @@ def some_config_rows():
         ConfigurationRow(
             id=2,
             product="cool",
-            features=["beans"],
+            features='{"beans": 10}',
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
