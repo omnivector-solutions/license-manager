@@ -16,7 +16,7 @@ def one_configuration_row():
     return [
         BackendConfigurationRow(
             product="testproduct1",
-            features=["feature1"],
+            features={"feature1": 10},
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=10000,

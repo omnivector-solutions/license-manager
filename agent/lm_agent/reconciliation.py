@@ -8,7 +8,11 @@ from typing import Dict, List
 from fastapi import HTTPException, status
 from httpx import ConnectError
 
-from lm_agent.backend_utils import get_bookings_from_backend, get_config_from_backend, get_config_id_from_backend
+from lm_agent.backend_utils import (
+    get_bookings_from_backend,
+    get_config_from_backend,
+    get_config_id_from_backend,
+)
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report

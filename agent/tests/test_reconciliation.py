@@ -185,6 +185,10 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
             status_code=status.HTTP_200_OK,
         )
     )
+    respx_mock.get("/api/v1/config/all").mock(return_value=Response(status_code=status.HTTP_200_OK, json={}))
+    respx_mock.get("/api/v1/config/?product_feature=product.feature").mock(
+        return_value=Response(status_code=status.HTTP_200_OK, json={})
+    )
     respx_mock.get("/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=status.HTTP_200_OK,
