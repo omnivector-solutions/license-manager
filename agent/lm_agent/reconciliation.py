@@ -8,7 +8,11 @@ from typing import Dict, List
 from fastapi import HTTPException, status
 from httpx import ConnectError
 
-from lm_agent.backend_utils import get_bookings_from_backend
+from lm_agent.backend_utils import (
+    get_bookings_from_backend,
+    get_config_from_backend,
+    get_config_id_from_backend,
+)
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
@@ -129,6 +133,7 @@ async def reconcile():
     await clean_booked_grace_time()
     r = await update_report()
     response = await async_client().get("/api/v1/license/cluster_update")
+    configs = await get_config_from_backend()
     licenses_to_update = response.json()
     for license_data in licenses_to_update:
         product_feature = license_data["product_feature"]
@@ -136,13 +141,19 @@ async def reconcile():
         license_total = license_data["license_total"]
         license_used = license_data["license_used"]
         slurm_used = await get_tokens_for_license(product_feature + "@flexlm", "Used")
+        config_id = await get_config_id_from_backend(product_feature)
+        minimum_value = 0
+        for config in configs:
+            if config.id == config_id:
+                minimum_value = config.features[product_feature.split(".")[1]]
+                break
         if slurm_used is None:
             slurm_used = 0
         new_quantity = license_total - license_used - bookings_sum + slurm_used
         if new_quantity > license_total:
             new_quantity = license_total
-        if new_quantity < license_total / 2:
-            new_quantity = int(license_total / 2)
+        if new_quantity < minimum_value:
+            new_quantity = minimum_value
         product, feature = product_feature.split(".")
         update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
         if update_resource:

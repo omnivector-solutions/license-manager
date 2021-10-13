@@ -6,6 +6,7 @@ try:
 except ImportError:  # pragma: nocover
     "asyncpg not installed"
 
+
 try:
     from aiosqlite import IntegrityError
 
