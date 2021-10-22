@@ -57,9 +57,6 @@ class Settings(BaseSettings):
     # a path to a folder containing binaries for license management tools
     BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
 
-    # interval, in seconds: how long between license count checks
-    STAT_INTERVAL: int = 5 * 60
-
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
