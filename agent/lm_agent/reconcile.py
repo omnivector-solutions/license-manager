@@ -40,9 +40,9 @@ def begin_logging():
 
 async def run_reconcile():
     """Main function to setup the env and call the reconcile function."""
+    begin_logging()
     logger.info("Starting reconcile script")
     await backend_version_check()
-    begin_logging()
     await reconcile()
     logger.info("Reconcile completed successfully")
 
