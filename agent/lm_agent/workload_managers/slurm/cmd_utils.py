@@ -5,15 +5,14 @@ import shlex
 import subprocess
 from typing import List, Optional, Union
 
-import httpx
 from pydantic import BaseModel, Field
 
-from lm_agent.config import PRODUCT_FEATURE_RX, settings
+from lm_agent.config import PRODUCT_FEATURE_RX
+from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import (
     CMD_TIMEOUT,
     ENCODING,
-    LM2_AGENT_HEADERS,
     SACCTMGR_PATH,
     SCONTROL_PATH,
     SQUEUE_PATH,
@@ -35,8 +34,6 @@ class ScontrolRetrievalFailure(Exception):
         stderr=asyncio.subprocess.STDOUT,
     )
     """
-
-    pass
 
 
 class LicenseBooking(BaseModel):
@@ -122,18 +119,17 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     logger.debug(f"features: {features}")
     logger.debug(f"lbr: {lbr}")
 
-    with httpx.Client() as client:
-        resp = client.put(
-            f"{settings.AGENT_BASE_URL}/api/v1/booking/book",
-            headers=LM2_AGENT_HEADERS,
-            json={
-                "job_id": lbr.job_id,
-                "features": features,
-                "user_name": lbr.user_name,
-                "lead_host": lbr.lead_host,
-                "cluster_name": lbr.cluster_name,
-            },
-        )
+    client = async_client()
+    resp = client.put(
+        "/api/v1/booking/book",
+        json={
+            "job_id": lbr.job_id,
+            "features": features,
+            "user_name": lbr.user_name,
+            "lead_host": lbr.lead_host,
+            "cluster_name": lbr.cluster_name,
+        },
+    )
 
     if resp.status_code == 200:
         logger.debug("##### Booking completed successfully #####")
@@ -144,12 +140,8 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
 async def reconcile():
     """Force a reconciliation."""
-
-    with httpx.Client() as client:
-        resp = client.get(
-            f"{settings.AGENT_BASE_URL}/reconcile",
-            headers=LM2_AGENT_HEADERS,
-        )
+    client = async_client()
+    resp = client.get("/reconcile")
 
     if resp.status_code == 200:
         logger.debug("##### Reconcile completed successfully #####")
