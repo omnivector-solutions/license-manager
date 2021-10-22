@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import asyncio
-import pkg_resources
 import logging
+
+import pkg_resources
 import sentry_sdk
 
 from lm_agent.backend_utils import LicenseManagerBackendVersionError, get_license_manager_backend_version
@@ -12,10 +13,7 @@ from lm_agent.reconciliation import reconcile
 AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
 if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        traces_sample_rate=1.0
-    )
+    sentry_sdk.init(dsn=settings.SENTRY_DSN, traces_sample_rate=1.0)
 
 
 async def backend_version_check():
@@ -38,7 +36,6 @@ def begin_logging():
     level = getattr(logging, settings.LOG_LEVEL)
     logger.setLevel(level)
     logger.info(f"Backend URL: {settings.BACKEND_BASE_URL}")
-
 
 
 async def run_reconcile():

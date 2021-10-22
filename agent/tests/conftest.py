@@ -10,22 +10,6 @@ from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 
 from lm_agent.config import settings
-from lm_agent.main import app as agent_app
-
-
-@fixture
-async def agent_client():
-    """
-    A client that can issue fake requests against endpoints in the agent
-    """
-    ac = AsyncClient(
-        transport=ASGITransport(app=agent_app, raise_app_exceptions=False),
-        base_url="http://test",
-        headers={"authorization": "bearer xxx.xxx.xxx"},
-    )
-    async with ac:
-        yield ac
-
 
 MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
 
