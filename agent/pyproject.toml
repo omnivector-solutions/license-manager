@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager-agent"
-version = "2.0.3-dev1"
+version = "2.0.3-dev11"
 description = "Provides an agent for interacting with license manager"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
@@ -50,7 +50,7 @@ include_trailing_comma = true
 [tool.poetry.scripts]
 lm-configure = "bin.lmconfigure:app"
 lm-create-jwt = "bin.createjwt:main"
-reconcile = "bin.reconcile:main"
+reconcile = "lm_agent.reconcile:main"
 slurmctld-prolog = "lm_agent.workload_managers.slurm.slurmctld_prolog:main"
 slurmctld-epilog = "lm_agent.workload_managers.slurm.slurmctld_epilog:main"
 

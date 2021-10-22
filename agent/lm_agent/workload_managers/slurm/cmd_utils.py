@@ -119,8 +119,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     logger.debug(f"features: {features}")
     logger.debug(f"lbr: {lbr}")
 
-    client = async_client()
-    resp = client.put(
+    resp = await async_client().put(
         "/api/v1/booking/book",
         json={
             "job_id": lbr.job_id,
@@ -140,8 +139,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
 async def reconcile():
     """Force a reconciliation."""
-    client = async_client()
-    resp = client.get("/reconcile")
+    resp = await async_client().get("/reconcile")
 
     if resp.status_code == 200:
         logger.debug("##### Reconcile completed successfully #####")

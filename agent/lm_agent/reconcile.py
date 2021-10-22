@@ -37,14 +37,11 @@ def begin_logging():
 
     level = getattr(logging, settings.LOG_LEVEL)
     logger.setLevel(level)
-
-    # as a developer you'll run this with uvicorn,
-    # which takes over logging.
     logger.info(f"Backend URL: {settings.BACKEND_BASE_URL}")
 
 
 
-async def reconcile():
+async def run_reconcile():
     """Main function to setup the env and call the reconcile function."""
     logger.info("Starting reconcile script")
     await backend_version_check()
@@ -54,4 +51,4 @@ async def reconcile():
 
 
 def main():
-    asyncio.run(reconcile())
+    asyncio.run(run_reconcile())
