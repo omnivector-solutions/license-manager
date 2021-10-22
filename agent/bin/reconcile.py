@@ -11,10 +11,11 @@ from lm_agent.reconciliation import reconcile
 
 AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
-sentry_sdk.init(
-    dsn=settings.SENTRY_DSN,
-    traces_sample_rate=1.0
-)
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0
+    )
 
 
 async def backend_version_check():
@@ -43,7 +44,7 @@ def begin_logging():
 
 
 
-async def main():
+async def reconcile():
     """Main function to setup the env and call the reconcile function."""
     logger.info("Starting reconcile script")
     await backend_version_check()
@@ -52,5 +53,5 @@ async def main():
     logger.info("Reconcile completed successfully")
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def main():
+    asyncio.run(reconcile())
