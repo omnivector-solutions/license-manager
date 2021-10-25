@@ -5,10 +5,10 @@ Reconciliation functionality live here.
 import asyncio
 from typing import Dict, List
 
-from fastapi import HTTPException, status
 from httpx import ConnectError
 
 from lm_agent.backend_utils import (
+    LicenseManagerBackendConnectionError,
     get_bookings_from_backend,
     get_config_from_backend,
     get_config_id_from_backend,
@@ -32,7 +32,7 @@ async def remove_booked_for_job_id(job_id: str):
     Send DELETE to /api/v1/booking/book/{job_id}.
     """
     response = await async_client().delete(f"/api/v1/booking/book/{job_id}")
-    if response.status_code != status.HTTP_200_OK:
+    if response.status_code != 200:
         logger.error(f"{job_id} could not be deleted.")
         logger.debug(f"response from delete: {response.__dict__}")
 
@@ -171,25 +171,16 @@ async def update_report():
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="report failed",
-        )
+        raise LicenseManagerBackendConnectionError()
     client = async_client()
     try:
         r = await client.patch(RECONCILE_URL_PATH, json=rep)
     except ConnectError as e:
         logger.error(f"{client.base_url}{RECONCILE_URL_PATH}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="connection to reconcile api failed",
-        )
+        raise LicenseManagerBackendConnectionError()
 
-    if r.status_code != status.HTTP_200_OK:
+    if r.status_code != 200:
         logger.error(f"{r.url}: {r.status_code}!: {r.text}")
-        raise HTTPException(
-            status_code=r.status_code,
-            detail="reconciliation failed",
-        )
+        raise LicenseManagerBackendConnectionError()
 
     logger.info(f"Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")

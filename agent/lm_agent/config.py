@@ -45,9 +45,6 @@ class Settings(BaseSettings):
     # ... I tried using AnyHttpUrl but mypy complained
     BACKEND_BASE_URL: str = Field("http://127.0.0.1:8000")
 
-    # agent base url
-    AGENT_BASE_URL: str = Field("http://127.0.0.1:8010", regex=_URL_REGEX)
-
     # location of the log directory
     LOG_BASE_DIR: Optional[str]
 
@@ -59,9 +56,6 @@ class Settings(BaseSettings):
 
     # a path to a folder containing binaries for license management tools
     BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
-
-    # interval, in seconds: how long between license count checks
-    STAT_INTERVAL: int = 5 * 60
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False

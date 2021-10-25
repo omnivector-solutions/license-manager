@@ -1,9 +1,9 @@
 from unittest import mock
 
 import pytest
-from fastapi import HTTPException, status
 from httpx import Response
 
+from lm_agent.backend_utils import LicenseManagerBackendConnectionError
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,
@@ -150,7 +150,7 @@ async def test_get_all_grace_times(respx_mock):
     """
     respx_mock.get("/api/v1/config/all").mock(
         return_value=Response(
-            status_code=status.HTTP_200_OK,
+            status_code=200,
             json=[
                 {"id": 1, "grace_time": 100},
                 {"id": 2, "grace_time": 300},
@@ -168,7 +168,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
     Check the correct behavior when the report is empty in reconcile.
     """
     report_mock.return_value = []
-    with pytest.raises(HTTPException):
+    with pytest.raises(LicenseManagerBackendConnectionError):
         await update_report()
 
 
@@ -182,16 +182,16 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
     """
     respx_mock.patch("/api/v1/license/reconcile").mock(
         return_value=Response(
-            status_code=status.HTTP_200_OK,
+            status_code=200,
         )
     )
-    respx_mock.get("/api/v1/config/all").mock(return_value=Response(status_code=status.HTTP_200_OK, json={}))
+    respx_mock.get("/api/v1/config/all").mock(return_value=Response(status_code=200, json={}))
     respx_mock.get("/api/v1/config/?product_feature=product.feature").mock(
-        return_value=Response(status_code=status.HTTP_200_OK, json={})
+        return_value=Response(status_code=200, json={})
     )
     respx_mock.get("/api/v1/license/cluster_update").mock(
         return_value=Response(
-            status_code=status.HTTP_200_OK,
+            status_code=200,
             json=[
                 {
                     "product_feature": "product.feature",
@@ -217,11 +217,11 @@ async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock,
     """
     respx_mock.patch("/api/v1/license/reconcile").mock(
         return_value=Response(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
         )
     )
     report_mock.return_value = [{"foo": "bar"}]
-    with pytest.raises(HTTPException):
+    with pytest.raises(LicenseManagerBackendConnectionError):
         await reconcile()
         clean_booked_grace_time_mock.assert_awaited_once()
 
