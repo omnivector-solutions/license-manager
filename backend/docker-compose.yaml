@@ -3,17 +3,15 @@ services:
   postgres-back:
     image: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
       POSTGRES_PASSWORD: 123
     ports:
       - "6432:5432"
-    healthcheck: 
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres", "-p", "6432", "-h", "localhost"]
       interval: 5s
       timeout: 5s
-      retries: 5    
-
+      retries: 5
+    user: postgres
   license-manager:
     build:
       context: .
@@ -22,6 +20,6 @@ services:
       postgres-back:
         condition: service_healthy
     environment:
-      LM2_DATABASE_URL: postgresql://postgres:123@localhost:6432/postgres
+      LM2_DATABASE_URL: postgres://postgres:123@postgres-back:5432/postgres
     ports:
       - "7000:80"
