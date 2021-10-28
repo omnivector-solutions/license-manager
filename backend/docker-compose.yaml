@@ -18,9 +18,9 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-        depends_on:
-          postgres-back:
-            condition: service_healthy
+    depends_on:
+      postgres-back:
+        condition: service_healthy
     environment:
       LM2_DATABASE_URL: postgresql://postgres:123@localhost:6432/postgres
     ports:
