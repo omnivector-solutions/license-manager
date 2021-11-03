@@ -8,9 +8,6 @@ RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 FROM python:3.8
 
-RUN apt-get -y update
-RUN apt-get install -y --fix-missing build-essential cmake libpq-dev
-
 WORKDIR /app
 
 COPY --from=requirements-stage /tmp/requirements.txt /app/requirements.txt
