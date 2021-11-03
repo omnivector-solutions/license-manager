@@ -13,9 +13,9 @@ TOTALS_LINE = rf"^(?P<license_feature>\w+) {VERSION}: (?P<user_name>\w+)@(?P<lea
 DATA_LINE = rf"^\s*(?P<license_feature>\w+) {VERSION}$"
 COUNT_LINE = r"^\s*count: (?P<count>\d+).*inuse: (?P<in_use>\d+).*$"
 
-RX_TOTAL = re.compile(rf"{TOTALS_LINE}")
-RX_DATA = re.compile(rf"{DATA_LINE}")
-RX_COUNT = re.compile(rf"{COUNT_LINE}")
+RX_TOTAL = re.compile(TOTALS_LINE)
+RX_DATA = re.compile(DATA_LINE)
+RX_COUNT = re.compile(COUNT_LINE)
 
 
 def _get_start_offset(lines) -> int:
