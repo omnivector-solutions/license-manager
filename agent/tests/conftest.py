@@ -79,12 +79,12 @@ def lm_output():
 
 @fixture
 def rlm_output():
-    return """Setting license file path to 35015@licserv0011.scania.com
+    return """Setting license file path to 10@licserv.server.com
 rlmutil v12.2
 Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 
-	rlm status on licserv0011.scania.com (port 35015), up 15d 11:08:25
+	rlm status on licserv.com (port 35015), up 99d 11:08:25
 	rlm software version v12.2 (build:2)
 	rlm comm version: v1.2
 	Startup time: Tue Oct 19 01:40:13 2021
@@ -102,7 +102,7 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 	------------------------
 
-	csci ISV server status on licserv0011.scania.com (port 63133), up 15d 11:08:18
+	csci ISV server status on licserv.server.com (port 63133), up 99d 11:08:18
 	csci software version v12.2 (build: 2)
 	csci comm version: v1.2
 	csci Debug log filename: F:\RLM\Logs\csci.dlog
@@ -113,16 +113,16 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 	             Recent Stats         Todays Stats         Total Stats
 	              00:16:08             13:48:32         15d 11:08:18
-	Messages:    691 (0/sec)           34770 (0/sec)          935961 (0/sec)
-	Connections: 345 (0/sec)           17359 (0/sec)          466699 (0/sec)
-	Checkouts:   0 (0/sec)           1 (0/sec)          237 (0/sec)
+	Messages:    991 (0/sec)           34770 (0/sec)          935961 (0/sec)
+	Connections: 945 (0/sec)           17359 (0/sec)          466699 (0/sec)
+	Checkouts:   0 (0/sec)           1 (0/sec)          937 (0/sec)
 	Denials:     0 (0/sec)           0 (0/sec)          0 (0/sec)
 	Removals:    0 (0/sec)           0 (0/sec)          0 (0/sec)
 
 
 	------------------------
 
-	csci license pool status on licserv0011.scania.com (port 63133)
+	csci license pool status on licser.server.com (port 63133)
 
 	converge v3.0
 		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
@@ -143,7 +143,7 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 	------------------------
 
-	csci license usage status on licserv0011.scania.com (port 63133)
+	csci license usage status on licser.server.com (port 63133)
 
 	converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a) 
 	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128) 
