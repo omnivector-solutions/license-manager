@@ -28,7 +28,7 @@ def _get_start_offset(lines) -> int:
         if count == 2:
             break
         i -= 1
-    return i
+    return max(i, 0)
 
 
 def parse(s: str) -> dict:
@@ -36,8 +36,9 @@ def parse(s: str) -> dict:
     Parse lines of the license output with regular expressions
     """
     parsed_dict: dict = {"uses": [], "total": []}
-    start_offset = _get_start_offset(s.splitlines())
-    lines = [line.strip() for line in s.splitlines()[start_offset:]]
+    lines = s.splitlines()
+    start_offset = _get_start_offset(lines)
+    lines = [line.strip() for line in lines[start_offset:]]
 
     for i, line in enumerate(lines):
         parsed_total = RX_TOTAL.match(line)
@@ -65,7 +66,5 @@ def parse(s: str) -> dict:
                     "used": int(count_data["in_use"]),
                 }
             )
-        else:
-            continue
 
     return parsed_dict
