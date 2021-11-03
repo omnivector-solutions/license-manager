@@ -54,6 +54,8 @@ def parse(s: str) -> dict:
             )
         elif parsed_data:
             parsed_count = RX_COUNT.match(lines[i + 1])
+            if not parsed_count:
+                continue
             count_data = parsed_count.groupdict()
             data_data = parsed_data.groupdict()
             parsed_dict["total"].append(
