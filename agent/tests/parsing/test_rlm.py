@@ -3,7 +3,7 @@ Test the rlm parser
 """
 from pytest import mark
 
-from lm_agent.parsing.rlm import parse
+from lm_agent.parsing.rlm import _get_start_offset, parse
 
 
 @mark.parametrize(
@@ -50,3 +50,12 @@ def test_parse(request, fixture, result):
     """
     text = request.getfixturevalue(fixture)
     assert parse(text) == result
+
+
+@mark.parametrize("fixture,result", [("rlm_output", 41), ("lm_output_bad", 0)])
+def test_get_start_offset(request, fixture, result):
+    """
+    Test the function that returns the offset for the RLM parser
+    """
+    text = request.getfixturevalue(fixture)
+    assert result == _get_start_offset(text.splitlines())
