@@ -147,6 +147,5 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 	converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a) 
 	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128) 
-    converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a) 
-
+	converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
 """
