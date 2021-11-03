@@ -182,9 +182,14 @@ TODO - pypi/charm
 
 ## Run locally
 
+To run the backend locally, use `docker-compose` to run the application and its database inside containers:
 ```
 # backend
-uvicorn licensemanager2.backend.main:app
+cd backend
+docker-compose up --build
+```
+
+```
 # agent
 uvicorn licensemanager2.agent.main:app --port 8010
 ```
