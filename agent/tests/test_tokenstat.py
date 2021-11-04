@@ -28,8 +28,8 @@ def one_configuration_row():
 def one_configuration_row_rlm():
     return [
         BackendConfigurationRow(
-            product="feature1",
-            features={"feature1": 10},
+            product="converge_super",
+            features={"converge_super": 10},
             license_servers=["rlm:127.0.0.1:2345"],
             license_server_type="rlm",
             grace_time=10000,
@@ -50,7 +50,7 @@ def license_server_features_rlm():
     """
     The license server type, product and features.
     """
-    return [{"features": ["TESTFEATURE"], "license_server_type": "rlm", "product": "TESTFEATURE"}]
+    return [{"features": ["converge_super"], "license_server_type": "rlm", "product": "converge_super"}]
 
 
 @fixture
@@ -219,16 +219,57 @@ async def test_report(
         assert [license_report_item] == await tokenstat.report()
 
 
-
 @mark.asyncio
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
-async def test_report(
+@mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
+@mock.patch("lm_agent.tokenstat.asyncio.wait_for")
+@mock.patch("lm_agent.tokenstat.ToolOptionsCollection")
+async def test_report_rlm(
+    tools_mock: mock.MagicMock,
+    wait_for_mock: mock.AsyncMock,
+    create_subprocess_mock: mock.AsyncMock,
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts_rlm: tokenstat.ToolOptions,
     one_configuration_row_rlm,
+    rlm_output,
 ):
     """
     Do I collect the requested structured data from running all these dang tools?
     """
+    proc_mock = mock.MagicMock()
+    proc_mock.returncode = 0
+    create_subprocess_mock.return_value = proc_mock
     get_config_from_backend_mock.return_value = one_configuration_row_rlm
-    
+    tools_mock.tools = {"rlm": tool_opts_rlm}
+    wait_for_mock.return_value = (
+        bytes(rlm_output, encoding="UTF8"),
+        None,
+    )
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == [
+        {
+            "product_feature": "converge_super",
+            "used": 93,
+            "total": 1000,
+            "used_licenses": [
+                {
+                    "user_name": "jbemfv",
+                    "lead_host": "myserver.example.com",
+                    "booked": 29,
+                    "feature": "converge_super",
+                },
+                {
+                    "user_name": "cdxfdn",
+                    "lead_host": "myserver.example.com",
+                    "booked": 27,
+                    "feature": "converge_super",
+                },
+                {
+                    "user_name": "jbemfv",
+                    "lead_host": "myserver.example.com",
+                    "booked": 37,
+                    "feature": "converge_super",
+                },
+            ],
+        },
+    ]

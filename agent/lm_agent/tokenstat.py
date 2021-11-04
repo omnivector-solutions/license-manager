@@ -52,6 +52,15 @@ class LicenseReportItem(BaseModel):
         )
 
 
+def _filter_current_feature(parsed_list, product):
+    """
+    Get the current feature from the parsed list.
+    """
+    for feature in parsed_list:
+        if feature["feature"] == product:
+            return feature
+
+
 class RLMReportItem(BaseModel):
     """
     An item in a RLM report, a count of tokens for one product/feature.
@@ -66,12 +75,14 @@ class RLMReportItem(BaseModel):
     def from_stdout(cls, product, parse_fn, tool_name, stdout):
         """Create a RLM by parsing the stdout from the program that produced it."""
         parsed = parse_fn(stdout)
+        current_feature_item = _filter_current_feature(parsed["total"], product)
         return cls(
-            product_feature=f"{product}.{parsed['total']['feature']}",
-            used=parsed["total"]["used"],
-            total=parsed["total"]["total"],
+            product_feature=product,
+            used=current_feature_item["used"],
+            total=current_feature_item["total"],
             used_licenses=parsed["uses"],
         )
+
 
 class ToolOptions(BaseModel):
     """
@@ -145,21 +156,27 @@ async def attempt_tool_checks(
         stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
         output = str(stdout, encoding=ENCODING)
 
-        if proc.returncode == 0:
+        if proc.returncode != 0:
+            logger.warning(f"rc = {proc.returncode}!")
+            logger.warning(output)
+            raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
+
+        if tool_options.name == "flexlm":
             lri = LicenseReportItem.from_stdout(
                 parse_fn=tool_options.parse_fn,
                 tool_name=tool_options.name,
                 product=product,
                 stdout=output,
             )
+        elif tool_options.name == "rlm":
+            lri = RLMReportItem.from_stdout(
+                parse_fn=tool_options.parse_fn,
+                tool_name=tool_options.name,
+                product=product,
+                stdout=output,
+            )
 
-            return lri
-
-        else:
-            logger.warning(f"rc = {proc.returncode}!")
-            logger.warning(output)
-
-    raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
+        return lri
 
 
 async def report() -> typing.List[dict]:
@@ -182,16 +199,13 @@ async def report() -> typing.List[dict]:
     # of tools/cmds to be ran.
     entries = await get_config_from_backend()
     for entry in entries:
-        if entry.license_server_type == "flexlm":
-            options = tools["flexlm"]
-            for feature in entry.features.keys():
-                tool_awaitables.append(
-                    attempt_tool_checks(options, entry.product, feature, entry.license_servers)
-                )
-        elif entry.license_server_type == "rlm":
-            options = tools["rlm"]
-            for feature in entry.features.keys():
-                pass
+        for license_server_type in tools:
+            if entry.license_server_type == license_server_type:
+                options = tools[license_server_type]
+                for feature in entry.features.keys():
+                    tool_awaitables.append(
+                        attempt_tool_checks(options, entry.product, feature, entry.license_servers)
+                    )
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:
