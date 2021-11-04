@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
-from lm_agent.parsing import flexlm
+from lm_agent.parsing import flexlm, rlm
 
 
 class LicenseService(BaseModel):
@@ -52,6 +52,27 @@ class LicenseReportItem(BaseModel):
         )
 
 
+class RLMReportItem(BaseModel):
+    """
+    An item in a RLM report, a count of tokens for one product/feature.
+    """
+
+    product_feature: str
+    used: int
+    total: int
+    used_licenses: typing.List
+
+    @classmethod
+    def from_stdout(cls, product, parse_fn, tool_name, stdout):
+        """Create a RLM by parsing the stdout from the program that produced it."""
+        parsed = parse_fn(stdout)
+        return cls(
+            product_feature=f"{product}.{parsed['total']['feature']}",
+            used=parsed["total"]["used"],
+            total=parsed["total"]["total"],
+            used_licenses=parsed["uses"],
+        )
+
 class ToolOptions(BaseModel):
     """
     Specifications for running one of the tools that accesses license servers
@@ -90,6 +111,12 @@ class ToolOptionsCollection:
             path=Path(f"{settings.BIN_PATH}/lmstat"),
             args="{exe} -c {port}@{host} -f",
             parse_fn=flexlm.parse,
+        ),
+        "rlm": ToolOptions(
+            name="rlm",
+            path=Path(f"{settings.BIN_PATH}/rlmstat"),
+            args="{exe} -c {port}@{host} -a -p",
+            parse_fn=rlm.parse,
         ),
         # "other_tool": ToolOptions(...)
     }
@@ -155,13 +182,16 @@ async def report() -> typing.List[dict]:
     # of tools/cmds to be ran.
     entries = await get_config_from_backend()
     for entry in entries:
-        for license_server_type in tools:
-            if entry.license_server_type == license_server_type:
-                options = tools[license_server_type]
-                for feature in entry.features.keys():
-                    tool_awaitables.append(
-                        attempt_tool_checks(options, entry.product, feature, entry.license_servers)
-                    )
+        if entry.license_server_type == "flexlm":
+            options = tools["flexlm"]
+            for feature in entry.features.keys():
+                tool_awaitables.append(
+                    attempt_tool_checks(options, entry.product, feature, entry.license_servers)
+                )
+        elif entry.license_server_type == "rlm":
+            options = tools["rlm"]
+            for feature in entry.features.keys():
+                pass
     # run all checkers in parallel
     results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
     for res in results:
