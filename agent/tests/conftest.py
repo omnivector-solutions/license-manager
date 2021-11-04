@@ -75,3 +75,77 @@ def lm_output():
         "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
         "start Thu 10/29 8:09, 37 licenses\n"
     )
+
+
+@fixture
+def rlm_output():
+    return """Setting license file path to 10@licserv.server.com
+rlmutil v12.2
+Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
+
+
+	rlm status on licserv.com (port 35015), up 99d 11:08:25
+	rlm software version v12.2 (build:2)
+	rlm comm version: v1.2
+	Startup time: Tue Oct 19 01:40:13 2021
+	Todays Statistics (13:48:32), init time: Tue Nov  2 23:00:06 2021
+	Recent Statistics (00:16:08), init time: Wed Nov  3 12:32:30 2021
+
+	             Recent Stats         Todays Stats         Total Stats
+	              00:16:08             13:48:32         15d 11:08:25
+	Messages:    582 (0/sec)           28937 (0/sec)          777647 (0/sec)
+	Connections: 463 (0/sec)           23147 (0/sec)          622164 (0/sec)
+
+	--------- ISV servers ----------
+	   Name           Port Running Restarts
+	csci             63133   Yes      0
+
+	------------------------
+
+	csci ISV server status on licserv.server.com (port 63133), up 99d 11:08:18
+	csci software version v12.2 (build: 2)
+	csci comm version: v1.2
+	csci Debug log filename: F:\RLM\Logs\csci.dlog
+	csci Report log filename: F:\RLM\logs\Reportlogs\CSCILOG.rl
+	Startup time: Tue Oct 19 01:40:20 2021
+	Todays Statistics (13:48:32), init time: Tue Nov  2 23:00:06 2021
+	Recent Statistics (00:16:08), init time: Wed Nov  3 12:32:30 2021
+
+	             Recent Stats         Todays Stats         Total Stats
+	              00:16:08             13:48:32         15d 11:08:18
+	Messages:    991 (0/sec)           34770 (0/sec)          935961 (0/sec)
+	Connections: 945 (0/sec)           17359 (0/sec)          466699 (0/sec)
+	Checkouts:   0 (0/sec)           1 (0/sec)          937 (0/sec)
+	Denials:     0 (0/sec)           0 (0/sec)          0 (0/sec)
+	Removals:    0 (0/sec)           0 (0/sec)          0 (0/sec)
+
+
+	------------------------
+
+	csci license pool status on licser.server.com (port 63133)
+
+	converge v3.0
+		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 0
+	converge_gui v1.0
+		count: 45, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 26
+	converge_gui_polygonica v1.0
+		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 26
+	converge_super v3.0
+		count: 1000, # reservations: 0, inuse: 93, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 169
+	converge_tecplot v1.0
+		count: 45, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 16
+
+
+	------------------------
+
+	csci license usage status on licser.server.com (port 63133)
+
+	converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a) 
+	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128) 
+	converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
+"""
