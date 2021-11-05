@@ -73,7 +73,7 @@ def tool_opts_rlm() -> tokenstat.ToolOptions:
     """
     return tokenstat.ToolOptions(
         name="rlm",
-        path=Path(f"{MOCK_BIN_PATH}/rlmstat"),
+        path=MOCK_BIN_PATH / "rlmstat",
         args="{exe} {host} {port}",
         parse_fn=rlm.parse,
     )
