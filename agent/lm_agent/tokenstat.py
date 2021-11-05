@@ -157,8 +157,7 @@ async def attempt_tool_checks(
         output = str(stdout, encoding=ENCODING)
 
         if proc.returncode != 0:
-            logger.warning(f"rc = {proc.returncode}!")
-            logger.warning(output)
+            logger.error(f"Error: {output} | Return Code: {proc.returncode}")
             raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
 
         if tool_options.name == "flexlm":
