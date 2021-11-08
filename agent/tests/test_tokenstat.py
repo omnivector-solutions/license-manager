@@ -6,7 +6,7 @@ from pytest import fixture, mark, raises
 
 from lm_agent import tokenstat
 from lm_agent.backend_utils import BackendConfigurationRow
-from lm_agent.parsing import flexlm
+from lm_agent.parsing import flexlm, rlm
 from lm_agent.workload_managers.slurm import cmd_utils
 from tests.conftest import MOCK_BIN_PATH
 
@@ -25,11 +25,32 @@ def one_configuration_row():
 
 
 @fixture
+def one_configuration_row_rlm():
+    return [
+        BackendConfigurationRow(
+            product="converge_super",
+            features={"converge_super": 10},
+            license_servers=["rlm:127.0.0.1:2345"],
+            license_server_type="rlm",
+            grace_time=10000,
+        )
+    ]
+
+
+@fixture
 def license_server_features():
     """
     The license server type, product and features.
     """
     return [{"features": ["TESTFEATURE"], "license_server_type": "flexlm", "product": "TESTPRODUCT"}]
+
+
+@fixture
+def license_server_features_rlm():
+    """
+    The license server type, product and features.
+    """
+    return [{"features": ["converge_super"], "license_server_type": "rlm", "product": "converge_super"}]
 
 
 @fixture
@@ -42,6 +63,19 @@ def tool_opts() -> tokenstat.ToolOptions:
         path=Path(f"{MOCK_BIN_PATH}/lmstat"),
         args="{exe} {host} {port}",
         parse_fn=flexlm.parse,
+    )
+
+
+@fixture
+def tool_opts_rlm() -> tokenstat.ToolOptions:
+    """
+    A ToolOptions set up for easy testing
+    """
+    return tokenstat.ToolOptions(
+        name="rlm",
+        path=MOCK_BIN_PATH / "rlmstat",
+        args="{exe} {host} {port}",
+        parse_fn=rlm.parse,
     )
 
 
@@ -183,3 +217,59 @@ async def test_report(
     }
     with p0, p1:
         assert [license_report_item] == await tokenstat.report()
+
+
+@mark.asyncio
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
+@mock.patch("lm_agent.tokenstat.asyncio.wait_for")
+@mock.patch("lm_agent.tokenstat.ToolOptionsCollection")
+async def test_report_rlm(
+    tools_mock: mock.MagicMock,
+    wait_for_mock: mock.AsyncMock,
+    create_subprocess_mock: mock.AsyncMock,
+    get_config_from_backend_mock: mock.MagicMock,
+    tool_opts_rlm: tokenstat.ToolOptions,
+    one_configuration_row_rlm,
+    rlm_output,
+):
+    """
+    Do I collect the requested structured data from running all these dang tools?
+    """
+    proc_mock = mock.MagicMock()
+    proc_mock.returncode = 0
+    create_subprocess_mock.return_value = proc_mock
+    get_config_from_backend_mock.return_value = one_configuration_row_rlm
+    tools_mock.tools = {"rlm": tool_opts_rlm}
+    wait_for_mock.return_value = (
+        bytes(rlm_output, encoding="UTF8"),
+        None,
+    )
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == [
+        {
+            "product_feature": "converge_super",
+            "used": 93,
+            "total": 1000,
+            "used_licenses": [
+                {
+                    "user_name": "jbemfv",
+                    "lead_host": "myserver.example.com",
+                    "booked": 29,
+                    "feature": "converge_super",
+                },
+                {
+                    "user_name": "cdxfdn",
+                    "lead_host": "myserver.example.com",
+                    "booked": 27,
+                    "feature": "converge_super",
+                },
+                {
+                    "user_name": "jbemfv",
+                    "lead_host": "myserver.example.com",
+                    "booked": 37,
+                    "feature": "converge_super",
+                },
+            ],
+        },
+    ]

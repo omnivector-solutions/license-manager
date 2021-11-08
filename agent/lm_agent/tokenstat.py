@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
-from lm_agent.parsing import flexlm
+from lm_agent.parsing import flexlm, rlm
 
 
 class LicenseService(BaseModel):
@@ -48,6 +48,38 @@ class LicenseReportItem(BaseModel):
             product_feature=f"{product}.{parsed['total']['feature']}",
             used=parsed["total"]["used"],
             total=parsed["total"]["total"],
+            used_licenses=parsed["uses"],
+        )
+
+
+def _filter_current_feature(parsed_list, product):
+    """
+    Get the current feature from the parsed list.
+    """
+    for feature in parsed_list:
+        if feature["feature"] == product:
+            return feature
+
+
+class RLMReportItem(BaseModel):
+    """
+    An item in a RLM report, a count of tokens for one product/feature.
+    """
+
+    product_feature: str
+    used: int
+    total: int
+    used_licenses: typing.List
+
+    @classmethod
+    def from_stdout(cls, product, parse_fn, tool_name, stdout):
+        """Create a RLM by parsing the stdout from the program that produced it."""
+        parsed = parse_fn(stdout)
+        current_feature_item = _filter_current_feature(parsed["total"], product)
+        return cls(
+            product_feature=product,
+            used=current_feature_item["used"],
+            total=current_feature_item["total"],
             used_licenses=parsed["uses"],
         )
 
@@ -91,6 +123,12 @@ class ToolOptionsCollection:
             args="{exe} -c {port}@{host} -f",
             parse_fn=flexlm.parse,
         ),
+        "rlm": ToolOptions(
+            name="rlm",
+            path=Path(f"{settings.BIN_PATH}/rlmstat"),
+            args="{exe} -c {port}@{host} -a -p",
+            parse_fn=rlm.parse,
+        ),
         # "other_tool": ToolOptions(...)
     }
 
@@ -118,21 +156,26 @@ async def attempt_tool_checks(
         stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
         output = str(stdout, encoding=ENCODING)
 
-        if proc.returncode == 0:
+        if proc.returncode != 0:
+            logger.error(f"Error: {output} | Return Code: {proc.returncode}")
+            raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
+
+        if tool_options.name == "flexlm":
             lri = LicenseReportItem.from_stdout(
                 parse_fn=tool_options.parse_fn,
                 tool_name=tool_options.name,
                 product=product,
                 stdout=output,
             )
+        elif tool_options.name == "rlm":
+            lri = RLMReportItem.from_stdout(
+                parse_fn=tool_options.parse_fn,
+                tool_name=tool_options.name,
+                product=product,
+                stdout=output,
+            )
 
-            return lri
-
-        else:
-            logger.warning(f"rc = {proc.returncode}!")
-            logger.warning(output)
-
-    raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
+        return lri
 
 
 async def report() -> typing.List[dict]:
