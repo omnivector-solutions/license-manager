@@ -42,6 +42,19 @@ from lm_agent.parsing.rlm import _get_start_offset, parse
             },
         ),
         ("lm_output_bad", {"total": [], "uses": []}),
+        (
+            "rlm_output_no_licenses",
+            {
+                "total": [
+                    {"feature": "converge", "total": 1, "used": 0},
+                    {"feature": "converge_gui", "total": 45, "used": 0},
+                    {"feature": "converge_gui_polygonica", "total": 1, "used": 0},
+                    {"feature": "converge_super", "total": 1000, "used": 0},
+                    {"feature": "converge_tecplot", "total": 45, "used": 0},
+                ],
+                "uses": [],
+            },
+        ),
     ],
 )
 def test_parse(request, fixture, result):
