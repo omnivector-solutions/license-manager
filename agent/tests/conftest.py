@@ -149,3 +149,67 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128) 
 	converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
 """
+
+
+@fixture
+def rlm_output_no_licenses():
+    return """Setting license file path to 35015@licserv0011.com:35015@licserv0012.com
+rlmutil v12.2
+Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
+
+
+	rlm status on licserv0011.com (port 35015), up 20d 13:21:16
+	rlm software version v12.2 (build:2)
+	rlm comm version: v1.2
+	Startup time: Tue Oct 19 03:40:13 2021
+	Todays Statistics (16:01:23), init time: Mon Nov  8 00:00:06 2021
+	Recent Statistics (00:28:35), init time: Mon Nov  8 15:32:54 2021
+	
+	             Recent Stats         Todays Stats         Total Stats
+	              00:28:35             16:01:23         20d 13:21:16
+	Messages:    997 (0/sec)           33562 (0/sec)          1033736 (0/sec)
+	Connections: 797 (0/sec)           26849 (0/sec)          827039 (0/sec)	
+
+	--------- ISV servers ----------
+	   Name           Port Running Restarts
+	csci             63133   Yes      0
+
+	------------------------
+	
+	csci ISV server status on licserv0011.com (port 63133), up 20d 13:21:09
+	csci software version v12.2 (build: 2)
+	csci comm version: v1.2
+	csci Debug log filename: F:\RLM\Logs\csci.dlog
+	csci Report log filename: F:\RLM\logs\Reportlogs\CSCILOG.rl
+	Startup time: Tue Oct 19 03:40:20 2021
+	Todays Statistics (16:01:23), init time: Mon Nov  8 00:00:06 2021
+	Recent Statistics (00:28:35), init time: Mon Nov  8 15:32:54 2021
+	             Recent Stats         Todays Stats         Total Stats
+	              00:28:35             16:01:23         20d 13:21:09
+	Messages:    1196 (0/sec)           40276 (0/sec)          1243764 (0/sec)
+	Connections: 598 (0/sec)           20138 (0/sec)          620365 (0/sec)
+	Checkouts:   0 (0/sec)           0 (0/sec)          262 (0/sec)
+	Denials:     0 (0/sec)           0 (0/sec)          0 (0/sec)
+	Removals:    0 (0/sec)           0 (0/sec)          0 (0/sec)
+	
+
+	------------------------
+
+	csci license pool status on licserv0011.com (port 63133)
+	
+	converge v3.0
+		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 0
+	converge_gui v1.0
+		count: 45, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 26
+	converge_gui_polygonica v1.0
+		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 26
+	converge_super v3.0
+		count: 1000, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 189
+	converge_tecplot v1.0
+		count: 45, # reservations: 0, inuse: 0, exp: 31-jan-2022
+		obsolete: 0, min_remove: 120, total checkouts: 21
+	"""
