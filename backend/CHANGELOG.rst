@@ -21,10 +21,13 @@ Unreleased
 * Vendorized flexlm
 * Added support for deployment via terraform to AWS Lambda
 * Backend:
+
   * Added alembic support
   * Added bookings endpoints
   * Added FastAPI app for backend
+
 * Agent:
+
   * Skip eplilog cleanup loop if there are no bookings
   * Moved support functions to cmd_utils
   * Epilog updates token count to account for bookings
