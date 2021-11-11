@@ -259,7 +259,7 @@ async def test_report(
                     "total": 1000,
                     "used_licenses": [],
                 },
-            ]
+            ],
         ),
     ],
 )
