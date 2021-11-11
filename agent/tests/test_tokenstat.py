@@ -28,8 +28,8 @@ def one_configuration_row():
 def one_configuration_row_rlm():
     return [
         BackendConfigurationRow(
-            product="converge_super",
-            features={"converge_super": 10},
+            product="converge",
+            features={"super": 10},
             license_servers=["rlm:127.0.0.1:2345"],
             license_server_type="rlm",
             grace_time=10000,
@@ -50,7 +50,7 @@ def license_server_features_rlm():
     """
     The license server type, product and features.
     """
-    return [{"features": ["converge_super"], "license_server_type": "rlm", "product": "converge_super"}]
+    return [{"features": ["super"], "license_server_type": "rlm", "product": "converge"}]
 
 
 @fixture
@@ -248,7 +248,7 @@ async def test_report_rlm(
     reconcile_list = await tokenstat.report()
     assert reconcile_list == [
         {
-            "product_feature": "converge_super",
+            "product_feature": "converge.super",
             "used": 93,
             "total": 1000,
             "used_licenses": [
@@ -256,19 +256,16 @@ async def test_report_rlm(
                     "user_name": "jbemfv",
                     "lead_host": "myserver.example.com",
                     "booked": 29,
-                    "feature": "converge_super",
                 },
                 {
                     "user_name": "cdxfdn",
                     "lead_host": "myserver.example.com",
                     "booked": 27,
-                    "feature": "converge_super",
                 },
                 {
                     "user_name": "jbemfv",
                     "lead_host": "myserver.example.com",
                     "booked": 37,
-                    "feature": "converge_super",
                 },
             ],
         },
