@@ -294,3 +294,26 @@ async def test_report_rlm(
     )
     reconcile_list = await tokenstat.report()
     assert reconcile_list == reconciliation
+
+
+@mark.asyncio
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
+@mock.patch("lm_agent.tokenstat.ToolOptionsCollection")
+async def test_report_rlm_empty_backend(
+    tools_mock: mock.MagicMock,
+    create_subprocess_mock: mock.AsyncMock,
+    get_config_from_backend_mock: mock.MagicMock,
+    tool_opts_rlm: tokenstat.ToolOptions,
+):
+    """
+    Do I collect the requested structured data when the backend is empty?
+    """
+    proc_mock = mock.MagicMock()
+    proc_mock.returncode = 0
+    create_subprocess_mock.return_value = proc_mock
+    get_config_from_backend_mock.return_value = []
+    tools_mock.tools = {"rlm": tool_opts_rlm}
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == []
