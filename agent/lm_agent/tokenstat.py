@@ -71,7 +71,7 @@ def _filter_used_features(parsed_list, feature):
         if feature_booked["feature"].count("_") == 0:
             if feature_booked["feature"] == feature:
                 used_licenses.append(feature_booked)
-        elif "".join(feature_booked["feature"].split(_)[1:]) == feature:
+        elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
             used_licenses.append(feature_booked)
     return used_licenses
 
