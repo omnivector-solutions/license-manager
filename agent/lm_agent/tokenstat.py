@@ -104,7 +104,7 @@ class RLMReportItem(BaseModel):
         if not feature:
             feature = product
         current_feature_item = _filter_current_feature(parsed["total"], feature)
-        feature_booked_licenses = _filter_used_features(parsed["used"], feature)
+        feature_booked_licenses = _filter_used_features(parsed["uses"], feature)
         used_licenses = _cleanup_features(feature_booked_licenses)
         return cls(
             tool_name=tool_name,
