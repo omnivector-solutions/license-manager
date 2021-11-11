@@ -65,6 +65,17 @@ def _filter_current_feature(parsed_list, feature):
             return feature_item
 
 
+def _filter_used_features(parsed_list, feature):
+    used_licenses = []
+    for feature_booked in parsed_list:
+        if feature_booked["feature"].count("_") == 0:
+            if feature_booked["feature"] == feature:
+                used_licenses.append(feature_booked)
+        elif "".join(feature_booked["feature"].split(_)[1:]) == feature:
+            used_licenses.append(feature_booked)
+    return used_licenses
+
+
 def _cleanup_features(features_list):
     """
     Remove the feature key for each entry in the parsed["uses"], since we already handled it.
@@ -93,7 +104,8 @@ class RLMReportItem(BaseModel):
         if not feature:
             feature = product
         current_feature_item = _filter_current_feature(parsed["total"], feature)
-        used_licenses = _cleanup_features(parsed["uses"])
+        feature_booked_licenses = _filter_used_features(parsed["used"], feature)
+        used_licenses = _cleanup_features(feature_booked_licenses)
         return cls(
             tool_name=tool_name,
             product_feature=f"{product}.{feature}",
