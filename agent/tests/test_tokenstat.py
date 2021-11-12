@@ -38,6 +38,15 @@ def one_configuration_row_rlm():
 
 
 @fixture
+def scontrol_show_lic_output():
+    return
+    """
+LicenseName=testproduct1.feature1@nashlic
+    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+    """
+
+
+@fixture
 def license_server_features():
     """
     The license server type, product and features.
@@ -176,6 +185,7 @@ async def test_report(
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts: tokenstat.ToolOptions,
     one_configuration_row,
+    scontrol_show_lic_output,
 ):
     """
     Do I collect the requested structured data from running all these dang tools?
@@ -183,7 +193,8 @@ async def test_report(
     get_config_from_backend_mock.return_value = one_configuration_row
     # Patch the objects needed to generate a report.
     p0 = patch.object(cmd_utils, "get_tokens_for_license", 0)
-    p1 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
+    p1 = patch.object(cmd_utils, "scontrol_show_lic", scontrol_show_lic_output)
+    p2 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
     license_report_item = {
         "product_feature": "testproduct1.TESTFEATURE",
         "used": 502,
@@ -215,7 +226,7 @@ async def test_report(
             {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 37},
         ],
     }
-    with p0, p1:
+    with p0, p1, p2:
         assert [license_report_item] == await tokenstat.report()
 
 
