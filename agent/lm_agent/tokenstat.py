@@ -52,13 +52,37 @@ class LicenseReportItem(BaseModel):
         )
 
 
-def _filter_current_feature(parsed_list, product):
+def _filter_current_feature(parsed_list, feature):
     """
     Get the current feature from the parsed list.
     """
-    for feature in parsed_list:
-        if feature["feature"] == product:
-            return feature
+    for feature_item in parsed_list:
+        if feature_item["feature"].count("_") == 0:  # `converge`
+            if feature_item["feature"] == feature:
+                return feature_item
+        elif "".join(feature_item["feature"].split("_")[1:]) == feature:
+            # `converge_super` | `converge_gui_polygonica` | `converge_...`
+            return feature_item
+
+
+def _filter_used_features(parsed_list, feature):
+    used_licenses = []
+    for feature_booked in parsed_list:
+        if feature_booked["feature"].count("_") == 0:
+            if feature_booked["feature"] == feature:
+                used_licenses.append(feature_booked)
+        elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
+            used_licenses.append(feature_booked)
+    return used_licenses
+
+
+def _cleanup_features(features_list):
+    """
+    Remove the feature key for each entry in the parsed["uses"], since we already handled it.
+    """
+    for feature in features_list:
+        del feature["feature"]
+    return features_list
 
 
 class RLMReportItem(BaseModel):
@@ -66,6 +90,7 @@ class RLMReportItem(BaseModel):
     An item in a RLM report, a count of tokens for one product/feature.
     """
 
+    tool_name: str
     product_feature: str
     used: int
     total: int
@@ -75,12 +100,18 @@ class RLMReportItem(BaseModel):
     def from_stdout(cls, product, parse_fn, tool_name, stdout):
         """Create a RLM by parsing the stdout from the program that produced it."""
         parsed = parse_fn(stdout)
-        current_feature_item = _filter_current_feature(parsed["total"], product)
+        product, feature = product.split("_")[0], "_".join(product.split("_")[1:])
+        if not feature:
+            feature = product
+        current_feature_item = _filter_current_feature(parsed["total"], feature)
+        feature_booked_licenses = _filter_used_features(parsed["uses"], feature)
+        used_licenses = _cleanup_features(feature_booked_licenses)
         return cls(
-            product_feature=product,
+            tool_name=tool_name,
+            product_feature=f"{product}.{feature}",
             used=current_feature_item["used"],
             total=current_feature_item["total"],
-            used_licenses=parsed["uses"],
+            used_licenses=used_licenses,
         )
 
 
@@ -171,7 +202,7 @@ async def attempt_tool_checks(
             lri = RLMReportItem.from_stdout(
                 parse_fn=tool_options.parse_fn,
                 tool_name=tool_options.name,
-                product=product,
+                product=f"{product}_{feature}",
                 stdout=output,
             )
 
