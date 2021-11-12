@@ -2,6 +2,7 @@
 Invoke license stat tools to build a view of license token counts
 """
 import asyncio
+import re
 import traceback
 import typing
 from pathlib import Path
@@ -13,6 +14,7 @@ from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm, rlm
+from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
 
 class LicenseService(BaseModel):
@@ -209,6 +211,40 @@ async def attempt_tool_checks(
         return lri
 
 
+def get_all_product_features_from_cluster(show_lic_output):
+    """
+    Returns a list of all product.feature in the cluster
+    """
+    PRODUCT_FEATURE = "LicenseName=(?P<product>[a-zA-Z]+)[_\-.](?P<feature>\w+)"
+    RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
+
+    parsed_features = []
+
+    for line in show_lic_output:
+        parsed_line = RX_PRODUCT_FEATURE.match(line)
+        if parsed_line:
+            parsed_data = parsed_line.groupdict()
+            product = parsed_data["product"]
+            feature = parsed_data["feature"]
+            parsed_features.append(f"{product}.{feature}")
+
+    return parsed_features
+
+
+def filter_entries_from_backend(entries, my_features):
+    """
+    Returns a list entries from the backend that match the features on the cluster
+    """
+    filtered_entries = {}
+
+    for entry in entries:
+        for feature in entry.features.keys():
+            if f"{entry.product}.{feature}" in my_features:
+                filtered_entries.append(entry)
+                continue
+    return filtered_entries
+
+
 async def report() -> typing.List[dict]:
     """
     Get stat counts using a license stat tool
@@ -228,7 +264,10 @@ async def report() -> typing.List[dict]:
     # Iterate over the license servers and features appending to list
     # of tools/cmds to be ran.
     entries = await get_config_from_backend()
-    for entry in entries:
+    my_features = get_all_product_features_from_cluster(await scontrol_show_lic())
+    filtered_entries = filter_entries_from_backend(entries, my_features)
+
+    for entry in filtered_entries:
         for license_server_type in tools:
             if entry.license_server_type == license_server_type:
                 options = tools[license_server_type]
