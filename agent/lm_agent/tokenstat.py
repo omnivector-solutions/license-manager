@@ -211,7 +211,7 @@ async def attempt_tool_checks(
         return lri
 
 
-def get_all_product_features_from_cluster(show_lic_output):
+def get_all_product_features_from_cluster(show_lic_output) -> typing.List:
     """
     Returns a list of all product.feature in the cluster
     """
@@ -219,7 +219,7 @@ def get_all_product_features_from_cluster(show_lic_output):
     RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
 
     parsed_features = []
-
+    breakpoint()  # is broken here
     for line in show_lic_output:
         parsed_line = RX_PRODUCT_FEATURE.match(line)
         if parsed_line:
