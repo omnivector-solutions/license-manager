@@ -46,6 +46,16 @@ LicenseName=testproduct1.feature1@nashlic
 
 
 @fixture
+def scontrol_show_lic_output_rlm():
+    return """
+LicenseName=converge.super@nashlic
+    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+    """
+
+
+
+
+@fixture
 def license_server_features():
     """
     The license server type, product and features.
@@ -276,6 +286,7 @@ async def test_report(
         ),
     ],
 )
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 @mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
 @mock.patch("lm_agent.tokenstat.asyncio.wait_for")
@@ -285,10 +296,12 @@ async def test_report_rlm(
     wait_for_mock: mock.AsyncMock,
     create_subprocess_mock: mock.AsyncMock,
     get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
     output,
     reconciliation,
     tool_opts_rlm: tokenstat.ToolOptions,
     one_configuration_row_rlm,
+    scontrol_show_lic_output_rlm,
     request,
 ):
     """
@@ -298,6 +311,8 @@ async def test_report_rlm(
     proc_mock.returncode = 0
     create_subprocess_mock.return_value = proc_mock
     get_config_from_backend_mock.return_value = one_configuration_row_rlm
+    show_lic_mock.return_value = scontrol_show_lic_output_rlm
+
     tools_mock.tools = {"rlm": tool_opts_rlm}
     output = request.getfixturevalue(output)
 
@@ -310,6 +325,7 @@ async def test_report_rlm(
 
 
 @mark.asyncio
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 @mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
 @mock.patch("lm_agent.tokenstat.ToolOptionsCollection")
@@ -317,7 +333,9 @@ async def test_report_rlm_empty_backend(
     tools_mock: mock.MagicMock,
     create_subprocess_mock: mock.AsyncMock,
     get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
     tool_opts_rlm: tokenstat.ToolOptions,
+    scontrol_show_lic_output_rlm,
 ):
     """
     Do I collect the requested structured data when the backend is empty?
@@ -326,6 +344,8 @@ async def test_report_rlm_empty_backend(
     proc_mock.returncode = 0
     create_subprocess_mock.return_value = proc_mock
     get_config_from_backend_mock.return_value = []
+    show_lic_mock.return_value = scontrol_show_lic_output_rlm
+
     tools_mock.tools = {"rlm": tool_opts_rlm}
 
     reconcile_list = await tokenstat.report()
