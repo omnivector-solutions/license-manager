@@ -53,8 +53,6 @@ LicenseName=converge.super@nashlic
     """
 
 
-
-
 @fixture
 def license_server_features():
     """

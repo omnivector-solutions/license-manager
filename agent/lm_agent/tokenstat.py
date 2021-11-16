@@ -215,7 +215,7 @@ def get_all_product_features_from_cluster(show_lic_output) -> typing.List:
     """
     Returns a list of all product.feature in the cluster
     """
-    PRODUCT_FEATURE = "LicenseName=(?P<product>[a-zA-Z0-9]+)[_\-.](?P<feature>\w+)"
+    PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9]+)[_\-.](?P<feature>\w+)"
     RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
 
     parsed_features = []
