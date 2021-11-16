@@ -182,7 +182,7 @@ async def test_attempt_tool_checks(
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 @mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 async def test_report(
-    show_lic_mock,
+    show_lic_mock: mock.MagicMock,
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts: tokenstat.ToolOptions,
     one_configuration_row,
@@ -193,9 +193,10 @@ async def test_report(
     """
     get_config_from_backend_mock.return_value = one_configuration_row
     show_lic_mock.return_value = scontrol_show_lic_output
+
     # Patch the objects needed to generate a report.
     p0 = patch.object(cmd_utils, "get_tokens_for_license", 0)
-    p2 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
+    p1 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
     license_report_item = {
         "product_feature": "testproduct1.TESTFEATURE",
         "used": 502,
@@ -227,7 +228,7 @@ async def test_report(
             {"user_name": "jbemfv", "lead_host": "myserver.example.com", "booked": 37},
         ],
     }
-    with p0, p2:
+    with p0, p1:
         assert [license_report_item] == await tokenstat.report()
 
 
