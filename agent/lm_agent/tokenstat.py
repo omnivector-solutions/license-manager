@@ -215,12 +215,12 @@ def get_all_product_features_from_cluster(show_lic_output) -> typing.List:
     """
     Returns a list of all product.feature in the cluster
     """
-    PRODUCT_FEATURE = "LicenseName=(?P<product>[a-zA-Z]+)[_\-.](?P<feature>\w+)"
+    PRODUCT_FEATURE = "LicenseName=(?P<product>[a-zA-Z0-9]+)[_\-.](?P<feature>\w+)"
     RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
 
     parsed_features = []
-    breakpoint()  # is broken here
-    for line in show_lic_output:
+    output = show_lic_output.split("\n")
+    for line in output:
         parsed_line = RX_PRODUCT_FEATURE.match(line)
         if parsed_line:
             parsed_data = parsed_line.groupdict()
@@ -235,7 +235,7 @@ def filter_entries_from_backend(entries, my_features):
     """
     Returns a list entries from the backend that match the features on the cluster
     """
-    filtered_entries = {}
+    filtered_entries = []
 
     for entry in entries:
         for feature in entry.features.keys():
