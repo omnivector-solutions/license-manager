@@ -40,7 +40,7 @@ def one_configuration_row_rlm():
 @fixture
 def scontrol_show_lic_output():
     return """
-LicenseName=testproduct1.feature1@nashlic
+LicenseName=testproduct1.feature1@flexlm
     Total=10 Used=0 Free=10 Reserved=0 Remote=yes
     """
 
@@ -48,7 +48,7 @@ LicenseName=testproduct1.feature1@nashlic
 @fixture
 def scontrol_show_lic_output_rlm():
     return """
-LicenseName=converge.super@nashlic
+LicenseName=converge.super@rlm
     Total=10 Used=0 Free=10 Reserved=0 Remote=yes
     """
 
