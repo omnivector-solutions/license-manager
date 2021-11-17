@@ -233,7 +233,7 @@ def get_all_product_features_from_cluster(show_lic_output: str) -> typing.List[s
 
 def get_local_license_configurations(
     license_configurations: typing.List[BackendConfigurationRow], local_licenses: typing.List[str]
-):
+) -> typing.List[BackendConfigurationRow]:
     """
     Return the license configurations from the backend that are configured on the cluster.
     """
