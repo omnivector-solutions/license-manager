@@ -384,3 +384,28 @@ async def test_report_rlm_empty_backend(
 )
 def test_get_product_features_from_cluster(show_lic_output: str, features_from_cluster: List[str]):
     assert features_from_cluster == tokenstat.get_all_product_features_from_cluster(show_lic_output)
+
+
+def test_get_local_license_configurations():
+    configuration_super = BackendConfigurationRow(
+        product="converge",
+        features={"super": 10},
+        license_servers=["rlm:127.0.0.1:2345"],
+        license_server_type="rlm",
+        grace_time=10000,
+    )
+
+    configuration_polygonica = BackendConfigurationRow(
+        product="converge",
+        features={"polygonica": 10},
+        license_servers=["rlm:127.0.0.1:2345"],
+        license_server_type="rlm",
+        grace_time=10000,
+    )
+
+    license_configurations = [configuration_super, configuration_polygonica]
+    local_licenses = ["converge.super"]
+
+    assert tokenstat.get_local_license_configurations(license_configurations, local_licenses) == [
+        configuration_super
+    ]
