@@ -1,4 +1,6 @@
 from pathlib import Path
+from textwrap import dedent
+from typing import List
 from unittest import mock
 from unittest.mock import patch
 
@@ -35,6 +37,26 @@ def one_configuration_row_rlm():
             grace_time=10000,
         )
     ]
+
+
+@fixture
+def scontrol_show_lic_output():
+    return dedent(
+        """
+        LicenseName=testproduct1.feature1@flexlm
+            Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
+def scontrol_show_lic_output_rlm():
+    return dedent(
+        """
+        LicenseName=converge.super@rlm
+            Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+        """
+    )
 
 
 @fixture
@@ -172,15 +194,20 @@ async def test_attempt_tool_checks(
 
 @mark.asyncio
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 async def test_report(
+    show_lic_mock: mock.MagicMock,
     get_config_from_backend_mock: mock.MagicMock,
     tool_opts: tokenstat.ToolOptions,
     one_configuration_row,
+    scontrol_show_lic_output,
 ):
     """
     Do I collect the requested structured data from running all these dang tools?
     """
     get_config_from_backend_mock.return_value = one_configuration_row
+    show_lic_mock.return_value = scontrol_show_lic_output
+
     # Patch the objects needed to generate a report.
     p0 = patch.object(cmd_utils, "get_tokens_for_license", 0)
     p1 = patch.dict(tokenstat.ToolOptionsCollection.tools, {"flexlm": tool_opts})
@@ -263,6 +290,7 @@ async def test_report(
         ),
     ],
 )
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 @mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
 @mock.patch("lm_agent.tokenstat.asyncio.wait_for")
@@ -272,10 +300,12 @@ async def test_report_rlm(
     wait_for_mock: mock.AsyncMock,
     create_subprocess_mock: mock.AsyncMock,
     get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
     output,
     reconciliation,
     tool_opts_rlm: tokenstat.ToolOptions,
     one_configuration_row_rlm,
+    scontrol_show_lic_output_rlm,
     request,
 ):
     """
@@ -285,6 +315,8 @@ async def test_report_rlm(
     proc_mock.returncode = 0
     create_subprocess_mock.return_value = proc_mock
     get_config_from_backend_mock.return_value = one_configuration_row_rlm
+    show_lic_mock.return_value = scontrol_show_lic_output_rlm
+
     tools_mock.tools = {"rlm": tool_opts_rlm}
     output = request.getfixturevalue(output)
 
@@ -297,6 +329,7 @@ async def test_report_rlm(
 
 
 @mark.asyncio
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 @mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
 @mock.patch("lm_agent.tokenstat.ToolOptionsCollection")
@@ -304,7 +337,9 @@ async def test_report_rlm_empty_backend(
     tools_mock: mock.MagicMock,
     create_subprocess_mock: mock.AsyncMock,
     get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
     tool_opts_rlm: tokenstat.ToolOptions,
+    scontrol_show_lic_output_rlm,
 ):
     """
     Do I collect the requested structured data when the backend is empty?
@@ -313,7 +348,64 @@ async def test_report_rlm_empty_backend(
     proc_mock.returncode = 0
     create_subprocess_mock.return_value = proc_mock
     get_config_from_backend_mock.return_value = []
+    show_lic_mock.return_value = scontrol_show_lic_output_rlm
+
     tools_mock.tools = {"rlm": tool_opts_rlm}
 
     reconcile_list = await tokenstat.report()
     assert reconcile_list == []
+
+
+@mark.parametrize(
+    "show_lic_output,features_from_cluster",
+    [
+        (
+            dedent(
+                """
+                LicenseName=testproduct1.feature1@flexlm
+                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+                """
+            ),
+            ["testproduct1.feature1"],
+        ),
+        (
+            dedent(
+                """
+                LicenseName=converge_super@rlm
+                    Total=9 Used=0 Free=9 Reserved=0 Remote=yes
+                LicenseName=converge_tecplot@rlm
+                    Total=45 Used=0 Free=45 Reserved=0 Remote=yes
+                """
+            ),
+            ["converge.super", "converge.tecplot"],
+        ),
+        ("", []),
+    ],
+)
+def test_get_product_features_from_cluster(show_lic_output: str, features_from_cluster: List[str]):
+    assert features_from_cluster == tokenstat.get_all_product_features_from_cluster(show_lic_output)
+
+
+def test_get_local_license_configurations():
+    configuration_super = BackendConfigurationRow(
+        product="converge",
+        features={"super": 10},
+        license_servers=["rlm:127.0.0.1:2345"],
+        license_server_type="rlm",
+        grace_time=10000,
+    )
+
+    configuration_polygonica = BackendConfigurationRow(
+        product="converge",
+        features={"polygonica": 10},
+        license_servers=["rlm:127.0.0.1:2345"],
+        license_server_type="rlm",
+        grace_time=10000,
+    )
+
+    license_configurations = [configuration_super, configuration_polygonica]
+    local_licenses = ["converge.super"]
+
+    assert tokenstat.get_local_license_configurations(license_configurations, local_licenses) == [
+        configuration_super
+    ]
