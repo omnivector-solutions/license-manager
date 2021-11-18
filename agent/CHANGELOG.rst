@@ -7,7 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 * Added RLM parser
-* Converted agent to a CLI application (from FastAPI with intenral scheduler)
+* Converted agent to a CLI application (from FastAPI with internal scheduler)
 * Update booking-accounting logic to requeue jobs if there are not enough licenses
 * Added in-use cleanup logic
 * Added grace-time cleanup logic
@@ -32,12 +32,12 @@ Unreleased
 
 * Agent:
 
-  * Skip eplilog cleanup loop if there are no bookings
+  * Skip epilog cleanup loop if there are no bookings
   * Moved support functions to cmd_utils
   * Epilog updates token count to account for bookings
   * Added PRODUCT_FEATURE_RX, ENCODING, and TOOL_TIMEOUT to settings
   * Update prolog to only track licenses that match the expected format
   * Added feature flags for "booked" and "product_feature"
   * Extra accounting to add used slurm licenses to the total
-  * Added forced reconcilliation to the prolog
+  * Added forced reconciliation to the prolog
   * Added slurmctld prolog and epilog entrypoints.
