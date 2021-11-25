@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
 
 
 class LogLevelEnum(str, Enum):
