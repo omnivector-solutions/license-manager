@@ -371,6 +371,15 @@ async def test_report_rlm_empty_backend(
         (
             dedent(
                 """
+                LicenseName=product_name.feature_name@flexlm
+                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+                """
+            ),
+            ["product_name.feature_name"],
+        ),
+        (
+            dedent(
+                """
                 LicenseName=converge_super@rlm
                     Total=9 Used=0 Free=9 Reserved=0 Remote=yes
                 LicenseName=converge_tecplot@rlm
