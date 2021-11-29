@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
 
 
 class LogLevelEnum(str, Enum):
@@ -32,9 +32,7 @@ class Settings(BaseSettings):
     ALLOW_ORIGINS_REGEX: str = r"https://.*\.omnivector\.solutions"
 
     # database to connect
-    DATABASE_URL: str = Field(
-        "sqlite:///./sqlite.db?check_same_thread=true", regex=r"^(sqlite|postgresql|postgres)://.+$"
-    )
+    DATABASE_URL: str
 
     # log level (everything except sql tracing)
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
