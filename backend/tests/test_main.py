@@ -2,6 +2,8 @@ import logging
 import sys
 from unittest.mock import MagicMock, patch
 
+from fastapi import status
+from httpx import AsyncClient
 from pytest import mark
 
 from lm_backend import main
@@ -12,28 +14,23 @@ async def test_version(backend_client):
     """
     Does a version endpoint exist?
     """
-    resp = await backend_client.get("/version")
+    resp = await backend_client.get("/lm/version")
     assert resp.status_code == 200
     assert resp.json()["version"] != None
 
 
 @mark.asyncio
-async def test_health(backend_client):
+async def test_health_check(backend_client: AsyncClient):
     """
-    Does a healthcheck endpoint exist?
-    """
-    resp = await backend_client.get("/health")
-    assert resp.status_code == 200
+    Test the health check route.
 
+    This test ensures the API has a health check path configured properly, so
+    the production and staging environments can configure the load balancing
+    """
 
-@mark.asyncio
-async def test_root(backend_client):
-    """
-    Does a root endpoint exist?
-    """
-    resp = await backend_client.get("/")
-    assert resp.status_code == 200
-    # TODO: If root is ever made to return anything meaningful, we should test that here
+    response = await backend_client.get("/lm/health")
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 def test_begin_logging():
@@ -83,24 +80,3 @@ async def test_database_events(backend_client):
         m_connect.assert_called_once_with()
         await main.disconnect_database()
         m_disconnect.assert_called_once_with()
-
-
-def test_handler(backend_client):
-    """
-    Check that the handler ends up calling mangum with the original semantics,
-    and only when eventContext is present
-    """
-    p1 = patch.object(main, "Mangum", autospec=True)
-    context = 19
-
-    # cloudwatch ping
-    event1 = {"ping": True}
-    with p1 as m1:
-        main.handler(event1, context)
-    assert len(m1.return_value.call_args_list) == 0
-
-    # http request
-    event2 = {"requestContext": 19}
-    with p1 as m1:
-        main.handler(event2, context)
-    assert m1.return_value.call_args[0] == (event2, context)

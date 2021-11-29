@@ -120,7 +120,7 @@ async def test_get_all_configurations(
     Test fetching all configuration rows in the db.
     """
     await insert_objects(some_configuration_rows, table_schemas.config_table)
-    resp = await backend_client.get("/api/v1/config/all")
+    resp = await backend_client.get("/lm/api/v1/config/all")
     assert resp.status_code == 200
     assert resp.json() == [ConfigurationItem.parse_obj(x) for x in some_configuration_items]
 
@@ -138,7 +138,7 @@ async def test_get_configuration(
     """
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
-    resp = await backend_client.get("/api/v1/config/100")
+    resp = await backend_client.get("/lm/api/v1/config/100")
     assert resp.status_code == 200
     assert resp.json() == ConfigurationItem.parse_obj(one_configuration_item[0])
 
@@ -157,7 +157,7 @@ async def test_add_configuration(backend_client: AsyncClient):
         "grace_time": "10000",
     }
 
-    response = await backend_client.post("/api/v1/config", json=data)
+    response = await backend_client.post("/lm/api/v1/config", json=data)
     assert response.status_code == 200
 
 
@@ -180,7 +180,7 @@ async def test_update_configuration(
         "license_server_type": "servertype100",
         "grace_time": "10000",
     }
-    resp = await backend_client.put("/api/v1/config/100", json=data)
+    resp = await backend_client.put("/lm/api/v1/config/100", json=data)
     assert resp.status_code == 200
 
 
@@ -198,7 +198,7 @@ async def test_update_nonexistant_configuration(backend_client: AsyncClient):
         "license_server_type": "servertype100",
         "grace_time": "10000",
     }
-    resp = await backend_client.put("/api/v1/config/100000", json=data)
+    resp = await backend_client.put("/lm/api/v1/config/100000", json=data)
     assert resp.status_code == 200
 
 
@@ -210,7 +210,7 @@ async def test_delete_configuration(backend_client: AsyncClient, one_configurati
     """
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
-    resp = await backend_client.delete("/api/v1/config/100")
+    resp = await backend_client.delete("/lm/api/v1/config/100")
     assert resp.status_code == 200
     assert resp.json()["message"] == "Deleted 100 from the configuration table."
 
@@ -225,5 +225,5 @@ async def test_delete_nonexistant__configuration(
     """
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
-    resp = await backend_client.delete("/api/v1/config/99999999")
+    resp = await backend_client.delete("/lm/api/v1/config/99999999")
     assert resp.status_code == 404
