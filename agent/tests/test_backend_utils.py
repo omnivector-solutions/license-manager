@@ -36,7 +36,7 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
     caplog,
 ):
     with respx.mock:
-        respx.get("http://backend/api/v1/config/all").mock(
+        respx.get("http://backend/lm/api/v1/config/all").mock(
             return_value=Response(
                 200,
                 json=[
@@ -71,7 +71,7 @@ async def test_get_config_from_backend__returns_empty_list_on_connect_error(
     caplog,
 ):
     with respx.mock:
-        respx.get("http://backend/api/v1/config/all").mock(
+        respx.get("http://backend/lm/api/v1/config/all").mock(
             side_effect=ConnectError("BOOM"),
         )
         configs = await get_config_from_backend()

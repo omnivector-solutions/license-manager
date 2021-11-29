@@ -9,7 +9,7 @@ from pydantic import BaseModel, ValidationError
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 
-GET_CONFIG_URL_PATH = "/api/v1/config/all"
+GET_CONFIG_URL_PATH = "/lm/api/v1/config/all"
 
 
 class LicenseManagerBackendConnectionError(Exception):
@@ -72,9 +72,9 @@ async def get_bookings_from_backend(cluster_name: Optional[str] = None) -> List[
     bookings: List = []
     try:
         if cluster_name:
-            resp = await client.get(f"/api/v1/booking/all?cluster_name={cluster_name}")
+            resp = await client.get(f"/lm/api/v1/booking/all?cluster_name={cluster_name}")
         else:
-            resp = await client.get("/api/v1/booking/all")
+            resp = await client.get("/lm/api/v1/booking/all")
     except ConnectError as e:
         logger.error(f"Connection failed to backend: {e}")
         return bookings
@@ -88,7 +88,7 @@ async def get_bookings_from_backend(cluster_name: Optional[str] = None) -> List[
 
 async def get_config_id_from_backend(product_feature: str) -> int:
     """Given the product_feature return return the config id."""
-    path = "/api/v1/config/"
+    path = "/lm/api/v1/config/"
     resp = await async_client().get(path, params={"product_feature": product_feature})
     return resp.json()
 
