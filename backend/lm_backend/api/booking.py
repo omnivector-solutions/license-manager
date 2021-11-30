@@ -3,19 +3,24 @@ Booking objects and routes
 """
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.sql import delete
 
 from lm_backend.api.config import get_config_id_for_product_features
 from lm_backend.api_schemas import Booking, BookingRow, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.security import guard
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, license_table
 
 router = APIRouter()
 
 
-@router.get("/all", response_model=List[BookingRow])
+@router.get(
+    "/all",
+    response_model=List[BookingRow],
+    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+)
 async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
     """
     All license counts we are tracking, with the possibility to filter by cluster_name.
@@ -27,7 +32,11 @@ async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
     return [BookingRow.parse_obj(x) for x in fetched]
 
 
-@router.get("/job/{job_id}", response_model=List[BookingRow])
+@router.get(
+    "/job/{job_id}",
+    response_model=List[BookingRow],
+    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+)
 async def get_bookings_job(job_id: str):
     """
     All bookings of a particular job
@@ -73,7 +82,10 @@ async def _is_booking_available(booking: Booking):
 
 
 @database.transaction()
-@router.put("/book")
+@router.put(
+    "/book",
+    dependencies=[Depends(guard.lockdown("license-manager:booking:write"))],
+)
 async def create_booking(booking: Booking):
     """
     Put a LicenseUse booking object in the database, reserving some tokens
@@ -128,7 +140,10 @@ async def create_booking(booking: Booking):
 
 
 @database.transaction()
-@router.delete("/book/{job_id}")
+@router.delete(
+    "/book/{job_id}",
+    dependencies=[Depends(guard.lockdown("license-manager:booking:write"))],
+)
 async def delete_booking(job_id: str):
     """
     Deduct tokens from a LicenseUse booking in the database

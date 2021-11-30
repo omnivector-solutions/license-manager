@@ -13,6 +13,7 @@ Unreleased
 * Added docstrings throughout codebase
 * Changed backend structure: the previously app is now mounted as a subapp
 * Removed unnecessary unit tests from the backend and refactored some from both backend and agent
+* Added security via Armasec
 
 1.0.0 -- 2021-06-03
 -------------------

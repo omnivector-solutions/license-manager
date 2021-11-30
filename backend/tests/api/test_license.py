@@ -68,11 +68,18 @@ async def test_find_license_updates_and_inserts(some_licenses):
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_licenses_product(backend_client: AsyncClient, some_licenses, insert_objects):
+async def test_licenses_product__success(
+    backend_client: AsyncClient,
+    some_licenses,
+    insert_objects,
+    inject_security_header,
+):
     """
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", "license-manager:in-use:read")
     resp = await backend_client.get("/lm/api/v1/license/use/hello")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
@@ -88,11 +95,41 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses, inse
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_licenses_product_feature(backend_client: AsyncClient, some_licenses, insert_objects):
+async def test_licenses_product__fail_on_bad_permission(
+    backend_client: AsyncClient,
+    some_licenses,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Do I return a 401 or 403 if permissions are missing or invalid?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    # No Permission
+    resp = await backend_client.get("/lm/api/v1/license/use/hello")
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    # Bad Permission
+    inject_security_header("owner1", "invalid-permission")
+    resp = await backend_client.get("/lm/api/v1/license/use/hello")
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_licenses_product_feature__success(
+    backend_client: AsyncClient,
+    some_licenses,
+    insert_objects,
+    inject_security_header,
+):
     """
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", "license-manager:in-use:read")
     resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
@@ -107,11 +144,38 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_licenses_all(backend_client: AsyncClient, some_licenses, insert_objects):
+async def test_licenses_product_feature__fail_on_bad_permission(
+    backend_client: AsyncClient,
+    some_licenses,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Do I return a 401 or 403 if permissions are missing or invalid?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    # No Permission
+    resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    # Invalid Permission
+    inject_security_header("owner1", "invalid-permission")
+    resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_licenses_all__success(
+    backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
+):
     """
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", "license-manager:in-use:read")
     resp = await backend_client.get("/lm/api/v1/license/all")
     assert resp.status_code == 200
     assert resp.json() == [
@@ -124,6 +188,27 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses, insert_o
         ),
         dict(product_feature="hello.world", total=100, used=19, available=81),
     ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_licenses_all__fail_on_bad_permission(
+    backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
+):
+    """
+    Do I return a 401 or 403 if permissions are missing or invalid?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    # No Permission
+    # Invalid Permission
+    resp = await backend_client.get("/lm/api/v1/license/all")
+    assert resp.status_code == 401
+
+    # Invalid Permission
+    inject_security_header("owner1", "invalid_permission")
+    resp = await backend_client.get("/lm/api/v1/license/all")
+    assert resp.status_code == 403
 
 
 @mark.asyncio
@@ -211,8 +296,13 @@ async def test_clean_up_in_use_booking_conversion(delete_in_use_mock: mock.Async
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_reconcile_changes_clean_up_in_use_bookings(
-    insert_objects, some_licenses, some_config_rows, some_booking_rows, backend_client
+async def test_reconcile_changes_clean_up_in_use_bookings__success(
+    insert_objects,
+    some_licenses,
+    some_config_rows,
+    some_booking_rows,
+    backend_client,
+    inject_security_header,
 ):
     """
     Make sure the /reconcile endpoint correct handle the in use cleanup.
@@ -228,6 +318,7 @@ async def test_reconcile_changes_clean_up_in_use_bookings(
         used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
     )
 
+    inject_security_header("owner1", "license-manager:in-use:write")
     response = await backend_client.patch(
         "/lm/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
     )
@@ -235,3 +326,41 @@ async def test_reconcile_changes_clean_up_in_use_bookings(
 
     booking_rows = await database.fetch_all(booking_table.select())
     assert len(booking_rows) == len(some_booking_rows) - 1  # i.e. one got deleted
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_reconcile_changes_clean_up_in_use_bookings__fail_on_bad_permission(
+    insert_objects,
+    some_licenses,
+    some_config_rows,
+    some_booking_rows,
+    backend_client,
+    inject_security_header,
+):
+    """
+    Do I return a 401 or 403 if permissions are missing or invalid?
+    """
+    await insert_objects(some_config_rows, config_table)
+    await insert_objects(some_booking_rows, booking_table)
+    await insert_objects(some_licenses, license_table)
+
+    used_licenses = [
+        {"booked": 19, "lead_host": "host1", "user_name": "user1"},
+    ]
+    license_reconcile_request = LicenseUseReconcileRequest(
+        used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
+    )
+
+    # No Permission
+    response = await backend_client.patch(
+        "/lm/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    # Invalid Permission
+    inject_security_header("owner1", "invalid-permission")
+    response = await backend_client.patch(
+        "/lm/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN

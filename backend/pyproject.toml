@@ -19,6 +19,7 @@ asyncpg = "^0.24.0"
 aws-psycopg2 = "^1.2.1"
 uvicorn = "^0.15.0"
 python-dotenv = "^0.19.0"
+armasec = "^0.7.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
@@ -45,7 +46,11 @@ addopts = "--random-order --cov=lm_backend --cov-report=term-missing --cov-fail-
 testpaths = ["tests"]
 env = [
     "LM2_DATABASE_URL = sqlite:///sqlite-testing.db",
-    "LM2_LOG_LEVEL_SQL = DEBUG"
+    "LM2_LOG_LEVEL_SQL = ERROR",
+
+    # This setting must align with the rs256_domain fixture from armasec's pytest extension
+    "LM2_ARMASEC_DOMAIN = armasec.dev",
+    "LM2_ARMASEC_DEBUG = True",
 ]
 
 [tool.black]
