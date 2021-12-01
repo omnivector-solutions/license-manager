@@ -13,7 +13,7 @@ from lm_agent.backend_utils import (
 async def test_get_license_manager_backend_version__returns_version_on_two_hundred():
     test_backend_version = "2.5.4"
     with respx.mock:
-        respx.get("http://backend/version").mock(
+        respx.get("http://backend/lm/version").mock(
             return_value=Response(
                 200,
                 json=dict(version=test_backend_version),
@@ -26,7 +26,7 @@ async def test_get_license_manager_backend_version__returns_version_on_two_hundr
 @mark.asyncio
 async def test_get_license_manager_backend_version__raises_exception_on_non_two_hundred():
     with respx.mock:
-        respx.get("http://backend/version").mock(return_value=Response(500))
+        respx.get("http://backend/lm/version").mock(return_value=Response(500))
         with raises(LicenseManagerBackendConnectionError):
             await get_license_manager_backend_version()
 
