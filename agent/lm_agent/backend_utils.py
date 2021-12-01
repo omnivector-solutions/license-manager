@@ -22,7 +22,7 @@ class LicenseManagerBackendVersionError(Exception):
 
 async def get_license_manager_backend_version() -> str:
     """Return the license-manager-backend version."""
-    resp = await async_client().get("/version")
+    resp = await async_client().get("/lm/version")
     # Check that we have a valid response.
     if resp.status_code != 200:
         logger.error("license-manager-backend version could not be obtained.")
