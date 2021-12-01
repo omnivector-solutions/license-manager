@@ -5,22 +5,20 @@ set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
 import sys
-from typing import Optional
 
 import pkg_resources
 import sentry_sdk
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
-from mangum import Mangum
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_backend import storage
 from lm_backend.api import api_v1
 from lm_backend.config import settings
 
-app = FastAPI(root_path=settings.ASGI_ROOT_PATH)
-app.add_middleware(
+subapp = FastAPI(root_path=settings.ASGI_ROOT_PATH)
+subapp.add_middleware(
     CORSMiddleware,
     allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
     allow_credentials=True,
@@ -28,39 +26,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_v1, prefix="/api/v1")
+subapp.include_router(api_v1, prefix="/api/v1")
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
         traces_sample_rate=1.0,
     )
-    app.add_middleware(SentryAsgiMiddleware)
+    subapp.add_middleware(SentryAsgiMiddleware)
 
 
-@app.get("/")
-async def root():
-    """
-    Well, *something* should happen here.
-    """
-    return dict(message="OK")
+@subapp.get(
+    "/health",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={204: {"description": "API is healthy"}},
+)
+async def health_check():
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.get("/health")
-async def health():
-    """
-    Healthcheck, for health monitors in the deployed environment
-    """
-    return dict(message="OK")
-
-
-@app.get("/version")
+@subapp.get("/version")
 async def version():
     """
     Return the license-manager-backend version.""
     """
     version = pkg_resources.get_distribution("license-manager-backend").version
     return dict(message="OK", version=version)
+
+
+app = FastAPI()
+app.mount("/lm", subapp)
 
 
 @app.on_event("startup")
@@ -100,17 +95,3 @@ async def disconnect_database():
     Disconnect the database
     """
     await storage.database.disconnect()
-
-
-def handler(event: dict, context: dict) -> Optional[dict]:
-    """
-    Adapt inbound ASGI requests (from API Gateway) using Mangum
-
-    - Assumes non-ASGI requests (from any other source) are a cloudwatch ping
-    """
-    if not event.get("requestContext"):
-        logger.info("☁️ ☁️ ☁️ cloudwatch keep-warm ping ☁️ ☁️ ☁️")
-        return None
-
-    mangum = Mangum(app)
-    return mangum(event, context)

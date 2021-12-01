@@ -11,6 +11,8 @@ Unreleased
 * Added ``config`` table and ``config`` endpoints in backend
 * Parse job run-time through squeue and corrected time parsing logic
 * Added docstrings throughout codebase
+* Changed backend structure: the previously app is now mounted as a subapp
+* Removed unnecessary unit tests from the backend and refactored some from both backend and agent
 
 1.0.0 -- 2021-06-03
 -------------------

@@ -18,7 +18,7 @@ async def test_reconcile_reset(backend_client: AsyncClient, some_licenses, inser
     assert count[0][0] == 3
 
     with patch("lm_backend.debug.settings.DEBUG", True):
-        resp = await backend_client.put("/api/v1/reset", headers={"X-Reset": "please"})
+        resp = await backend_client.put("/lm/api/v1/reset", headers={"X-Reset": "please"})
     assert resp.status_code == 200
 
     count = await database.fetch_all("SELECT COUNT(*) FROM license")
