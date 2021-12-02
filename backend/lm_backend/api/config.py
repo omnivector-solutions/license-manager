@@ -1,17 +1,22 @@
 from ast import literal_eval
 from typing import Dict, List, Optional, Union
 
-from fastapi import APIRouter, Body, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.security import guard
 from lm_backend.storage import database
 from lm_backend.table_schemas import config_table
 
 router = APIRouter()
 
 
-@router.get("/all", response_model=List[ConfigurationItem])
+@router.get(
+    "/all",
+    response_model=List[ConfigurationItem],
+    dependencies=[Depends(guard.lockdown("license-manager:config:read"))],
+)
 async def get_all_configurations():
     """
     Query database for all configurations.
@@ -25,7 +30,11 @@ async def get_all_configurations():
     ]
 
 
-@router.get("/{config_id}", response_model=ConfigurationItem)
+@router.get(
+    "/{config_id}",
+    response_model=ConfigurationItem,
+    dependencies=[Depends(guard.lockdown("license-manager:config:read"))],
+)
 async def get_configuration(config_id: int):
     """
     Get one configuration row based on a given id.
@@ -60,7 +69,10 @@ async def get_config_id(product_feature: str):
 
 
 @database.transaction()
-@router.post("/")
+@router.post(
+    "/",
+    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+)
 async def add_configuration(configuration: ConfigurationRow):
     """
     Add a configuration to the database for the first time.
@@ -78,7 +90,10 @@ async def add_configuration(configuration: ConfigurationRow):
 
 
 @database.transaction()
-@router.put("/{config_id}")
+@router.put(
+    "/{config_id}",
+    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+)
 async def update_configuration(
     config_id: int,
     product: Optional[str] = Body(None),
@@ -113,7 +128,10 @@ async def update_configuration(
 
 
 @database.transaction()
-@router.delete("/{config_id}")
+@router.delete(
+    "/{config_id}",
+    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+)
 async def delete_configuration(config_id: int):
     """
     Delete a configuration from the database based on its id.

@@ -5,7 +5,7 @@ import requests
 
 from tabulate import tabulate
 
-from lm_agent.settings import SETTINGS
+from lm_agent.config import settings
 from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
 

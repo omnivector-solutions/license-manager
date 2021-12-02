@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict, List, Sequence, Tuple
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sqlalchemy.sql import select, update
 
 from lm_backend.api_schemas import (
@@ -11,6 +11,7 @@ from lm_backend.api_schemas import (
     LicenseUseReconcile,
     LicenseUseReconcileRequest,
 )
+from lm_backend.security import guard
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, license_table
 
@@ -18,7 +19,11 @@ PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
 
 
-@router.get("/all", response_model=List[LicenseUse])
+@router.get(
+    "/all",
+    response_model=List[LicenseUse],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+)
 async def licenses_all():
     """
     All license counts we are tracking
@@ -28,7 +33,11 @@ async def licenses_all():
     return [LicenseUse.parse_obj(x) for x in fetched]
 
 
-@router.get("/cluster_update", response_model=List[Dict])
+@router.get(
+    "/cluster_update",
+    response_model=List[Dict],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+)
 async def licenses_and_bookings_to_update():
     """
     Get the actual value to update the cluster for each license.
@@ -60,7 +69,11 @@ async def licenses_and_bookings_to_update():
     return licenses_to_update_data
 
 
-@router.get("/use/{product}", response_model=List[LicenseUse])
+@router.get(
+    "/use/{product}",
+    response_model=List[LicenseUse],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+)
 async def licenses_product(product: str):
     """
     Used counts of all licenses, 1 product
@@ -74,7 +87,11 @@ async def licenses_product(product: str):
     return [LicenseUse.parse_obj(x) for x in fetched]
 
 
-@router.get("/use/{product}/{feature}", response_model=List[LicenseUse])
+@router.get(
+    "/use/{product}/{feature}",
+    response_model=List[LicenseUse],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+)
 async def licenses_product_feature(product: str, feature: str):
     """
     Used counts of a product.feature category
@@ -162,7 +179,11 @@ async def _clean_up_in_use_booking(
 
 
 @database.transaction()
-@router.patch("/reconcile", response_model=List[LicenseUse])
+@router.patch(
+    "/reconcile",
+    response_model=List[LicenseUse],
+    dependencies=[Depends(guard.lockdown("license-manager:license:write"))],
+)
 async def reconcile_changes(reconcile_request: List[LicenseUseReconcileRequest]):
     """
     Set counts for models

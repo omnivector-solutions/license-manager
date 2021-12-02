@@ -50,7 +50,7 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
                     ),
                     # Invalid config row
                     dict(bad="Data. Should NOT work"),
-                    # Another valid conig row
+                    # Another valid config row
                     dict(
                         product="AnotherProduct",
                         features={"A": 1, "colletion": 2, "of": 3, "features": 4},

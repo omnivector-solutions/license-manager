@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field, HttpUrl
 
 
 class LogLevelEnum(str, Enum):
@@ -39,6 +39,11 @@ class Settings(BaseSettings):
 
     # log level (sql tracing)
     LOG_LEVEL_SQL: Optional[LogLevelEnum]
+
+    # Security Settings. For details, see https://github.com/omnivector-solutions/armsec
+    ARMASEC_DOMAIN: str
+    ARMASEC_AUDIENCE: Optional[HttpUrl]
+    ARMASEC_DEBUG: bool = Field(False)
 
     class Config:
         env_prefix = "LM2_"

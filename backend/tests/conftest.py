@@ -57,6 +57,30 @@ async def startup_event_force():
         yield
 
 
+@fixture(autouse=True)
+def enforce_mocked_oidc_provider(mock_openid_server):
+    """
+    Enforce that the OIDC provider used by armada-security is the mock_openid_server provided as a fixture.
+    No actual calls to an OIDC provider will be made.
+    """
+    yield
+
+
+@fixture
+async def inject_security_header(backend_client, build_rs256_token):
+    """
+    Provides a helper method that will inject a security token into the requests for a test client. If no
+    permisions are provided, the security token will still be valid but will not carry any permissions. Uses
+    the `build_rs256_token()` fixture from the armasec package.
+    """
+
+    def _helper(owner_id: str, *permissions: List[str]):
+        token = build_rs256_token(claim_overrides=dict(sub=owner_id, permissions=permissions))
+        backend_client.headers.update({"Authorization": f"Bearer {token}"})
+
+    return _helper
+
+
 @fixture
 async def backend_client():
     """
