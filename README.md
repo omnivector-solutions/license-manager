@@ -194,6 +194,16 @@ docker-compose up --build
 uvicorn licensemanager2.agent.main:app --port 8010
 ```
 
+## Release (agent)
+To make a new release of the License Manager Agent:
+
+1. Bump the version in the `pyproject.toml` file
+2. Update the CHANGELOG file, moving the changes under the Unreleased section to the new version section.
+3. Use Poetry to publish the new version to Pypicloud (the credentials can be found on `1Password`)
+```
+poetry publish --build --repository pypicloud --username <username> --password <password>
+```
+
 ## Database Migrations
 The license manager project uses alembic to manage the database and perform migrations. 
 The migrations are kept in this project in the `alembic/versions` directory, and the config file is in the root of the project, `alembic.ini`. 
