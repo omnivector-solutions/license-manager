@@ -22,7 +22,7 @@ router = APIRouter()
 @router.get(
     "/all",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:in-use:read"))],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
 )
 async def licenses_all():
     """
@@ -36,7 +36,7 @@ async def licenses_all():
 @router.get(
     "/cluster_update",
     response_model=List[Dict],
-    dependencies=[Depends(guard.lockdown("license-manager:in-use:read"))],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
 )
 async def licenses_and_bookings_to_update():
     """
@@ -72,7 +72,7 @@ async def licenses_and_bookings_to_update():
 @router.get(
     "/use/{product}",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:in-use:read"))],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
 )
 async def licenses_product(product: str):
     """
@@ -90,7 +90,7 @@ async def licenses_product(product: str):
 @router.get(
     "/use/{product}/{feature}",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:in-use:read"))],
+    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
 )
 async def licenses_product_feature(product: str, feature: str):
     """
@@ -182,7 +182,7 @@ async def _clean_up_in_use_booking(
 @router.patch(
     "/reconcile",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:in-use:write"))],
+    dependencies=[Depends(guard.lockdown("license-manager:license:write"))],
 )
 async def reconcile_changes(reconcile_request: List[LicenseUseReconcileRequest]):
     """
