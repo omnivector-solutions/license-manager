@@ -1,5 +1,6 @@
 version: "3.9"
 services:
+
   postgres-back:
     image: postgres
     environment:
@@ -10,14 +11,22 @@ services:
       timeout: 5s
       retries: 5
     user: postgres
+
   license-manager:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile-dev
     depends_on:
       postgres-back:
         condition: service_healthy
+    volumes:
+      - ./lm_backend:/app/lm_backend
     environment:
-      LM2_DATABASE_URL: postgres://postgres:123@postgres-back:5432/postgres
+      LM2_DATABASE_URL: ${LM2_DATABASE_URL:-postgres://postgres:123@postgres-back:5432/postgres}
+      LM2_ARMASEC_DOMAIN: ${LM2_ARMASEC_DOMAIN}
+      LM2_ARMASEC_AUDIENCE: ${LM2_ARMASEC_AUDIENCE}
+      LM2_ARMASEC_DEBUG: ${LM2_ARMASEC_DEBUG}
+      LM2_LOG_LEVEL: ${LM2_LOG_LEVEL}
     ports:
-      - "7000:80"
+      - "7000:8000"
+    command: uvicorn lm_backend.main:app --reload --workers 1 --host 0.0.0.0 --port 8000

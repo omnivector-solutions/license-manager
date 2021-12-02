@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 from typing import Dict
-import typer
-import requests
 
+import typer
 from tabulate import tabulate
 
-from lm_agent.config import settings
-from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS
+from lm_agent.backend_utils import SyncBackendClient
 
 
-app = typer.Typer(
-    help="CLI for interaction with the license manager configuration table"
-)
+app = typer.Typer(help="CLI for interaction with the license manager configuration table")
+client = SyncBackendClient()
 
 
 @app.command()
@@ -19,10 +16,8 @@ def get_all():
     """
     Get all configurations from the backend.
     """
-    resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/all",
-        headers=LM2_AGENT_HEADERS,
-    )
+    url = "/lm/api/v1/config/all"
+    resp = client.get(url)
     if resp.status_code == 200:
         tabulate_response = tabulate(
             (my_dict for my_dict in resp.json()), headers="keys"
@@ -37,14 +32,9 @@ def get(id: int):
     """
     Return a single configuration from the backend given a configuration id.
     """
-    resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
-        headers=LM2_AGENT_HEADERS,
-    )
+    resp = client.get(f"/lm/api/v1/config/{id}")
     if resp.status_code == 200:
-        tabulate_response = tabulate(
-            (my_dict for my_dict in resp.json()), headers="keys"
-        )
+        tabulate_response = tabulate([resp.json()], headers="keys")
         typer.echo(tabulate_response)
     else:
         typer.echo(f"Could not get config {id}, status code: {resp.status_code}")
@@ -61,17 +51,14 @@ def add(
     """
     Add a configuration to the database.
     """
-    resp = requests.post(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/",
-        headers=LM2_AGENT_HEADERS,
-        json={
-            "product": product,
-            "features": features.split(","),
-            "license_servers": license_servers.split(","),
-            "license_server_type": license_server_type,
-            "grace_time": grace_time,
-        }
-    )
+    data = {
+        "product": product,
+        "features": features,
+        "license_servers": license_servers.split(","),
+        "license_server_type": license_server_type,
+        "grace_time": grace_time,
+    }
+    resp = client.post("/lm/api/v1/config/", json=data)
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:
@@ -98,7 +85,7 @@ def update(
     if product:
         ctxt['product'] = product
     if features:
-        ctxt['features'] = features.split(",")
+        ctxt['features'] = features
     if license_servers:
         ctxt['license_servers'] = license_servers.split(",")
     if license_server_type:
@@ -106,11 +93,7 @@ def update(
     if grace_time:
         ctxt['grace_time'] = int(grace_time)
 
-    resp = requests.put(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
-        headers=LM2_AGENT_HEADERS,
-        json=ctxt
-    )
+    resp = client.put(f"/lm/api/v1/config/{id}", json=ctxt)
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:
@@ -125,11 +108,7 @@ def delete(id: int):
     if not id:
         typer.echo("Please supply an ID")
         return
-    resp = requests.delete(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
-        headers=LM2_AGENT_HEADERS,
-        data={'id': id}
-    )
+    resp = client.delete(f"/lm/api/v1/config/{id}")
     if resp.status_code == 200:
         typer.echo(resp.json())
     else:

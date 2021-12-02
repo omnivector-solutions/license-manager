@@ -3,13 +3,7 @@ Common utilities for slurm commands.
 """
 import os
 
-from lm_agent.config import settings
 from lm_agent.logs import logger
-
-LM2_AGENT_HEADERS = {
-    "authorization": f"Bearer {settings.BACKEND_API_TOKEN}",
-    "content-type": "application/json",
-}
 
 SCONTROL_PATH = "/usr/bin/scontrol"
 SACCTMGR_PATH = "/usr/bin/sacctmgr"

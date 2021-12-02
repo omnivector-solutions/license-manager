@@ -4,12 +4,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseSettings, DirectoryPath, Field
+from pydantic import AnyHttpUrl, BaseSettings, DirectoryPath, Field
 from pydantic.error_wrappers import ValidationError
 
 logger = logging.getLogger("lm_agent.config")
 
 
+DEFAULT_DOTENV_PATH = Path("/etc/default/license-manager-agent")
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 ENCODING = "UTF8"
 TOOL_TIMEOUT = 6  # seconds
@@ -27,9 +28,6 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-_JWT_REGEX = r"[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]+\.[a-zA-Z0-9+/]"
-_URL_REGEX = r"http[s]?://.+"
-_ADDR_REGEX = r"\S+?:\S+?:\d+"
 _DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
 
 
@@ -42,14 +40,10 @@ class Settings(BaseSettings):
     """
 
     # base url of an endpoint serving the licensemanager2 backend
-    # ... I tried using AnyHttpUrl but mypy complained
-    BACKEND_BASE_URL: str = Field("http://127.0.0.1:8000")
+    BACKEND_BASE_URL: AnyHttpUrl = Field("http://127.0.0.1:8000")
 
     # location of the log directory
     LOG_BASE_DIR: Optional[str]
-
-    # a JWT API token for accessing the backend
-    BACKEND_API_TOKEN: str = Field("test.api.token", regex=_JWT_REGEX)
 
     # path to the license server features config file
     LICENSE_SERVER_FEATURES_CONFIG_PATH: Optional[str]
@@ -65,9 +59,18 @@ class Settings(BaseSettings):
     # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 
+    # Auth0 config for machine-to-machine security
+    AUTH0_DOMAIN: Optional[str]
+    AUTH0_AUDIENCE: Optional[str]
+    AUTH0_CLIENT_ID: Optional[str]
+    AUTH0_CLIENT_SECRET: Optional[str]
+
     class Config:
-        env_file = "/etc/default/license-manager-agent"
         env_prefix = "LM2_AGENT_"
+        if DEFAULT_DOTENV_PATH.is_file():
+            env_file = DEFAULT_DOTENV_PATH
+        else:
+            env_file = Path(".env")
 
 
 def init_settings() -> Settings:

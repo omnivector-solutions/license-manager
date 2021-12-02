@@ -24,7 +24,7 @@ def bad_env():
     """
     An unparseable environment
     """
-    env = {"LM2_AGENT_BACKEND_API_TOKEN": "a"}
+    env = {"LM2_AGENT_BACKEND_BASE_URL": "not-a-url"}
     with patch.dict(os.environ, env) as e:
         yield e
 
@@ -43,4 +43,4 @@ def test_init_settings_bad(bad_env, caplog):
     """
     with raises(SystemExit):
         init_settings()
-    assert len(caplog.messages) == 1 and "value_error.str.regex" in caplog.text
+    assert len(caplog.messages) == 1 and "invalid or missing URL scheme" in caplog.text
