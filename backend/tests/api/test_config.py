@@ -350,7 +350,7 @@ async def test_delete_configuration__success(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_delete_configuration__success(
+async def test_delete_configuration__fail_on_bad_permission(
     backend_client: AsyncClient,
     one_configuration_row,
     insert_objects,
