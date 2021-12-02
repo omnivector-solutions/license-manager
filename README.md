@@ -197,10 +197,11 @@ uvicorn licensemanager2.agent.main:app --port 8010
 ## Release (agent)
 To make a new release of the License Manager Agent:
 
-1. Bump the version in the `pyproject.toml` file
-2. Update the CHANGELOG file, moving the changes under the Unreleased section to the new version section.
+1. Bump the version in the `pyproject.toml` file.
+2. Update the `CHANGELOG` file, moving the changes under the Unreleased section to the new version section. Always keep an `Unreleased` section at the top.
+3. Create a new commit with the title `Release x.y.z`.
 3. Use Poetry to publish the new version to Pypicloud (the credentials can be found on `1Password`)
-```
+```bash
 poetry publish --build --repository pypicloud --username <username> --password <password>
 ```
 
