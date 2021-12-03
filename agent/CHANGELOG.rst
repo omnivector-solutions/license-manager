@@ -16,6 +16,7 @@ Unreleased
 * Parse job run-time through squeue and corrected time parsing logic
 * Added docstrings throughout codebase
 * Changed backend URL prefix
+* Added auth via Auth0 and removed static token logic
 
 1.0.0 -- 2021-06-03
 -------------------
