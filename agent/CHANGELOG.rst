@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.1.0.dev3 - 2021-12-01
+-----------------------
 * Added RLM parser
 * Converted agent to a CLI application (from FastAPI with internal scheduler)
 * Update booking-accounting logic to requeue jobs if there are not enough licenses
