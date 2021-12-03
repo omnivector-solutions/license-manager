@@ -5,7 +5,7 @@ The EpilogSlurmctld executable.
 import asyncio
 import sys
 
-from lm_agent.forward import async_client
+from lm_agent.backend_utils import backend_client
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_report
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
@@ -16,7 +16,7 @@ async def _remove_booking_for_job(job_id: str) -> bool:
     """Remove token bookings used by job."""
 
     # Remove the booking for the job.
-    resp = await async_client().delete(f"api/v1/booking/book/{job_id}")
+    resp = await backend_client.delete(f"lm/api/v1/booking/book/{job_id}")
     # Return True if the request to delete the booking was successful.
     if resp.status_code == 200:
         return True

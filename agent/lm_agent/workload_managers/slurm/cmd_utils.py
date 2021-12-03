@@ -7,8 +7,8 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from lm_agent.backend_utils import backend_client
 from lm_agent.config import PRODUCT_FEATURE_RX
-from lm_agent.forward import async_client
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import (
     CMD_TIMEOUT,
@@ -119,7 +119,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     logger.debug(f"features: {features}")
     logger.debug(f"lbr: {lbr}")
 
-    resp = await async_client().put(
+    resp = await backend_client.put(
         "/lm/api/v1/booking/book",
         json={
             "job_id": lbr.job_id,
@@ -139,7 +139,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
 async def reconcile():
     """Force a reconciliation."""
-    resp = await async_client().get("/reconcile")
+    resp = await backend_client.get("/lm/api/v1/license/reconcile")
 
     if resp.status_code == 200:
         logger.debug("##### Reconcile completed successfully #####")

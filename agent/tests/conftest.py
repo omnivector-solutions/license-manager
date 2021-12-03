@@ -5,13 +5,20 @@ from pathlib import Path
 from textwrap import dedent
 from unittest.mock import patch
 
+import httpx
 import respx
-from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 
 from lm_agent.config import settings
 
 MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
+
+
+@fixture(autouse=True)
+def mock_cache_dir(tmp_path):
+    _cache_dir = tmp_path / ".cache/license-manager"
+    with patch("lm_agent.backend_utils.CACHE_DIR", new=_cache_dir):
+        yield _cache_dir
 
 
 @fixture
@@ -22,18 +29,22 @@ def license_servers():
 @fixture(autouse=True)
 def backend_setting():
     """
-    Force a specific host for the backend
+    Redirect the bin path to the mock_tools folder.
     """
-    with patch.multiple(settings, BACKEND_BASE_URL="http://backend", BIN_PATH=MOCK_BIN_PATH) as mck:
-        yield mck
+    settings.BIN_PATH = MOCK_BIN_PATH
 
 
 @fixture
 def respx_mock():
     """
-    Run a test in the respx context (similar to respx decorator, but it's a fixture)
+    Run a test in the respx context (similar to respx decorator, but it's a fixture).
+
+    Mocks the auth0 route used to secure a token.
     """
     with respx.mock as mock:
+        respx.post(f"https://{settings.AUTH0_DOMAIN}/oauth/token").mock(
+            return_value=httpx.Response(status_code=200, json=dict(access_token="dummy-token"))
+        )
         yield mock
 
 
@@ -145,8 +156,8 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 
 	csci license usage status on licser.server.com (port 63133)
 
-	converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a) 
-	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128) 
+	converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)
+	converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128)
 	converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
 """
 
@@ -164,18 +175,18 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 	Startup time: Tue Oct 19 03:40:13 2021
 	Todays Statistics (16:01:23), init time: Mon Nov  8 00:00:06 2021
 	Recent Statistics (00:28:35), init time: Mon Nov  8 15:32:54 2021
-	
+
 	             Recent Stats         Todays Stats         Total Stats
 	              00:28:35             16:01:23         20d 13:21:16
 	Messages:    997 (0/sec)           33562 (0/sec)          1033736 (0/sec)
-	Connections: 797 (0/sec)           26849 (0/sec)          827039 (0/sec)	
+	Connections: 797 (0/sec)           26849 (0/sec)          827039 (0/sec)
 
 	--------- ISV servers ----------
 	   Name           Port Running Restarts
 	csci             63133   Yes      0
 
 	------------------------
-	
+
 	csci ISV server status on licserv0011.com (port 63133), up 20d 13:21:09
 	csci software version v12.2 (build: 2)
 	csci comm version: v1.2
@@ -191,12 +202,12 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 	Checkouts:   0 (0/sec)           0 (0/sec)          262 (0/sec)
 	Denials:     0 (0/sec)           0 (0/sec)          0 (0/sec)
 	Removals:    0 (0/sec)           0 (0/sec)          0 (0/sec)
-	
+
 
 	------------------------
 
 	csci license pool status on licserv0011.com (port 63133)
-	
+
 	converge v3.0
 		count: 1, # reservations: 0, inuse: 0, exp: 31-jan-2022
 		obsolete: 0, min_remove: 120, total checkouts: 0

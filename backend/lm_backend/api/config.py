@@ -77,7 +77,10 @@ async def add_configuration(configuration: ConfigurationRow):
     """
     Add a configuration to the database for the first time.
     """
-    query = config_table.insert().values(**vars(configuration))
+    query = config_table.insert().values(
+        # It is necessary to exclude None so the database won't attempt to insert a null id
+        **configuration.dict(exclude_none=True),
+    )
     try:
         await database.execute(query)
     except INTEGRITY_CHECK_EXCEPTIONS:
