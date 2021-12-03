@@ -2,34 +2,90 @@
 Provide utilities that communicate with the backend.
 """
 import typing
+from pathlib import Path
 
 import httpx
+import jwt
 from pydantic import BaseModel, ValidationError
 
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerAuthTokenError, LicenseManagerBackendConnectionError
 from lm_agent.logs import logger
 
+CACHE_DIR = Path.home() / ".cache/license-manager"
 
-def acquire_token():
+
+def _load_token_from_cache() -> typing.Union[str, None]:
+    """
+    Looks for and returns a token from a cache file (if it exists).
+
+    Returns None if::
+    * The token does not exist
+    * Can't read the token
+    * The token is expired (or will expire within 10 seconds)
+    """
+    token_path = CACHE_DIR / "token"
+    if not token_path.exists():
+        return None
+
+    try:
+        token = token_path.read_text()
+    except Exception:
+        logger.warning(f"Couldn't load token from cache file {token_path}. Will acquire a new one")
+        return None
+
+    try:
+        jwt.decode(token, options=dict(verify_signature=False, verify_exp=True), leeway=-10)
+    except jwt.ExpiredSignatureError:
+        logger.warning("Cached token is expired. Will acquire a new one.")
+        return None
+
+    return token
+
+
+def _write_token_to_cache(token: str):
+    """
+    Writes the token to the cache.
+    """
+    if not CACHE_DIR.exists():
+        logger.debug("Attempting to create missing cache directory")
+        try:
+            CACHE_DIR.mkdir(mode=0o600, parents=True)
+        except Exception:
+            logger.warning(f"Couldn't create missing cache directory {CACHE_DIR}. Token will not be saved.")
+            return
+
+    token_path = CACHE_DIR / "token"
+    try:
+        token_path.write_text(token)
+    except Exception:
+        logger.warning(f"Couldn't save token to {token_path}")
+
+
+def acquire_token() -> str:
     """
     Retrieves a token from Auth0 based on the app settings.
     """
-    logger.debug("Attempting to acquire token from Auth0 with config")
-    auth0_body = dict(
-        audience=settings.AUTH0_AUDIENCE,
-        client_id=settings.AUTH0_CLIENT_ID,
-        client_secret=settings.AUTH0_CLIENT_SECRET,
-        grant_type="client_credentials",
-    )
-    auth0_url = f"https://{settings.AUTH0_DOMAIN}/oauth/token"
-    logger.debug(f"Posting Auth0 request to {auth0_url}")
-    response = httpx.post(auth0_url, data=auth0_body)
-    LicenseManagerAuthTokenError.require_condition(
-        response.status_code == 200, f"Failed to get auth token from Auth0: {response.text}"
-    )
-    with LicenseManagerAuthTokenError.handle_errors("Malformed response payload from Auth0"):
-        token = response.json()["access_token"]
+    logger.debug("Attempting to use cached token")
+    token = _load_token_from_cache()
+
+    if token is None:
+        logger.debug("Attempting to acquire token from Auth0")
+        auth0_body = dict(
+            audience=settings.AUTH0_AUDIENCE,
+            client_id=settings.AUTH0_CLIENT_ID,
+            client_secret=settings.AUTH0_CLIENT_SECRET,
+            grant_type="client_credentials",
+        )
+        auth0_url = f"https://{settings.AUTH0_DOMAIN}/oauth/token"
+        logger.debug(f"Posting Auth0 request to {auth0_url}")
+        response = httpx.post(auth0_url, data=auth0_body)
+        LicenseManagerAuthTokenError.require_condition(
+            response.status_code == 200, f"Failed to get auth token from Auth0: {response.text}"
+        )
+        with LicenseManagerAuthTokenError.handle_errors("Malformed response payload from Auth0"):
+            token = response.json()["access_token"]
+        _write_token_to_cache(token)
 
     logger.debug("Successfully acquired auth token from Auth0")
     return token

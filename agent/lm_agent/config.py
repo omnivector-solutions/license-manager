@@ -60,10 +60,10 @@ class Settings(BaseSettings):
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 
     # Auth0 config for machine-to-machine security
-    AUTH0_DOMAIN: Optional[str]
-    AUTH0_AUDIENCE: Optional[str]
-    AUTH0_CLIENT_ID: Optional[str]
-    AUTH0_CLIENT_SECRET: Optional[str]
+    AUTH0_DOMAIN: str
+    AUTH0_AUDIENCE: str
+    AUTH0_CLIENT_ID: str
+    AUTH0_CLIENT_SECRET: str
 
     class Config:
         env_prefix = "LM2_AGENT_"
