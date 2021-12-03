@@ -14,6 +14,7 @@ Unreleased
 * Changed backend structure: the previously app is now mounted as a subapp
 * Removed unnecessary unit tests from the backend and refactored some from both backend and agent
 * Added security via Armasec
+* Removed lambda build and configuration items
 
 1.0.0 -- 2021-06-03
 -------------------
