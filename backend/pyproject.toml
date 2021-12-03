@@ -63,6 +63,13 @@ src_paths = ["lm_backend", "tests"]
 multi_line_output = 3
 include_trailing_comma = true
 
+[[tool.mypy.overrides]]
+module = [
+    "asyncpg.*",
+    "pkg_resources",
+]
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

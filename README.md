@@ -4,7 +4,6 @@
 [issues-url]: https://github.com/omnivector-solutions/license-manager/issues
 [license-url]: https://github.com/omnivector-solutions/license-manager/blob/master/LICENSE
 [website]: https://www.omnivector.solutions
-[infrastructure]: https://github.com/omnivector-solutions/infrastructure
 
 [Contributors][contributors-url] •
 [Forks][forks-url] •
@@ -25,15 +24,16 @@
   <p align="center">
     A License management middleware for HPC systems.
     <br />
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">Report Bug</a>
+    <a href="https://github.com/omnivector-solutions/license-manager/issues">
+        Report Bug
+    </a>
     ·
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">Request Feature</a>
+    <a href="https://github.com/omnivector-solutions/license-manager/issues">
+        Request Feature
+    </a>
   </p>
 </p>
 
-[![](https://github.com/omnivector-solutions/license-manager/workflows/TestBuildReleaseEdge/badge.svg)](https://github.com/omnivector-solutions/license-manager-simulator/actions?query=workflow%3ATestBuildReleaseEdge)
-
-<!-- TABLE OF CONTENTS -->
 
 ## Table of Contents
 
@@ -41,9 +41,6 @@
 - [About The Project](#about-the-project)
 - [Installation (backend)](#installation-backend)
 - [Installation (agent)](#installation-agent)
-- [Deployment (backend)](#deployment-backend)
-  - [NOTE: Destroying secrets with terraform](#note-destroying-secrets-with-terraform)
-- [Deploy (agent)](#deploy-agent)
 - [Run locally](#run-locally)
 - [Database Migrations](#database-migrations)
     - [Create Migrations](#create-migrations)
@@ -52,209 +49,129 @@
 - [License](#license)
 - [Contact](#contact)
 
-<!-- ABOUT THE PROJECT -->
 
 ## About The Project
-`license-manager` is a license scheduling middleware that adds value in situations where multiple clusters share a license server or set of license servers.
 
-(FIXME) The license-manager software consists of; 1) the license-manager web server, 2) the slurmctld prolog and epilog scripts.
+`license-manager` is a license scheduling middleware that adds value in situations where
+multiple clusters share a license server or set of license servers.
 
-(FIXME) The prolog and epilog scripts are contained within the license-manager snap. Install the license-manager snap on the node(s) running slurmctld and add the `slurm.conf` configuration for `SlurmctldProlog` and `SlurmctldEpilog`.
+The license-manager software consists of:
+* the license-manager backend web server
+* the license-manager agent (prolog and epilog scripts for Slurmd).
 
 
-## Installation (backend)
+## Installation
+
+To install, clone from github and run the install command:
 
 ```
 git clone git@github.com:omnivector-solutions/license-manager
-python3 -m venv venv
-. venv/bin/activate
-pip install wheel .[dev]
+cd license-manager
+make install
 ```
-
-
-## Installation (agent)
-
-Follow the steps for Installation (backend) and you will have a checkout of
-the agent, and its dependencies, as well.
-
-
-## Deployment (backend)
-
-1. Start by building the lambda zipfile:
-
-    ```#!bash
-    make -B function.zip function-jawthorizer.zip
-    ```
-
-2. Use the github
-[omnivector-solutions/infrastructure][infrastructure] repository to deploy
-this software. Follow the instructions in the infrastructure README.md to
-install `terraform`.
-
-    Live deployments should be configured in `live/license-manager/xxxx` (stage,
-    prod, edge, or other).
-
-    Before running terraform:
-
-    ```#!bash
-    # create scratch.auto.tfvars
-    echo > scratch.auto.tfvars << EOF
-    zipfile = "/some/path/to/function.zip"
-    zipfile_authorizer = "/some/path/to/function-jawthorizer.zip"
-    EOF
-
-    ```
-
-
-3. Run terraform commands:
-
-    ```#!bash
-    cd live/license-manager/xxxx  # plug in some stage or custom directory here
-
-    # install the modules this terraform configuration will import (like pip install)
-    terraform init
-
-    # show what resources will be changed, like a dry run
-    terraform plan -out lm.out
-
-    # actually create/modify resources
-    terraform apply lm.out
-    ```
-
-    Terraform will output the live internet URL where you can access the HTTP API of the backend.
-
-
-4. Run infrastructure tests.
-
-    ```#!bash
-    npm i
-    npx bats deployment/test
-    ```
-
-### NOTE: Destroying secrets with terraform
-
-AWS holds destroyed secrets for 7-30 days (depending on how they're configured). So if you use
-`terraform destroy` and then try to recreate the resources right away, AWS (via terraform) will tell you:
-
-```
-Error: error creating Secrets Manager Secret: InvalidRequestException: You can't create this 
-secret because a secret with this name is already scheduled for deletion.
-```
-
-If you get this error, you can fix it by restoring and importing the old secret into terraform:
-
-```
-# use the aws cli to restore the secret
-$ aws secretsmanager restore-secret --secret-id /license-manager/{{YOUR_STAGE_NAME}}/token-secret
-{
-    "Name": "/license-manager/cory/token-secret",
-    "ARN": "arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc"
-}
-
-
-# import the restored secret back into terraform using the ARN of the restored secret
-$ terraform import module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret  arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc
-
-module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Importing from ID "arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc"...
-module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Import prepared!
-  Prepared aws_secretsmanager_secret for import
-module.license-manager.module.apigw.module.token-authorizer[0].aws_secretsmanager_secret.token_secret: Refreshing state... [id=arn:aws:secretsmanager:us-west-2:212021838531:secret:/license-manager/{{YOUR_STAGE_NAME}}/token-secret-xyzabc]
-
-Import successful!
-
-The resources that were imported are shown above. These resources are now in
-your Terraform state and will henceforth be managed by Terraform.
-
-
-# run terraform plan/apply as usual
-$ terraform plan -out myplan.out
-...
-Plan: 1 to add, 1 to change, 0 to destroy.
-```
-
-In the last step, terraform will create any other resources that it needs to. It will also alter-in-place
-and fix the secret so you can keep working.
-
-## Deploy (agent)
-
-TODO - pypi/charm
 
 
 ## Run locally
 
-To run the backend locally, use `docker-compose` to run the application and its database inside containers:
+To run the backend locally, use `docker-compose` to run the application and its database
+inside containers:
+
 ```
-# backend
-cd backend
+cd license-manager/backend
 docker-compose up --build
 ```
 
-```
-# agent
-uvicorn licensemanager2.agent.main:app --port 8010
-```
 
 ## Database Migrations
-The license manager project uses alembic to manage the database and perform migrations. 
-The migrations are kept in this project in the `alembic/versions` directory, and the config file is in the root of the project, `alembic.ini`. 
+The license manager project uses alembic to manage the database and perform migrations.
+The migrations are kept in this project in the `alembic/versions` directory, and the
+config file is in the root of the project, `alembic.ini`.
+
 
 #### Create Migrations
+
 To create a migration:
+
 ```bash
 alembic revision -m "some comment" --autogenerate
 ```
-Running the command above will create a revision file in `alembic/versions`, (i.e. "b692dfd0b017_initial_revision.py")
-The revision of this file will be the string prepended to the filename. 
+Running the command above will create a revision file in `alembic/versions`,
+(i.e. "b692dfd0b017_initial_revision.py")
+The revision of this file will be the string prepended to the filename.
+
 
 #### Apply Migrations
+
 To apply a migration:
+
 ```bash
-alembic upgrade <revision> (or "head" for latest) 
+alembic upgrade <revision> (or "head" for latest)
 ```
+
 Using the example above, upgrade command looks like this:
+
 ```bash
 alembic upgrade b692dfd0b017
 ```
 
+
 ## Test with lm-configure
-In order to use this utility, first create a jwt for your environemnt using:
-```bash
-lm-create-jwt --subject <any> --app-short-name license-manager --stage <stage> --region <region>
-```
-where region is equal to the aws region the backend is deployed (i.e. "eu-north-1"), stage is the name
-of your environment, and subject is arbitrary.
 
-Once the token is created, run the following commands to export it.
+In order to use this utility, first retrieve the required configuration settings
+for authorization via Auth0. These may be retrieved from the Auth0 machine-to-manchine
+app that you have configured for license-manager-agent. The four required values are:
+
+* LM_AGENT_AUTH0_DOMAIN
+* LM_AGENT_AUTH0_AUDIENCE
+* LM_AGENT_AUTH0_CLIENT_ID
+* LM_AGENT_AUTH0_CLIENT_SECRET
+
+You will also need to set the location of the backend API. If you are running locally,
+this will simply be `http://localhost:7000`. Bind this setting with:
+
+* LM2_AGENT_BACKEND_BASE_URL
+
+You may either bind these values by setting environment variables or by creating a
+"dotenv" file with these values. Either way, they will be read by the agent at execution
+time.
+
+To test with the `lm-configure` cli run the following commands from the `agent` folder:
+
 ```bash
-export LM2_AGENT_BACKEND_API_TOKEN=<token> (use output from above)
-```
-Export the `LM2_AGENT_BACKEND_BASE_URL' to point to your backend, substituting in your stage and region.
-```bash
-export LM2_AGENT_BACKEND_BASE_URL=https://license-manager-<stage>-<region>.omnivector.solutions
+cd agent
+poetry run lm-configure --help
 ```
 
-To test with the `lm-configure` cli run the following commands in the same environment
-the backend is running.
-To get all configurations:
+To see all available configurations, run:
+
 ```bash
-lm-configure get-all
+poetry run lm-configure get-all
 ```
+
 To get one configuration row based on an ID:
+
 ```bash
-lm-configure get [ID]
+poetry run lm-configure get [ID]
 ```
+
 To add a configuration:
+
 ```bash
-lm-configure add 100 "testproduct" ["Testfeature"] ["testserver"] "testservertype" 10000
+poetry run lm-configure add 100 "testproduct" ["Testfeature"] ["testserver"] "testservertype" 10000
 ```
-To update a configuration
+
+To update a configuration:
+
 ```bash
-lm-configure update 100 --[OPTION] [VALUE-TO-UPATE] ..
+poetry run lm-configure update 100 --[OPTION] [VALUE-TO-UPATE] ..
 ```
+
 To delete a configuration row based on an ID:
+
 ```bash
-lm-configure delete ID
+poetry run lm-configure delete ID
 ```
+
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
@@ -262,5 +179,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 Omnivector Solutions - [www.omnivector.solutions][website] - <info@omnivector.solutions>
-
-Project Link: [https://github.com/omnivector-solutions/license-manager](https://github.com/omnivector-solutions/license-manager)
