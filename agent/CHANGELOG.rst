@@ -7,7 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
-2.1.0.dev3 - 2021-12-01
+2.1.0 - 2021-12-07
 -----------------------
 * Added RLM parser
 * Converted agent to a CLI application (from FastAPI with internal scheduler)
@@ -19,6 +19,8 @@ Unreleased
 * Parse job run-time through squeue and corrected time parsing logic
 * Added docstrings throughout codebase
 * Changed backend URL prefix
+* Get license server type from backend configuration row
+* Remove lmstat binary
 
 1.0.0 -- 2021-06-03
 -------------------
