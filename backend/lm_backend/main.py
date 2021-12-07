@@ -5,12 +5,14 @@ set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
 import sys
+from typing import Optional
 
 import pkg_resources
 import sentry_sdk
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
+from mangum import Mangum
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_backend import storage
@@ -95,3 +97,17 @@ async def disconnect_database():
     Disconnect the database
     """
     await storage.database.disconnect()
+
+
+def handler(event: dict, context: dict) -> Optional[dict]:
+    """
+    Adapt inbound ASGI requests (from API Gateway) using Mangum
+
+    - Assumes non-ASGI requests (from any other source) are a cloudwatch ping
+    """
+    if not event.get("requestContext"):
+        logger.info("☁️ ☁️ ☁️ cloudwatch keep-warm ping ☁️ ☁️ ☁️")
+        return None
+
+    mangum = Mangum(app)
+    return mangum(event, context)

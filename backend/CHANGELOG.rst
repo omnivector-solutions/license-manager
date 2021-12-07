@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Restored mangum handler
 
 2.1.0 -- 2021-12-06
 -------------------
