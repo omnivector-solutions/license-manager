@@ -19,6 +19,7 @@ Unreleased
 * Parse job run-time through squeue and corrected time parsing logic
 * Added docstrings throughout codebase
 * Changed backend URL prefix
+* Fix rlmutil command path
 
 1.0.0 -- 2021-06-03
 -------------------
