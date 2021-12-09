@@ -8,7 +8,7 @@ Unreleased
 ----------
 
 2.1.0 - 2021-12-09
------------------------
+------------------
 * Added RLM parser
 * Converted agent to a CLI application (from FastAPI with internal scheduler)
 * Update booking-accounting logic to requeue jobs if there are not enough licenses
