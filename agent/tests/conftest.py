@@ -31,7 +31,13 @@ def backend_setting():
     """
     Redirect the bin path to the mock_tools folder.
     """
-    settings.BIN_PATH = MOCK_BIN_PATH
+    with patch.multiple(
+        settings,
+        BACKEND_BASE_URL="http://backend",
+        LMSTAT_BIN_PATH=MOCK_BIN_PATH,
+        RLMSTAT_BIN_PATH=MOCK_BIN_PATH,
+    ) as mck:
+        yield mck
 
 
 @fixture

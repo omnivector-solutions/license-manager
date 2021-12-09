@@ -152,14 +152,14 @@ class ToolOptionsCollection:
     tools: typing.Dict[str, ToolOptions] = {
         "flexlm": ToolOptions(
             name="flexlm",
-            path=Path(f"{settings.BIN_PATH}/lmstat"),
+            path=Path(f"{settings.LMSTAT_BIN_PATH}/lmstat"),
             args="{exe} -c {port}@{host} -f",
             parse_fn=flexlm.parse,
         ),
         "rlm": ToolOptions(
             name="rlm",
-            path=Path(f"{settings.BIN_PATH}/rlmstat"),
-            args="{exe} -c {port}@{host} -a -p",
+            path=Path(f"{settings.RLMSTAT_BIN_PATH}/rlmutil"),
+            args="{exe} rlmstat -c {port}@{host} -a -p",
             parse_fn=rlm.parse,
         ),
         # "other_tool": ToolOptions(...)

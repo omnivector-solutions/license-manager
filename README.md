@@ -82,6 +82,18 @@ docker-compose up --build
 ```
 
 
+## License server utility binaries (agent)
+
+For the agent to retrieve licenses information, set the path to the folder containing
+the license server utility binary.  For `FlexLM` and `RLM`, the paths should be set
+using the following environment variables:
+
+```bash
+export LM2_AGENT_LMSTAT_BIN_PATH=<path_to_lmstat>
+export LM2_AGENT_RLMSTAT_BIN_PATH=<path_to_rlmstat>
+```
+
+
 ## Database Migrations
 The license manager project uses alembic to manage the database and perform migrations.
 The migrations are kept in this project in the `alembic/versions` directory, and the

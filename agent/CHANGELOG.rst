@@ -6,6 +6,13 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Remove lmstat binary
+* Get license server type from backend configuration row
+* Fix rlmutil command path
+* Added auth via Auth0 and removed static token logic
+
+2.1.0 - 2021-12-09
+------------------
 * Added RLM parser
 * Converted agent to a CLI application (from FastAPI with internal scheduler)
 * Update booking-accounting logic to requeue jobs if there are not enough licenses
@@ -16,7 +23,6 @@ Unreleased
 * Parse job run-time through squeue and corrected time parsing logic
 * Added docstrings throughout codebase
 * Changed backend URL prefix
-* Added auth via Auth0 and removed static token logic
 
 1.0.0 -- 2021-06-03
 -------------------
