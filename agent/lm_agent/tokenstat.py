@@ -158,8 +158,8 @@ class ToolOptionsCollection:
         ),
         "rlm": ToolOptions(
             name="rlm",
-            path=Path(f"{settings.BIN_PATH}/rlmstat"),
-            args="{exe} -c {port}@{host} -a -p",
+            path=Path(f"{settings.BIN_PATH}/rlmutil"),
+            args="{exe} rlmstat -c {port}@{host} -a -p",
             parse_fn=rlm.parse,
         ),
         # "other_tool": ToolOptions(...)
