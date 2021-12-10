@@ -8,7 +8,6 @@ Unreleased
 ----------
 * Remove lmstat binary
 
-
 2.1.0 - 2021-12-09
 ------------------
 * Added RLM parser
