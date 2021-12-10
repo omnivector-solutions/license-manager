@@ -28,9 +28,6 @@ class Settings(BaseSettings):
     # to match where the API is deployed in API Gateway
     ASGI_ROOT_PATH: str = ""
 
-    # CORS origins filter
-    ALLOW_ORIGINS_REGEX: str = r"https://.*\.omnivector\.solutions"
-
     # database to connect
     DATABASE_URL: str
 

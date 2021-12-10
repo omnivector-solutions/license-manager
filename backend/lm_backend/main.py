@@ -20,7 +20,7 @@ from lm_backend.config import settings
 subapp = FastAPI(root_path=settings.ASGI_ROOT_PATH)
 subapp.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
