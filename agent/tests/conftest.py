@@ -24,7 +24,12 @@ def backend_setting():
     """
     Force a specific host for the backend
     """
-    with patch.multiple(settings, BACKEND_BASE_URL="http://backend", BIN_PATH=MOCK_BIN_PATH) as mck:
+    with patch.multiple(
+        settings,
+        BACKEND_BASE_URL="http://backend",
+        LMSTAT_BIN_PATH=MOCK_BIN_PATH,
+        RLMSTAT_BIN_PATH=MOCK_BIN_PATH,
+    ) as mck:
         yield mck
 
 
