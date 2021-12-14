@@ -16,6 +16,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
     return [
         ConfigurationRow(
             id=1,
+            name="Product 1: Features 1, 2, 3",
             product="testproduct1",
             features='{"feature1": 1, "feature2": 2, "feature3": 3}',
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -24,6 +25,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
         ),
         ConfigurationRow(
             id=2,
+            name="Product 2: Features 1, 2, 3",
             product="testproduct2",
             features='{"feature1": 1, "feature2": 2, "feature3": 3}',
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -32,6 +34,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
         ),
         ConfigurationRow(
             id=3,
+            name="Product 3: Features 1, 2, 3",
             product="testproduct3",
             features='{"feature1": 1, "feature2": 2, "feature3": 3}',
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -49,6 +52,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
     return [
         ConfigurationItem(
             id=1,
+            name="Product 1: Features 1, 2, 3",
             product="testproduct1",
             features={"feature1": 1, "feature2": 2, "feature3": 3},
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -57,6 +61,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
         ),
         ConfigurationItem(
             id=2,
+            name="Product 2: Features 1, 2, 3",
             product="testproduct2",
             features={"feature1": 1, "feature2": 2, "feature3": 3},
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -65,6 +70,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
         ),
         ConfigurationItem(
             id=3,
+            name="Product 3: Features 1, 2, 3",
             product="testproduct3",
             features={"feature1": 1, "feature2": 2, "feature3": 3},
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -82,6 +88,7 @@ def one_configuration_row():
     return [
         ConfigurationRow(
             id=100,
+            name="Product 1: Feature 1",
             product="testproduct1",
             features='{"feature1": 1}',
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -99,6 +106,7 @@ def one_configuration_item():
     return [
         ConfigurationItem(
             id=100,
+            name="Product 1: Feature 1",
             product="testproduct1",
             features={"feature1": 1},
             license_servers=["flexlm:127.0.0.1:2345"],
@@ -210,6 +218,7 @@ async def test_add_configuration__success(
     Test adding a configuration row.
     """
     data = {
+        "name": "Product 1: Features 1, 2, 3",
         "product": "testproduct1",
         "features": '{"feature1": 1, "feature2": 2, "feature3": 3}',
         "license_servers": ["licenseserver100"],
@@ -220,6 +229,16 @@ async def test_add_configuration__success(
     inject_security_header("owner1", "license-manager:config:write")
     response = await backend_client.post("/lm/api/v1/config", json=data)
     assert response.status_code == 200
+
+    query = table_schemas.config_table.select().where(
+        table_schemas.config_table.c.name == "Product 1: Features 1, 2, 3"
+    )
+    fetched = await database.fetch_one(query)
+    assert fetched.product == "testproduct1"
+    assert fetched.features == '{"feature1": 1, "feature2": 2, "feature3": 3}'
+    assert fetched.license_servers == ["licenseserver100"]
+    assert fetched.license_server_type == "servertype100"
+    assert fetched.grace_time == 10000
 
 
 @mark.asyncio

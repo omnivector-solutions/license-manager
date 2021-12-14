@@ -42,6 +42,7 @@ config_table = Table(
     "config",
     metadata,
     Column("id", Integer, primary_key=True),
+    Column("name", String, unique=True, index=True),
     Column("product", String),
     Column("features", String),
     Column("license_servers", ScalarListType(str)),
