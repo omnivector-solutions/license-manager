@@ -23,7 +23,7 @@ License server support:
 Reconcile
 *********
 The reconcile timed job collects license usage from the 3rd party license servers
-and updates the license-manager backend on a periodic basis referred to as the `stat-interval`.
+and updates the license-manager backend on a periodic basis referred to as the ``stat-interval``.
 
 Workload Manager Bindings
 *************************
