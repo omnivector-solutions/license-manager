@@ -38,6 +38,6 @@ licenses, bookings and license configurations are tracked.
 
 Backend base API routes:
 
-* `/license`
-* `/booking`
-* `/config`
+* ``/license``
+* ``/booking``
+* ``/config``
