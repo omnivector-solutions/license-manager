@@ -17,7 +17,17 @@ code changes in the license-manager code base needed to facilitate running a loc
 ----------------
 Pre-Installation
 ----------------
-Assign the host machine primary ip address to a variable ``MY_IP``. We will use this value throughout the
+Before you get started, enusure you have the following pre-requisites installed on your machine.
+
+- snapd
+- charmcraft
+- LXD (latest/stable)
+- juju
+- poetry
+- docker-compose
+- docker
+
+Additionally, assign the host machine's primary ip address to a variable ``MY_IP``. We will use this value throughout the
 development environment setup process.
 
 .. code-block:: bash
