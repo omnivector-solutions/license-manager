@@ -1,18 +1,7 @@
 Development
 ===========
-Development of the `license-manager` is done using a setup that consists of
-running a mix of different services in docker and LXD containers.
-
-The general steps to set up a development environment are:
-
-1) a slurm deployment running on LXD with the license-manager-agent
-2) a license-manager-simulator deployment running locally)
-3) a license-manager backend deployment in docker (deployed using docker-compose)
-4) Post deploy modifications
-5) Validation
-
-The following text will attempt to describe the process for setting up these systems and perfoming
-code changes in the license-manager code base needed to facilitate running a local development environment.
+Development of the ``license-manager`` involves running a mix of different services in docker and LXD containers.
+This text will attempt to define the procedure for initializing and running the different components.
 
 ----------------
 Pre-Installation
