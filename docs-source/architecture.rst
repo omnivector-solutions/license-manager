@@ -27,7 +27,7 @@ and updates the license-manager backend on a periodic basis referred to as the `
 
 Workload Manager Bindings
 *************************
-When slurm is configured to use the `PrologSlurmctld` provided by `lm_agent`, it will make a
+When Slurm is configured to use the ``PrologSlurmctld`` provided by ``lm_agent``, it will make a
 request to the license-manager backend to make a license booking prior to the allocation of a job.
 The `PrologSlurmctld` will exit 1 if the booking cannot be made and 0 if the booking succeeds.
 
