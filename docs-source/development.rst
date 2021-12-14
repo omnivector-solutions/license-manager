@@ -40,6 +40,56 @@ development environment setup process.
 Follow the `upstream documentation <https://omnivector-solutions.github.io/osd-documentation/master/installation.html#lxd>`_
 to deploy a local LXD slurm cluster that we can use in development.
 
+The general idea is to run ``juju deploy slurm``, following which, you will have a local slurm cluster to
+use in development.
+
+After the deployment of slurm has completed and settled, the environment should resemble the following:
+
+.. code-block:: bash
+
+   Model                    Controller           Cloud/Region         Version  SLA          Timestamp
+   license-manager-testing  localhost-localhost  localhost/localhost  2.9.17   unsupported  06:46:42Z
+   
+   App              Version  Status  Scale  Charm            Store     Channel  Rev  OS      Message
+   percona-cluster  5.7.20   active      1  percona-cluster  charmhub  stable   302  ubuntu  Unit is ready
+   slurmctld        0.8.1    active      1  slurmctld        charmhub  stable    17  ubuntu  slurmctld available
+   slurmd           0.8.1    active      1  slurmd           charmhub  stable    26  ubuntu  slurmd available
+   slurmdbd         0.8.1    active      1  slurmdbd         charmhub  stable    15  ubuntu  slurmdbd available
+   slurmrestd       0.8.1    active      1  slurmrestd       charmhub  stable    15  ubuntu  slurmrestd available
+   
+   Unit                Workload  Agent  Machine  Public address  Ports     Message
+   percona-cluster/0*  active    idle   0        10.20.96.130    3306/tcp  Unit is ready
+   slurmctld/0*        active    idle   1        10.20.96.57               slurmctld available
+   slurmd/0*           active    idle   2        10.20.96.233              slurmd available
+   slurmdbd/0*         active    idle   3        10.20.96.123              slurmdbd available
+   slurmrestd/0*       active    idle   4        10.20.96.62               slurmrestd available
+   
+   Machine  State    DNS           Inst id        Series  AZ  Message
+   0        started  10.20.96.130  juju-b71748-0  bionic      Running
+   1        started  10.20.96.57   juju-b71748-1  focal       Running
+   2        started  10.20.96.233  juju-b71748-2  focal       Running
+   3        started  10.20.96.123  juju-b71748-3  focal       Running
+   4        started  10.20.96.62   juju-b71748-4  focal       Running
+
+Following the deployment, run the action to enlist the `slurmd` node.
+
+.. code-block:: bash
+
+   juju run-actionslurmd/0 node-configured
+
+Lastly, validate that the node has successfully enlisted and the cluster is operational.
+
+.. code-block:: bash
+
+   $ juju ssh slurmd/0 sinfo
+   PARTITION  AVAIL  TIMELIMIT  NODES  STATE NODELIST
+   osd-slurmd    up   infinite      1   idle juju-b71748-2
+
+   $ juju ssh slurmd/0 srun -posd-slurmd hostname
+   juju-b71748-2
+
+The slurm cluster is now prepared for further configuration and use in ``licnese-manager`` development.
+
 ------------------------------------
 2) Run the license-manager-simulator 
 ------------------------------------
