@@ -86,8 +86,6 @@ the enterprise.
     - most likely `postgresql://....`, can be sqlite for dev mode
   - ASGI_ROOT_PATH
     - this is the prefix on the URL exposing the backend, e.g. `/staging` - should match the "stage" name
-  - ALLOW_ORIGINS_REGEX
-    - CORS origins. just `*.omnivector.solutions` by default, may not get used if there is no web FE
   - TRUSTED_HOSTS
     - probably just `*.omnivector.solutions` and can be unset for dev mode
 

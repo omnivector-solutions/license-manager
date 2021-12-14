@@ -6,6 +6,17 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.1.2 - 2021-12-10
+------------------
+* Changed the CORS policy to allow origins from everywhere
+
+2.1.1 - 2021-12-07
+------------------
+* Restored mangum handler
+
+2.1.0 -- 2021-12-06
+-------------------
 * Added Dockerfiles and docker-compose (for local development)
 * Separated ``backend`` code from ``agent`` code into separate sub-projects
 * Added ``config`` table and ``config`` endpoints in backend
