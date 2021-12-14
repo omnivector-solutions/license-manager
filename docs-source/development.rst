@@ -71,11 +71,11 @@ After the deployment of slurm has completed and settled, the environment should 
    3        started  10.20.96.123  juju-b71748-3  focal       Running
    4        started  10.20.96.62   juju-b71748-4  focal       Running
 
-Following the deployment, run the action to enlist the `slurmd` node.
+Following the deployment, run the action to enlist the `slurmd` node and set it's state to idle.
 
 .. code-block:: bash
 
-   juju run-actionslurmd/0 node-configured
+   juju run-action slurmd/0 node-configured
 
 Lastly, validate that the node has successfully enlisted and the cluster is operational.
 
