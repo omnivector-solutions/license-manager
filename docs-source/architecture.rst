@@ -12,7 +12,7 @@ bookings tracked in the backend.
 
 Workload manager support:
 
-* SLURM
+* Slurm
 
 License server support:
 
