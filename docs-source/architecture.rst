@@ -6,7 +6,7 @@ a prolog integration to SLURM.
 
 License Manager Agent
 ---------------------
-The `lm_agent` is responsible for keeping the local cluster license totals
+The ``lm_agent`` is responsible for keeping the local cluster license totals
 in sync with the the 3rd party license server totals and also accounting for
 bookings tracked in the backend.
 
