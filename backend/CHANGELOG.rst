@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.1.3 - 2021-12-15
+------------------
+* Removed the "LM2_" prefix from the Settings class
+
 2.1.2 - 2021-12-10
 ------------------
 * Changed the CORS policy to allow origins from everywhere

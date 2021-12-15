@@ -15,9 +15,6 @@ class LogLevelEnum(str, Enum):
 class Settings(BaseSettings):
     """
     App config.
-
-    If you are setting these in the environment, you must prefix "LM2_", e.g.
-    LM2_ASGI_ROOT_PATH=/staging
     """
 
     # debug mode turns on certain dangerous operations
@@ -43,7 +40,6 @@ class Settings(BaseSettings):
     ARMASEC_DEBUG: bool = Field(False)
 
     class Config:
-        env_prefix = "LM2_"
         env_file = ".env"
 
 

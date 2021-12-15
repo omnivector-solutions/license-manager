@@ -22,11 +22,11 @@ services:
     volumes:
       - ./lm_backend:/app/lm_backend
     environment:
-      LM2_DATABASE_URL: ${LM2_DATABASE_URL:-postgres://postgres:123@postgres-back:5432/postgres}
-      LM2_ARMASEC_DOMAIN: ${LM2_ARMASEC_DOMAIN}
-      LM2_ARMASEC_AUDIENCE: ${LM2_ARMASEC_AUDIENCE}
-      LM2_ARMASEC_DEBUG: ${LM2_ARMASEC_DEBUG}
-      LM2_LOG_LEVEL: ${LM2_LOG_LEVEL}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:123@postgres-back:5432/postgres}
+      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
+      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
+      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
+      LOG_LEVEL: ${LOG_LEVEL}
     ports:
       - "7000:8000"
     command: uvicorn lm_backend.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
