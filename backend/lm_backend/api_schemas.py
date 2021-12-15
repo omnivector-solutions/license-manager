@@ -12,6 +12,7 @@ class ConfigurationRow(BaseModel):
     """
 
     id: Optional[int] = Field(None)
+    name: Optional[str] = Field(None)
     product: str
     features: str
     license_servers: List[str]
@@ -28,6 +29,7 @@ class ConfigurationItem(BaseModel):
     """
 
     id: Optional[int] = Field(None)
+    name: Optional[str] = Field(None)
     product: str
     features: dict
     license_servers: List[str]
