@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager-backend"
-version = "2.1.2"
+version = "2.1.3"
 description = "Provides an API for managing license data"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
@@ -45,12 +45,12 @@ minversion = "6.0"
 addopts = "--random-order --cov=lm_backend --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
 env = [
-    "LM2_DATABASE_URL = sqlite:///sqlite-testing.db",
-    "LM2_LOG_LEVEL_SQL = ERROR",
+    "DATABASE_URL = sqlite:///sqlite-testing.db",
+    "LOG_LEVEL_SQL = ERROR",
 
     # This setting must align with the rs256_domain fixture from armasec's pytest extension
-    "LM2_ARMASEC_DOMAIN = armasec.dev",
-    "LM2_ARMASEC_DEBUG = True",
+    "ARMASEC_DOMAIN = armasec.dev",
+    "ARMASEC_DEBUG = True",
 ]
 
 [tool.black]
