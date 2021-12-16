@@ -1,8 +1,8 @@
-"""First migration
+"""Initial migration for LM in Armada
 
-Revision ID: bf1e9e9a9e5f
-Revises:
-Create Date: 2021-08-03 11:54:19.474407
+Revision ID: 0b3788c540bb
+Revises: 
+Create Date: 2021-12-15 17:39:01.067270
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ import sqlalchemy_utils
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "bf1e9e9a9e5f"
+revision = "0b3788c540bb"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,22 +21,22 @@ def upgrade():
     op.create_table(
         "config",
         sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("name", sa.String(), nullable=True),
         sa.Column("product", sa.String(), nullable=True),
-        sa.Column("features", sqlalchemy_utils.types.scalar_list.ScalarListType(), nullable=True),
-        sa.Column(
-            "license_servers", sqlalchemy_utils.types.scalar_list.ScalarListType(), nullable=True
-        ),
+        sa.Column("features", sa.String(), nullable=True),
+        sa.Column("license_servers", sqlalchemy_utils.ScalarListType, nullable=True),
         sa.Column("license_server_type", sa.String(), nullable=True),
         sa.Column("grace_time", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("name"),
     )
     op.create_table(
         "license",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("product_feature", sa.String(), nullable=True),
-        sa.Column("used", sa.Integer(), sa.CheckConstraint("used>=0"), nullable=True),
-        sa.Column("total", sa.Integer(), sa.CheckConstraint("total>=0"), nullable=True),
-        sa.CheckConstraint("total >= 0"),
+        sa.Column("used", sa.Integer(), nullable=True),
+        sa.Column("total", sa.Integer(), nullable=True),
+        sa.CheckConstraint("used<=total"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("product_feature"),
     )
@@ -45,7 +45,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("job_id", sa.String(), nullable=True),
         sa.Column("product_feature", sa.String(), nullable=True),
-        sa.Column("booked", sa.Integer(), sa.CheckConstraint("booked>=0"), nullable=True),
+        sa.Column("booked", sa.Integer(), nullable=True),
         sa.Column("lead_host", sa.String(), nullable=True),
         sa.Column("user_name", sa.String(), nullable=True),
         sa.Column("cluster_name", sa.String(), nullable=True),
