@@ -50,7 +50,7 @@ def _write_token_to_cache(token: str):
     if not CACHE_DIR.exists():
         logger.debug("Attempting to create missing cache directory")
         try:
-            CACHE_DIR.mkdir(mode=0o700, parents=True)
+            CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
         except Exception:
             logger.warning(f"Couldn't create missing cache directory {CACHE_DIR}. Token will not be saved.")
             return
