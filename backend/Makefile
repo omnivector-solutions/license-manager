@@ -36,7 +36,7 @@ UPGRADE_TARGET ?= head
 db-upgrade: install
 	poetry run alembic --config=alembic/alembic.ini upgrade $(UPGRADE_TARGET)
 
-clean: clean-eggs clean-build
+clean:
 	@find . -iname '*.pyc' -delete
 	@find . -iname '*.pyo' -delete
 	@find . -iname '*~' -delete

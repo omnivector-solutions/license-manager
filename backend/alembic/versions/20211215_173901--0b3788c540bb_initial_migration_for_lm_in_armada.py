@@ -1,7 +1,7 @@
 """Initial migration for LM in Armada
 
 Revision ID: 0b3788c540bb
-Revises: 
+Revises:
 Create Date: 2021-12-15 17:39:01.067270
 
 """
@@ -34,8 +34,8 @@ def upgrade():
         "license",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("product_feature", sa.String(), nullable=True),
-        sa.Column("used", sa.Integer(), nullable=True),
-        sa.Column("total", sa.Integer(), nullable=True),
+        sa.Column("used", sa.Integer(), sa.CheckConstraint("used >= 0"), nullable=True),
+        sa.Column("total", sa.Integer(), sa.CheckConstraint("total >= 0"), nullable=True),
         sa.CheckConstraint("used<=total"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("product_feature"),
