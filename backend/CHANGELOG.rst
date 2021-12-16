@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Removed subapp and removed /lm prefix from URLs
 
 2.1.1 - 2021-12-07
 ------------------
