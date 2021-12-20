@@ -7,6 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 * Remove lmstat binary
+* Raise exception for empty reports on reconcilitation
 
 2.1.0 - 2021-12-09
 ------------------
