@@ -20,6 +20,10 @@ class LicenseManagerBackendVersionError(Exception):
     """Exception for backend/agent version mismatches."""
 
 
+class LicenseManagerEmptyReportError(Exception):
+    """Exception for empty report when no licenses added in backend"""
+
+
 async def get_license_manager_backend_version() -> str:
     """Return the license-manager-backend version."""
     resp = await async_client().get("/lm/version")
