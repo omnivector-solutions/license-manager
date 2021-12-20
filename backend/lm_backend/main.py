@@ -19,8 +19,8 @@ from lm_backend import storage
 from lm_backend.api import api_v1
 from lm_backend.config import settings
 
-subapp = FastAPI(root_path=settings.ASGI_ROOT_PATH)
-subapp.add_middleware(
+app = FastAPI(root_path=settings.ASGI_ROOT_PATH)
+app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=settings.ALLOW_ORIGINS_REGEX,
     allow_credentials=True,
@@ -28,17 +28,17 @@ subapp.add_middleware(
     allow_headers=["*"],
 )
 
-subapp.include_router(api_v1, prefix="/api/v1")
+app.include_router(api_v1, prefix="/api/v1")
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
         traces_sample_rate=1.0,
     )
-    subapp.add_middleware(SentryAsgiMiddleware)
+    app.add_middleware(SentryAsgiMiddleware)
 
 
-@subapp.get(
+@app.get(
     "/health",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={204: {"description": "API is healthy"}},
@@ -47,17 +47,13 @@ async def health_check():
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@subapp.get("/version")
+@app.get("/version")
 async def version():
     """
     Return the license-manager-backend version.""
     """
     version = pkg_resources.get_distribution("license-manager-backend").version
     return dict(message="OK", version=version)
-
-
-app = FastAPI()
-app.mount("/lm", subapp)
 
 
 @app.on_event("startup")

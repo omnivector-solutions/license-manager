@@ -120,7 +120,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     logger.debug(f"lbr: {lbr}")
 
     resp = await async_client().put(
-        "/lm/api/v1/booking/book",
+        "/api/v1/booking/book",
         json={
             "job_id": lbr.job_id,
             "features": features,

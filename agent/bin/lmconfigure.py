@@ -5,7 +5,7 @@ import requests
 
 from tabulate import tabulate
 
-from lm_agent.settings import SETTINGS
+from lm_agent.settings import settings
 from lm_agent.workload_managers.slurm.common import LM2_AGENT_HEADERS
 
 
@@ -20,7 +20,7 @@ def get_all():
     Get all configurations from the backend.
     """
     resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/all",
+        f"{settings.BACKEND_BASE_URL}/api/v1/config/all",
         headers=LM2_AGENT_HEADERS,
     )
     if resp.status_code == 200:
@@ -38,7 +38,7 @@ def get(id: int):
     Return a single configuration from the backend given a configuration id.
     """
     resp = requests.get(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
+        f"{settings.BACKEND_BASE_URL}/api/v1/config/{id}",
         headers=LM2_AGENT_HEADERS,
     )
     if resp.status_code == 200:
@@ -62,7 +62,7 @@ def add(
     Add a configuration to the database.
     """
     resp = requests.post(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/",
+        f"{settings.BACKEND_BASE_URL}/api/v1/config/",
         headers=LM2_AGENT_HEADERS,
         json={
             "product": product,
@@ -107,7 +107,7 @@ def update(
         ctxt['grace_time'] = int(grace_time)
 
     resp = requests.put(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
+        f"{settings.BACKEND_BASE_URL}/api/v1/config/{id}",
         headers=LM2_AGENT_HEADERS,
         json=ctxt
     )
@@ -126,7 +126,7 @@ def delete(id: int):
         typer.echo("Please supply an ID")
         return
     resp = requests.delete(
-        f"{SETTINGS.BACKEND_BASE_URL}/lm/api/v1/config/{id}",
+        f"{settings.BACKEND_BASE_URL}/api/v1/config/{id}",
         headers=LM2_AGENT_HEADERS,
         data={'id': id}
     )

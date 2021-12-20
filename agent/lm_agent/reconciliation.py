@@ -24,14 +24,14 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     squeue_parser,
 )
 
-RECONCILE_URL_PATH = "/lm/api/v1/license/reconcile"
+RECONCILE_URL_PATH = "/api/v1/license/reconcile"
 
 
 async def remove_booked_for_job_id(job_id: str):
     """
-    Send DELETE to /lm/api/v1/booking/book/{job_id}.
+    Send DELETE to /api/v1/booking/book/{job_id}.
     """
-    response = await async_client().delete(f"/lm/api/v1/booking/book/{job_id}")
+    response = await async_client().delete(f"/api/v1/booking/book/{job_id}")
     if response.status_code != 200:
         logger.error(f"{job_id} could not be deleted.")
         logger.debug(f"response from delete: {response.__dict__}")
@@ -39,9 +39,9 @@ async def remove_booked_for_job_id(job_id: str):
 
 async def get_all_grace_times() -> Dict[int, int]:
     """
-    Send GET to /lm/api/v1/config/all.
+    Send GET to /api/v1/config/all.
     """
-    response = await async_client().get("/lm/api/v1/config/all")
+    response = await async_client().get("/api/v1/config/all")
     configs = response.json()
     grace_times = {config["id"]: config["grace_time"] for config in configs}
     return grace_times
@@ -51,7 +51,7 @@ async def get_booked_for_job_id(job_id: str) -> Dict:
     """
     Return the booking row for the given job_id.
     """
-    response = await async_client().get(f"/lm/api/v1/booking/job/{job_id}")
+    response = await async_client().get(f"/api/v1/booking/job/{job_id}")
     return response.json()
 
 
@@ -132,7 +132,7 @@ async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
     await clean_booked_grace_time()
     r = await update_report()
-    response = await async_client().get("/lm/api/v1/license/cluster_update")
+    response = await async_client().get("/api/v1/license/cluster_update")
     configs = await get_config_from_backend()
     licenses_to_update = response.json()
     for license_data in licenses_to_update:
