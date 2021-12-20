@@ -9,6 +9,7 @@ from httpx import ConnectError
 
 from lm_agent.backend_utils import (
     LicenseManagerBackendConnectionError,
+    LicenseManagerEmptyReportError,
     get_bookings_from_backend,
     get_config_from_backend,
     get_config_id_from_backend,
@@ -173,7 +174,7 @@ async def update_report():
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )
-        raise LicenseManagerBackendConnectionError()
+        raise LicenseManagerEmptyReportError()
     client = async_client()
     try:
         r = await client.patch(RECONCILE_URL_PATH, json=rep)
