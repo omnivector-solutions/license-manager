@@ -8,6 +8,7 @@ Unreleased
 ----------
 * Remove lmstat binary
 * Removed subapp (/lm) from backend URLs
+* Raise exception for empty reports on reconciliation
 
 2.1.0 - 2021-12-09
 ------------------
