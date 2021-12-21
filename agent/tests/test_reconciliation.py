@@ -148,7 +148,7 @@ async def test_get_all_grace_times(respx_mock):
     """
     Check the return value for the get_all_grace_times.
     """
-    respx_mock.get("/lm/api/v1/config/all").mock(
+    respx_mock.get("/api/v1/config/all").mock(
         return_value=Response(
             status_code=200,
             json=[
@@ -180,16 +180,16 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
     """
     Check if reconcile does a patch to /license/reconcile and await for clean_booked_grace_time.
     """
-    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
+    respx_mock.patch("/api/v1/license/reconcile").mock(
         return_value=Response(
             status_code=200,
         )
     )
-    respx_mock.get("/lm/api/v1/config/all").mock(return_value=Response(status_code=200, json={}))
-    respx_mock.get("/lm/api/v1/config/?product_feature=product.feature").mock(
+    respx_mock.get("/api/v1/config/all").mock(return_value=Response(status_code=200, json={}))
+    respx_mock.get("/api/v1/config/?product_feature=product.feature").mock(
         return_value=Response(status_code=200, json={})
     )
-    respx_mock.get("/lm/api/v1/license/cluster_update").mock(
+    respx_mock.get("/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=200,
             json=[
@@ -215,7 +215,7 @@ async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock,
     """
     Check that when patch to /license/reconcile response status_code is not 200, should raise exception.
     """
-    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
+    respx_mock.patch("/api/v1/license/reconcile").mock(
         return_value=Response(
             status_code=400,
         )

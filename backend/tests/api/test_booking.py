@@ -25,7 +25,7 @@ async def test_get_bookings_job(
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
-    resp = await backend_client.get("/lm/api/v1/booking/job/coolbeans")
+    resp = await backend_client.get("/api/v1/booking/job/coolbeans")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
@@ -67,7 +67,7 @@ async def test_get_bookings_for_cluster_name(
         config_id=2,
     )
     await insert_objects([booking], table_schemas.booking_table)
-    resp = await backend_client.get("/lm/api/v1/booking/all?cluster_name=cluster2")
+    resp = await backend_client.get("/api/v1/booking/all?cluster_name=cluster2")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
@@ -110,7 +110,7 @@ async def test_bookings_all(
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
-    resp = await backend_client.get("/lm/api/v1/booking/all")
+    resp = await backend_client.get("/api/v1/booking/all")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
@@ -156,7 +156,7 @@ async def test_booking_create(backend_client, some_config_rows, some_licenses, i
     booking = Booking(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
-    resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_200_OK
 
@@ -175,7 +175,7 @@ async def test_booking_create_negative_booked_error(
     booking = Booking(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
-    resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -198,7 +198,7 @@ async def test_booking_create_booked_greater_than_total(
     booking = Booking(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
-    resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
+    resp = await backend_client.put("/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
     assert "not enough" in resp.json()["detail"]
@@ -220,7 +220,7 @@ async def test_booking_delete(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
 
-    resp = await backend_client.delete("/lm/api/v1/booking/book/helloworld")
+    resp = await backend_client.delete("/api/v1/booking/book/helloworld")
     assert resp.status_code == status.HTTP_200_OK
 
 

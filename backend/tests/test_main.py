@@ -14,7 +14,7 @@ async def test_version(backend_client):
     """
     Does a version endpoint exist?
     """
-    resp = await backend_client.get("/lm/version")
+    resp = await backend_client.get("/version")
     assert resp.status_code == 200
     assert resp.json()["version"] != None
 
@@ -28,7 +28,7 @@ async def test_health_check(backend_client: AsyncClient):
     the production and staging environments can configure the load balancing
     """
 
-    response = await backend_client.get("/lm/health")
+    response = await backend_client.get("/health")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

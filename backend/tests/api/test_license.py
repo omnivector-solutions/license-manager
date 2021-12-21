@@ -73,7 +73,7 @@ async def test_licenses_product(backend_client: AsyncClient, some_licenses, inse
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
-    resp = await backend_client.get("/lm/api/v1/license/use/hello")
+    resp = await backend_client.get("/api/v1/license/use/hello")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
@@ -93,7 +93,7 @@ async def test_licenses_product_feature(backend_client: AsyncClient, some_licens
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
-    resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
+    resp = await backend_client.get("/api/v1/license/use/cool/beans")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
         dict(
@@ -112,7 +112,7 @@ async def test_licenses_all(backend_client: AsyncClient, some_licenses, insert_o
     Do I fetch and order the licenses in the db?
     """
     await insert_objects(some_licenses, license_table)
-    resp = await backend_client.get("/lm/api/v1/license/all")
+    resp = await backend_client.get("/api/v1/license/all")
     assert resp.status_code == 200
     assert resp.json() == [
         dict(product_feature="cool.beans", total=11, used=11, available=0),
@@ -229,7 +229,7 @@ async def test_reconcile_changes_clean_up_in_use_bookings(
     )
 
     response = await backend_client.patch(
-        "/lm/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
+        "/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
     )
     assert response.status_code == status.HTTP_200_OK
 
