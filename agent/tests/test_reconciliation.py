@@ -171,7 +171,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
     Check the correct behavior when the report is empty in reconcile.
     """
     report_mock.return_value = []
-    with pytest.raises(LicenseManagerBackendConnectionError):
+    with pytest.raises(LicenseManagerEmptyReportError):
         await update_report()
 
 

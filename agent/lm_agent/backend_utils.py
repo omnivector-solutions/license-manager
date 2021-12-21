@@ -136,6 +136,10 @@ class SyncBackendClient(httpx.Client):
         return request
 
 
+class LicenseManagerEmptyReportError(Exception):
+    """Exception for empty report when no licenses added in backend"""
+
+
 async def get_license_manager_backend_version() -> str:
     """Return the license-manager-backend version."""
     resp = await backend_client.get("/lm/version")
