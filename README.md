@@ -45,9 +45,12 @@
   - [NOTE: Destroying secrets with terraform](#note-destroying-secrets-with-terraform)
 - [Deploy (agent)](#deploy-agent)
 - [Run locally](#run-locally)
+- [Release (agent)](#release-agent)
+- [License server utility binaries (agent)](#license-server-utility-binaries-agent)
 - [Database Migrations](#database-migrations)
     - [Create Migrations](#create-migrations)
     - [Apply Migrations](#apply-migrations)
+- [Get enviroment variables and configurations from AWS Lambda](#get-environment-variables-and-configurations-from-aws-lambda)
 - [Test with lm-configure](#test-with-lm-configure)
 - [License](#license)
 - [Contact](#contact)
@@ -233,6 +236,19 @@ alembic upgrade <revision> (or "head" for latest)
 Using the example above, upgrade command looks like this:
 ```bash
 alembic upgrade b692dfd0b017
+```
+
+## Get environment variables and configurations from AWS Lambda
+To get the enviroment variables and configurations from the backend deployed on AWS Lambda, make sure you have `aws-cli` installed in your machine with valid credentials.
+
+The functions are deployed in region `eu-north-1`, so you'll need to set the correct region in your `aws-cli` configuration file.
+
+Retrive the configurations:
+```bash
+# staging environment
+aws lambda get-function-configuration --function-name license-manager-staging-eu-north-1
+# production environment
+aws lambda get-function-configuration --function-name license-manager-prod-eu-north-1
 ```
 
 ## Test with lm-configure
