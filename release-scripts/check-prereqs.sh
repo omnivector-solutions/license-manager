@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-#BASE_BRANCH="armada-mvp"
-BASE_BRANCH="tucker/LM-164--update-release-process"
+BASE_BRANCH="armada-mvp"
 SUBPROJECT=${PWD##*/}
 ALL_SUBPROJECTS="agent backend cli"
 
