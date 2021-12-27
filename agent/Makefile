@@ -1,39 +1,59 @@
+# SETTINGS
+# Use one shell for all commands in a target recipe
+.ONESHELL:
+.DEFAULT_GOAL:=help
+SHELL:=/bin/bash
+PACKAGE_NAME:=lm_agent
+
+.PHONY: install
 install:
 	poetry install
 
+.PHONY: test
 test: install
 	poetry run pytest
 
+.PHONY: mypy
 mypy: install
-	poetry run mypy lm_agent --pretty
+	poetry run mypy ${PACKAGE_NAME} --pretty
 
+.PHONY: lint
 lint: install
-	poetry run flake8 lm_agent --max-line-length=110
-	poetry run black --check lm_agent tests
-	poetry run isort --check lm_agent tests
+	poetry run flake8 ${PACKAGE_NAME} --max-line-length=110
+	poetry run black --check ${PACKAGE_NAME} tests
+	poetry run isort --check ${PACKAGE_NAME} tests
 
+.PHONY: qa
 qa: test mypy lint
-	echo "All tests pass! Ready for deployment"
+	echo "All quality checks pass!"
 
+.PHONY: format
 format: install
-	poetry run black lm_agent tests
-	poetry run isort lm_agent tests
+	poetry run black ${PACKAGE_NAME} tests
+	poetry run isort ${PACKAGE_NAME} tests
 
-clean: clean-eggs clean-build
+.PHONY: release-%
+release-%:
+	../release-scripts/prepare-release.sh $(subst release-,,$@)
+
+.PHONY: publish
+publish:
+	../release-scripts/publish-release.sh
+
+.PHONY: clean
+clean:
 	@find . -iname '*.pyc' -delete
 	@find . -iname '*.pyo' -delete
 	@find . -iname '*~' -delete
 	@find . -iname '*.swp' -delete
 	@find . -iname '__pycache__' -delete
 	@rm -rf .tox
-
-clean-eggs:
 	@find . -name '*.egg' -print0|xargs -0 rm -rf --
 	@rm -rf .eggs/
-
-clean-build:
 	@rm -fr build/
 	@rm -fr dist/
 	@rm -fr *.egg-info
 
-SHELL := /bin/bash
+.PHONY: help
+help: # Display target comments in 'make help'
+	grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

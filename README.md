@@ -173,6 +173,57 @@ poetry run lm-configure delete ID
 ```
 
 
+## Making releases for the sub-projects
+
+The sub-projects of the license-manager are released independently of each other.  When
+releasing the sub-project, a tag for the release will be created that includes the name
+of the sub-project.
+
+
+### Release Process Overview
+
+There are scripts to aid in the release process. However, knowing the process is useful.
+Here is an overview assuming that the new release version should be "X.Y.Z":
+
+* Pre-release
+  * Make sure all changes for a release must have been merged into the main branch
+  * Make sure the CHANGELOG includes each significant change in the `Unreleased` section
+  * Identify whether the new version should be a Major, Minor, or Patch release
+  * Increment the current version number accordingly
+  * This is your target release `X.Y.Z`
+* Prepare
+  * From the main branch, check out a new branch titled `release/X.Y.Z`
+  * Change the package version in the sub-project's `pyproject.toml`
+  * Move the `Unreleased` items in the project's `CHANGELOG.rst` to a new release section
+  * Commit the changes to `pyproject.toml` and `CHANGELOG.rst`, and push to origin
+  * Create a pull-request for merging the changes into main
+* Review
+  * Get approval for the pull-request and merge
+* Publish
+  * Create a tag titled `X.Y.Z` and push it to origin
+  * Publish the new version with poetry to pypicloud
+
+
+### Using the scripts
+There are two scripts and associated Make targets for the prepare and publish steps.
+
+First, invoke the `prepare` script like so:
+
+```bash
+make prepare-<scope>  # where scope is one of 'major', 'minor', or 'patch'
+```
+
+If one of the pre-conditions described in the "pre-release" process is not fulfilled,
+the script will fail and tell you why.
+
+Once you have secured approval for the release and merged the changes to main, invoke
+the `publish` script like so:
+
+```bash
+make publish
+```
+
+
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
 
