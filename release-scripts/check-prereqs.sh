@@ -29,7 +29,7 @@ fi
 
 echo "Checking for $BASE_BRANCH branch"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
-if [[ $current_branch -ne "$BASE_BRANCH" ]]
+if [[ "$current_branch" != "$BASE_BRANCH" ]]
 then
     bail "Must be on $BASE_BRANCH branch. Current branch is $current_branch"
 fi
