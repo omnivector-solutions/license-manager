@@ -288,10 +288,10 @@ Copy the modified files and the templates to the cluster machine where the licen
 
 .. code-block:: bash
 
-    juju scp flexlm.out.tmpl license-manager-agent/0:/tmp
-    juju scp rlm.out.tmpl license-manager-agent/0:/tmp
-    juju scp lms-util.py license-manager-agent/0:/tmp
-    juju scp rlm-util.py license-manager-agent/0:/tmp
+    juju scp bin/flexlm.out.tmpl license-manager-agent/0:/tmp
+    juju scp bin/rlm.out.tmpl license-manager-agent/0:/tmp
+    juju scp bin/lms-util.py license-manager-agent/0:/tmp
+    juju scp bin/rlm-util.py license-manager-agent/0:/tmp
 
 With the files in the /tmp folder, ssh into the machine to rename, set the permission and move them to the correct location.
 
