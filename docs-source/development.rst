@@ -251,6 +251,13 @@ deploy command.
    juju deploy ./license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm \
        --config ./license-manager-agent.yaml --series focal
 
+After the deploy, make sure to relate the charm to the juju-info and prolog-epilog interface.
+
+.. code-block:: bash
+
+   juju relate license-manager-agent:juju-info slurmctld
+   juju relate license-manager-agent:prolog-epilog slurmctld
+
 ---------------------------
 5) Additional Modifications
 ---------------------------
