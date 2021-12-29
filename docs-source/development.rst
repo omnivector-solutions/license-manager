@@ -261,6 +261,20 @@ Once the systems have been successfully deployed you will need to apply the post
 These configurations include seeding the slurm batch script and fake application, and the fake license server client onto
 the nodes of the cluster as a final step in configuring the system.
 
+Configuring the slurm cluster in LXD
+************************************
+Before being able to run jobs, the slurm cluster must have a partition and licenses added to it.
+Use the ``juju config`` command to create a partition.
+
+.. code-block:: bash
+    juju config slurmd partition-name=mypartition
+
+Add the license to the cluster using the ``sacctmgr`` command.
+
+.. code-block:: bash
+    juju ssh slurmctld/0 sudo sacctmgr add resource Type=license Clusters=osd-cluster \
+        Server=flexlm Names=product.feature Count=50 ServerType=flexlm  PercentAllowed=100 -i
+
 Configuring the fake license server client
 ******************************************
 Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
