@@ -1,12 +1,12 @@
 Development
 ===========
-Development of the ``license-manager`` involves running a mix of different services in docker and LXD containers.
+The ``license-manager`` application incorporates a mix of different services in docker and LXD containers.
 This text will attempt to define the procedure for initializing and running the different components.
 
 ----------------
 Pre-Installation
 ----------------
-Before you get started, enusure you have the following pre-requisites installed on your machine.
+Before you get started, enusure you have the following pre-requisites installed on your machine:
 
 - snapd
 - charmcraft
@@ -16,7 +16,7 @@ Before you get started, enusure you have the following pre-requisites installed 
 - docker-compose
 - docker
 
-Additionally, assign the host machine's primary ip address to a variable ``MY_IP``. We will use this value throughout the
+Additionally, assign the host machine's primary IP address to a variable ``MY_IP``. We will use this value throughout the
 development environment setup process.
 
 .. code-block:: bash
@@ -142,7 +142,7 @@ To get started, clone the license-manager repository from github and run ``docke
 
 We should now see two running docker containers; ``backend_license-manager_1`` and ``backend_postgres-back_1``. 
 
-``docker ps`` shows
+``docker ps`` shows:
 
 .. code-block:: bash
 
@@ -152,7 +152,7 @@ We should now see two running docker containers; ``backend_license-manager_1`` a
     3d5abbc7ffff   postgres                  "docker-entrypoint.s…"   2 days ago       Up 13 minutes (healthy)   5432/tcp                                backend_postgres-back_1
 
 From the output above, we see that port ``7000`` on our local machine is forwarded to the listening port of the license-manager
-backend container (port ``80``). This means we will make requests to our local host ip address at port ``7000`` in order to access the
+backend container (port ``80``). This means we will make requests to our local host IP address at port ``7000`` in order to access the
 license-manager backend http endpoints.
 
 Now initialize the backend with an example configuration that we can use for testing.
@@ -181,7 +181,7 @@ list should contain the configuration you previously added.)
 
     curl -X 'GET' \
       'http://$MY_IP:7000/lm/api/v1/config/all' \
-      -H 'accept: application/json' | jq
+      -H 'accept: application/json'
 
 The 201 HTTP response should contain the configuration item you created.
 
@@ -217,14 +217,14 @@ same model as the slurm charms, and related to ``slurmctld``.
 
    make charm
 
-Following the ``make charm`` command you should be left with a resultant charm artifact named
+The ``make charm`` command will produce a resultant charm artifact named
 ``license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm``. This is the charm that we will deploy.
 
-We need to define a configuration file to be used with the license-manager-agent charm.
+Before deploying the charm, create a ``yaml`` configuration file that contains the needed settings for the
+license-manager-agent charm. The config should look something like this:
 
-.. code-block:: bash
+.. code-block:: yaml
 
-   cat <<EOF > license-manager-agent.yaml
    license-manager-agent:
      log-level: DEBUG
      stat-interval: 30
@@ -233,14 +233,13 @@ We need to define a configuration file to be used with the license-manager-agent
      pypi-username: "<pypi-username>"
      pypi-password: "<pypi-password>"
      license-manager-backend-base-url: "http://$MY_IP:7000"
-     lmstat-path: "/usr/local/bin/lmstat"
-     rlmstat-path: "/usr/local/bin/rlmutil"
-   EOF
+     lmstat-path: "/usr/local/bin"
+     rlmstat-path: "/usr/local/bin"
 
-Running the above command will produce a file named ``license-manager-agent.yaml`` with the ip address of your host machine
-templated in to the file.
+Make sure to substitute the correct values into the new ``license-manager-agent.yaml`` configuration file
+(especially the IP address of your host machine)
 
-Now that we have the charm artifact (``license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm``) and have generated
+Now that we have the charm artifact (``license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm``) and
 the config file for the charm (``license-manager-agent.yaml``), we are ready to deploy.
 
 Using ``juju``, deploy the ``license-manager-agent`` charm to the model, specifying the config file as an argument to the
@@ -261,8 +260,11 @@ After the deploy, make sure to relate the charm to the juju-info and prolog-epil
 ---------------------------
 5) Additional Modifications
 ---------------------------
-At this point you should have 3 systems running; 1) slurm cluster in LXD, 2) license-manager-simulator,
-3) license-manager backend.
+At this point you should have 3 systems running:
+
+1. slurm cluster in LXD
+2. license-manager-simulator
+3. license-manager backend
 
 Once the systems have been successfully deployed you will need to apply the post deployment configurations.
 These configurations include seeding the slurm batch script and fake application, and the fake license server client onto
@@ -289,7 +291,7 @@ The modifications that must be made in both ``lms-util.py`` and ``rlm-util.py`` 
 
 1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8";
 2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin";
-3. change the URL to the ip address of where the ``license-manager-simulator`` is running;
+3. change the URL to the IP address of where the ``license-manager-simulator`` is running;
 
 Copy the modified files and the templates to the cluster machine where the license manager agent is running.
 
@@ -300,7 +302,7 @@ Copy the modified files and the templates to the cluster machine where the licen
     juju scp bin/lms-util.py license-manager-agent/0:/tmp
     juju scp bin/rlm-util.py license-manager-agent/0:/tmp
 
-With the files in the /tmp folder, ssh into the machine to rename, set the permission and move them to the correct location.
+With the files in the ``/tmp`` folder, ssh into the machine to rename, set the permission and move them to the correct location.
 
 .. code-block:: bash
 
@@ -364,7 +366,7 @@ There's a juju action to specify which version of the package you want.
 .. code-block:: bash
     juju run-action license-manager-agent/0 upgrade-to-latest version=2.1.0 --wait
 
-Also make sure you have the correct configurations for the agent. Some of them were already specified in the ``license-manager-agent.yaml``
+You should also make sure you have used the correct configurations for the agent. Some of them were already specified in the ``license-manager-agent.yaml``
 file. In case you need to update them, use the ``juju config`` command.
 
 .. code-block:: bash
@@ -383,10 +385,10 @@ Lasty, restart the license manager agent service and timer.
 Seeding the batch script and fake application
 *********************************************
 To test the license manager, there's a fake application and a batch script to run it inside the license-manager-simulator ``job`` folder.
-The fake application makes a request to the license-manager-simulator API to book 42 licenses, sleeps for a few seconds, and delete the booking after.
+The fake application makes a request to the license-manager-simulator API to book 42 licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.
 
-Copy the files to the slurmd machine /tmp folder. Also modify the URL in the ``application.sh`` to reflect the ip address of the machine where the
+Copy the files to the slurmd machine ``/tmp`` folder. Also modify the URL in the ``application.sh`` to reflect the IP address of the machine where the
 license-manager-simulator is running. The ``license_name`` field in the payload must match the license added to the simulator ("product.feature").
 
 .. code-block:: bash
@@ -424,7 +426,7 @@ You should see that the ``used`` value for the license was updated with the valu
       }
     ]
 
-You also should have a new booking created, make a request to the ``booking`` endpoint to check.
+You also should have a new booking created. To verify this, make a request to the ``booking`` endpoint.
 
 .. code-block:: bash
 
