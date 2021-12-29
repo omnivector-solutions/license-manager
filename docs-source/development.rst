@@ -280,9 +280,9 @@ Configuring the fake license server client
 Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
 The modifications that must be made in both ``lms-util.py`` and ``rlm-util.py`` files are:
 
-1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8"
-2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin"
-3. change the URL to the ip address of where the ``license-manager-simulator`` is running
+1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8";
+2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin";
+3. change the URL to the ip address of where the ``license-manager-simulator`` is running;
 
 Copy the modified files and the templates to the cluster machine where the license manager agent is running.
 
