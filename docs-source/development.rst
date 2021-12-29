@@ -98,7 +98,7 @@ backend.
 .. code-block:: bash
 
    curl -X 'POST' \
-      'http://192.168.7.10:8000/licenses/' \
+      'http://$MY_IP:8000/licenses/' \
       -H 'accept: application/json' \
       -H 'Content-Type: application/json' \
       -d '{
@@ -180,7 +180,7 @@ list should contain the configuration you previously added.)
 .. code-block:: bash
 
     curl -X 'GET' \
-      'http://$MY_IP0:7000/lm/api/v1/config/all' \
+      'http://$MY_IP:7000/lm/api/v1/config/all' \
       -H 'accept: application/json' | jq
 
 The 201 HTTP response should contain the configuration item you created.
