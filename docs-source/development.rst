@@ -401,3 +401,55 @@ To run the job, use the ``sbatch`` command.
 -------------
 5) Validation
 -------------
+After following the steps above, you should have a working development environment.
+To validate that it is indeed working, submit a job to slurm (using the batch script) and check license manager backend.
+Make a request to the ``license`` endpoint.
+
+.. code-block:: bash
+
+    curl -X 'GET' \
+      'http://$MY_IP:7000/lm/api/v1/license/all' \
+      -H 'accept: application/json'
+
+You should see that the ``used`` value for the license was updated with the value used in the job (42).
+
+.. code-block:: bash
+
+    [
+      {
+        "product_feature": "product.feature",
+        "used": 42,
+        "total": 50,
+        "available": 8
+      }
+    ]
+
+You also should have a new booking created, make a request to the ``booking`` endpoint to check.
+
+.. code-block:: bash
+
+    curl -X 'GET' \
+      'http://$MY_IP:7000/lm/api/v1/booking/all' \
+      -H 'accept: application/json'
+
+The booking should contain information about the job and the cluster, and also how many licenses were booked by the job.
+
+.. code-block:: bash
+
+    [
+      {
+        "id": 1,
+        "job_id": "1",
+        "product_feature": "product.feature",
+        "booked": 42,
+        "config_id": 1,
+        "lead_host": "juju-d9201d-2",
+        "user_name": "ubuntu",
+        "cluster_name": "osd-cluster"
+      }
+    ]
+
+
+
+Wait for a few seconds (for the reconcile to run) and check again. The booking should be deleted
+and the ``used`` value will return to its original quantity.
