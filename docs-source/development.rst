@@ -23,9 +23,9 @@ development environment setup process.
 
     MY_IP="$(ip route get 1 | awk '{print $(NF-2);exit}')"
 
--------------------------------
+--------------------------------------
 1) Deploy a local SLURM cluster on LXD
--------------------------------
+--------------------------------------
 Follow the `upstream documentation <https://omnivector-solutions.github.io/osd-documentation/master/installation.html#lxd>`_
 to deploy a local LXD slurm cluster that we can use in development.
 
@@ -77,7 +77,7 @@ Lastly, validate that the node has successfully enlisted and the cluster is oper
    $ juju ssh slurmd/0 srun -posd-slurmd hostname
    juju-b71748-2
 
-The slurm cluster is now prepared for further configuration and use in ``licnese-manager`` development.
+The slurm cluster is now prepared for further configuration and use in ``license-manager`` development.
 
 ------------------------------------
 2) Run the license-manager-simulator 
@@ -121,9 +121,9 @@ You should receive a 201 response.
 The ``license-manager-simulator`` is now configured for use with the rest of the system.
 
 
----------------------------------
+--------------------------------------
 3) Compose the license-manager backend
----------------------------------
+--------------------------------------
 Setting up the license-manager backend for development is done in three steps:
 
 1. Clone the project to your local machine
@@ -190,12 +190,12 @@ The 201 HTTP response should contain the configuration item you created.
       [
         {
           "id": 0,
-          "product": "abaqus",
+          "product": "product",
           "features": {
-            "abaqus": 50
+            "feature": 50
           },
           "license_servers": [
-            "rats"
+            "flexlm:myexampleflexlmhost.example.com:24000
           ],
           "license_server_type": "flexlm",
           "grace_time": 30
@@ -204,9 +204,9 @@ The 201 HTTP response should contain the configuration item you created.
 
 The ``license-manager`` backend is now configured and ready for use in the development environment.
 
---------------------------------------------------
+-----------------------------------------------
 4) Add the license-manager-agent to the cluster
---------------------------------------------------
+-----------------------------------------------
 The final component we need to deploy is the ``license-manager-agent``. The ``license-manager-agent`` is deployed to the
 same model as the slurm charms, and related to ``slurmctld``.
 
@@ -244,7 +244,7 @@ Now that we have the charm artifact (``license-manager-agent_ubuntu-20.04-amd64_
 the config file for the charm (``license-manager-agent.yaml``), we are ready to deploy.
 
 Using ``juju``, deploy the ``license-manager-agent`` charm to the model, specifying the config file as an argument to the
-deploy command..
+deploy command.
 
 .. code-block:: bash
 
