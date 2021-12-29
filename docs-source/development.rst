@@ -261,7 +261,79 @@ Once the systems have been successfully deployed you will need to apply the post
 These configurations include seeding the slurm batch script and fake application, and the fake license server client onto
 the nodes of the cluster as a final step in configuring the system.
 
+Configuring the fake license server client
+******************************************
+Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
+The modifications that must be made in both ``lms-util.py`` and ``rlm-util.py`` files are:
 
+1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8"
+2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin"
+3. change the URL to the ip address of where the ``license-manager-simulator`` is running
+
+Copy the modified files and the templates to the cluster machine where the license manager agent is running.
+
+.. code-block:: bash
+
+    juju scp flexlm.out.tmpl license-manager-agent/0:/tmp
+    juju scp rlm.out.tmpl license-manager-agent/0:/tmp
+    juju scp lms-util.py license-manager-agent/0:/tmp
+    juju scp rlm-util.py license-manager-agent/0:/tmp
+
+With the files in the /tmp folder, ssh into the machine to rename, set the permission and move them to the correct location.
+
+.. code-block:: bash
+
+    juju ssh license-manager-agent/0
+
+    cd /tmp
+    sudo mv lms-util.py lmstat
+    sudo mv rlm-util.py rlmutil
+    sudo chmod +x lmstat
+    sudo chmod +x rlmutil
+
+    sudo mv lmstat /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv rlmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv flexlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv rlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+
+To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install ``jinja2``.
+
+.. code-block:: bash
+
+    juju ssh license-manager-agent/0
+    source /srv/license-manager-agent-venv/bin/activate
+    pip install jinja2
+
+Now you must be able to simulate FlexLM and RLM license servers. You can check it by executing ``lmstat`` or ``rlmutil`` files.
+
+.. code-block:: bash
+    juju ssh license-manager-agent/0
+    source /srv/license-manager-agent-venv/bin/activate
+    /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmstat
+
+The output should display the "product.feature" license that was added to the license manager simulator:
+
+.. code-block:: bash
+    lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+    Flexible License Manager status on Thu 10/29/2020 17:44
+
+    License server status: server1,server2,server3
+        License file(s) on server1: f:\flexlm\AbaqusLM\License\license.dat:
+
+    server1: license server UP v11.13
+    server2: license server UP (MASTER) v11.13
+    server3: license server UP v11.13
+
+    Vendor daemon status (on server2):
+      FakeLM: UP v11.13
+
+    Feature usage info:
+
+    Users of product.feature:  (Total of 5000 licenses issued;  Total of 0 licenses in use)
+
+      "product.feature" v62.2, vendor: FakeLM
+
+      floating license
 
 -------------
 5) Validation
