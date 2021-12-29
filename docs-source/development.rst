@@ -92,6 +92,35 @@ To run the license-manager-simulator, clone the repository and run ``make local`
 
    make local
 
+At this point you will need to create the artificial license in the license-manager-simulator
+backend.
+
+.. code-block:: bash
+
+   curl -X 'POST' \
+      'http://192.168.7.10:8000/licenses/' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "name": "product.feature"
+      "total": 5000
+    }'
+
+You should receive a 201 response.
+
+.. code-block:: bash
+
+   {
+     "name": "product.feature",
+     "total": 5000,
+     "id": 2,
+     "licenses_in_use": [],
+     "in_use": 0
+   }
+
+The ``license-manager-simulator`` is now configured for use with the rest of the system.
+
+
 ---------------------------------
 3) Compose the license-manager backend
 ---------------------------------
@@ -136,8 +165,8 @@ Now initialize the backend with an example configuration that we can use for tes
       -H 'Content-Type: application/json' \
       -d '{
       "id": 0,
-      "product": "abaqus",
-      "features": "{\"abaqus\": 50}",
+      "product": "product",
+      "features": "{\"feature\": 50}",
       "license_servers": [
         "flexlm:myexampleflexlmhost.example.com:24000"
       ],
@@ -154,7 +183,7 @@ list should contain the configuration you previously added.)
       'http://$MY_IP0:7000/lm/api/v1/config/all' \
       -H 'accept: application/json' | jq
 
-The response should contain the configuration item you created.
+The 201 HTTP response should contain the configuration item you created.
 
 .. code-block:: bash
 
@@ -205,7 +234,7 @@ We need to define a configuration file to be used with the license-manager-agent
      pypi-password: "<pypi-password>"
      license-manager-backend-base-url: "http://$MY_IP:7000"
      lmstat-path: "/usr/local/bin/lmstat"
-     rlmstat-path: "/usr/local/bin/rlmstat"
+     rlmstat-path: "/usr/local/bin/rlmutil"
    EOF
 
 Running the above command will produce a file named ``license-manager-agent.yaml`` with the ip address of your host machine
@@ -229,8 +258,9 @@ At this point you should have 3 systems running; 1) slurm cluster in LXD, 2) lic
 3) license-manager backend.
 
 Once the systems have been successfully deployed you will need to apply the post deployment configurations.
+These configurations include seeding the slurm batch script and fake application, and the fake license server client onto
+the nodes of the cluster as a final step in configuring the system.
 
-To configure the license-manager-simulator we need to add license configurations via the HTTP
 
 
 -------------
