@@ -373,6 +373,24 @@ Lasty, restart the license manager agent service and timer.
     juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.service
 
 
+Seeding the batch script and fake application
+*********************************************
+To test the license manager, there's a fake application and a batch script to run it inside the license-manager-simulator ``job`` folder.
+The fake application makes a request to the license-manager-simulator API to book 42 licenses, sleeps for a few seconds, and delete the booking after.
+The batch script will be responsible for scheduling the fake application job in the slurm cluster.
+
+Copy the files to the slurmd machine /tmp folder. Also modify the URL in the ``application.sh`` to reflect the ip address of the machine where the
+license-manager-simulator is running. The ``license_name`` field in the payload must match the license added to the simulator ("product.feature").
+
+.. code-block:: bash
+    juju scp /job/application.sh slurmd/0:/tmp
+    juju scp /job/batch.sh slurmd/0:/tmp
+
+To run the job, use the ``sbatch`` command.
+    
+.. code-block::  bash
+    juju ssh slurmd/0 sbatch /tmp/batch.sh
+
 -------------
 5) Validation
 -------------
