@@ -349,6 +349,30 @@ The output should display the "product.feature" license that was added to the li
 
       floating license
 
+Configuring the license manager agent charm
+*******************************************
+The license manager agent charm is responsible for downloading the correct agent package from ``pypi``.
+There's a juju action to specify which version of the package you want.
+
+.. code-block:: bash
+    juju run-action license-manager-agent/0 upgrade-to-latest version=2.1.0 --wait
+
+Also make sure you have the correct configurations for the agent. Some of them were already specified in the ``license-manager-agent.yaml``
+file. In case you need to update them, use the ``juju config`` command.
+
+.. code-block:: bash
+    juju config license-manager-agent sentry-dns=""
+    juju config license-manager-agent lmstat-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    juju config license-manager-agent rlmstat-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+
+Lasty, restart the license manager agent service and timer.
+
+.. code-block:: bash
+    juju ssh license-manager-agent/0 sudo systemctl daemon-reload
+    juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.timer
+    juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.service
+
+
 -------------
 5) Validation
 -------------
