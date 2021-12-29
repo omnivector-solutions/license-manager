@@ -195,7 +195,7 @@ The 201 HTTP response should contain the configuration item you created.
             "feature": 50
           },
           "license_servers": [
-            "flexlm:myexampleflexlmhost.example.com:24000
+            "flexlm:myexampleflexlmhost.example.com:24000"
           ],
           "license_server_type": "flexlm",
           "grace_time": 30
