@@ -267,8 +267,8 @@ At this point you should have 3 systems running:
 3. license-manager backend
 
 Once the systems have been successfully deployed you will need to apply the post deployment configurations.
-These configurations include seeding the slurm batch script and fake application, and the fake license server client onto
-the nodes of the cluster as a final step in configuring the system.
+These configurations will ensure that your slurm cluster has a fake license server client and available licenses
+to be used by the fake application (which will be run as a batch script).
 
 Configuring the slurm cluster in LXD
 ************************************
