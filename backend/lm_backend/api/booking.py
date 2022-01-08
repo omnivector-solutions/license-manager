@@ -4,14 +4,14 @@ Booking objects and routes
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.sql import delete
+from sqlalchemy.sql import delete, join, select
 
 from lm_backend.api.config import get_config_id_for_product_features
-from lm_backend.api_schemas import Booking, BookingRow, LicenseUse, LicenseUseBooking
+from lm_backend.api_schemas import Booking, BookingRow, BookingRowDetail, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
 from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table, license_table
+from lm_backend.table_schemas import booking_table, config_table, license_table
 
 router = APIRouter()
 
@@ -30,6 +30,33 @@ async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
         query = query.where(booking_table.c.cluster_name == cluster_name)
     fetched = await database.fetch_all(query)
     return [BookingRow.parse_obj(x) for x in fetched]
+
+
+@router.get(
+    "/{booking_id}",
+    response_model=BookingRowDetail,
+    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+)
+async def get_booking(booking_id: int):
+    """
+    Get details of a single booking by its id.
+
+    Includes the config_name in the returned object.
+    """
+    query = (
+        select([config_table.c.name.label("config_name"), *booking_table.c])
+        .select_from(
+            join(
+                config_table,
+                booking_table,
+                booking_table.c.config_id == config_table.c.id,
+            )
+        )
+        .where(booking_table.c.id == booking_id)
+        .order_by(booking_table.c.product_feature)
+    )
+    fetched = await database.fetch_one(query)
+    return BookingRowDetail.parse_obj(fetched)
 
 
 @router.get(

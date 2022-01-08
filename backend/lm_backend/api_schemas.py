@@ -1,6 +1,7 @@
 """
 API request and response schemas
 """
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
@@ -83,6 +84,18 @@ class BookingRow(BaseModel):
     lead_host: str
     user_name: str
     cluster_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class BookingRowDetail(BookingRow):
+    """
+    A booking row with more detail
+    """
+
+    created_at: Optional[datetime]
+    config_name: Optional[str]
 
     class Config:
         orm_mode = True

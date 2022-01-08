@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import mock
 
 from fastapi import status
@@ -8,6 +9,47 @@ from lm_backend import table_schemas
 from lm_backend.api import booking
 from lm_backend.api_schemas import Booking, BookingFeature, BookingRow
 from lm_backend.storage import database
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_bookings__by_id(
+    backend_client: AsyncClient,
+    some_licenses,
+    some_booking_rows,
+    some_config_rows,
+    insert_objects,
+    inject_security_header,
+    time_frame,
+):
+    """
+    Do I fetch a booking?
+    """
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    with time_frame() as window:
+        await insert_objects(some_booking_rows, table_schemas.booking_table)
+
+    inject_security_header("owner1", "license-manager:booking:read")
+    resp = await backend_client.get(f"/lm/api/v1/booking/{1}")
+
+    assert resp.status_code == 200
+    resp_data = resp.json()
+
+    created_at = datetime.strptime(resp_data.pop("created_at"), "%Y-%m-%dT%H:%M:%S")
+    assert created_at in window
+
+    assert resp_data == dict(
+        id=1,
+        job_id="helloworld",
+        product_feature="hello.world",
+        booked=19,
+        config_id=1,
+        lead_host="host1",
+        user_name="user1",
+        cluster_name="cluster1",
+        config_name="HelloDolly",
+    )
 
 
 @mark.asyncio

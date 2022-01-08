@@ -1,10 +1,8 @@
 """
 Table schema for tables in the license-manager backend
 """
-import datetime
-
 import sqlalchemy
-from sqlalchemy import Column, Integer, String, Table
+from sqlalchemy import Column, Integer, String, Table, func
 from sqlalchemy.sql.schema import CheckConstraint, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy_utils import ScalarListType  # type: ignore
@@ -33,7 +31,7 @@ booking_table = Table(
     Column("lead_host", String),
     Column("user_name", String),
     Column("cluster_name", String),
-    Column("created_at", DateTime, default=datetime.datetime.utcnow),
+    Column("created_at", DateTime, default=func.now()),
     Column("config_id", Integer, ForeignKey("config.id"), nullable=False),
 )
 
