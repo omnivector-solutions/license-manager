@@ -11,6 +11,7 @@ def some_config_rows():
     return [
         ConfigurationRow(
             id=1,
+            name="HelloDolly",
             product="hello",
             features='{"world": 10, "dolly": 10}',
             license_servers=["bla"],
@@ -19,6 +20,7 @@ def some_config_rows():
         ),
         ConfigurationRow(
             id=2,
+            name="CoolBeans",
             product="cool",
             features='{"beans": 10}',
             license_servers=["bla"],

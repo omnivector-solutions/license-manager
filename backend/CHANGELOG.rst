@@ -6,6 +6,8 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added a detail endpoint for bookings by ID
+* Upgraded databases and sqlalchemy versions
 
 2.1.3 - 2021-12-15
 ------------------

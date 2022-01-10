@@ -1,6 +1,9 @@
+import contextlib
+import dataclasses
+import datetime
 import os
 import re
-from typing import List
+import typing
 
 import sqlalchemy
 from asgi_lifespan import LifespanManager
@@ -42,9 +45,12 @@ def insert_objects():
     objects passed as the argument, into the specified table
     """
 
-    async def _helper(objects: List[BaseModel], table: sqlalchemy.Table):
+    async def _helper(objects: typing.List[BaseModel], table: sqlalchemy.Table):
         ModelType = type(objects[0])
-        await database.execute_many(query=table.insert(), values=[obj.dict() for obj in objects])
+        await database.execute_many(
+            query=table.insert(),
+            values=[obj.dict(exclude_unset=True) for obj in objects],
+        )
         fetched = await database.fetch_all(table.select())
         return [ModelType.parse_obj(o) for o in fetched]
 
@@ -74,7 +80,7 @@ async def inject_security_header(backend_client, build_rs256_token):
     the `build_rs256_token()` fixture from the armasec package.
     """
 
-    def _helper(owner_id: str, *permissions: List[str]):
+    def _helper(owner_id: str, *permissions: typing.List[str]):
         token = build_rs256_token(claim_overrides=dict(sub=owner_id, permissions=permissions))
         backend_client.headers.update({"Authorization": f"Bearer {token}"})
 
@@ -117,3 +123,39 @@ def some_licenses():
         ),
     ]
     return inserts
+
+
+@fixture
+def time_frame():
+    """
+    Provides a fixture to use as a context manager where an event can be checked to have happened during the
+    time-frame of the context manager.
+    """
+
+    @dataclasses.dataclass
+    class TimeFrame:
+        """
+        Class for storing the beginning and end of a time frame."
+        """
+
+        now: datetime.datetime
+        later: typing.Optional[datetime.datetime]
+
+        def __contains__(self, moment: datetime.datetime):
+            """
+            Checks if a given moment falls within a time-frame.
+            """
+            if self.later is None:
+                return False
+            return moment >= self.now and moment <= self.later
+
+    @contextlib.contextmanager
+    def _helper():
+        """
+        Context manager for defining the time-frame for the time_frame fixture.
+        """
+        window = TimeFrame(now=datetime.datetime.utcnow().replace(microsecond=0), later=None)
+        yield window
+        window.later = datetime.datetime.utcnow() + datetime.timedelta(seconds=1)
+
+    return _helper
