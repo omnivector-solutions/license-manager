@@ -152,8 +152,8 @@ class ToolOptionsCollection:
     tools: typing.Dict[str, ToolOptions] = {
         "flexlm": ToolOptions(
             name="flexlm",
-            path=Path(f"{settings.LMSTAT_BIN_PATH}/lmstat"),
-            args="{exe} -c {port}@{host} -f",
+            path=Path(f"{settings.LMSTAT_BIN_PATH}/lmutil"),
+            args="{exe} lmstat -c {port}@{host} -f",
             parse_fn=flexlm.parse,
         ),
         "rlm": ToolOptions(
