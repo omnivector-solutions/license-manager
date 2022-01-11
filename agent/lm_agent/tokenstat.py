@@ -40,10 +40,43 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
+class FlexLMLicenseServer(LicenseServerInterface):
+    """Extract license information from FlexLM license server"""
 
-    name: str
-    hostports: typing.List[typing.Tuple[str, int]]
+    def __init__(self, license_servers: typing.List[str]):
+        self.license_servers = license_servers
 
+    async def get_output_from_server(self):
+        """Override abstract method to get output from FlexLM license server"""
+
+        # generate a list of commands with the available license server hosts
+        host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
+        commands_to_run = []
+        for host, port in host_ports:
+            command_line = f"{settings.LMUTIL_PATH} lmstat -c {port}@{host} -f"
+            # command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p" --> for RLM
+            commands_to_run.append(command_line)
+
+        # run each command in the list, one at a time, until one succeds
+        for cmd in commands_to_run:
+            # cmd = cmd + f" {feature}" ------> how to run lmstat without passing the feature?
+            proc = await asyncio.create_subprocess_shell(
+                cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+            )
+
+            # block until a check at this host:port succeeds or fails
+            stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
+            output = str(stdout, encoding=ENCODING)
+
+            if proc.returncode != 0:
+                logger.error(f"Error: {output} | Return Code: {proc.returncode}")
+                raise RuntimeError(f"None of the checks for FlexLM succeeded")
+
+            return output
+
+    def get_report_item(self, features_to_check: typing.List[str]):
+        """Override abstract method to parse FlexLM license server output into"""
+        pass
 
 class LicenseReportItem(BaseModel):
     """
