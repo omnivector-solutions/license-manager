@@ -4,10 +4,7 @@ Invoke license stat tools to build a view of license token counts
 import abc
 import asyncio
 import re
-import traceback
 import typing
-from pathlib import Path
-from shlex import quote
 
 from pydantic import BaseModel, Field
 
@@ -166,101 +163,6 @@ class RLMReportItem(BaseModel):
             total=current_feature_item["total"],
             used_licenses=used_licenses,
         )
-
-
-class ToolOptions(BaseModel):
-    """
-    Specifications for running one of the tools that accesses license servers
-    """
-
-    name: str
-    path: Path
-    args: str
-    # This runs into https://github.com/python/mypy/issues/708 if we try to specify the argument
-    # types. this is because parse_fn *looks like* a method when it's an attribute of this class;
-    # but in fact it is (usually) a simple function. As a workaround, the argument types are
-    # unspecified, but it should be `[str]`
-    parse_fn: typing.Callable[..., typing.List[dict]]
-
-    def cmd_list(self, license_servers: typing.List[str]) -> typing.List[str]:
-        """
-        A list of the command lines to run this tool, 1 per service host:port combination
-        """
-
-        host_ports = [(server.split(":")[1], server.split(":")[2]) for server in license_servers]
-        ret = []
-        for host, port in host_ports:
-            cl = self.args.format(exe=quote(str(self.path)), host=quote(host), port=port)
-            ret.append(cl)
-        return ret
-
-
-class ToolOptionsCollection:
-    """
-    Specifications for running tools to access the license servers
-    """
-
-    tools: typing.Dict[str, ToolOptions] = {
-        "flexlm": ToolOptions(
-            name="flexlm",
-            path=Path(f"{settings.LMSTAT_BIN_PATH}/lmstat"),
-            args="{exe} -c {port}@{host} -f",
-            parse_fn=flexlm.parse,
-        ),
-        "rlm": ToolOptions(
-            name="rlm",
-            path=Path(f"{settings.RLMSTAT_BIN_PATH}/rlmutil"),
-            args="{exe} rlmstat -c {port}@{host} -a -p",
-            parse_fn=rlm.parse,
-        ),
-        # "other_tool": ToolOptions(...)
-    }
-
-
-async def attempt_tool_checks(
-    tool_options: ToolOptions, product: str, feature: str, license_servers: typing.List[str]
-):
-    """
-    Run one checker tool, attempting each host:port combination in turn, 1 at
-    a time, until one succeeds.
-    """
-    # NOTE: Only pass the feature into this function as a temporary workaround
-    # until we fix the ToolOptions to somehow support setting the feature.
-
-    commands = tool_options.cmd_list(license_servers)
-    for cmd in commands:
-        # NOTE: find a better way to get the feature into the command.
-        cmd = cmd + f" {feature}"
-        logger.info(f"{tool_options.name}: {cmd}")
-        proc = await asyncio.create_subprocess_shell(
-            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
-        )
-
-        # block until a check at this host:port succeeds or fails
-        stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
-        output = str(stdout, encoding=ENCODING)
-
-        if proc.returncode != 0:
-            logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-            raise RuntimeError(f"None of the checks for {tool_options.name} succeeded")
-
-        if tool_options.name == "flexlm":
-            lri = LicenseReportItem.from_stdout(
-                parse_fn=tool_options.parse_fn,
-                tool_name=tool_options.name,
-                product=product,
-                stdout=output,
-            )
-        elif tool_options.name == "rlm":
-            lri = RLMReportItem.from_stdout(
-                parse_fn=tool_options.parse_fn,
-                tool_name=tool_options.name,
-                product=f"{product}_{feature}",
-                stdout=output,
-            )
-
-        return lri
-
 
 def get_all_product_features_from_cluster(show_lic_output: str) -> typing.List[str]:
     """
