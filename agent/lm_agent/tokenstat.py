@@ -1,6 +1,7 @@
 """
 Invoke license stat tools to build a view of license token counts
 """
+import abc
 import asyncio
 import re
 import traceback
@@ -17,11 +18,28 @@ from lm_agent.parsing import flexlm, rlm
 from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
 
-class LicenseService(BaseModel):
-    """
-    A license service such as "flexlm", with a set of host-port tuples
-    representing the network location where the service is listening.
-    """
+class LicenseServerInterface(metaclass=abc.ABCMeta):
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        return (
+            hasattr(subclass, 'get_output_from_server') and
+            callable(subclass.get_output_from_server) and
+            hasattr(subclass, 'get_report_item') and
+            callable(subclass.get_report_item) or
+            NotImplemented
+        )
+
+    @abc.abstractclassmethod
+    def get_output_from_server(self):
+        """Return output from license server for the indicated features"""
+        raise NotImplementedError
+
+    @abc.abstractclassmethod
+    def get_report_item(self, features_to_check: typing.List[str]):
+        """Parse license server output into a report item"""
+        raise NotImplementedError
+
+
 
     name: str
     hostports: typing.List[typing.Tuple[str, int]]
