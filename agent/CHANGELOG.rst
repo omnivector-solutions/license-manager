@@ -11,6 +11,11 @@ Unreleased
 * Fix rlmutil command path
 * Added auth via Auth0 and removed static token logic
 
+2.1.1 - 2022-01-10
+------------------
+* Remove lmstat binary
+* Raise exception for empty reports on reconciliation
+
 2.1.0 - 2021-12-09
 ------------------
 * Added RLM parser
