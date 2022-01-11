@@ -310,32 +310,21 @@ async def report() -> typing.List[dict]:
     view of what features are available with what actually exists in the
     license server database.
     """
-    tool_awaitables = []
     reconciliation = []
-    tools = ToolOptionsCollection.tools
 
-    # Iterate over the license servers and features appending to list
-    # of tools/cmds to be ran.
     license_configurations = await get_config_from_backend()
     local_licenses = get_all_product_features_from_cluster(await scontrol_show_lic())
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
 
     for entry in filtered_entries:
-        for license_server_type in tools:
-            if entry.license_server_type == license_server_type:
-                options = tools[license_server_type]
-                for feature in entry.features.keys():
-                    tool_awaitables.append(
-                        attempt_tool_checks(options, entry.product, feature, entry.license_servers)
-                    )
-    # run all checkers in parallel
-    results = await asyncio.gather(*tool_awaitables, return_exceptions=True)
-    for res in results:
-        if isinstance(res, Exception):
-            formatted = traceback.format_exception(type(res), res, res.__traceback__)
-            logger.error("".join(formatted))
-        else:
-            rec_item = res.dict(exclude={"tool_name"})
-            reconciliation.append(rec_item)
+        features_to_check = []
+        for feature in entry.features.keys():
+            product_feature = f"{feature.product}.{feature}"
+            features_to_check.append(product_feature)
+
+        if entry.license_server_type == "flexlm":
+            license_server_interface = FlexLMLicenseServer(entry.license_servers)
+        output = license_server_interface.get_report_item(features_to_check)
+        reconciliation.append(output)
 
     return reconciliation
