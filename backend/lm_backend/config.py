@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 class LogLevelEnum(str, Enum):
@@ -12,6 +12,16 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
+class DeployEnvEnum(str, Enum):
+    """
+    Describes the environment where the app is currently deployed.
+    """
+
+    PROD = "PROD"
+    STAGING = "STAGING"
+    LOCAL = "LOCAL"
+
+
 class Settings(BaseSettings):
     """
     App config.
@@ -20,9 +30,11 @@ class Settings(BaseSettings):
     LM2_ASGI_ROOT_PATH=/staging
     """
 
-    # debug mode turns on certain dangerous operations
-    DEBUG: bool = False
+    DEPLOY_ENV: Optional[DeployEnvEnum] = DeployEnvEnum.LOCAL
+
+    # Sentry settings
     SENTRY_DSN: Optional[str] = None
+    SENTRY_SAMPLE_RATE: Optional[float] = Field(1.0, gt=0.0, le=1.0)
 
     # vv should be specified as something like /staging
     # to match where the API is deployed in API Gateway
