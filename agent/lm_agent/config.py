@@ -28,6 +28,16 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
+class DeployEnvEnum(str, Enum):
+    """
+    Describes the environment where the app is currently deployed.
+    """
+
+    PROD = "PROD"
+    STAGING = "STAGING"
+    LOCAL = "LOCAL"
+
+
 _DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
 
 
@@ -38,6 +48,8 @@ class Settings(BaseSettings):
     If you are setting these in the environment, you must prefix "LM2_AGENT_", e.g.
     LM2_AGENT_LOG_LEVEL=DEBUG
     """
+
+    DEPLOY_ENV: Optional[DeployEnvEnum] = DeployEnvEnum.LOCAL
 
     # base url of an endpoint serving the licensemanager2 backend
     BACKEND_BASE_URL: AnyHttpUrl = Field("http://127.0.0.1:8000")
@@ -54,7 +66,9 @@ class Settings(BaseSettings):
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
+    # sentry specific settings
     SENTRY_DSN: Optional[str] = None
+    SENTRY_SAMPLE_RATE: Optional[float] = Field(1.0, gt=0.0, le=1.0)
 
     # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO

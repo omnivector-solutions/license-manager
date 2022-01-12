@@ -5,6 +5,7 @@ set `licensemanager2.backend.main.handler` as the ASGI handler
 """
 import logging
 import sys
+from typing import cast
 
 import pkg_resources
 import sentry_sdk
@@ -31,7 +32,8 @@ subapp.include_router(api_v1, prefix="/api/v1")
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
-        traces_sample_rate=1.0,
+        sample_rate=cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
+        environment=settings.DEPLOY_ENV,
     )
     subapp.add_middleware(SentryAsgiMiddleware)
 
@@ -48,7 +50,7 @@ async def health_check():
 @subapp.get("/version")
 async def version():
     """
-    Return the license-manager-backend version.""
+    return the license-manager-backend version.
     """
     version = pkg_resources.get_distribution("license-manager-backend").version
     return dict(message="OK", version=version)
