@@ -66,7 +66,6 @@ def test_match_requested_license(license, output):
         ("productfeature@flexlm:bla"),
         ("productfeature@flexlm:999"),
         ("product.featureflexlm:999"),
-        ("product.feature@flexlm999"),
         ("productfeatureflexlm999"),
         (""),
         ("product.feature:flexlm@999"),
