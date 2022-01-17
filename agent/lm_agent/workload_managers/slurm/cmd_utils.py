@@ -68,7 +68,7 @@ def _match_requested_license(requested_license: str) -> Union[dict, None]:
 
     groups = matches.groupdict()
     if not groups["tokens"]:
-        groups["tokens"] = 1
+        groups["tokens"] = "1"
 
     return {
         "product_feature": groups["product"] + "." + groups["feature"],
