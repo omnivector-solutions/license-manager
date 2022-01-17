@@ -59,12 +59,17 @@ class LicenseBookingRequest(BaseModel):
 
 
 def _match_requested_license(requested_license: str) -> Union[dict, None]:
-    license_regex = re.compile(r"(?P<product>\w+)\.(?P<feature>\w+)@(?P<server_type>\w+):(?P<tokens>\d+)")
+    license_regex = re.compile(r"(?P<product>\w+)\.(?P<feature>\w+)@(?P<server_type>\w+)?(:(?P<tokens>\d+))?")
+    
     matches = license_regex.match(requested_license)
 
     if not matches:
         return None
+
     groups = matches.groupdict()
+    if not groups["tokens"]:
+        groups["tokens"] = 1
+
     return {
         "product_feature": groups["product"] + "." + groups["feature"],
         "server_type": groups["server_type"],
