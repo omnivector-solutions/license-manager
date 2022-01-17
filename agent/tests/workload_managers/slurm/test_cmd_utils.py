@@ -31,6 +31,7 @@ def test_squeue_parser_returns_correct_output_format():
     )
     assert squeue_parsed == squeue_parsed_output
 
+
 @mark.parametrize(
     "license,output",
     [
@@ -40,7 +41,7 @@ def test_squeue_parser_returns_correct_output_format():
                 "product_feature": "product.feature",
                 "server_type": "flexlm",
                 "tokens": 123,
-            }
+            },
         ),
         (
             "product.feature@rlm",
@@ -48,9 +49,9 @@ def test_squeue_parser_returns_correct_output_format():
                 "product_feature": "product.feature",
                 "server_type": "rlm",
                 "tokens": 1,
-            }
-        )
-    ]
+            },
+        ),
+    ],
 )
 def test_match_requested_license(license, output):
     requested_license = license
