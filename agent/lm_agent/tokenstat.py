@@ -85,70 +85,95 @@ class FlexLMLicenseServer(LicenseServerInterface):
         )
 
         return report_item
+
+
+class RLMLicenseServer(LicenseServerInterface):
+    """Extract license information from RLM license server"""
+
+    def __init__(self, license_servers: typing.List[str]):
+        self.license_servers = license_servers
+        self.parser = rlm.parse
+
+    async def get_output_from_server(self):
+        """Override abstract method to get output from RLM license server"""
+
+        # generate a list of commands with the available license server hosts
+        host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
+        commands_to_run = []
+        for host, port in host_ports:
+            command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p"
+            commands_to_run.append(command_line)
+
+        # run each command in the list, one at a time, until one succeds
+        for cmd in commands_to_run:
+            proc = await asyncio.create_subprocess_shell(
+                cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+            )
+
+            # block until a check at this host:port succeeds or fails
+            stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
+            output = str(stdout, encoding=ENCODING)
+
+            if proc.returncode != 0:
+                logger.error(f"Error: {output} | Return Code: {proc.returncode}")
+                raise RuntimeError(f"None of the checks for RLM succeeded")
             return output
 
-    def get_report_item(self, features_to_check: typing.List[str]):
-        """Override abstract method to parse FlexLM license server output into"""
-        pass
+    async def get_report_item(self, product_feature: str):
+        """Override abstract method to parse RLM license server output into License Report Item"""
 
-class LicenseReportItem(BaseModel):
-    """
-    An item in a LicenseReport, a count of tokens for one product/feature
-    """
+        server_output = await self.get_output_from_server()
+        parsed_output = self.parser(server_output)
 
-    tool_name: str
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    used: int
-    total: int
-    used_licenses: typing.List
+        current_feature_item = self._filter_current_feature(
+            parsed_output["total"], product_feature.split(".")[1]
+        )
+        feature_booked_licenses = self._filter_used_features(
+            parsed_output["uses"], product_feature.split(".")[1]
+        )
+        used_licenses = self._cleanup_features(feature_booked_licenses)
 
-    @classmethod
-    def from_stdout(cls, product, parse_fn, tool_name, stdout):
-        """
-        Create a LicenseReportItem by parsing the stdout from the program that
-        produced it.
-        """
-        parsed = parse_fn(stdout)
-        return cls(
-            tool_name=tool_name,
-            product_feature=f"{product}.{parsed['total']['feature']}",
-            used=parsed["total"]["used"],
-            total=parsed["total"]["total"],
-            used_licenses=parsed["uses"],
+        report_item = LicenseReportItem(
+            product_feature=product_feature,
+            total=current_feature_item["total"],
+            in_use=current_feature_item["used"],
+            used_licenses=used_licenses,
         )
 
+        return report_item
 
-def _filter_current_feature(parsed_list, feature):
-    """
-    Get the current feature from the parsed list.
-    """
-    for feature_item in parsed_list:
-        if feature_item["feature"].count("_") == 0:  # `converge`
-            if feature_item["feature"] == feature:
+    def _filter_current_feature(self, parsed_list, feature):
+        """
+        Get the current feature from the parsed list.
+        """
+        for feature_item in parsed_list:
+            if feature_item["feature"].count("_") == 0:  # `converge`
+                if feature_item["feature"] == feature:
+                    return feature_item
+            elif "".join(feature_item["feature"].split("_")[1:]) == feature:
+                # `converge_super` | `converge_gui_polygonica` | `converge_...`
                 return feature_item
-        elif "".join(feature_item["feature"].split("_")[1:]) == feature:
-            # `converge_super` | `converge_gui_polygonica` | `converge_...`
-            return feature_item
 
-
-def _filter_used_features(parsed_list, feature):
-    used_licenses = []
-    for feature_booked in parsed_list:
-        if feature_booked["feature"].count("_") == 0:
-            if feature_booked["feature"] == feature:
+    def _filter_used_features(self, parsed_list, feature):
+        """
+        Get the used information for the specified feature.
+        """
+        used_licenses = []
+        for feature_booked in parsed_list:
+            if feature_booked["feature"].count("_") == 0:
+                if feature_booked["feature"] == feature:
+                    used_licenses.append(feature_booked)
+            elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
                 used_licenses.append(feature_booked)
-        elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
-            used_licenses.append(feature_booked)
-    return used_licenses
+        return used_licenses
 
-
-def _cleanup_features(features_list):
-    """
-    Remove the feature key for each entry in the parsed["uses"], since we already handled it.
-    """
-    for feature in features_list:
-        del feature["feature"]
-    return features_list
+    def _cleanup_features(self, features_list):
+        """
+        Remove the feature key for each entry in the parsed["uses"], since we already handled it.
+        """
+        for feature in features_list:
+            del feature["feature"]
+        return features_list
 
 
 class RLMReportItem(BaseModel):
