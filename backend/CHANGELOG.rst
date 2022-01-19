@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.1.5 -- 2022-01-13
+-------------------
+* Refactored the Dockerfile
+
 2.1.4 -- 2022-01-08
 -------------------
 * Added a detail endpoint for bookings by ID

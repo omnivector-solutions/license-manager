@@ -1,19 +1,16 @@
-FROM python:3.8 as requirements-stage
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8-slim
 
-WORKDIR /tmp
+ENV MODULE_NAME=lm_backend.main
 
-RUN pip install poetry
-COPY ./pyproject.toml ./poetry.lock* /tmp/
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+RUN apt update && apt install -y curl
 
-FROM python:3.8
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
+    cd /usr/local/bin && \
+    ln -s /opt/poetry/bin/poetry && \
+    poetry config virtualenvs.create false
 
-WORKDIR /app
+COPY ./pyproject.toml ./poetry.lock* /app/
 
-COPY --from=requirements-stage /tmp/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN poetry install --no-root --no-dev
 
-
-COPY . /app
-RUN pip install .
-CMD ["uvicorn", "lm_backend.main:app", "--host", "0.0.0.0", "--port", "80"]
+COPY ./lm_backend /app/lm_backend
