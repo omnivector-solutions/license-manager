@@ -69,7 +69,22 @@ class FlexLMLicenseServer(LicenseServerInterface):
             if proc.returncode != 0:
                 logger.error(f"Error: {output} | Return Code: {proc.returncode}")
                 raise RuntimeError(f"None of the checks for FlexLM succeeded")
+            return output
 
+    async def get_report_item(self, product_feature: str):
+        """Override abstract method to parse FlexLM license server output into License Report Item"""
+
+        server_output = await self.get_output_from_server(product_feature.split(".")[1])
+        parsed_output = self.parser(server_output)
+
+        report_item = LicenseReportItem(
+            product_feature=product_feature,
+            total=parsed_output["total"]["total"],
+            in_use=parsed_output["total"]["used"],
+            used_licenses=parsed_output["uses"],
+        )
+
+        return report_item
             return output
 
     def get_report_item(self, features_to_check: typing.List[str]):
