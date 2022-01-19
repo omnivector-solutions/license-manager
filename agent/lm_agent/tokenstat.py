@@ -42,6 +42,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
     def __init__(self, license_servers: typing.List[str]):
         self.license_servers = license_servers
+        self.parser = flexlm.parse
 
     async def get_output_from_server(self, product_feature: str):
         """Override abstract method to get output from FlexLM license server"""
