@@ -249,6 +249,8 @@ async def report() -> typing.List[dict]:
 
         if entry.license_server_type == "flexlm":
             license_server_interface = FlexLMLicenseServer(entry.license_servers)
+        elif entry.license_server_type == "rlm":
+            license_server_interface = RLMLicenseServer(entry.license_servers)
 
         for product_feature in product_features_to_check:
             report_item = await license_server_interface.get_report_item(product_feature)
