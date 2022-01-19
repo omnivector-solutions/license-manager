@@ -176,34 +176,16 @@ class RLMLicenseServer(LicenseServerInterface):
         return features_list
 
 
-class RLMReportItem(BaseModel):
+class LicenseReportItem(BaseModel):
     """
-    An item in a RLM report, a count of tokens for one product/feature.
+    An item in a LicenseReport, a count of tokens for one product/feature
     """
 
-    tool_name: str
-    product_feature: str
-    used: int
+    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     total: int
+    in_use: int
     used_licenses: typing.List
 
-    @classmethod
-    def from_stdout(cls, product, parse_fn, tool_name, stdout):
-        """Create a RLM by parsing the stdout from the program that produced it."""
-        parsed = parse_fn(stdout)
-        product, feature = product.split("_")[0], "_".join(product.split("_")[1:])
-        if not feature:
-            feature = product
-        current_feature_item = _filter_current_feature(parsed["total"], feature)
-        feature_booked_licenses = _filter_used_features(parsed["uses"], feature)
-        used_licenses = _cleanup_features(feature_booked_licenses)
-        return cls(
-            tool_name=tool_name,
-            product_feature=f"{product}.{feature}",
-            used=current_feature_item["used"],
-            total=current_feature_item["total"],
-            used_licenses=used_licenses,
-        )
 
 def get_all_product_features_from_cluster(show_lic_output: str) -> typing.List[str]:
     """
