@@ -27,13 +27,13 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractclassmethod
-    def get_output_from_server(self):
+    def get_output_from_server(self, product_feature: str):
         """Return output from license server for the indicated features"""
         raise NotImplementedError
 
     @abc.abstractclassmethod
-    def get_report_item(self, features_to_check: typing.List[str]):
-        """Parse license server output into a report item"""
+    def get_report_item(self, product_feature: str):
+        """Parse license server output into a report item for the indicated feature"""
         raise NotImplementedError
 
 
@@ -43,7 +43,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
     def __init__(self, license_servers: typing.List[str]):
         self.license_servers = license_servers
 
-    async def get_output_from_server(self):
+    async def get_output_from_server(self, product_feature: str):
         """Override abstract method to get output from FlexLM license server"""
 
         # generate a list of commands with the available license server hosts
@@ -51,12 +51,12 @@ class FlexLMLicenseServer(LicenseServerInterface):
         commands_to_run = []
         for host, port in host_ports:
             command_line = f"{settings.LMUTIL_PATH} lmstat -c {port}@{host} -f"
-            # command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p" --> for RLM
             commands_to_run.append(command_line)
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
-            # cmd = cmd + f" {feature}" ------> how to run lmstat without passing the feature?
+            feature = product_feature.split(".")[1]
+            cmd = cmd + f" {feature}"
             proc = await asyncio.create_subprocess_shell(
                 cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
             )
@@ -219,14 +219,16 @@ async def report() -> typing.List[dict]:
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
 
     for entry in filtered_entries:
-        features_to_check = []
+        product_features_to_check = []
         for feature in entry.features.keys():
             product_feature = f"{feature.product}.{feature}"
-            features_to_check.append(product_feature)
+            product_features_to_check.append(product_feature)
 
         if entry.license_server_type == "flexlm":
             license_server_interface = FlexLMLicenseServer(entry.license_servers)
-        output = license_server_interface.get_report_item(features_to_check)
-        reconciliation.append(output)
+
+        for product_feature in product_features_to_check:
+            report_item = await license_server_interface.get_report_item(product_feature)
+            reconciliation.append(report_item)
 
     return reconciliation
