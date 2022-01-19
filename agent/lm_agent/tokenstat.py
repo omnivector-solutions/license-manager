@@ -19,11 +19,11 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return (
-            hasattr(subclass, 'get_output_from_server') and
-            callable(subclass.get_output_from_server) and
-            hasattr(subclass, 'get_report_item') and
-            callable(subclass.get_report_item) or
-            NotImplemented
+            hasattr(subclass, "get_output_from_server")
+            and callable(subclass.get_output_from_server)
+            and hasattr(subclass, "get_report_item")
+            and callable(subclass.get_report_item)
+            or NotImplemented
         )
 
     @abc.abstractclassmethod
