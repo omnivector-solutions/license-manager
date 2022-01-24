@@ -21,7 +21,11 @@ class LicenseManagerBackendVersionError(Exception):
 
 
 class LicenseManagerEmptyReportError(Exception):
-    """Exception for empty report when no licenses added in backend"""
+    """Exception for empty report when no licenses added in backend."""
+
+
+class LicenseManagerNonSupportedServerTypeError(Exception):
+    """Exception for entry with non supported server type."""
 
 
 async def get_license_manager_backend_version() -> str:
