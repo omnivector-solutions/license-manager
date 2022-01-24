@@ -8,7 +8,11 @@ import typing
 
 from pydantic import BaseModel, Field
 
-from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
+from lm_agent.backend_utils import (
+    BackendConfigurationRow,
+    LicenseManagerNonSupportedServerTypeError,
+    get_config_from_backend,
+)
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm, rlm
@@ -79,8 +83,8 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         report_item = LicenseReportItem(
             product_feature=product_feature,
+            used=parsed_output["total"]["used"],
             total=parsed_output["total"]["total"],
-            in_use=parsed_output["total"]["used"],
             used_licenses=parsed_output["uses"],
         )
 
@@ -135,8 +139,8 @@ class RLMLicenseServer(LicenseServerInterface):
 
         report_item = LicenseReportItem(
             product_feature=product_feature,
+            used=current_feature_item["used"],
             total=current_feature_item["total"],
-            in_use=current_feature_item["used"],
             used_licenses=used_licenses,
         )
 
@@ -182,8 +186,8 @@ class LicenseReportItem(BaseModel):
     """
 
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    used: int
     total: int
-    in_use: int
     used_licenses: typing.List
 
 
@@ -251,6 +255,8 @@ async def report() -> typing.List[dict]:
             license_server_interface = FlexLMLicenseServer(entry.license_servers)
         elif entry.license_server_type == "rlm":
             license_server_interface = RLMLicenseServer(entry.license_servers)
+        else:
+            raise LicenseManagerNonSupportedServerTypeError()
 
         for product_feature in product_features_to_check:
             report_item = await license_server_interface.get_report_item(product_feature)
