@@ -27,8 +27,8 @@ def backend_setting():
     with patch.multiple(
         settings,
         BACKEND_BASE_URL="http://backend",
-        LMSTAT_BIN_PATH=MOCK_BIN_PATH,
-        RLMSTAT_BIN_PATH=MOCK_BIN_PATH,
+        LMUTIL_PATH=MOCK_BIN_PATH,
+        RLMUTIL_PATH=MOCK_BIN_PATH,
     ) as mck:
         yield mck
 
