@@ -48,15 +48,21 @@ class FlexLMLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = flexlm.parse
 
-    async def get_output_from_server(self, product_feature: str):
-        """Override abstract method to get output from FlexLM license server"""
+    def get_commands_list(self):
+        """Generate a list of commands with the available license server hosts"""
 
-        # generate a list of commands with the available license server hosts
         host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
             command_line = f"{settings.LMUTIL_PATH} lmstat -c {port}@{host} -f"
             commands_to_run.append(command_line)
+        return commands_to_run
+
+    async def get_output_from_server(self, product_feature: str):
+        """Override abstract method to get output from FlexLM license server"""
+
+        # get the list of commands for each license server host
+        commands_to_run = self.get_commands_list()
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
@@ -98,15 +104,21 @@ class RLMLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = rlm.parse
 
-    async def get_output_from_server(self):
-        """Override abstract method to get output from RLM license server"""
+    def get_commands_list(self):
+        """Generate a list of commands with the available license server hosts"""
 
-        # generate a list of commands with the available license server hosts
         host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
             command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p"
             commands_to_run.append(command_line)
+        return commands_to_run
+
+    async def get_output_from_server(self):
+        """Override abstract method to get output from RLM license server"""
+
+        # get the list of commands for each license server host
+        commands_to_run = self.get_commands_list()
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
