@@ -263,7 +263,7 @@ async def report() -> typing.List[dict]:
     view of what features are available with what actually exists in the
     license server database.
     """
-    reconciliation = []
+    report_items = []
 
     license_configurations = await get_config_from_backend()
     local_licenses = get_all_product_features_from_cluster(await scontrol_show_lic())
@@ -286,6 +286,8 @@ async def report() -> typing.List[dict]:
 
         for product_feature in product_features_to_check:
             report_item = await license_server_interface.get_report_item(product_feature)
-            reconciliation.append(report_item)
+            report_items.append(report_item)
+
+    reconciliation = [item.dict() for item in report_items]
 
     return reconciliation
