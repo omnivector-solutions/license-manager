@@ -269,7 +269,7 @@ async def report() -> typing.List[dict]:
     local_licenses = get_all_product_features_from_cluster(await scontrol_show_lic())
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
 
-    license_server_interface = LicenseServerInterface()
+    license_server_interface = LicenseServerInterface
 
     for entry in filtered_entries:
         product_features_to_check = []
