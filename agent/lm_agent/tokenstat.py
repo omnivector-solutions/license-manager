@@ -82,7 +82,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
             if proc.returncode != 0:
                 logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-                raise RuntimeError(f"None of the checks for FlexLM succeeded")
+                raise RuntimeError("None of the checks for FlexLM succeeded")
             return output
 
     async def get_report_item(self, product_feature: str):
@@ -140,7 +140,7 @@ class RLMLicenseServer(LicenseServerInterface):
 
             if proc.returncode != 0:
                 logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-                raise RuntimeError(f"None of the checks for RLM succeeded")
+                raise RuntimeError("None of the checks for RLM succeeded")
             return output
 
     async def get_report_item(self, product_feature: str):
@@ -268,6 +268,8 @@ async def report() -> typing.List[dict]:
     license_configurations = await get_config_from_backend()
     local_licenses = get_all_product_features_from_cluster(await scontrol_show_lic())
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
+
+    license_server_interface = LicenseServerInterface
 
     for entry in filtered_entries:
         product_features_to_check = []
