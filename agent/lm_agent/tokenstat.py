@@ -88,7 +88,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
     async def get_report_item(self, product_feature: str):
         """Override abstract method to parse FlexLM license server output into License Report Item"""
 
-        server_output = await self.get_output_from_server(product_feature.split(".")[1])
+        server_output = await self.get_output_from_server(product_feature)
         parsed_output = self.parser(server_output)
 
         # raise exception if parser didn't output license information
@@ -272,7 +272,7 @@ async def report() -> typing.List[dict]:
     for entry in filtered_entries:
         product_features_to_check = []
         for feature in entry.features.keys():
-            product_feature = f"{feature.product}.{feature}"
+            product_feature = f"{entry.product}.{feature}"
             product_features_to_check.append(product_feature)
 
         if entry.license_server_type == "flexlm":
