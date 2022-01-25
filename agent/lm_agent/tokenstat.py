@@ -1,5 +1,5 @@
 """
-Invoke license stat tools to build a view of license token counts
+Invoke license stat tools to build a view of license token counts.
 """
 import abc
 import asyncio
@@ -20,7 +20,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
 
 class LicenseManagerBadServerOutput(Exception):
-    """Exception for license server bad output"""
+    """Exception for license server bad output."""
 
 
 class LicenseServerInterface(metaclass=abc.ABCMeta):
@@ -36,24 +36,24 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractclassmethod
     def get_output_from_server(self, product_feature: str):
-        """Return output from license server for the indicated features"""
+        """Return output from license server for the indicated features."""
         raise NotImplementedError
 
     @abc.abstractclassmethod
     def get_report_item(self, product_feature: str):
-        """Parse license server output into a report item for the indicated feature"""
+        """Parse license server output into a report item for the indicated feature."""
         raise NotImplementedError
 
 
 class FlexLMLicenseServer(LicenseServerInterface):
-    """Extract license information from FlexLM license server"""
+    """Extract license information from FlexLM license server."""
 
     def __init__(self, license_servers: typing.List[str]):
         self.license_servers = license_servers
         self.parser = flexlm.parse
 
     def get_commands_list(self):
-        """Generate a list of commands with the available license server hosts"""
+        """Generate a list of commands with the available license server hosts."""
 
         host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
         commands_to_run = []
@@ -63,7 +63,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
         return commands_to_run
 
     async def get_output_from_server(self, product_feature: str):
-        """Override abstract method to get output from FlexLM license server"""
+        """Override abstract method to get output from FlexLM license server."""
 
         # get the list of commands for each license server host
         commands_to_run = self.get_commands_list()
@@ -86,7 +86,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
             return output
 
     async def get_report_item(self, product_feature: str):
-        """Override abstract method to parse FlexLM license server output into License Report Item"""
+        """Override abstract method to parse FlexLM license server output into License Report Item."""
 
         server_output = await self.get_output_from_server(product_feature)
         parsed_output = self.parser(server_output)
@@ -106,14 +106,14 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
 
 class RLMLicenseServer(LicenseServerInterface):
-    """Extract license information from RLM license server"""
+    """Extract license information from RLM license server."""
 
     def __init__(self, license_servers: typing.List[str]):
         self.license_servers = license_servers
         self.parser = rlm.parse
 
     def get_commands_list(self):
-        """Generate a list of commands with the available license server hosts"""
+        """Generate a list of commands with the available license server hosts."""
 
         host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
         commands_to_run = []
@@ -123,7 +123,7 @@ class RLMLicenseServer(LicenseServerInterface):
         return commands_to_run
 
     async def get_output_from_server(self):
-        """Override abstract method to get output from RLM license server"""
+        """Override abstract method to get output from RLM license server."""
 
         # get the list of commands for each license server host
         commands_to_run = self.get_commands_list()
@@ -144,7 +144,7 @@ class RLMLicenseServer(LicenseServerInterface):
             return output
 
     async def get_report_item(self, product_feature: str):
-        """Override abstract method to parse RLM license server output into License Report Item"""
+        """Override abstract method to parse RLM license server output into License Report Item."""
 
         server_output = await self.get_output_from_server()
         parsed_output = self.parser(server_output)
@@ -206,7 +206,7 @@ class RLMLicenseServer(LicenseServerInterface):
 
 class LicenseReportItem(BaseModel):
     """
-    An item in a LicenseReport, a count of tokens for one product/feature
+    An item in a LicenseReport, a count of tokens for one product/feature.
     """
 
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
@@ -217,7 +217,7 @@ class LicenseReportItem(BaseModel):
 
 def get_all_product_features_from_cluster(show_lic_output: str) -> typing.List[str]:
     """
-    Returns a list of all product.feature in the cluster
+    Returns a list of all product.feature in the cluster.
     """
     PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9_]+)[_\-.](?P<feature>\w+)"
     RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
@@ -253,7 +253,7 @@ def get_local_license_configurations(
 
 async def report() -> typing.List[dict]:
     """
-    Get stat counts using a license stat tool
+    Get stat counts using a license stat tool.
 
     This function iterates over the available license_servers and associated
     features configured via LICENSE_SERVER_FEATURES and generates
