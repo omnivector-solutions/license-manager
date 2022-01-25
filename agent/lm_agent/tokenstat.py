@@ -19,6 +19,10 @@ from lm_agent.parsing import flexlm, rlm
 from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
 
+class LicenseManagerBadServerOutput(Exception):
+    """Exception for license server bad output"""
+
+
 class LicenseServerInterface(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
@@ -87,6 +91,10 @@ class FlexLMLicenseServer(LicenseServerInterface):
         server_output = await self.get_output_from_server(product_feature.split(".")[1])
         parsed_output = self.parser(server_output)
 
+        # raise exception if parser didn't output license information
+        if not parsed_output["total"]:
+            raise LicenseManagerBadServerOutput()
+
         report_item = LicenseReportItem(
             product_feature=product_feature,
             used=parsed_output["total"]["used"],
@@ -148,6 +156,10 @@ class RLMLicenseServer(LicenseServerInterface):
             parsed_output["uses"], product_feature.split(".")[1]
         )
         used_licenses = self._cleanup_features(feature_booked_licenses)
+
+        # raise exception if parser didn't output license information
+        if not current_feature_item:
+            raise LicenseManagerBadServerOutput()
 
         report_item = LicenseReportItem(
             product_feature=product_feature,
