@@ -32,16 +32,33 @@ def test_squeue_parser_returns_correct_output_format():
     assert squeue_parsed == squeue_parsed_output
 
 
-def test_match_requested_license():
-    requested_license = "product.feature@flexlm:123"
+@mark.parametrize(
+    "license,output",
+    [
+        (
+            "product.feature@flexlm:123",
+            {
+                "product_feature": "product.feature",
+                "server_type": "flexlm",
+                "tokens": 123,
+            },
+        ),
+        (
+            "product.feature@rlm",
+            {
+                "product_feature": "product.feature",
+                "server_type": "rlm",
+                "tokens": 1,
+            },
+        ),
+    ],
+)
+def test_match_requested_license(license, output):
+    requested_license = license
 
     return_value = _match_requested_license(requested_license)
 
-    assert return_value == {
-        "product_feature": "product.feature",
-        "server_type": "flexlm",
-        "tokens": 123,
-    }
+    assert return_value == output
 
 
 @mark.parametrize(
@@ -50,7 +67,6 @@ def test_match_requested_license():
         ("productfeature@flexlm:bla"),
         ("productfeature@flexlm:999"),
         ("product.featureflexlm:999"),
-        ("product.feature@flexlm999"),
         ("productfeatureflexlm999"),
         (""),
         ("product.feature:flexlm@999"),

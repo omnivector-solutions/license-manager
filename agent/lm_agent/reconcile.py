@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
 import logging
+import typing
 
 import pkg_resources
 import sentry_sdk
@@ -13,7 +14,11 @@ from lm_agent.reconciliation import reconcile
 AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
 if settings.SENTRY_DSN:
-    sentry_sdk.init(dsn=settings.SENTRY_DSN, traces_sample_rate=1.0)
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
+        environment=settings.DEPLOY_ENV,
+    )
 
 
 async def backend_version_check():
