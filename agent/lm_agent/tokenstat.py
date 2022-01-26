@@ -8,19 +8,12 @@ import typing
 
 from pydantic import BaseModel, Field
 
-from lm_agent.backend_utils import (
-    BackendConfigurationRow,
-    LicenseManagerNonSupportedServerTypeError,
-    get_config_from_backend,
-)
+from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
 from lm_agent.config import ENCODING, PRODUCT_FEATURE_RX, TOOL_TIMEOUT, settings
+from lm_agent.exceptions import LicenseManagerBadServerOutput, LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
 from lm_agent.parsing import flexlm, rlm
 from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
-
-
-class LicenseManagerBadServerOutput(Exception):
-    """Exception for license server bad output."""
 
 
 class LicenseServerInterface(metaclass=abc.ABCMeta):

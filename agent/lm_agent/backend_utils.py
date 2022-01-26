@@ -6,26 +6,11 @@ from typing import List, Optional
 from httpx import ConnectError
 from pydantic import BaseModel, ValidationError
 
+from lm_agent.exceptions import LicenseManagerBackendConnectionError
 from lm_agent.forward import async_client
 from lm_agent.logs import logger
 
 GET_CONFIG_URL_PATH = "/api/v1/config/all"
-
-
-class LicenseManagerBackendConnectionError(Exception):
-    """Exception for backend connection issues."""
-
-
-class LicenseManagerBackendVersionError(Exception):
-    """Exception for backend/agent version mismatches."""
-
-
-class LicenseManagerEmptyReportError(Exception):
-    """Exception for empty report when no licenses added in backend."""
-
-
-class LicenseManagerNonSupportedServerTypeError(Exception):
-    """Exception for entry with non supported server type."""
 
 
 async def get_license_manager_backend_version() -> str:
