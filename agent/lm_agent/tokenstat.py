@@ -271,18 +271,23 @@ async def report() -> typing.List[dict]:
 
     license_server_interface: LicenseServerInterface
 
+    server_type_map = dict(
+        flexlm=FlexLMLicenseServer,
+        rlm=RLMLicenseServer,
+    )
+
     for entry in filtered_entries:
         product_features_to_check = []
         for feature in entry.features.keys():
             product_feature = f"{entry.product}.{feature}"
             product_features_to_check.append(product_feature)
 
-        if entry.license_server_type == "flexlm":
-            license_server_interface = FlexLMLicenseServer(entry.license_servers)
-        elif entry.license_server_type == "rlm":
-            license_server_interface = RLMLicenseServer(entry.license_servers)
-        else:
+        server_type = server_type_map.get(entry.license_server_type)
+
+        if server_type is None:
             raise LicenseManagerNonSupportedServerTypeError()
+
+        license_server_interface = server_type(entry.license_servers)
 
         for product_feature in product_features_to_check:
             report_item = await license_server_interface.get_report_item(product_feature)
