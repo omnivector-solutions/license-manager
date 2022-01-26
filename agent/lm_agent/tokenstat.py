@@ -22,7 +22,7 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
 
     The logic for obtaining the data output from the License Server should be encapsulated in
     the get_output_from_server method.
-    
+
     After obtaining the output, the parsing and manipulation of the data should be implement in
     the get_report_item method.
 
