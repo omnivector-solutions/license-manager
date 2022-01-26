@@ -17,6 +17,15 @@ from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
 
 class LicenseServerInterface(metaclass=abc.ABCMeta):
+    """
+    Abstract class for License Server interface.
+
+    The logic for obtaining the data output from the License Server should be encapsulated in the get_output_from_server method.
+    After obtaining the output, the parsing and manipulation of the data should be implement in the get_report_item method.
+
+    It is expected the license information to be parsed into an LicenseReportItem.
+    """
+
     @classmethod
     def __subclasshook__(cls, subclass):
         return (
@@ -30,12 +39,10 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
     @abc.abstractclassmethod
     def get_output_from_server(self, product_feature: str):
         """Return output from license server for the indicated features."""
-        raise NotImplementedError
 
     @abc.abstractclassmethod
     def get_report_item(self, product_feature: str):
         """Parse license server output into a report item for the indicated feature."""
-        raise NotImplementedError
 
 
 class FlexLMLicenseServer(LicenseServerInterface):
