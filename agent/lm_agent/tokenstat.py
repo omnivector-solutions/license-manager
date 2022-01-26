@@ -164,13 +164,12 @@ class RLMLicenseServer(LicenseServerInterface):
         current_feature_item = self._filter_current_feature(
             parsed_output["total"], product_feature.split(".")[1]
         )
-        feature_booked_licenses = self._filter_used_features(
+        used_licenses = self._filter_used_features(
             parsed_output["uses"], product_feature.split(".")[1]
         )
-        used_licenses = self._cleanup_features(feature_booked_licenses)
 
         # raise exception if parser didn't output license information
-        if not current_feature_item:
+        if not current_feature_item or used_licenses is None:
             raise LicenseManagerBadServerOutput()
 
         report_item = LicenseReportItem(
@@ -205,15 +204,12 @@ class RLMLicenseServer(LicenseServerInterface):
                     used_licenses.append(feature_booked)
             elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
                 used_licenses.append(feature_booked)
-        return used_licenses
 
-    def _cleanup_features(self, features_list):
-        """
-        Remove the feature key for each entry in the parsed["uses"], since we already handled it.
-        """
-        for feature in features_list:
-            del feature["feature"]
-        return features_list
+        for license in used_licenses:
+            # remove the feature key, since we already handled it.
+            del license["feature"]
+
+        return used_licenses
 
 
 class LicenseReportItem(BaseModel):
