@@ -100,8 +100,8 @@ class FlexLMLicenseServer(LicenseServerInterface):
         if (
             not parsed_output.get("total")
             or not parsed_output.get("uses")
-            or not parsed_output.get("total", None).get("used")
-            or not parsed_output.get("total", None).get("total")
+            or not parsed_output.get("total", {}).get("used")
+            or not parsed_output.get("total", {}).get("total")
         ):
             raise LicenseManagerBadServerOutput()
 
