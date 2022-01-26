@@ -55,7 +55,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
     def get_commands_list(self):
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
+        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
             command_line = f"{settings.LMUTIL_PATH} lmstat -c {port}@{host} -f"
@@ -115,7 +115,7 @@ class RLMLicenseServer(LicenseServerInterface):
     def get_commands_list(self):
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1], server.split(":")[2]) for server in self.license_servers]
+        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
             command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p"
