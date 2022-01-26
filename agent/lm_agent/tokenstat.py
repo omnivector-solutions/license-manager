@@ -85,8 +85,10 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
             if proc.returncode != 0:
                 logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-                raise RuntimeError("None of the checks for FlexLM succeeded")
+                continue
             return output
+
+        raise RuntimeError("None of the checks for FlexLM succeeded!")
 
     async def get_report_item(self, product_feature: str):
         """Override abstract method to parse FlexLM license server output into License Report Item."""
@@ -143,8 +145,10 @@ class RLMLicenseServer(LicenseServerInterface):
 
             if proc.returncode != 0:
                 logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-                raise RuntimeError("None of the checks for RLM succeeded")
+                continue
             return output
+
+        raise RuntimeError("None of the checks for RLM succeeded!")
 
     async def get_report_item(self, product_feature: str):
         """Override abstract method to parse RLM license server output into License Report Item."""
