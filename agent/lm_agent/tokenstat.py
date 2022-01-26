@@ -97,7 +97,12 @@ class FlexLMLicenseServer(LicenseServerInterface):
         parsed_output = self.parser(server_output)
 
         # raise exception if parser didn't output license information
-        if not parsed_output["total"]:
+        if (
+            not parsed_output.get("total")
+            or not parsed_output.get("uses")
+            or not parsed_output.get("total").get("used")
+            or not parsed_output.get("total").get("total")
+        ):
             raise LicenseManagerBadServerOutput()
 
         report_item = LicenseReportItem(
