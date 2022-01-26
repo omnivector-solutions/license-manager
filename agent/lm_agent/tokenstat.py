@@ -164,9 +164,7 @@ class RLMLicenseServer(LicenseServerInterface):
         current_feature_item = self._filter_current_feature(
             parsed_output["total"], product_feature.split(".")[1]
         )
-        used_licenses = self._filter_used_features(
-            parsed_output["uses"], product_feature.split(".")[1]
-        )
+        used_licenses = self._filter_used_features(parsed_output["uses"], product_feature.split(".")[1])
 
         # raise exception if parser didn't output license information
         if not current_feature_item or used_licenses is None:
