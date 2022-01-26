@@ -71,9 +71,9 @@ class FlexLMLicenseServer(LicenseServerInterface):
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
             feature = product_feature.split(".")[1]
-            cmd = cmd + f" {feature}"
+            feature_cmd = f"{cmd} {feature}"
             proc = await asyncio.create_subprocess_shell(
-                cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+                feature_cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
             )
 
             # block until a check at this host:port succeeds or fails
