@@ -7,6 +7,7 @@ from pytest import fixture, mark, raises
 from lm_agent import tokenstat
 from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
+from lm_agent.exceptions import LicenseManagerBadServerOutput
 
 
 @fixture
@@ -174,7 +175,7 @@ async def test_flexlm_get_report_item_with_bad_output(
 ):
     get_output_from_server_mock.return_value = lm_output_bad
 
-    with raises(tokenstat.LicenseManagerBadServerOutput):
+    with raises(LicenseManagerBadServerOutput):
         await flexlm_server.get_report_item("testproduct.testfeature")
 
 

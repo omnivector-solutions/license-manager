@@ -2,11 +2,8 @@ import respx
 from httpx import AsyncClient, ConnectError, Response
 from pytest import fixture, mark, raises
 
-from lm_agent.backend_utils import (
-    LicenseManagerBackendConnectionError,
-    get_config_from_backend,
-    get_license_manager_backend_version,
-)
+from lm_agent.backend_utils import get_config_from_backend, get_license_manager_backend_version
+from lm_agent.exceptions import LicenseManagerBackendConnectionError
 
 
 @mark.asyncio

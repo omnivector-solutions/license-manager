@@ -6,8 +6,9 @@ import typing
 import pkg_resources
 import sentry_sdk
 
-from lm_agent.backend_utils import LicenseManagerBackendVersionError, get_license_manager_backend_version
+from lm_agent.backend_utils import get_license_manager_backend_version
 from lm_agent.config import settings
+from lm_agent.exceptions import LicenseManagerBackendVersionError
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
