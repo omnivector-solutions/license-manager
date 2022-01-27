@@ -67,10 +67,10 @@ class Settings(BaseSettings):
     LICENSE_SERVER_FEATURES_CONFIG_PATH: Optional[str]
 
     # path to the binary for lmstat (needed for FlexLM licenses)
-    LMSTAT_BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
+    LMUTIL_PATH: DirectoryPath = _DEFAULT_BIN_PATH
 
     # path to the binary for rlmstat (needed for RLM licenses)
-    RLMSTAT_BIN_PATH: DirectoryPath = _DEFAULT_BIN_PATH
+    RLMUTIL_PATH: DirectoryPath = _DEFAULT_BIN_PATH
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False

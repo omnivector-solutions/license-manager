@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Refactored tokenstat module
 
 2.1.1 - 2022-01-10
 ------------------
