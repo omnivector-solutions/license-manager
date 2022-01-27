@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseSettings, DirectoryPath, Field
+from pydantic import BaseSettings, Field
 from pydantic.error_wrappers import ValidationError
 
 logger = logging.getLogger("lm_agent.config")
@@ -66,11 +66,11 @@ class Settings(BaseSettings):
     # path to the license server features config file
     LICENSE_SERVER_FEATURES_CONFIG_PATH: Optional[str]
 
-    # path to the binary for lmstat (needed for FlexLM licenses)
-    LMUTIL_PATH: DirectoryPath = _DEFAULT_BIN_PATH
+    # path to the binary for lmutil (needed for FlexLM licenses)
+    LMUTIL_PATH: Path = _DEFAULT_BIN_PATH
 
-    # path to the binary for rlmstat (needed for RLM licenses)
-    RLMUTIL_PATH: DirectoryPath = _DEFAULT_BIN_PATH
+    # path to the binary for rlmutil (needed for RLM licenses)
+    RLMUTIL_PATH: Path = _DEFAULT_BIN_PATH
 
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
