@@ -4,6 +4,7 @@ from typing import Dict, List, Sequence, Tuple
 from fastapi import APIRouter, Depends
 from sqlalchemy.sql import select, update
 
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import (
     BookingRow,
     LicenseUse,
@@ -22,7 +23,7 @@ router = APIRouter()
 @router.get(
     "/all",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
 )
 async def licenses_all():
     """
@@ -36,7 +37,7 @@ async def licenses_all():
 @router.get(
     "/cluster_update",
     response_model=List[Dict],
-    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
 )
 async def licenses_and_bookings_to_update():
     """
@@ -72,7 +73,7 @@ async def licenses_and_bookings_to_update():
 @router.get(
     "/use/{product}",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
 )
 async def licenses_product(product: str):
     """
@@ -90,7 +91,7 @@ async def licenses_product(product: str):
 @router.get(
     "/use/{product}/{feature}",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:license:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
 )
 async def licenses_product_feature(product: str, feature: str):
     """
@@ -182,7 +183,7 @@ async def _clean_up_in_use_booking(
 @router.patch(
     "/reconcile",
     response_model=List[LicenseUse],
-    dependencies=[Depends(guard.lockdown("license-manager:license:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_EDIT))],
 )
 async def reconcile_changes(reconcile_request: List[LicenseUseReconcileRequest]):
     """

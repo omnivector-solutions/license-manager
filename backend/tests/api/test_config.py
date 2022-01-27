@@ -4,6 +4,7 @@ from httpx import AsyncClient
 from pytest import fixture, mark
 
 from lm_backend import table_schemas
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.storage import database
 
@@ -130,7 +131,7 @@ async def test_get_all_configurations__success(
     """
     await insert_objects(some_configuration_rows, table_schemas.config_table)
 
-    inject_security_header("owner1", "license-manager:config:read")
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
     resp = await backend_client.get("/lm/api/v1/config/all")
 
     assert resp.status_code == 200
@@ -176,7 +177,7 @@ async def test_get_configuration__success(
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
 
-    inject_security_header("owner1", "license-manager:config:read")
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
     resp = await backend_client.get("/lm/api/v1/config/100")
 
     assert resp.status_code == 200
@@ -226,7 +227,7 @@ async def test_add_configuration__success(
         "grace_time": "10000",
     }
 
-    inject_security_header("owner1", "license-manager:config:write")
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
     response = await backend_client.post("/lm/api/v1/config", json=data)
     assert response.status_code == 200
 
@@ -288,7 +289,7 @@ async def test_update_configuration__success(
         "license_server_type": "servertype100",
         "grace_time": "10000",
     }
-    inject_security_header("owner1", "license-manager:config:write")
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.put("/lm/api/v1/config/100", json=data)
     assert resp.status_code == 200
 
@@ -342,7 +343,7 @@ async def test_update_nonexistant_configuration(
         "grace_time": "10000",
     }
 
-    inject_security_header("owner1", "license-manager:config:write")
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.put("/lm/api/v1/config/100000", json=data)
     assert resp.status_code == 200
 
@@ -361,7 +362,7 @@ async def test_delete_configuration__success(
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
 
-    inject_security_header("owner1", "license-manager:config:write")
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.delete("/lm/api/v1/config/100")
     assert resp.status_code == 200
     assert resp.json()["message"] == "Deleted 100 from the configuration table."
@@ -404,6 +405,6 @@ async def test_delete_nonexistant__configuration(
     """
 
     await insert_objects(one_configuration_row, table_schemas.config_table)
-    inject_security_header("owner1", "license-manager:config:write")
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.delete("/lm/api/v1/config/99999999")
     assert resp.status_code == 404

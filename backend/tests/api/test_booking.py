@@ -7,6 +7,7 @@ from pytest import mark
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import Booking, BookingFeature, BookingRow
 from lm_backend.storage import database
 
@@ -30,7 +31,7 @@ async def test_get_bookings__by_id(
     with time_frame() as window:
         await insert_objects(some_booking_rows, table_schemas.booking_table)
 
-    inject_security_header("owner1", "license-manager:booking:read")
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
     resp = await backend_client.get(f"/lm/api/v1/booking/{1}")
 
     assert resp.status_code == 200
@@ -69,7 +70,7 @@ async def test_get_bookings_job__success(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
 
-    inject_security_header("owner1", "license-manager:booking:read")
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
     resp = await backend_client.get("/lm/api/v1/booking/job/coolbeans")
 
     assert resp.status_code == 200
@@ -142,7 +143,7 @@ async def test_get_bookings_for_cluster_name__success(
     )
     await insert_objects([booking], table_schemas.booking_table)
 
-    inject_security_header("owner1", "license-manager:booking:read")
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
     resp = await backend_client.get("/lm/api/v1/booking/all?cluster_name=cluster2")
 
     assert resp.status_code == 200
@@ -227,7 +228,7 @@ async def test_bookings_all(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
 
-    inject_security_header("owner1", "license-manager:booking:read")
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
     resp = await backend_client.get("/lm/api/v1/booking/all")
 
     assert resp.status_code == 200
@@ -282,7 +283,7 @@ async def test_booking_create__success(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
 
-    inject_security_header("owner1", "license-manager:booking:write")
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
     resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_200_OK
@@ -337,7 +338,7 @@ async def test_booking_create_negative_booked_error(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
 
-    inject_security_header("owner1", "license-manager:booking:write")
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
     resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
@@ -362,7 +363,7 @@ async def test_booking_create_booked_greater_than_total(
     booking = Booking(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
-    inject_security_header("owner1", "license-manager:booking:write")
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
     resp = await backend_client.put("/lm/api/v1/booking/book", json=booking.dict())
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
@@ -386,7 +387,7 @@ async def test_booking_delete__success(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
 
-    inject_security_header("owner1", "license-manager:booking:write")
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
     resp = await backend_client.delete("/lm/api/v1/booking/book/helloworld")
     assert resp.status_code == status.HTTP_200_OK
 
