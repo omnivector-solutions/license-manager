@@ -98,10 +98,10 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         # raise exception if parser didn't output license information
         if (
-            not parsed_output.get("total")
-            or not parsed_output.get("uses")
-            or not parsed_output.get("total", {}).get("used")
-            or not parsed_output.get("total", {}).get("total")
+            parsed_output.get("total") is None
+            or parsed_output.get("uses") is None
+            or parsed_output.get("total", {}).get("used") is None
+            or parsed_output.get("total", {}).get("total") is None
         ):
             raise LicenseManagerBadServerOutput()
 
@@ -167,7 +167,7 @@ class RLMLicenseServer(LicenseServerInterface):
         used_licenses = self._filter_used_features(parsed_output["uses"], product_feature.split(".")[1])
 
         # raise exception if parser didn't output license information
-        if not current_feature_item or used_licenses is None:
+        if current_feature_item is None or used_licenses is None:
             raise LicenseManagerBadServerOutput()
 
         report_item = LicenseReportItem(
