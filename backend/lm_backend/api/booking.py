@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.sql import delete, join, select
 
 from lm_backend.api.config import get_config_id_for_product_features
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import Booking, BookingRow, BookingRowDetail, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
@@ -19,7 +20,7 @@ router = APIRouter()
 @router.get(
     "/all",
     response_model=List[BookingRow],
-    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.BOOKING_VIEW))],
 )
 async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
     """
@@ -35,7 +36,7 @@ async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
 @router.get(
     "/{booking_id}",
     response_model=BookingRowDetail,
-    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.BOOKING_VIEW))],
 )
 async def get_booking(booking_id: int):
     """
@@ -62,7 +63,7 @@ async def get_booking(booking_id: int):
 @router.get(
     "/job/{job_id}",
     response_model=List[BookingRow],
-    dependencies=[Depends(guard.lockdown("license-manager:booking:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.BOOKING_VIEW))],
 )
 async def get_bookings_job(job_id: str):
     """
@@ -111,7 +112,7 @@ async def _is_booking_available(booking: Booking):
 @database.transaction()
 @router.put(
     "/book",
-    dependencies=[Depends(guard.lockdown("license-manager:booking:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.BOOKING_EDIT))],
 )
 async def create_booking(booking: Booking):
     """
@@ -169,7 +170,7 @@ async def create_booking(booking: Booking):
 @database.transaction()
 @router.delete(
     "/book/{job_id}",
-    dependencies=[Depends(guard.lockdown("license-manager:booking:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.BOOKING_EDIT))],
 )
 async def delete_booking(job_id: str):
     """

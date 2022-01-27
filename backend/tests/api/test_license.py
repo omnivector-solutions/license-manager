@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from pytest import mark, raises
 
 from lm_backend.api import license
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import BookingRow, LicenseUseReconcile, LicenseUseReconcileRequest
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, config_table, license_table
@@ -79,7 +80,7 @@ async def test_licenses_product__success(
     """
     await insert_objects(some_licenses, license_table)
 
-    inject_security_header("owner1", "license-manager:license:read")
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
     resp = await backend_client.get("/lm/api/v1/license/use/hello")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
@@ -129,7 +130,7 @@ async def test_licenses_product_feature__success(
     """
     await insert_objects(some_licenses, license_table)
 
-    inject_security_header("owner1", "license-manager:license:read")
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
     resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json() == [
@@ -175,7 +176,7 @@ async def test_licenses_all__success(
     """
     await insert_objects(some_licenses, license_table)
 
-    inject_security_header("owner1", "license-manager:license:read")
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
     resp = await backend_client.get("/lm/api/v1/license/all")
     assert resp.status_code == 200
     assert resp.json() == [
@@ -318,7 +319,7 @@ async def test_reconcile_changes_clean_up_in_use_bookings__success(
         used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
     )
 
-    inject_security_header("owner1", "license-manager:license:write")
+    inject_security_header("owner1", Permissions.LICENSE_EDIT)
     response = await backend_client.patch(
         "/lm/api/v1/license/reconcile", json=[license_reconcile_request.dict()]
     )

@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
+from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
@@ -15,7 +16,7 @@ router = APIRouter()
 @router.get(
     "/all",
     response_model=List[ConfigurationItem],
-    dependencies=[Depends(guard.lockdown("license-manager:config:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.CONFIG_VIEW))],
 )
 async def get_all_configurations():
     """
@@ -33,7 +34,7 @@ async def get_all_configurations():
 @router.get(
     "/{config_id}",
     response_model=ConfigurationItem,
-    dependencies=[Depends(guard.lockdown("license-manager:config:read"))],
+    dependencies=[Depends(guard.lockdown(Permissions.CONFIG_VIEW))],
 )
 async def get_configuration(config_id: int):
     """
@@ -71,7 +72,7 @@ async def get_config_id(product_feature: str):
 @database.transaction()
 @router.post(
     "/",
-    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.CONFIG_EDIT))],
 )
 async def add_configuration(configuration: ConfigurationRow):
     """
@@ -95,7 +96,7 @@ async def add_configuration(configuration: ConfigurationRow):
 @database.transaction()
 @router.put(
     "/{config_id}",
-    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.CONFIG_EDIT))],
 )
 async def update_configuration(
     config_id: int,
@@ -133,7 +134,7 @@ async def update_configuration(
 @database.transaction()
 @router.delete(
     "/{config_id}",
-    dependencies=[Depends(guard.lockdown("license-manager:config:write"))],
+    dependencies=[Depends(guard.lockdown(Permissions.CONFIG_EDIT))],
 )
 async def delete_configuration(config_id: int):
     """
