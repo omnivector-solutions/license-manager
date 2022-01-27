@@ -3,7 +3,10 @@ from unittest import mock
 import pytest
 from httpx import Response
 
-from lm_agent.backend_utils import LicenseManagerBackendConnectionError
+from lm_agent.exceptions import (
+    LicenseManagerBackendConnectionError,
+    LicenseManagerEmptyReportError,
+)
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,

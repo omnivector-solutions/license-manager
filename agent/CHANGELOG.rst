@@ -10,6 +10,7 @@ Unreleased
 * Get license server type from backend configuration row
 * Fix rlmutil command path
 * Added auth via Auth0 and removed static token logic
+* Refactored tokenstat module
 
 2.1.1 - 2022-01-10
 ------------------

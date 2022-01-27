@@ -7,8 +7,8 @@ import respx
 from httpx import ConnectError, Response
 from pytest import fixture, mark, raises
 
+from lm_agent.exceptions import LicenseManagerBackendConnectionError
 from lm_agent.backend_utils import (
-    LicenseManagerBackendConnectionError,
     _load_token_from_cache,
     _write_token_to_cache,
     acquire_token,
