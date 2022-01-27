@@ -193,6 +193,20 @@ async def test_rlm_get_report_item_with_no_used_licenses(
         used_licenses=[],
     )
 
+@mark.asyncio
+@mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
+async def test_flexlm_get_report_item_with_no_used_licenses(
+    get_output_from_server_mock: mock.MagicMock, flexlm_server, lm_output_no_licenses
+):
+    get_output_from_server_mock.return_value = lm_output_no_licenses
+
+    assert await flexlm_server.get_report_item("testproduct.testfeature") == tokenstat.LicenseReportItem(
+        product_feature="testproduct.testfeature",
+        used=0,
+        total=1000,
+        used_licenses=[],
+    )
+
 
 @mark.asyncio
 @mark.parametrize(
