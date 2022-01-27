@@ -43,7 +43,7 @@ def respx_mock():
 
 
 @fixture
-def lm_output_bad():
+def lmstat_output_bad():
     """
     Some unparseable lmstat output
     """
@@ -58,7 +58,7 @@ def lm_output_bad():
 
 
 @fixture
-def lm_output():
+def lmstat_output():
     """
     Some lmstat output to parse
     """
@@ -83,7 +83,7 @@ def lm_output():
 
 
 @fixture
-def lm_output_no_licenses():
+def lmstat_output_no_licenses():
     """
     Some lmstat output with no licenses in use to parse
     """
