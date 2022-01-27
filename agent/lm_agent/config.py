@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     # path to the binary for lmutil (needed for FlexLM licenses)
     LMUTIL_PATH: Path = _DEFAULT_BIN_PATH
 
-    # path to the binary for tlmutil (needed for RLM licenses)
+    # path to the binary for rlmutil (needed for RLM licenses)
     RLMUTIL_PATH: Path = _DEFAULT_BIN_PATH
 
     # debug mode turns on certain dangerous operations
