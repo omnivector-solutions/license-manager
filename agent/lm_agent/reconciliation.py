@@ -13,10 +13,7 @@ from lm_agent.backend_utils import (
     get_config_from_backend,
     get_config_id_from_backend,
 )
-from lm_agent.exceptions import (
-    LicenseManagerBackendConnectionError,
-    LicenseManagerEmptyReportError,
-)
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
