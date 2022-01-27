@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseSettings, DirectoryPath, Field
+from pydantic import BaseSettings, Field
 from pydantic.error_wrappers import ValidationError
 
 logger = logging.getLogger("lm_agent.config")

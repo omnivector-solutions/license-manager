@@ -193,6 +193,7 @@ async def test_rlm_get_report_item_with_no_used_licenses(
         used_licenses=[],
     )
 
+
 @mark.asyncio
 @mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
 async def test_flexlm_get_report_item_with_no_used_licenses(
