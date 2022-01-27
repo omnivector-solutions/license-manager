@@ -83,6 +83,24 @@ def lm_output():
 
 
 @fixture
+def lm_output_no_licenses():
+    """
+    Some lmstat output with no licenses in use to parse
+    """
+    return dedent(
+        """
+        lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
+        ...
+
+        Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 0 licenses in use)
+
+        ...
+
+        """
+    )
+
+
+@fixture
 def rlm_output():
     return """Setting license file path to 10@licserv.server.com
 rlmutil v12.2
