@@ -26,20 +26,6 @@ def license_servers():
     return ["172.0.1.2 2345", "172.0.1.3 2345"]
 
 
-@fixture(autouse=True)
-def backend_setting():
-    """
-    Redirect the bin path to the mock_tools folder.
-    """
-    with patch.multiple(
-        settings,
-        BACKEND_BASE_URL="http://backend",
-        LMSTAT_BIN_PATH=MOCK_BIN_PATH,
-        RLMSTAT_BIN_PATH=MOCK_BIN_PATH,
-    ) as mck:
-        yield mck
-
-
 @fixture
 def respx_mock():
     """
