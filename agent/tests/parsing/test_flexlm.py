@@ -10,7 +10,7 @@ from lm_agent.parsing.flexlm import parse
     "fixture,result",
     [
         (
-            "lm_output",
+            "lmstat_output",
             {
                 "total": {"feature": "TESTFEATURE", "total": 1000, "used": 93},
                 "uses": [
@@ -20,7 +20,7 @@ from lm_agent.parsing.flexlm import parse
                 ],
             },
         ),
-        ("lm_output_bad", {"total": None, "uses": []}),
+        ("lmstat_output_bad", {"total": None, "uses": []}),
     ],
 )
 def test_parse(request, fixture, result):
