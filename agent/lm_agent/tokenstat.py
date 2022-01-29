@@ -103,7 +103,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
             or parsed_output.get("total", {}).get("used") is None
             or parsed_output.get("total", {}).get("total") is None
         ):
-            raise LicenseManagerBadServerOutput()
+            raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
             product_feature=product_feature,

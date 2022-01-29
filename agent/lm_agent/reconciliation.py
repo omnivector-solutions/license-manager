@@ -173,7 +173,7 @@ async def update_report():
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )
-        raise LicenseManagerEmptyReportError()
+        raise LicenseManagerEmptyReportError("Got an empty response from the license server")
     client = backend_client
     try:
         r = await client.patch(RECONCILE_URL_PATH, json=rep)

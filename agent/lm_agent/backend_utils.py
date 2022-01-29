@@ -136,10 +136,6 @@ class SyncBackendClient(httpx.Client):
         return request
 
 
-class LicenseManagerEmptyReportError(Exception):
-    """Exception for empty report when no licenses added in backend"""
-
-
 async def get_license_manager_backend_version() -> str:
     """Return the license-manager-backend version."""
     resp = await backend_client.get("/lm/version")
@@ -153,8 +149,7 @@ async def get_license_manager_backend_version() -> str:
 class BackendConfigurationRow(BaseModel):
     """
     NOTE: This is a copy of the schema from the backend.
-          If the schema changes upstream in a non-reverse-compatible
-          way, this schema should cause errors in deserialization.
+          If the schema changes upstream in a non-reverse-compatible way, this schema should cause errors in deserialization.
     """
 
     class Config:

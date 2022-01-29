@@ -9,21 +9,21 @@ class LicenseManagerAuthTokenError(Buzz):
     """Exception for backend connection issues."""
 
 
-class LicenseManagerBackendConnectionError(Exception):
+class LicenseManagerBackendConnectionError(Buzz):
     """Exception for backend connection issues."""
 
 
-class LicenseManagerBackendVersionError(Exception):
+class LicenseManagerBackendVersionError(Buzz):
     """Exception for backend/agent version mismatches."""
 
 
-class LicenseManagerEmptyReportError(Exception):
+class LicenseManagerEmptyReportError(Buzz):
     """Exception for empty report when no licenses added in backend."""
 
 
-class LicenseManagerNonSupportedServerTypeError(Exception):
+class LicenseManagerNonSupportedServerTypeError(Buzz):
     """Exception for entry with non supported server type."""
 
 
-class LicenseManagerBadServerOutput(Exception):
+class LicenseManagerBadServerOutput(Buzz):
     """Exception for license server bad output."""
