@@ -6,11 +6,14 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.2.0 - 2022-02-02
+------------------
+* Refactored tokenstat module
 * Remove lmstat binary
 * Get license server type from backend configuration row
 * Fix rlmutil command path
 * Added auth via Auth0 and removed static token logic
-* Refactored tokenstat module
 
 2.1.1 - 2022-01-10
 ------------------

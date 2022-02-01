@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.2.0 -- 2022-02-02
+-------------------
 * Simplified the permissions structure to a view/edit model for each data model
 
 2.1.5 -- 2022-01-13
