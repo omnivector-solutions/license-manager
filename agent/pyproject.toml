@@ -43,8 +43,8 @@ env = [
     "LM2_AGENT_AUTH0_CLIENT_ID = str",
     "LM2_AGENT_AUTH0_CLIENT_SECRET = str",
     "LM2_AGENT_BACKEND_BASE_URL = http://backend",
-    "LM2_AGENT_LMSTAT_BIN_PATH = ./tests/mock_tools",
-    "LM2_AGENT_RLMSTAT_BIN_PATH = ./tests/mock_tools",
+    "LM2_AGENT_LMUTIL_PATH = ./tests/mock_tools",
+    "LM2_AGENT_RLMUTIL_PATH = ./tests/mock_tools",
 ]
 
 [tool.black]
