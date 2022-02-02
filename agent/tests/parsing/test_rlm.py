@@ -41,7 +41,7 @@ from lm_agent.parsing.rlm import _get_start_offset, parse
                 ],
             },
         ),
-        ("lm_output_bad", {"total": [], "uses": []}),
+        ("lmstat_output_bad", {"total": [], "uses": []}),
         (
             "rlm_output_no_licenses",
             {
@@ -65,7 +65,7 @@ def test_parse(request, fixture, result):
     assert parse(text) == result
 
 
-@mark.parametrize("fixture,result", [("rlm_output", 41), ("lm_output_bad", 0)])
+@mark.parametrize("fixture,result", [("rlm_output", 41), ("lmstat_output_bad", 0)])
 def test_get_start_offset(request, fixture, result):
     """
     Test the function that returns the offset for the RLM parser

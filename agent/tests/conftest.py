@@ -26,14 +26,6 @@ def license_servers():
     return ["172.0.1.2 2345", "172.0.1.3 2345"]
 
 
-@fixture(autouse=True)
-def backend_setting():
-    """
-    Redirect the bin path to the mock_tools folder.
-    """
-    settings.BIN_PATH = MOCK_BIN_PATH
-
-
 @fixture
 def respx_mock():
     """
@@ -49,7 +41,7 @@ def respx_mock():
 
 
 @fixture
-def lm_output_bad():
+def lmstat_output_bad():
     """
     Some unparseable lmstat output
     """
@@ -64,7 +56,7 @@ def lm_output_bad():
 
 
 @fixture
-def lm_output():
+def lmstat_output():
     """
     Some lmstat output to parse
     """
@@ -85,6 +77,24 @@ def lm_output():
         "start Thu 10/29 8:09, 27 licenses\n"
         "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
         "start Thu 10/29 8:09, 37 licenses\n"
+    )
+
+
+@fixture
+def lmstat_output_no_licenses():
+    """
+    Some lmstat output with no licenses in use to parse
+    """
+    return dedent(
+        """
+        lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
+        ...
+
+        Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 0 licenses in use)
+
+        ...
+
+        """
     )
 
 

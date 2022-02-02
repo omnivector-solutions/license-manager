@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 from httpx import Response
 
-from lm_agent.backend_utils import LicenseManagerBackendConnectionError
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,
@@ -168,7 +168,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
     Check the correct behavior when the report is empty in reconcile.
     """
     report_mock.return_value = []
-    with pytest.raises(LicenseManagerBackendConnectionError):
+    with pytest.raises(LicenseManagerEmptyReportError):
         await update_report()
 
 

@@ -8,12 +8,12 @@ from typing import Dict, List
 from httpx import ConnectError
 
 from lm_agent.backend_utils import (
-    LicenseManagerBackendConnectionError,
     backend_client,
     get_bookings_from_backend,
     get_config_from_backend,
     get_config_id_from_backend,
 )
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
@@ -140,13 +140,15 @@ async def reconcile():
         bookings_sum = license_data["bookings_sum"]
         license_total = license_data["license_total"]
         license_used = license_data["license_used"]
-        slurm_used = await get_tokens_for_license(product_feature + "@flexlm", "Used")
         config_id = await get_config_id_from_backend(product_feature)
         minimum_value = 0
+        server_type = ""
         for config in configs:
             if config.id == config_id:
                 minimum_value = config.features[product_feature.split(".")[1]]
+                server_type = config.license_server_type
                 break
+        slurm_used = await get_tokens_for_license(product_feature + "@" + server_type, "Used")
         if slurm_used is None:
             slurm_used = 0
         new_quantity = license_total - license_used - bookings_sum + slurm_used
@@ -171,7 +173,7 @@ async def update_report():
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )
-        raise LicenseManagerBackendConnectionError("Failed to collect license data")
+        raise LicenseManagerEmptyReportError("Got an empty response from the license server")
     client = backend_client
     try:
         r = await client.patch(RECONCILE_URL_PATH, json=rep)
