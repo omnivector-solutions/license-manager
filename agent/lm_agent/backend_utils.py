@@ -138,7 +138,7 @@ class SyncBackendClient(httpx.Client):
 async def check_backend_health():
     """Hit the API's health-check endpoint to make sure the API is available."""
     resp = await backend_client.get("/lm/health")
-    if resp.status_code != 200:
+    if resp.status_code != 204:
         logger.error("license-manager-backend health-check failed.")
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 

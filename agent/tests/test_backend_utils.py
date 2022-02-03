@@ -171,7 +171,7 @@ def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(mock
 
 @mark.asyncio
 async def test_check_backend_health__success_on_two_hundered(respx_mock):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(200))
+    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(204))
     await check_backend_health()
 
 
