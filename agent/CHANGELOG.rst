@@ -7,6 +7,11 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.1 - 2022-02-03
+------------------
+* Removed version check from backend
+* Adjusted default token cache dir
+
 2.2.0 - 2022-02-02
 ------------------
 * Refactored tokenstat module
