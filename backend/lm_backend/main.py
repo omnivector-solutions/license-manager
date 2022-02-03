@@ -7,7 +7,6 @@ import logging
 import sys
 from typing import cast
 
-import pkg_resources
 import sentry_sdk
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,15 +44,6 @@ if settings.SENTRY_DSN:
 )
 async def health_check():
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@subapp.get("/version")
-async def version():
-    """
-    return the license-manager-backend version.
-    """
-    version = pkg_resources.get_distribution("license-manager-backend").version
-    return dict(message="OK", version=version)
 
 
 app = FastAPI()

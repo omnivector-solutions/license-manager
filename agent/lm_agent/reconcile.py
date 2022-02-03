@@ -6,9 +6,8 @@ import typing
 import pkg_resources
 import sentry_sdk
 
-from lm_agent.backend_utils import get_license_manager_backend_version
+from lm_agent.backend_utils import check_backend_health
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBackendVersionError
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
@@ -20,19 +19,6 @@ if settings.SENTRY_DSN:
         sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
         environment=settings.DEPLOY_ENV,
     )
-
-
-async def backend_version_check():
-    """Check that the license-manager-backend version matches our own."""
-
-    # Get the backend_version and check that the major version matches our own.
-    backend_version = await get_license_manager_backend_version()
-    logger.info(f"Agent Version: {AGENT_VERSION}")
-    logger.info(f"Backend Version: {backend_version}")
-    if backend_version.split(".")[0] != AGENT_VERSION.split(".")[0]:
-        logger.error(f"license-manager-backend incompatible version: {backend_version}.")
-        raise LicenseManagerBackendVersionError()
-    logger.info("license-manager-backend successfully connected.")
 
 
 def begin_logging():
@@ -48,7 +34,7 @@ async def run_reconcile():
     """Main function to setup the env and call the reconcile function."""
     begin_logging()
     logger.info("Starting reconcile script")
-    await backend_version_check()
+    await check_backend_health()
     await reconcile()
     logger.info("Reconcile completed successfully")
 

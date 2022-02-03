@@ -10,16 +10,6 @@ from lm_backend import main
 
 
 @mark.asyncio
-async def test_version(backend_client):
-    """
-    Does a version endpoint exist?
-    """
-    resp = await backend_client.get("/lm/version")
-    assert resp.status_code == 200
-    assert resp.json()["version"] != None
-
-
-@mark.asyncio
 async def test_health_check(backend_client: AsyncClient):
     """
     Test the health check route.

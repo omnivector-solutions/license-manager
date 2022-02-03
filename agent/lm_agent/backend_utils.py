@@ -2,7 +2,6 @@
 Provide utilities that communicate with the backend.
 """
 import typing
-from pathlib import Path
 
 import httpx
 import jwt
@@ -11,8 +10,6 @@ from pydantic import BaseModel, ValidationError
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerAuthTokenError, LicenseManagerBackendConnectionError
 from lm_agent.logs import logger
-
-CACHE_DIR = Path.home() / ".cache/license-manager"
 
 
 def _load_token_from_cache() -> typing.Union[str, None]:
@@ -24,7 +21,7 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     * Can't read the token
     * The token is expired (or will expire within 10 seconds)
     """
-    token_path = CACHE_DIR / "token"
+    token_path = settings.CACHE_DIR / "auth-token"
     if not token_path.exists():
         return None
 
@@ -47,15 +44,17 @@ def _write_token_to_cache(token: str):
     """
     Writes the token to the cache.
     """
-    if not CACHE_DIR.exists():
+    if not settings.CACHE_DIR.exists():
         logger.debug("Attempting to create missing cache directory")
         try:
-            CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+            settings.CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
         except Exception:
-            logger.warning(f"Couldn't create missing cache directory {CACHE_DIR}. Token will not be saved.")
+            logger.warning(
+                f"Couldn't create missing cache directory {settings.CACHE_DIR}. Token will not be saved."
+            )
             return
 
-    token_path = CACHE_DIR / "token"
+    token_path = settings.CACHE_DIR / "auth-token"
     try:
         token_path.write_text(token)
     except Exception:
@@ -136,14 +135,12 @@ class SyncBackendClient(httpx.Client):
         return request
 
 
-async def get_license_manager_backend_version() -> str:
-    """Return the license-manager-backend version."""
-    resp = await backend_client.get("/lm/version")
-    # Check that we have a valid response.
+async def check_backend_health():
+    """Hit the API's health-check endpoint to make sure the API is available."""
+    resp = await backend_client.get("/lm/health")
     if resp.status_code != 200:
-        logger.error("license-manager-backend version could not be obtained.")
-        raise LicenseManagerBackendConnectionError("Could not obtain version from backend")
-    return resp.json()["version"]
+        logger.error("license-manager-backend health-check failed.")
+        raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 
 
 class BackendConfigurationRow(BaseModel):
