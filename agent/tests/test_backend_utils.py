@@ -11,8 +11,8 @@ from lm_agent.backend_utils import (
     _load_token_from_cache,
     _write_token_to_cache,
     acquire_token,
+    check_backend_health,
     get_config_from_backend,
-    get_license_manager_backend_version,
 )
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBackendConnectionError
@@ -24,7 +24,7 @@ def test__write_token_to_cache__caches_a_token(mock_cache_dir):
     """
     mock_cache_dir.mkdir(parents=True)
     _write_token_to_cache("dummy-token")
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     assert token_path.exists()
     assert token_path.read_text() == "dummy-token"
 
@@ -43,7 +43,7 @@ def test__write_token_to_cache__warns_if_token_cannot_be_created(mock_cache_dir,
     Verifies that a warning is logged if the token file cannot be written.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     token_path.write_text("pre-existing data")
     token_path.chmod(0o000)
 
@@ -61,7 +61,7 @@ def test__load_token_from_cache__loads_token_data_from_the_cache(mock_cache_dir)
     Verifies that a token can be retrieved from the cache.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     one_minute_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 60
     created_token = jwt.encode(
         dict(exp=one_minute_from_now),
@@ -89,7 +89,7 @@ def test__load_token_from_cache__returns_none_and_warns_if_cached_token_cannot_b
     Verifies that None is returned if the token cannot be read. Also checks that a warning is logged.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     token_path.write_text("pre-existing data")
     token_path.chmod(0o000)
 
@@ -105,7 +105,7 @@ def test__load_token_from_cache__returns_none_and_warns_if_cached_token_is_expir
     Verifies that None is returned if the token is expired. Also checks that a warning is logged.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     one_second_ago = int(datetime.now(tz=timezone.utc).timestamp()) - 1
     expired_token = jwt.encode(dict(exp=one_second_ago), key="dummy-key", algorithm="HS256")
     token_path.write_text(expired_token)
@@ -124,7 +124,7 @@ def test__load_token_from_cache__returns_none_and_warns_if_cached_token_will_exp
     Verifies that None is returned if the token will expired soon. Also checks that a warning is logged.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     nine_seconds_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 9
     expired_token = jwt.encode(dict(exp=nine_seconds_from_now), key="dummy-key", algorithm="HS256")
     token_path.write_text(expired_token)
@@ -141,7 +141,7 @@ def test_acquire_token__gets_a_token_from_the_cache(mock_cache_dir):
     Verifies that the token is retrieved from the cache if it is found there.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     one_minute_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 60
     created_token = jwt.encode(
         dict(exp=one_minute_from_now),
@@ -159,34 +159,27 @@ def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(mock
     Also checks to make sure the token is cached.
     """
     mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     assert not token_path.exists()
 
     retrieved_token = acquire_token()
     assert retrieved_token == "dummy-token"
 
-    token_path = mock_cache_dir / "token"
+    token_path = mock_cache_dir / "auth-token"
     assert token_path.read_text() == retrieved_token
 
 
 @mark.asyncio
-async def test_get_license_manager_backend_version__returns_version_on_two_hundred(respx_mock):
-    test_backend_version = "2.5.4"
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/version").mock(
-        return_value=Response(
-            200,
-            json=dict(version=test_backend_version),
-        ),
-    )
-    backend_version = await get_license_manager_backend_version()
-    assert backend_version == test_backend_version
+async def test_check_backend_health__success_on_two_hundered(respx_mock):
+    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(204))
+    await check_backend_health()
 
 
 @mark.asyncio
 async def test_get_license_manager_backend_version__raises_exception_on_non_two_hundred(respx_mock):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/version").mock(return_value=Response(500))
-    with raises(LicenseManagerBackendConnectionError):
-        await get_license_manager_backend_version()
+    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(500))
+    with raises(LicenseManagerBackendConnectionError, match="Could not connect"):
+        await check_backend_health()
 
 
 @mark.asyncio
