@@ -3,15 +3,12 @@ import asyncio
 import logging
 import typing
 
-import pkg_resources
 import sentry_sdk
 
 from lm_agent.backend_utils import check_backend_health
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
-
-AGENT_VERSION = pkg_resources.get_distribution("license-manager-agent").version
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(
