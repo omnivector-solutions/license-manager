@@ -111,10 +111,8 @@ async def _find_license_updates_and_inserts(
     """
     license_dict = {i.product_feature: i for i in licenses}
 
-    q_updating = (
-        select([license_table.c.product_feature])
-        .column(license_table.c.product_feature)
-        .where(license_table.c.product_feature.in_(list(license_dict.keys())))
+    q_updating = select([license_table.c.product_feature]).where(
+        license_table.c.product_feature.in_(list(license_dict.keys()))
     )
     updating = [r[0] for r in await database.fetch_all(q_updating)]
     not_updating = list(set(license_dict.keys()) - set(updating))
