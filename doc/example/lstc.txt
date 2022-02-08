@@ -1,3 +1,0 @@
-$ LSTC_LICENSE_SERVER=licserv0004      /share/apps/dyna/netsecurity/lstc_qrun
-/share/apps/dyna/netsecurity/lstc_qrun: line 4: 92968: Memory fault
-Segmentation fault
