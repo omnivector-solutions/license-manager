@@ -14,7 +14,7 @@ project_metadata = toml.load(project_root / "pyproject.toml")["tool"]["poetry"]
 
 author = ", ".join([re.sub(r"(.*)<.*>", r"\1", a) for a in project_metadata["authors"]])
 project = project_metadata["name"]
-copyright = f"© 2020 - {datetime.datetime.now().year}, Scania CV AB & Omnivector Solutions, LLC"
+copyright = f"2020 - {datetime.datetime.now().year}, Scania CV AB & Omnivector Solutions, LLC"
 repo_url = project = project_metadata["repository"]
 version = project_metadata["version"]
 release = project_metadata["version"]
