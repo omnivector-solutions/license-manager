@@ -7,6 +7,9 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.3 - 2022-02-09
+* Fixed permission error when accessing cached token 
+
 2.2.2 - 2022-02-03
 ------------------
 * Bump to sync with lm-backend version
