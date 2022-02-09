@@ -22,7 +22,11 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     * The token is expired (or will expire within 10 seconds)
     """
     token_path = settings.CACHE_DIR / "auth-token"
-    if not token_path.exists():
+
+    try:
+        if not token_path.exists():
+            return None
+    except Exception:
         return None
 
     try:
