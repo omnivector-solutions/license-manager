@@ -9,6 +9,7 @@ from lm_agent.exceptions import LicenseManagerBadServerOutput, LicenseManagerNon
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
+from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
 from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
 
@@ -78,6 +79,7 @@ async def report() -> typing.List[dict]:
     server_type_map = dict(
         flexlm=FlexLMLicenseServer,
         rlm=RLMLicenseServer,
+        lsdyna=LSDynaLicenseServer,
     )
 
     for entry in filtered_entries:
