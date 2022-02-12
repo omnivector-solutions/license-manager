@@ -2,21 +2,9 @@ from unittest import mock
 
 from pytest import fixture, mark
 
-from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
-
-
-@fixture
-def one_configuration_row_rlm():
-    return BackendConfigurationRow(
-        product="converge",
-        features={"super": 10},
-        license_servers=["rlm:127.0.0.1:2345"],
-        license_server_type="rlm",
-        grace_time=10000,
-    )
 
 
 @fixture
