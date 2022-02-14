@@ -1,3 +1,4 @@
+"""Module for license server interface abstract base class."""
 import abc
 import typing
 
