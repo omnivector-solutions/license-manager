@@ -42,17 +42,14 @@ def parse(s: str) -> dict:
             continue
         program_data = parsed_program.groupdict()
 
-        if program_data["used"] != "-":
-            program_data["used"] = int(program_data["used"])
         program_data["program"] = program_data["program"].lower()
 
         parsed_data[program_data["program"]] = {
             "total": int(program_data["max"]),
-            "used": program_data["used"],
             "uses": [],
         }
 
-        if parsed_data[program_data["program"]]["used"] == "-":
+        if program_data["used"] == "-":
             calculated_used = 0
             for line in lines[i + 1 :]:
                 parsed_usage = RX_USAGE.match(line)
@@ -68,5 +65,7 @@ def parse(s: str) -> dict:
                 )
                 calculated_used += int(usage_data["used"])
             parsed_data[program_data["program"]]["used"] = calculated_used
+        else:
+            parsed_data[program_data["program"]]["used"] = int(program_data["used"])
 
     return parsed_data
