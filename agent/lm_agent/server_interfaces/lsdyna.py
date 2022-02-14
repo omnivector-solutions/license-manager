@@ -1,3 +1,4 @@
+"""LS-Dyna license server interface."""
 import typing
 
 from lm_agent.config import settings

@@ -1,3 +1,4 @@
+"""Test the LS-Dyna license server interface."""
 from unittest import mock
 
 from pytest import fixture, mark
