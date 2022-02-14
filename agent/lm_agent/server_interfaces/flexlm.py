@@ -1,3 +1,4 @@
+"""FlexLM license server interface."""
 import typing
 
 from lm_agent.config import settings
@@ -32,7 +33,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
-            feature = product_feature.split(".")[1]
+            (_, feature) = product_feature.split(".")
             feature_cmd = f"{cmd} {feature}"
             output = await run_command(feature_cmd)
 
@@ -50,11 +51,12 @@ class FlexLMLicenseServer(LicenseServerInterface):
         parsed_output = self.parser(server_output)
 
         # raise exception if parser didn't output license information
-        if (
-            parsed_output.get("total") is None
-            or parsed_output.get("uses") is None
-            or parsed_output.get("total", {}).get("used") is None
-            or parsed_output.get("total", {}).get("total") is None
+        if parsed_output.get("total") is None or any(
+            [
+                parsed_output.get("total", {}).get("used") is None,
+                parsed_output.get("total", {}).get("total") is None,
+                parsed_output.get("uses") is None,
+            ]
         ):
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
