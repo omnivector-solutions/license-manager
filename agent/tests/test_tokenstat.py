@@ -2,12 +2,10 @@ from textwrap import dedent
 from typing import List
 from unittest import mock
 
-from pytest import fixture, mark, raises
+from pytest import fixture, mark
 
 from lm_agent import tokenstat
 from lm_agent.backend_utils import BackendConfigurationRow
-from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBadServerOutput
 
 
 @fixture
@@ -33,16 +31,6 @@ def one_configuration_row_rlm():
 
 
 @fixture
-def flexlm_server(one_configuration_row_flexlm):
-    return tokenstat.FlexLMLicenseServer(one_configuration_row_flexlm.license_servers)
-
-
-@fixture
-def rlm_server(one_configuration_row_rlm):
-    return tokenstat.RLMLicenseServer(one_configuration_row_rlm.license_servers)
-
-
-@fixture
 def scontrol_show_lic_output_flexlm():
     return dedent(
         """
@@ -59,155 +47,6 @@ def scontrol_show_lic_output_rlm():
         LicenseName=converge.super@rlm
             Total=10 Used=0 Free=10 Reserved=0 Remote=yes
         """
-    )
-
-
-def test_get_flexlm_commands_list(flexlm_server):
-    """
-    Do the commands for invoking the license server have the correct data?
-    """
-    commands_list = flexlm_server.get_commands_list()
-    assert commands_list == [f"{settings.LMUTIL_PATH} lmstat -c 2345@127.0.0.1 -f"]
-
-
-def test_get_rlm_commands_list(rlm_server):
-    """
-    Do the commands for invoking the license server have the correct data?
-    """
-    commands_list = rlm_server.get_commands_list()
-    assert commands_list == [f"{settings.RLMUTIL_PATH} rlmstat -c 2345@127.0.0.1 -a -p"]
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.asyncio.wait_for")
-@mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
-async def test_flexlm_get_output_from_server(
-    create_subprocess_mock: mock.MagicMock,
-    wait_for_mock: mock.MagicMock,
-    flexlm_server,
-    lmstat_output,
-):
-    """
-    Do the license server interface return the output from the license server?
-    """
-    proc_mock = mock.MagicMock()
-    proc_mock.returncode = 0
-
-    create_subprocess_mock.return_value = proc_mock
-    wait_for_mock.return_value = (
-        bytes(lmstat_output, encoding="UTF8"),
-        None,
-    )
-
-    output = await flexlm_server.get_output_from_server("testproduct.testfeature")
-    assert output == lmstat_output
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.asyncio.wait_for")
-@mock.patch("lm_agent.tokenstat.asyncio.create_subprocess_shell")
-async def test_rlm_get_output_from_server(
-    create_subprocess_mock: mock.MagicMock,
-    wait_for_mock: mock.MagicMock,
-    rlm_server,
-    rlm_output,
-):
-    """
-    Do the license server interface return the output from the license server?
-    """
-    proc_mock = mock.MagicMock()
-    proc_mock.returncode = 0
-
-    create_subprocess_mock.return_value = proc_mock
-    wait_for_mock.return_value = (
-        bytes(rlm_output, encoding="UTF8"),
-        None,
-    )
-
-    output = await rlm_server.get_output_from_server()
-    assert output == rlm_output
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
-async def test_flexlm_get_report_item(
-    get_output_from_server_mock: mock.MagicMock, flexlm_server, lmstat_output
-):
-    """
-    Do the FlexLM server interface generate a report item for the product?
-    """
-    get_output_from_server_mock.return_value = lmstat_output
-
-    assert await flexlm_server.get_report_item("testproduct.testfeature") == tokenstat.LicenseReportItem(
-        product_feature="testproduct.testfeature",
-        used=93,
-        total=1000,
-        used_licenses=[
-            {"booked": 29, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-            {"booked": 27, "user_name": "cdxfdn", "lead_host": "myserver.example.com"},
-            {"booked": 37, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-        ],
-    )
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.RLMLicenseServer.get_output_from_server")
-async def test_rlm_get_report_item(get_output_from_server_mock: mock.MagicMock, rlm_server, rlm_output):
-    """
-    Do the RLM server interface generate a report item for the product?
-    """
-    get_output_from_server_mock.return_value = rlm_output
-
-    assert await rlm_server.get_report_item("converge.super") == tokenstat.LicenseReportItem(
-        product_feature="converge.super",
-        used=93,
-        total=1000,
-        used_licenses=[
-            {"booked": 29, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-            {"booked": 27, "user_name": "cdxfdn", "lead_host": "myserver.example.com"},
-            {"booked": 37, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-        ],
-    )
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
-async def test_flexlm_get_report_item_with_bad_output(
-    get_output_from_server_mock: mock.MagicMock, flexlm_server, lmstat_output_bad
-):
-    get_output_from_server_mock.return_value = lmstat_output_bad
-
-    with raises(LicenseManagerBadServerOutput):
-        await flexlm_server.get_report_item("testproduct.testfeature")
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.RLMLicenseServer.get_output_from_server")
-async def test_rlm_get_report_item_with_no_used_licenses(
-    get_output_from_server_mock: mock.MagicMock, rlm_server, rlm_output_no_licenses
-):
-    get_output_from_server_mock.return_value = rlm_output_no_licenses
-
-    assert await rlm_server.get_report_item("converge.super") == tokenstat.LicenseReportItem(
-        product_feature="converge.super",
-        used=0,
-        total=1000,
-        used_licenses=[],
-    )
-
-
-@mark.asyncio
-@mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
-async def test_flexlm_get_report_item_with_no_used_licenses(
-    get_output_from_server_mock: mock.MagicMock, flexlm_server, lmstat_output_no_licenses
-):
-    get_output_from_server_mock.return_value = lmstat_output_no_licenses
-
-    assert await flexlm_server.get_report_item("testproduct.testfeature") == tokenstat.LicenseReportItem(
-        product_feature="testproduct.testfeature",
-        used=0,
-        total=1000,
-        used_licenses=[],
     )
 
 
@@ -244,7 +83,7 @@ async def test_flexlm_get_report_item_with_no_used_licenses(
         ),
     ],
 )
-@mock.patch("lm_agent.tokenstat.FlexLMLicenseServer.get_output_from_server")
+@mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_flexlm_get_report(
@@ -314,7 +153,7 @@ async def test_flexlm_get_report(
         ),
     ],
 )
-@mock.patch("lm_agent.tokenstat.RLMLicenseServer.get_output_from_server")
+@mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_rlm_get_report(
