@@ -8,15 +8,15 @@ from lm_agent.config import PRODUCT_FEATURE_RX
 
 class LicenseServerInterface(metaclass=abc.ABCMeta):
     """
-    Abstract class for License Server interface.
+    Abstract base class for License Server interface.
 
     The logic for obtaining the data output from the License Server should be encapsulated in
-    the get_output_from_server method.
+    the ``get_output_from_server`` method.
 
-    After obtaining the output, the parsing and manipulation of the data should be implement in
-    the get_report_item method.
+    After obtaining the output, the parsing and manipulation of the data should be implemented in
+    the ``get_report_item`` method.
 
-    It is expected the license information to be parsed into an LicenseReportItem.
+    The license information should be parsed into a ``LicenseReportItem``.
     """
 
     @classmethod
