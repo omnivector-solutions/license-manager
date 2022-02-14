@@ -1,3 +1,4 @@
+"""Provide utilities to be used by some of the license server interfaces."""
 import asyncio
 
 from lm_agent.config import ENCODING, TOOL_TIMEOUT
