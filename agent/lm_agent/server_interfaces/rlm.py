@@ -73,8 +73,7 @@ class RLMLicenseServer(LicenseServerInterface):
             if feature_item["feature"].count("_") == 0:  # `converge`
                 if feature_item["feature"] == feature:
                     return feature_item
-            elif "".join(feature_item["feature"].split("_")[1:]) == feature:
-                # `converge_super` | `converge_gui_polygonica` | `converge_...`
+            elif "_".join(feature_item["feature"].split("_")[1:]) == feature:
                 return feature_item
 
     def _filter_used_features(self, parsed_list, feature):
@@ -86,7 +85,7 @@ class RLMLicenseServer(LicenseServerInterface):
             if feature_booked["feature"].count("_") == 0:
                 if feature_booked["feature"] == feature:
                     used_licenses.append(feature_booked)
-            elif "".join(feature_booked["feature"].split("_")[1:]) == feature:
+            elif "_".join(feature_booked["feature"].split("_")[1:]) == feature:
                 used_licenses.append(feature_booked)
 
         for license in used_licenses:
