@@ -33,7 +33,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
-            feature = product_feature.split(".")[1]
+            (_, feature) = product_feature.split(".")
             feature_cmd = f"{cmd} {feature}"
             output = await run_command(feature_cmd)
 
