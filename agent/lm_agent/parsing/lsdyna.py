@@ -61,8 +61,7 @@ def parse(s: str) -> dict:
         }
 
         if program_data["used"] == "-":
-            calculated_used = 0
-            for line in lines[i + 1 :]:
+            for line in lines[i + 1 :]:  # noqa: E203
                 parsed_usage = RX_USAGE.match(line)
                 if parsed_usage is None:
                     continue
