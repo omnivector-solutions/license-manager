@@ -55,7 +55,7 @@ def test_parse(request, fixture, result):
     We have three kinds of output from the license server:
         lsdyna_output -> expected output with info about licenses in use;
         lsdyna_output_bad -> unparseable output (connection error);
-        lsdyna_output_no_licenses -> expectec output when no licenses are in use;
+        lsdyna_output_no_licenses -> expected output when no licenses are in use;
     The parametrization in this test will ensure we test against each of them.
     """
     text = request.getfixturevalue(fixture)
