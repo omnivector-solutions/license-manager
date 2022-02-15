@@ -51,7 +51,12 @@ from lm_agent.parsing.lsdyna import parse
 )
 def test_parse(request, fixture, result):
     """
-    Can we parse good and bad output?
+    Does the parser return the correct data for each possible output?
+    We have three kinds of output from the license server:
+        lsdyna_output -> expected output with info about licenses in use;
+        lsdyna_output_bad -> unparseable output (connection error);
+        lsdyna_output_no_licenses -> expectec output when no licenses are in use;
+    The parametrization in this test will ensure we test against each of them.
     """
     text = request.getfixturevalue(fixture)
     assert parse(text) == result
