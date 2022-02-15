@@ -9,11 +9,11 @@ from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 
 
 @fixture
-def lsdyna_server(one_configuration_row_lsdyna):
+def lsdyna_server(one_configuration_row_lsdyna: str) -> LSDynaLicenseServer:
     return LSDynaLicenseServer(one_configuration_row_lsdyna.license_servers)
 
 
-def test_get_lsdyna_commands_list(lsdyna_server):
+def test_get_lsdyna_commands_list(lsdyna_server: LSDynaLicenseServer):
     """
     Do the commands for invoking the license server have the correct data?
     """
@@ -25,8 +25,8 @@ def test_get_lsdyna_commands_list(lsdyna_server):
 @mock.patch("lm_agent.server_interfaces.lsdyna.run_command")
 async def test_lsdyna_get_output_from_server(
     run_command_mock: mock.MagicMock,
-    lsdyna_server,
-    lsdyna_output,
+    lsdyna_server: LSDynaLicenseServer,
+    lsdyna_output: str,
 ):
     """
     Do the license server interface return the output from the license server?
@@ -40,7 +40,7 @@ async def test_lsdyna_get_output_from_server(
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 async def test_lsdyna_get_report_item(
-    get_output_from_server_mock: mock.MagicMock, lsdyna_server, lsdyna_output
+    get_output_from_server_mock: mock.MagicMock, lsdyna_server: LSDynaLicenseServer, lsdyna_output: str
 ):
     """
     Do the LS-Dyna server interface generate a report item for the product?
@@ -65,7 +65,9 @@ async def test_lsdyna_get_report_item(
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 async def test_lsdyna_get_report_item_with_no_used_licenses(
-    get_output_from_server_mock: mock.MagicMock, lsdyna_server, lsdyna_output_no_licenses
+    get_output_from_server_mock: mock.MagicMock,
+    lsdyna_server: LSDynaLicenseServer,
+    lsdyna_output_no_licenses: str,
 ):
     get_output_from_server_mock.return_value = lsdyna_output_no_licenses
 
