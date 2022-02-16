@@ -12,6 +12,7 @@ class LSDynaLicenseServer(LicenseServerInterface):
     """Extract license information from LS-Dyna license server."""
 
     def __init__(self, license_servers: typing.List[str]):
+        """Initialize the license server instance with the license server host and parser."""
         self.license_servers = license_servers
         self.parser = lsdyna.parse
 
