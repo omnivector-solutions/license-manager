@@ -33,6 +33,9 @@ def test_parse_program_line():
         "program": "ls-dyna_971",
         "total": 500,
     }
+    assert parse_program_line("not a program line") is None
+    assert parse_program_line("MPPDYNA          12/30/2022          0") is None
+    assert parse_program_line("") is None
 
 
 def test_parse_usage_line():
@@ -55,6 +58,10 @@ def test_parse_usage_line():
         "lead_host": "n-c55.maas.rnd.com",
         "booked": 40,
     }
+    assert parse_usage_line(" ywazrn     not-a-host  80") is None
+    assert parse_usage_line(" ndhtw9     91665@n-c55.maas.rnd.com") is None
+    assert parse_usage_line("91665@n-c55.maas.rnd.com  20") is None
+    assert parse_usage_line("") is None
 
 
 def test_parse_total_line():
@@ -70,6 +77,9 @@ def test_parse_total_line():
     """
     assert parse_total_line("                   LICENSE GROUP   440     60    500 |     0") == 440
     assert parse_total_line("                   LICENSE GROUP     0    000    500 |     0") == 0
+    assert parse_total_line("                   0    000    500 |     0") is None
+    assert parse_total_line("                   LICENSE GROUP     0") is None
+    assert parse_total_line("") is None
 
 
 def test_parse__correct_output(lsdyna_output):
