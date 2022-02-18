@@ -4,22 +4,10 @@ from unittest import mock
 
 from pytest import fixture, mark, raises
 
-from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
-
-
-@fixture
-def one_configuration_row_flexlm():
-    return BackendConfigurationRow(
-        product="testproduct",
-        features={"testfeature": 10},
-        license_servers=["flexlm:127.0.0.1:2345"],
-        license_server_type="flexlm",
-        grace_time=10000,
-    )
 
 
 @fixture
