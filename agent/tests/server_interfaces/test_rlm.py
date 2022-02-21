@@ -1,19 +1,21 @@
 """Test the RLM license server interface."""
 from unittest import mock
 
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 
+from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
+from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
 
 
 @fixture
-def rlm_server(one_configuration_row_rlm):
+def rlm_server(one_configuration_row_rlm: BackendConfigurationRow):
     return RLMLicenseServer(one_configuration_row_rlm.license_servers)
 
 
-def test_get_rlm_commands_list(rlm_server):
+def test_get_rlm_commands_list(rlm_server: RLMLicenseServer):
     """
     Do the commands for invoking the license server have the correct data?
     """
@@ -25,8 +27,8 @@ def test_get_rlm_commands_list(rlm_server):
 @mock.patch("lm_agent.server_interfaces.rlm.run_command")
 async def test_rlm_get_output_from_server(
     run_command_mock: mock.MagicMock,
-    rlm_server,
-    rlm_output,
+    rlm_server: RLMLicenseServer,
+    rlm_output: str,
 ):
     """
     Do the license server interface return the output from the license server?
@@ -39,7 +41,9 @@ async def test_rlm_get_output_from_server(
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
-async def test_rlm_get_report_item(get_output_from_server_mock: mock.MagicMock, rlm_server, rlm_output):
+async def test_rlm_get_report_item(
+    get_output_from_server_mock: mock.MagicMock, rlm_server: RLMLicenseServer, rlm_output: str
+):
     """
     Do the RLM server interface generate a report item for the product?
     """
@@ -74,8 +78,11 @@ async def test_rlm_get_report_item_with_bad_output(
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 async def test_rlm_get_report_item_with_no_used_licenses(
-    get_output_from_server_mock: mock.MagicMock, rlm_server, rlm_output_no_licenses
+    get_output_from_server_mock: mock.MagicMock, rlm_server: RLMLicenseServer, rlm_output_no_licenses: str
 ):
+    """
+    Do the RLM server interface generate a report item when no licenses are in use?
+    """
     get_output_from_server_mock.return_value = rlm_output_no_licenses
 
     assert await rlm_server.get_report_item("converge.super") == LicenseReportItem(
