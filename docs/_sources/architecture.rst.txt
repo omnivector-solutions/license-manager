@@ -18,6 +18,7 @@ License server support:
 
 * FlexLM
 * RLM
+* LS-Dyna
 
 
 Reconcile

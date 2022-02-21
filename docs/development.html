@@ -518,8 +518,9 @@ license-manager-agent charm. The config should look something like this:</p>
 <span class="w">  </span><span class="nt">pypi-username</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pypi-username&gt;&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">pypi-password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pypi-password&gt;&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">license-manager-backend-base-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://$MY_IP:7000&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">lmstat-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">rlmstat-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">lmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">rlmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">lsdyna-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin&quot;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Make sure to substitute the correct values into the new <code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code> configuration file
@@ -565,7 +566,7 @@ Use the <code class="docutils literal notranslate"><span class="pre">juju</span>
 <div class="section" id="configuring-the-fake-license-server-client">
 <h3>Configuring the fake license server client<a class="headerlink" href="#configuring-the-fake-license-server-client" title="Permalink to this headline">¶</a></h3>
 <p>Modify the fake license server files available in the license-manager-simulador <code class="docutils literal notranslate"><span class="pre">bin</span></code> folder.
-The modifications that must be made in both <code class="docutils literal notranslate"><span class="pre">lms-util.py</span></code> and <code class="docutils literal notranslate"><span class="pre">rlm-util.py</span></code> files are:</p>
+The modifications that must be made in <code class="docutils literal notranslate"><span class="pre">lms-util.py</span></code>, <code class="docutils literal notranslate"><span class="pre">rlm-util.py</span></code> and <code class="docutils literal notranslate"><span class="pre">lsdyna-util.py</span></code> files are:</p>
 <ol class="arabic simple">
 <li><p>change shebang to &quot;#!/srv/license-manager-agent-venv/bin/python3.8&quot;;</p></li>
 <li><p>change template path to &quot;/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin&quot;;</p></li>
@@ -574,23 +575,29 @@ The modifications that must be made in both <code class="docutils literal notran
 <p>Copy the modified files and the templates to the cluster machine where the license manager agent is running.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju scp bin/flexlm.out.tmpl license-manager-agent/0:/tmp
 juju scp bin/rlm.out.tmpl license-manager-agent/0:/tmp
+juju scp bin/lsdyna.out.tmpl license-manager-agent/0:/tmp
 juju scp bin/lms-util.py license-manager-agent/0:/tmp
 juju scp bin/rlm-util.py license-manager-agent/0:/tmp
+juju scp bin/lsdyna-util.py license-manager-agent/0:/tmp
 </pre></div>
 </div>
 <p>With the files in the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> folder, ssh into the machine to rename, set the permission and move them to the correct location.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
 
 <span class="nb">cd</span> /tmp
-sudo mv lms-util.py lmstat
+sudo mv lms-util.py lmutil
 sudo mv rlm-util.py rlmutil
-sudo chmod +x lmstat
+sudo mv lsdyna-util.py lstc_qrun
+sudo chmod +x lmutil
 sudo chmod +x rlmutil
+sudo chmod +x lstc_qrun
 
-sudo mv lmstat /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+sudo mv lmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 sudo mv rlmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+sudo mv lstc_qrun /sdrv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 sudo mv flexlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 sudo mv rlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+sudo mv lsdyna.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 </pre></div>
 </div>
 <p>To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install <code class="docutils literal notranslate"><span class="pre">jinja2</span></code>.</p>
@@ -599,10 +606,10 @@ sudo mv rlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages
 pip install jinja2
 </pre></div>
 </div>
-<p>Now you must be able to simulate FlexLM and RLM license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmstat</span></code> or <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code> files.</p>
+<p>Now you must be able to simulate FlexLM, RLM and LS-Dyna license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code> and <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code> files.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
 <span class="nb">source</span> /srv/license-manager-agent-venv/bin/activate
-/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmstat
+/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 </pre></div>
 </div>
 <p>The output should display the &quot;product.feature&quot; license that was added to the license manager simulator:</p>
@@ -639,8 +646,9 @@ There's a juju action to specify which version of the package you want.</p>
 <p>You should also make sure you have used the correct configurations for the agent. Some of them were already specified in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code>
 file. In case you need to update them, use the <code class="docutils literal notranslate"><span class="pre">juju</span> <span class="pre">config</span></code> command.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju config license-manager-agent sentry-dns<span class="o">=</span><span class="s2">&quot;&quot;</span>
-juju config license-manager-agent lmstat-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-juju config license-manager-agent rlmstat-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+juju config license-manager-agent lmutil-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+juju config license-manager-agent rlmutil-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+juju config license-manager-agent lsdyna-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 </pre></div>
 </div>
 <p>Lasty, restart the license manager agent service and timer.</p>
