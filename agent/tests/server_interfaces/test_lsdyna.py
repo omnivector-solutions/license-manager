@@ -64,6 +64,20 @@ async def test_lsdyna_get_report_item(
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
+async def test_lsdyna_get_report_item_with_bad_output(
+    get_output_from_server_mock: mock.MagicMock, lsdyna_server: LSDynaLicenseServer, lsdyna_output_bad: str
+):
+    """
+    Do the LS-Dyna server interface raise an exception when the server returns an unparseable output?
+    """
+    get_output_from_server_mock.return_value = lsdyna_output_bad
+
+    with raises(LicenseManagerBadServerOutput):
+        await lsdyna_server.get_report_item("mppdyna.mppdyna")
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 async def test_lsdyna_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock,
     lsdyna_server: LSDynaLicenseServer,
