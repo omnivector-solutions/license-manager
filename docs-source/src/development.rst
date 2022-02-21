@@ -232,8 +232,9 @@ license-manager-agent charm. The config should look something like this:
      pypi-username: "<pypi-username>"
      pypi-password: "<pypi-password>"
      license-manager-backend-base-url: "http://$MY_IP:7000"
-     lmstat-path: "/usr/local/bin"
-     rlmstat-path: "/usr/local/bin"
+     lmutil-path: "/usr/local/bin"
+     rlmutil-path: "/usr/local/bin"
+     lsdyna-path: "/usr/local/bin"
 
 Make sure to substitute the correct values into the new ``license-manager-agent.yaml`` configuration file
 (especially the IP address of your host machine)
@@ -288,7 +289,7 @@ Add the license to the cluster using the ``sacctmgr`` command.
 Configuring the fake license server client
 ******************************************
 Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
-The modifications that must be made in both ``lms-util.py`` and ``rlm-util.py`` files are:
+The modifications that must be made in ``lms-util.py``, ``rlm-util.py`` and ``lsdyna-util.py`` files are:
 
 1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8";
 2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin";
@@ -300,8 +301,10 @@ Copy the modified files and the templates to the cluster machine where the licen
 
     juju scp bin/flexlm.out.tmpl license-manager-agent/0:/tmp
     juju scp bin/rlm.out.tmpl license-manager-agent/0:/tmp
+    juju scp bin/lsdyna.out.tmpl license-manager-agent/0:/tmp
     juju scp bin/lms-util.py license-manager-agent/0:/tmp
     juju scp bin/rlm-util.py license-manager-agent/0:/tmp
+    juju scp bin/lsdyna-util.py license-manager-agent/0:/tmp
 
 With the files in the ``/tmp`` folder, ssh into the machine to rename, set the permission and move them to the correct location.
 
@@ -310,15 +313,19 @@ With the files in the ``/tmp`` folder, ssh into the machine to rename, set the p
     juju ssh license-manager-agent/0
 
     cd /tmp
-    sudo mv lms-util.py lmstat
+    sudo mv lms-util.py lmutil
     sudo mv rlm-util.py rlmutil
-    sudo chmod +x lmstat
+    sudo mv lsdyna-util.py lstc_qrun
+    sudo chmod +x lmutil
     sudo chmod +x rlmutil
+    sudo chmod +x lstc_qrun
 
-    sudo mv lmstat /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv lmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
     sudo mv rlmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv lstc_qrun /sdrv/license-manager-agent-venv/lib/python3.8/site-packages/bin
     sudo mv flexlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
     sudo mv rlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    sudo mv lsdyna.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 
 To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install ``jinja2``.
 
@@ -328,13 +335,13 @@ To be able to render the templates, activate the virtual enviroment in the licen
     source /srv/license-manager-agent-venv/bin/activate
     pip install jinja2
 
-Now you must be able to simulate FlexLM and RLM license servers. You can check it by executing ``lmstat`` or ``rlmutil`` files.
+Now you must be able to simulate FlexLM, RLM and LS-Dyna license servers. You can check it by executing ``lmutil``, ``rlmutil`` and ``lstc_qrun`` files.
 
 .. code-block:: bash
 
     juju ssh license-manager-agent/0
     source /srv/license-manager-agent-venv/bin/activate
-    /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmstat
+    /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 
 The output should display the "product.feature" license that was added to the license manager simulator:
 
@@ -376,8 +383,9 @@ file. In case you need to update them, use the ``juju config`` command.
 .. code-block:: bash
 
     juju config license-manager-agent sentry-dns=""
-    juju config license-manager-agent lmstat-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    juju config license-manager-agent rlmstat-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    juju config license-manager-agent lmutil-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    juju config license-manager-agent rlmutil-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+    juju config license-manager-agent lsdyna-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
 
 Lasty, restart the license manager agent service and timer.
 
