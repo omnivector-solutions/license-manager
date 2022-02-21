@@ -55,7 +55,7 @@ class RLMLicenseServer(LicenseServerInterface):
 
         # raise exception if parser didn't output license information
         if current_feature_item is None or used_licenses is None:
-            raise LicenseManagerBadServerOutput()
+            raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
             product_feature=product_feature,

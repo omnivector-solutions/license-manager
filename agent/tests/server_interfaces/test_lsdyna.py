@@ -1,15 +1,17 @@
 """Test the LS-Dyna license server interface."""
 from unittest import mock
 
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 
+from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
+from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 
 
 @fixture
-def lsdyna_server(one_configuration_row_lsdyna: str) -> LSDynaLicenseServer:
+def lsdyna_server(one_configuration_row_lsdyna: BackendConfigurationRow) -> LSDynaLicenseServer:
     return LSDynaLicenseServer(one_configuration_row_lsdyna.license_servers)
 
 
@@ -64,11 +66,28 @@ async def test_lsdyna_get_report_item(
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
+async def test_lsdyna_get_report_item_with_bad_output(
+    get_output_from_server_mock: mock.MagicMock, lsdyna_server: LSDynaLicenseServer, lsdyna_output_bad: str
+):
+    """
+    Do the LS-Dyna server interface raise an exception when the server returns an unparseable output?
+    """
+    get_output_from_server_mock.return_value = lsdyna_output_bad
+
+    with raises(LicenseManagerBadServerOutput):
+        await lsdyna_server.get_report_item("mppdyna.mppdyna")
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 async def test_lsdyna_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock,
     lsdyna_server: LSDynaLicenseServer,
     lsdyna_output_no_licenses: str,
 ):
+    """
+    Do the LS-Dyna server interface generate a report item when no licenses are in use?
+    """
     get_output_from_server_mock.return_value = lsdyna_output_no_licenses
 
     assert await lsdyna_server.get_report_item("mppdyna.mppdyna") == LicenseReportItem(
