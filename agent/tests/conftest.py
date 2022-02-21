@@ -133,6 +133,26 @@ def lmstat_output_no_licenses():
 
 
 @fixture
+def rlm_output_bad():
+    """
+    Some unparseable lmstat output
+    """
+    return dedent(
+        """\
+        rlmutil v12.2
+        Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
+
+
+        Error connecting to "rlm" server
+
+        Connection attempted to host: "" on port 5053
+
+        No error
+        """
+    )
+
+
+@fixture
 def rlm_output():
     """
     Some rlm output to parse
