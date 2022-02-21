@@ -59,6 +59,20 @@ async def test_rlm_get_report_item(get_output_from_server_mock: mock.MagicMock, 
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
+async def test_rlm_get_report_item_with_bad_output(
+    get_output_from_server_mock: mock.MagicMock, rlm_server: RLMLicenseServer, lsdyna_output_bad: str
+):
+    """
+    Do the RLM server interface raise an exception when the server returns an unparseable output?
+    """
+    get_output_from_server_mock.return_value = lsdyna_output_bad
+
+    with raises(LicenseManagerBadServerOutput):
+        await rlm_server.get_report_item("converge.super")
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 async def test_rlm_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock, rlm_server, rlm_output_no_licenses
 ):
