@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Add LS-Dyna license server support
 
 2.2.3 - 2022-02-09
 * Fixed permission error when accessing cached token 
