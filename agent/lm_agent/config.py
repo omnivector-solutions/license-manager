@@ -11,7 +11,6 @@ logger = logging.getLogger("lm_agent.config")
 
 
 DEFAULT_DOTENV_PATH = Path("/etc/default/license-manager-agent")
-DEFAULT_CACHE_DIR = Path("/run/license-manager-agent/")
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 ENCODING = "UTF8"
 TOOL_TIMEOUT = 6  # seconds
@@ -85,9 +84,6 @@ class Settings(BaseSettings):
     AUTH0_AUDIENCE: str
     AUTH0_CLIENT_ID: str
     AUTH0_CLIENT_SECRET: str
-
-    # Token cache directory
-    CACHE_DIR: Path = DEFAULT_CACHE_DIR
 
     class Config:
         env_prefix = "LM2_AGENT_"
