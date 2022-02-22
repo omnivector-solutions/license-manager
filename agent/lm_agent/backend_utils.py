@@ -1,7 +1,6 @@
 """
 Provide utilities that communicate with the backend.
 """
-import pathlib
 import typing
 
 import httpx
@@ -12,19 +11,7 @@ from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerAuthTokenError, LicenseManagerBackendConnectionError
 from lm_agent.logs import logger
 
-
-def _get_cache_dir() -> pathlib.Path:
-    """
-    Get the path to the cache dir. Will always be a sub-directory of the current user's home.
-    """
-    return pathlib.Path.home() / f".cache/license-manager"
-
-
-def _get_token_path() -> pathlib.Path:
-    """
-    Get the path to the access token.
-    """
-    return _get_cache_dir() / "access_token"
+TOKEN_FILE_NAME = "access.token"
 
 
 def _load_token_from_cache() -> typing.Union[str, None]:
@@ -36,7 +23,7 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     * Can't read the token
     * The token is expired (or will expire within 10 seconds)
     """
-    token_path = _get_token_path()
+    token_path = settings.CACHE_DIR / TOKEN_FILE_NAME
     if not token_path.exists():
         return None
 
@@ -59,18 +46,12 @@ def _write_token_to_cache(token: str):
     """
     Writes the token to the cache.
     """
-    cache_dir = _get_cache_dir()
+    cache_dir = settings.CACHE_DIR
     if not cache_dir.exists():
-        logger.debug("Attempting to create missing cache directory")
-        try:
-            cache_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as err:
-            logger.warning(
-                f"Couldn't create missing cache directory {cache_dir}. Token won't be saved: {err}"
-            )
-            return
+        logger.warning(f"Cache directory does not exist {cache_dir}. Token won't be saved.")
+        return
 
-    token_path = _get_token_path()
+    token_path = settings.CACHE_DIR / TOKEN_FILE_NAME
     try:
         token_path.touch(mode=0o600, exist_ok=True)
         token_path.write_text(token)
