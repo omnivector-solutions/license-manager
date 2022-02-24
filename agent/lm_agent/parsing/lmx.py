@@ -10,8 +10,11 @@ VERSION = rf"{INT}\.{INT}"
 
 FEATURE_LINE = rf"^Feature: (?P<feature>\w+) Version: (?P<version>{VERSION}) Vendor: (?P<vendor>\S+)$"
 IN_USE_LINE = rf"^(?P<in_use>{INT}) of (?P<total>{INT}) license\(s\) used(:)?$"
-USAGE_LINE = rf"^(?P<in_use>{INT}) license\(s\) used by (?P<user>\S+)@(?P<lead_host>{HOSTNAME}) \[{INT}\.{INT}\.{INT}\.{INT}\]"
-
+USAGE_LINE = (
+    rf"^(?P<in_use>{INT}) license\(s\) "
+    rf"used by (?P<user>\S+)@(?P<lead_host>{HOSTNAME}) "
+    rf"\[{INT}\.{INT}\.{INT}\.{INT}\]"
+)
 RX_FEATURE = re.compile(FEATURE_LINE)
 RX_IN_USE = re.compile(IN_USE_LINE)
 RX_USAGE = re.compile(USAGE_LINE)
