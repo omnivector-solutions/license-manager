@@ -41,7 +41,7 @@ def test_parse_in_use_line():
     assert parse_in_use_line("") is None
 
 
-def test_usage_line():
+def test_parse_usage_line():
     """
     Does the regex for the usage line match the line in the output?
     The line contains:
@@ -66,59 +66,3 @@ def test_usage_line():
     }
     assert parse_usage_line("0 license(s) used by v-c54.aaa.aa") is None
     assert parse_usage_line("") is None
-
-
-# def test_parse__correct_output(lsdyna_output):
-#     """
-#     Does the parser return the correct data for this output?
-#     - lsdyna_output: expected output from the license server,
-#     which contain licenses and usage information.
-#     """
-#     assert parse(lsdyna_output) == {
-#         "mppdyna": {
-#             "total": 500,
-#             "used": 440,
-#             "uses": [
-#                 {"user_name": "fane8y", "lead_host": "n-c13.maas.rnd.com", "booked": 80},
-#                 {"user_name": "ssskmj", "lead_host": "n-c52.maas.rnd.com", "booked": 80},
-#                 {"user_name": "ssskmj", "lead_host": "n-c15.maas.rnd.com", "booked": 80},
-#                 {"user_name": "ywazrn", "lead_host": "n-c53.maas.rnd.com", "booked": 80},
-#                 {"user_name": "ywazrn", "lead_host": "n-c51.maas.rnd.com", "booked": 80},
-#                 {"user_name": "ndhtw9", "lead_host": "n-c55.maas.rnd.com", "booked": 40},
-#             ],
-#         },
-#         "mppdyna_971": {"total": 500, "used": 440, "uses": []},
-#         "mppdyna_970": {"total": 500, "used": 440, "uses": []},
-#         "mppdyna_960": {"total": 500, "used": 440, "uses": []},
-#         "ls-dyna": {"total": 500, "used": 440, "uses": []},
-#         "ls-dyna_971": {"total": 500, "used": 440, "uses": []},
-#         "ls-dyna_970": {"total": 500, "used": 440, "uses": []},
-#         "ls-dyna_960": {"total": 500, "used": 440, "uses": []},
-#     }
-
-
-# def test_parse__bad_output(lsdyna_output_bad):
-#     """
-#     Does the parser return the correct data for this output?
-#     - lsdyna_output_bad: unparseable output from the license server,
-#     which can happen when a connection error occours.
-#     """
-#     assert parse(lsdyna_output_bad) == {}
-
-
-# def test_parse__no_licenses_output(lsdyna_output_no_licenses):
-#     """
-#     Does the parser return the correct data for this output?
-#     - lsdyna_output_no_licenses: expected output from the server
-#     when none of the licenses are in use by users.
-#     """
-#     assert parse(lsdyna_output_no_licenses) == {
-#         "mppdyna": {"total": 500, "used": 0, "uses": []},
-#         "mppdyna_971": {"total": 500, "used": 0, "uses": []},
-#         "mppdyna_970": {"total": 500, "used": 0, "uses": []},
-#         "mppdyna_960": {"total": 500, "used": 0, "uses": []},
-#         "ls-dyna": {"total": 500, "used": 0, "uses": []},
-#         "ls-dyna_971": {"total": 500, "used": 0, "uses": []},
-#         "ls-dyna_970": {"total": 500, "used": 0, "uses": []},
-#         "ls-dyna_960": {"total": 500, "used": 0, "uses": []},
-#     }
