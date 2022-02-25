@@ -75,6 +75,17 @@ def one_configuration_row_lsdyna():
 
 
 @fixture
+def one_configuration_row_lmx():
+    return BackendConfigurationRow(
+        product="HyperWorks",
+        features={"HyperWorks": 1000000},
+        license_servers=["lmx:127.0.0.1:2345"],
+        license_server_type="lmx",
+        grace_time=10000,
+    )
+
+
+@fixture
 def lmstat_output_bad():
     """
     Some unparseable lmstat output
@@ -369,5 +380,157 @@ def lsdyna_output_no_licenses():
         LS-DYNA_970      12/30/2022          0    000    500 |     0
         LS-DYNA_960      12/30/2022          0    000    500 |     0
                            LICENSE GROUP     0    000    500 |     0
+        """
+    )
+
+
+@fixture
+def lmx_output_bad():
+    """
+    Some unparseable  output
+    """
+    return dedent(
+        """\
+        Cannot connect to server.
+        """
+    )
+
+
+@fixture
+def lmx_output():
+    """
+    Some LM-X output to parse
+    """
+    return dedent(
+        """\
+        LM-X End-user Utility v3.32
+        Copyright (C) 2002-2010 X-Formation. All rights reserved.
+
+        ++++++++++++++++++++++++++++++++++++++++
+        LM-X License Server on 6200@licserv0013.com:
+
+        Server version: v5.1 Uptime: 3 day(s) 12 hour(s) 0 min(s) 51 sec(s)
+        ----------------------------------------
+        Feature: CatiaV5Reader Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 3 license(s) used
+        ----------------------------------------
+        Feature: GlobalZoneEU Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        40000 of 1000003 license(s) used:
+
+        15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29 
+        Shared on custom string: VRAAFG:RD0082879 
+
+        25000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
+        Shared on custom string: VRAAFG:RD0082879 
+        ----------------------------------------
+        Feature: HWAIFPBS Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWAWPF Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWActivate Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWFlux2D Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        30000 of 2147483647 license(s) used:
+
+        15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29 
+        Shared on custom string: VRAAFG:RD0082879:27164_23514544_1645091752_138525 
+
+        15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
+        Shared on custom string: VRAAFG:RD0082879:18896_1081950704_1645017269_309963 
+        ----------------------------------------
+        Feature: HyperWorks Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        25000 of 1000000 license(s) used:
+
+        25000 license(s) used by sssaah@RD0082406 [138.106.154.220]
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
+        Shared on custom string: sssaah:RD0082406 
+        """
+    )
+
+
+@fixture
+def lmx_output_no_licenses():
+    """
+    Some LM-X output with no licenses in use to parse
+    """
+    return dedent(
+        """\
+        LM-X End-user Utility v3.32
+        Copyright (C) 2002-2010 X-Formation. All rights reserved.
+
+        ++++++++++++++++++++++++++++++++++++++++
+        LM-X License Server on 6200@licserv0013.com:
+
+        Server version: v5.1 Uptime: 3 day(s) 12 hour(s) 0 min(s) 51 sec(s)
+        ----------------------------------------
+        Feature: CatiaV5Reader Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 3 license(s) used
+        ----------------------------------------
+        Feature: GlobalZoneEU Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 1000003 license(s) used
+        ----------------------------------------
+        Feature: HWAIFPBS Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWAWPF Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWActivate Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HWFlux2D Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 2147483647 license(s) used
+        ----------------------------------------
+        Feature: HyperWorks Version: 21.0 Vendor: ALTAIR
+        Start date: 2022-02-17 Expire date: 2023-01-31
+        Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
+
+        0 of 1000000 license(s) used
         """
     )
