@@ -38,6 +38,16 @@ def scontrol_show_lic_output_lsdyna():
     )
 
 
+@fixture
+def scontrol_show_lic_output_lmx():
+    return dedent(
+        """
+        LicenseName=HyperWorks.HyperWorks@lmx
+            Total=1000000 Used=0 Free=500 Reserved=0 Remote=yes
+        """
+    )
+
+
 @mark.asyncio
 @mark.parametrize(
     "output,reconciliation",
@@ -277,6 +287,24 @@ async def test_lsdyna_report_with_empty_backend(
     """
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_lsdyna
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == []
+
+
+@mark.asyncio
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+async def test_lmx_report_with_empty_backend(
+    get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+    scontrol_show_lic_output_lmx,
+):
+    """
+    Do I collect the requested structured data when the backend is empty?
+    """
+    get_config_from_backend_mock.return_value = []
+    show_lic_mock.return_value = scontrol_show_lic_output_lmx
 
     reconcile_list = await tokenstat.report()
     assert reconcile_list == []
