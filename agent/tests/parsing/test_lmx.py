@@ -66,3 +66,66 @@ def test_parse_usage_line():
     }
     assert parse_usage_line("0 license(s) used by v-c54.aaa.aa") is None
     assert parse_usage_line("") is None
+
+
+def test_parse__correct_output(lmx_output):
+    """
+    Does the parser return the correct data for this output?
+    - lmx_output: expected output from the license server,
+    which contain licenses and usage information.
+    """
+    assert parse(lmx_output) == {
+        "CatiaV5Reader": {"total": 3, "used": 0, "uses": []},
+        "GlobalZoneEU": {
+            "total": 1000003,
+            "used": 40000,
+            "uses": [
+                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
+            ],
+        },
+        "HWAIFPBS": {"total": 2147483647, "used": 0, "uses": []},
+        "HWAWPF": {"total": 2147483647, "used": 0, "uses": []},
+        "HWActivate": {"total": 2147483647, "used": 0, "uses": []},
+        "HWFlux2D": {
+            "total": 2147483647,
+            "used": 30000,
+            "uses": [
+                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+            ],
+        },
+        "HyperWorks": {
+            "total": 1000000,
+            "used": 25000,
+            "uses": [
+                {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+            ],
+        },
+    }
+
+
+def test_parse__bad_output(lmx_output_bad):
+    """
+    Does the parser return the correct data for this output?
+    - lmx_output_bad: unparseable output from the license server,
+    which can happen when a connection error occours.
+    """
+    assert parse(lmx_output_bad) == {}
+
+
+def test_parse__no_licenses_output(lmx_output_no_licenses):
+    """
+    Does the parser return the correct data for this output?
+    - lmx_output_no_licenses: expected output from the server
+    when none of the licenses are in use by users.
+    """
+    assert parse(lmx_output_no_licenses) == {
+        "CatiaV5Reader": {"total": 3, "used": 0, "uses": []},
+        "GlobalZoneEU": {"total": 1000003, "used": 0, "uses": []},
+        "HWAIFPBS": {"total": 2147483647, "used": 0, "uses": []},
+        "HWAWPF": {"total": 2147483647, "used": 0, "uses": []},
+        "HWActivate": {"total": 2147483647, "used": 0, "uses": []},
+        "HWFlux2D": {"total": 2147483647, "used": 0, "uses": []},
+        "HyperWorks": {"total": 1000000, "used": 0, "uses": []},
+    }
