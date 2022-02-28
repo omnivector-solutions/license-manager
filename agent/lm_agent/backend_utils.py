@@ -11,6 +11,8 @@ from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerAuthTokenError, LicenseManagerBackendConnectionError
 from lm_agent.logs import logger
 
+TOKEN_FILE_NAME = "access.token"
+
 
 def _load_token_from_cache() -> typing.Union[str, None]:
     """
@@ -21,18 +23,14 @@ def _load_token_from_cache() -> typing.Union[str, None]:
     * Can't read the token
     * The token is expired (or will expire within 10 seconds)
     """
-    token_path = settings.CACHE_DIR / "auth-token"
-
-    try:
-        if not token_path.exists():
-            return None
-    except Exception:
+    token_path = settings.CACHE_DIR / TOKEN_FILE_NAME
+    if not token_path.exists():
         return None
 
     try:
         token = token_path.read_text()
-    except Exception:
-        logger.warning(f"Couldn't load token from cache file {token_path}. Will acquire a new one")
+    except Exception as err:
+        logger.warning(f"Couldn't load token from cache file {token_path}. Will acquire a new one: {err}")
         return None
 
     try:
@@ -48,21 +46,17 @@ def _write_token_to_cache(token: str):
     """
     Writes the token to the cache.
     """
-    if not settings.CACHE_DIR.exists():
-        logger.debug("Attempting to create missing cache directory")
-        try:
-            settings.CACHE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
-        except Exception:
-            logger.warning(
-                f"Couldn't create missing cache directory {settings.CACHE_DIR}. Token will not be saved."
-            )
-            return
+    cache_dir = settings.CACHE_DIR
+    if not cache_dir.exists():
+        logger.warning(f"Cache directory does not exist {cache_dir}. Token won't be saved.")
+        return
 
-    token_path = settings.CACHE_DIR / "auth-token"
+    token_path = settings.CACHE_DIR / TOKEN_FILE_NAME
     try:
+        token_path.touch(mode=0o600, exist_ok=True)
         token_path.write_text(token)
-    except Exception:
-        logger.warning(f"Couldn't save token to {token_path}")
+    except Exception as err:
+        logger.warning(f"Couldn't save token to {token_path}: {err}")
 
 
 def acquire_token() -> str:

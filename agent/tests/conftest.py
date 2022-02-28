@@ -17,8 +17,9 @@ MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
 
 @fixture(autouse=True)
 def mock_cache_dir(tmp_path):
-    _cache_dir = tmp_path / ".cache/license-manager"
-    with patch("lm_agent.backend_utils.settings.CACHE_DIR", new=_cache_dir):
+    _cache_dir = tmp_path / "license-manager-cache"
+    assert not _cache_dir.exists()
+    with patch("lm_agent.config.settings.CACHE_DIR", new=_cache_dir):
         yield _cache_dir
 
 
@@ -310,7 +311,7 @@ def lsdyna_output_bad():
     return dedent(
         """\
 		Using default server 31010@localhost
-		*** ERROR failed to open server localhost			
+		*** ERROR failed to open server localhost
 		"""
     )
 

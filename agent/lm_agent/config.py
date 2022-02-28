@@ -11,7 +11,7 @@ logger = logging.getLogger("lm_agent.config")
 
 
 DEFAULT_DOTENV_PATH = Path("/etc/default/license-manager-agent")
-DEFAULT_CACHE_DIR = Path("/run/license-manager-agent/")
+DEFAULT_CACHE_DIR = Path.home() / Path(".cache/license-manager")
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 ENCODING = "UTF8"
 TOOL_TIMEOUT = 6  # seconds

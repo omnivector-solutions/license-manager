@@ -1,13 +1,13 @@
-import logging
+import stat
 from datetime import datetime, timezone
-from unittest.mock import patch
 
 import jwt
 import respx
 from httpx import ConnectError, Response
-from pytest import fixture, mark, raises
+from pytest import mark, raises
 
 from lm_agent.backend_utils import (
+    TOKEN_FILE_NAME,
     _load_token_from_cache,
     _write_token_to_cache,
     acquire_token,
@@ -20,36 +20,42 @@ from lm_agent.exceptions import LicenseManagerBackendConnectionError
 
 def test__write_token_to_cache__caches_a_token(mock_cache_dir):
     """
-    Verifies that the auth token can be saved in the cache.
+    Verifies that the auth token can be saved in the cache directory.
     """
-    mock_cache_dir.mkdir(parents=True)
+    mock_cache_dir.mkdir()
     _write_token_to_cache("dummy-token")
-    token_path = mock_cache_dir / "auth-token"
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     assert token_path.exists()
     assert token_path.read_text() == "dummy-token"
 
+    # Assert that the permissions for the file are read/write only for the current user
+    assert token_path.stat().st_mode & (stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) == 0o600
 
-def test__write_token_to_cache__creates_cache_directory_if_does_not_exist(mock_cache_dir):
+
+def test__write_token_to_cache__warns_if_cache_dir_does_not_exist(caplog, mock_cache_dir):
     """
-    Verifies that the cache directory will be created if it does not already exist.
+    Verifies that a warning is logged if the cache dire does not exists and that a token file is not created.
     """
-    assert not mock_cache_dir.exists()
     _write_token_to_cache("dummy-token")
-    assert mock_cache_dir.exists()
+    assert "Couldn't create missing cache directory" not in caplog.text
+
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
+    assert not token_path.exists()
 
 
-def test__write_token_to_cache__warns_if_token_cannot_be_created(mock_cache_dir, caplog):
+def test__write_token_to_cache__warns_if_token_cannot_be_created(caplog, mock_cache_dir):
     """
     Verifies that a warning is logged if the token file cannot be written.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     token_path.write_text("pre-existing data")
+    # Make file inaccessible permission-wise
     token_path.chmod(0o000)
 
-    with caplog.at_level(logging.WARNING):
-        _write_token_to_cache("dummy-token")
+    _write_token_to_cache("dummy-token")
 
+    # Make file read/write again
     token_path.chmod(0o600)
     assert token_path.exists()
     assert token_path.read_text() == "pre-existing data"
@@ -60,8 +66,8 @@ def test__load_token_from_cache__loads_token_data_from_the_cache(mock_cache_dir)
     """
     Verifies that a token can be retrieved from the cache.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     one_minute_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 60
     created_token = jwt.encode(
         dict(exp=one_minute_from_now),
@@ -73,65 +79,64 @@ def test__load_token_from_cache__loads_token_data_from_the_cache(mock_cache_dir)
     assert retrieved_token == created_token
 
 
-def test__load_token_from_cache__returns_none_if_cached_token_does_not_exist(mock_cache_dir):
+def test__load_token_from_cache__returns_none_if_cached_token_does_not_exist():
     """
     Verifies that None is returned if the cached token does not exist.
     """
-    mock_cache_dir.mkdir(parents=True)
     retrieved_token = _load_token_from_cache()
     assert retrieved_token is None
 
 
 def test__load_token_from_cache__returns_none_and_warns_if_cached_token_cannot_be_read(
-    mock_cache_dir, caplog
+    caplog, mock_cache_dir
 ):
     """
     Verifies that None is returned if the token cannot be read. Also checks that a warning is logged.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
-    token_path.write_text("pre-existing data")
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
+    one_minute_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 60
+    created_token = jwt.encode(
+        dict(exp=one_minute_from_now),
+        key="dummy-key",
+        algorithm="HS256",
+    )
+    token_path.write_text(created_token)
     token_path.chmod(0o000)
 
-    with caplog.at_level(logging.WARNING):
-        retrieved_token = _load_token_from_cache()
-
+    retrieved_token = _load_token_from_cache()
     assert retrieved_token is None
     assert "Couldn't load token" in caplog.text
 
 
-def test__load_token_from_cache__returns_none_and_warns_if_cached_token_is_expired(mock_cache_dir, caplog):
+def test__load_token_from_cache__returns_none_and_warns_if_cached_token_is_expired(caplog, mock_cache_dir):
     """
     Verifies that None is returned if the token is expired. Also checks that a warning is logged.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     one_second_ago = int(datetime.now(tz=timezone.utc).timestamp()) - 1
     expired_token = jwt.encode(dict(exp=one_second_ago), key="dummy-key", algorithm="HS256")
     token_path.write_text(expired_token)
 
-    with caplog.at_level(logging.WARNING):
-        retrieved_token = _load_token_from_cache()
-
+    retrieved_token = _load_token_from_cache()
     assert retrieved_token is None
     assert "Cached token is expired" in caplog.text
 
 
 def test__load_token_from_cache__returns_none_and_warns_if_cached_token_will_expire_soon(
-    mock_cache_dir, caplog
+    caplog, mock_cache_dir
 ):
     """
     Verifies that None is returned if the token will expired soon. Also checks that a warning is logged.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     nine_seconds_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 9
     expired_token = jwt.encode(dict(exp=nine_seconds_from_now), key="dummy-key", algorithm="HS256")
     token_path.write_text(expired_token)
 
-    with caplog.at_level(logging.WARNING):
-        retrieved_token = _load_token_from_cache()
-
+    retrieved_token = _load_token_from_cache()
     assert retrieved_token is None
     assert "Cached token is expired" in caplog.text
 
@@ -140,8 +145,8 @@ def test_acquire_token__gets_a_token_from_the_cache(mock_cache_dir):
     """
     Verifies that the token is retrieved from the cache if it is found there.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     one_minute_from_now = int(datetime.now(tz=timezone.utc).timestamp()) + 60
     created_token = jwt.encode(
         dict(exp=one_minute_from_now),
@@ -153,19 +158,18 @@ def test_acquire_token__gets_a_token_from_the_cache(mock_cache_dir):
     assert retrieved_token == created_token
 
 
-def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(mock_cache_dir, respx_mock):
+def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(respx_mock, mock_cache_dir):
     """
     Verifies that a token is pulled from auth0 if it is not found in the cache.
     Also checks to make sure the token is cached.
     """
-    mock_cache_dir.mkdir(parents=True)
-    token_path = mock_cache_dir / "auth-token"
+    mock_cache_dir.mkdir()
+    token_path = mock_cache_dir / TOKEN_FILE_NAME
     assert not token_path.exists()
 
     retrieved_token = acquire_token()
     assert retrieved_token == "dummy-token"
 
-    token_path = mock_cache_dir / "auth-token"
     assert token_path.read_text() == retrieved_token
 
 
