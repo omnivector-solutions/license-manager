@@ -391,7 +391,13 @@ def lmx_output_bad():
     """
     return dedent(
         """\
-        Cannot connect to server.
+        LM-X End-user Utility v3.32
+        Copyright (C) 2002-2010 X-Formation. All rights reserved.
+
+        ++++++++++++++++++++++++++++++++++++++++
+        LM-X license server(s):
+        ----------------------------------------
+        There are no license server(s) available.
         """
     )
 
