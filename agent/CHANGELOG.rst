@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.2.4 -- 2022-03-03
+-------------------
 * Add LS-Dyna license server support
 
 2.2.3 - 2022-02-09
