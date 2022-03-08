@@ -79,7 +79,7 @@ def parse_usage_line(line: str):
     }
 
 
-def parse(s: str):
+def parse(server_output: str):
     """
     Parse the LM-X output, using regex to match the lines we need:
     -``feature line``: info about each license
@@ -93,7 +93,7 @@ def parse(s: str):
     parsed_data: dict = {}
     feature_list: list = []
 
-    for line in s.splitlines():
+    for line in server_output.splitlines():
         parsed_feature = parse_feature_line(line)
         parsed_in_use = parse_in_use_line(line)
         parsed_usage = parse_usage_line(line)
