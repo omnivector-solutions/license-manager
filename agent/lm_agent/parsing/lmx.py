@@ -88,7 +88,7 @@ def parse(server_output: str):
 
     Since the in use and usage line don't have the name of the license in use,
     we're saving each parsed license in a list. This way, we can find which
-    license uthe user is using by checking the last parsed license in the list.
+    license is being used by checking the last parsed license in the list.
     """
     parsed_data: dict = {}
     feature_list: list = []
