@@ -112,5 +112,7 @@ def parse(server_output: str):
         elif parsed_usage:
             feature = feature_list[-1]
             parsed_data[feature]["uses"].append(parsed_usage)
+        else:
+            continue
 
     return parsed_data
