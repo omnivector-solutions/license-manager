@@ -2,6 +2,7 @@
 Parser for LM-X
 """
 import re
+from typing import Optional
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
@@ -20,7 +21,7 @@ RX_IN_USE = re.compile(IN_USE_LINE)
 RX_USAGE = re.compile(USAGE_LINE)
 
 
-def parse_feature_line(line: str):
+def parse_feature_line(line: str) -> Optional[str]:
     """
     Parse the feature line in the LM-X output.
     Data we need:
@@ -34,7 +35,7 @@ def parse_feature_line(line: str):
     return feature_data["feature"]
 
 
-def parse_in_use_line(line: str):
+def parse_in_use_line(line: str) -> Optional[dict]:
     """
     Parse the in use line in the LM-X output.
     Data we need:
@@ -56,7 +57,7 @@ def parse_in_use_line(line: str):
     }
 
 
-def parse_usage_line(line: str):
+def parse_usage_line(line: str) -> Optional[dict]:
     """
     Parse the usage line in the LS-Dyna output.
     Data we need:
@@ -79,7 +80,7 @@ def parse_usage_line(line: str):
     }
 
 
-def parse(server_output: str):
+def parse(server_output: str) -> dict:
     """
     Parse the LM-X output using regex to match the lines we need:
     -``feature line``: info about each license
