@@ -2,10 +2,12 @@
  Change Log
 ============
 
-This file keeps track of all notable changes to license-manager-agent
+This file keeps track of all notable changes to license manager documentation
 
 Unreleased
 ----------
+* Added LS-Dyna info
+* Added LM-X info
 
 2.2.2 - 2022-02-08
 ------------------
