@@ -30,7 +30,7 @@ def parse_feature_line(line: str):
     if parsed_feature is None:
         return None
     feature_data = parsed_feature.groupdict()
-    
+
     return feature_data["feature"]
 
 
@@ -81,7 +81,7 @@ def parse_usage_line(line: str):
 
 def parse(server_output: str):
     """
-    Parse the LM-X output, using regex to match the lines we need:
+    Parse the LM-X output using regex to match the lines we need:
     -``feature line``: info about each license
     -``in use line``: info about licenses in use
     -``usage line``: info about users using licenses
