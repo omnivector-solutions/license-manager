@@ -30,8 +30,7 @@ def parse_feature_line(line: str):
     if parsed_feature is None:
         return None
     feature_data = parsed_feature.groupdict()
-    feature_data["feature"] = feature_data["feature"]
-
+    
     return feature_data["feature"]
 
 
