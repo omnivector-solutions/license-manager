@@ -36,7 +36,7 @@ def parse_feature_line(line: str):
 
 def parse_in_use_line(line: str):
     """
-    Paser the in use line in the LM-X output.
+    Parse the in use line in the LM-X output.
     Data we need:
     - ``in_use``: quantity of licenses being use
     - ``total``: total amount of licenses
