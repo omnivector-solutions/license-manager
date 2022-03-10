@@ -32,7 +32,7 @@ def parse_feature_line(line: str) -> Optional[str]:
         return None
     feature_data = parsed_feature.groupdict()
 
-    return feature_data["feature"]
+    return feature_data["feature"].lower()
 
 
 def parse_in_use_line(line: str) -> Optional[dict]:

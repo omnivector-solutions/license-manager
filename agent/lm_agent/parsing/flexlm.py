@@ -59,7 +59,7 @@ def parse(s: str) -> dict:
             parsed_data["total"] = {
                 "total": int(d["total"]),
                 "used": int(d["used"]),
-                "feature": d["feature"],
+                "feature": d["feature"].lower(),
             }
         if parsed.group("user"):
             d = parsed.groupdict()
