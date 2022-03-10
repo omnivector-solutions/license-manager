@@ -14,9 +14,9 @@ def test_parse_feature_line():
     - vendor
     From these, we only need to extract ``feature``.
     """
-    assert parse_feature_line("Feature: CatiaV5Reader Version: 21.0 Vendor: ALTAIR") == "CatiaV5Reader"
-    assert parse_feature_line("Feature: GlobalZoneEU Version: 21.0 Vendor: ALTAIR") == "GlobalZoneEU"
-    assert parse_feature_line("Feature: HWAIFPBS Version: 21.0 Vendor: ALTAIR") == "HWAIFPBS"
+    assert parse_feature_line("Feature: CatiaV5Reader Version: 21.0 Vendor: ALTAIR") == "catiav5reader"
+    assert parse_feature_line("Feature: GlobalZoneEU Version: 21.0 Vendor: ALTAIR") == "globalzoneeu"
+    assert parse_feature_line("Feature: HWAIFPBS Version: 21.0 Vendor: ALTAIR") == "hwaifpbs"
     assert parse_feature_line("not a feature line") is None
     assert parse_feature_line("Version: 21.0 Vendor: ALTAIR") is None
     assert parse_feature_line("") is None
@@ -75,8 +75,8 @@ def test_parse__correct_output(lmx_output):
     which contain licenses and usage information.
     """
     assert parse(lmx_output) == {
-        "CatiaV5Reader": {"total": 3, "used": 0, "uses": []},
-        "GlobalZoneEU": {
+        "catiav5reader": {"total": 3, "used": 0, "uses": []},
+        "globalzoneeu": {
             "total": 1000003,
             "used": 40000,
             "uses": [
@@ -84,10 +84,10 @@ def test_parse__correct_output(lmx_output):
                 {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
             ],
         },
-        "HWAIFPBS": {"total": 2147483647, "used": 0, "uses": []},
-        "HWAWPF": {"total": 2147483647, "used": 0, "uses": []},
-        "HWActivate": {"total": 2147483647, "used": 0, "uses": []},
-        "HWFlux2D": {
+        "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
+        "hwawpf": {"total": 2147483647, "used": 0, "uses": []},
+        "hwactivate": {"total": 2147483647, "used": 0, "uses": []},
+        "hwflux2d": {
             "total": 2147483647,
             "used": 30000,
             "uses": [
@@ -95,7 +95,7 @@ def test_parse__correct_output(lmx_output):
                 {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
             ],
         },
-        "HyperWorks": {
+        "hyperworks": {
             "total": 1000000,
             "used": 25000,
             "uses": [
@@ -121,11 +121,11 @@ def test_parse__no_licenses_output(lmx_output_no_licenses):
     when none of the licenses are in use by users.
     """
     assert parse(lmx_output_no_licenses) == {
-        "CatiaV5Reader": {"total": 3, "used": 0, "uses": []},
-        "GlobalZoneEU": {"total": 1000003, "used": 0, "uses": []},
-        "HWAIFPBS": {"total": 2147483647, "used": 0, "uses": []},
-        "HWAWPF": {"total": 2147483647, "used": 0, "uses": []},
-        "HWActivate": {"total": 2147483647, "used": 0, "uses": []},
-        "HWFlux2D": {"total": 2147483647, "used": 0, "uses": []},
-        "HyperWorks": {"total": 1000000, "used": 0, "uses": []},
+        "catiav5reader": {"total": 3, "used": 0, "uses": []},
+        "globalzoneeu": {"total": 1000003, "used": 0, "uses": []},
+        "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
+        "hwawpf": {"total": 2147483647, "used": 0, "uses": []},
+        "hwactivate": {"total": 2147483647, "used": 0, "uses": []},
+        "hwflux2d": {"total": 2147483647, "used": 0, "uses": []},
+        "hyperworks": {"total": 1000000, "used": 0, "uses": []},
     }

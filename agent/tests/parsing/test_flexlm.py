@@ -12,7 +12,7 @@ from lm_agent.parsing.flexlm import parse
         (
             "lmstat_output",
             {
-                "total": {"feature": "TESTFEATURE", "total": 1000, "used": 93},
+                "total": {"feature": "testfeature", "total": 1000, "used": 93},
                 "uses": [
                     {"booked": 29, "lead_host": "myserver.example.com", "user_name": "jbemfv"},
                     {"booked": 27, "lead_host": "myserver.example.com", "user_name": "cdxfdn"},

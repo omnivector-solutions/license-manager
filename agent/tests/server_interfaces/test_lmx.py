@@ -49,8 +49,8 @@ async def test_lmx_get_report_item(
     """
     get_output_from_server_mock.return_value = lmx_output
 
-    assert await lmx_server.get_report_item("HyperWorks.HyperWorks") == LicenseReportItem(
-        product_feature="HyperWorks.HyperWorks",
+    assert await lmx_server.get_report_item("hyperworks.hyperworks") == LicenseReportItem(
+        product_feature="hyperworks.hyperworks",
         used=25000,
         total=1000000,
         used_licenses=[
@@ -70,7 +70,7 @@ async def test_lmx_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = lmx_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await lmx_server.get_report_item("HyperWorks.HyperWorks")
+        await lmx_server.get_report_item("hyperworks.hyperworks")
 
 
 @mark.asyncio
@@ -85,8 +85,8 @@ async def test_lmx_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = lmx_output_no_licenses
 
-    assert await lmx_server.get_report_item("HyperWorks.HyperWorks") == LicenseReportItem(
-        product_feature="HyperWorks.HyperWorks",
+    assert await lmx_server.get_report_item("hyperworks.hyperworks") == LicenseReportItem(
+        product_feature="hyperworks.hyperworks",
         used=0,
         total=1000000,
         used_licenses=[],

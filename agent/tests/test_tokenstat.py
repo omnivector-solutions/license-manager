@@ -42,7 +42,7 @@ def scontrol_show_lic_output_lsdyna():
 def scontrol_show_lic_output_lmx():
     return dedent(
         """
-        LicenseName=HyperWorks.HyperWorks@lmx
+        LicenseName=hyperworks.hyperworks@lmx
             Total=1000000 Used=0 Free=500 Reserved=0 Remote=yes
         """
     )
@@ -246,7 +246,7 @@ async def test_lsdyna_get_report(
             "lmx_output",
             [
                 {
-                    "product_feature": "HyperWorks.HyperWorks",
+                    "product_feature": "hyperworks.hyperworks",
                     "used": 25000,
                     "total": 1000000,
                     "used_licenses": [
@@ -259,7 +259,7 @@ async def test_lsdyna_get_report(
             "lmx_output_no_licenses",
             [
                 {
-                    "product_feature": "HyperWorks.HyperWorks",
+                    "product_feature": "hyperworks.hyperworks",
                     "used": 0,
                     "total": 1000000,
                     "used_licenses": [],
