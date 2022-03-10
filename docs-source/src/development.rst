@@ -290,13 +290,13 @@ Add the license to the cluster using the ``sacctmgr`` command.
 
 Configuring the fake license server client
 ******************************************
-The license-manager-simulator has a script and a template for each license server supported.
+The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna and LM-X).
 The script requests license information from the license-manager-simulator API and renders
 it in the template, simulating the output from the real license server.
 
 To configure the license-manager-simulator, you need to:
 
-#. Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
+#. Modify the fake license server script files available in the license-manager-simulador ``bin`` folder.
 
    * change shebang to the path of the Python installed in the license-manager-agent virtualenv;
 
@@ -304,7 +304,7 @@ To configure the license-manager-simulator, you need to:
 
    * change the URL to the IP address of where the ``license-manager-simulator`` is running;
 
-#. Copy the modified files and templates to the cluster machine where the license manager agent is running;
+#. Copy the modified scripts and templates to the cluster machine where the license manager agent is running;
 
 #. Rename scripts to the name of the binaries you are simulating;
 
