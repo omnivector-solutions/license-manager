@@ -6,8 +6,11 @@ This file keeps track of all notable changes to license manager documentation
 
 Unreleased
 ----------
+
+2.2.3 - 2022-03-10
 * Added LS-Dyna info
 * Added LM-X info
+* Added script to automate lm-sim setup
 
 2.2.2 - 2022-02-08
 ------------------
