@@ -10,6 +10,7 @@ Unreleased
 2.2.4 -- 2022-03-03
 -------------------
 * Add LS-Dyna license server support
+* Add LM-X license server support
 
 2.2.3 - 2022-02-09
 * Fixed permission error when accessing cached token 

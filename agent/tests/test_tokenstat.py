@@ -38,6 +38,16 @@ def scontrol_show_lic_output_lsdyna():
     )
 
 
+@fixture
+def scontrol_show_lic_output_lmx():
+    return dedent(
+        """
+        LicenseName=HyperWorks.HyperWorks@lmx
+            Total=1000000 Used=0 Free=500 Reserved=0 Remote=yes
+        """
+    )
+
+
 @mark.asyncio
 @mark.parametrize(
     "output,reconciliation",
@@ -229,6 +239,62 @@ async def test_lsdyna_get_report(
 
 
 @mark.asyncio
+@mark.parametrize(
+    "output,reconciliation",
+    [
+        (
+            "lmx_output",
+            [
+                {
+                    "product_feature": "HyperWorks.HyperWorks",
+                    "used": 25000,
+                    "total": 1000000,
+                    "used_licenses": [
+                        {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+                    ],
+                }
+            ],
+        ),
+        (
+            "lmx_output_no_licenses",
+            [
+                {
+                    "product_feature": "HyperWorks.HyperWorks",
+                    "used": 0,
+                    "total": 1000000,
+                    "used_licenses": [],
+                },
+            ],
+        ),
+    ],
+)
+@mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_output_from_server")
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+async def test_lmx_get_report(
+    get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+    get_output_from_server_mock: mock.MagicMock,
+    output: str,
+    reconciliation: dict,
+    one_configuration_row_lmx: BackendConfigurationRow,
+    scontrol_show_lic_output_lmx: str,
+    request,
+):
+    """
+    Do I get a report for the LM-X licenses in the cluster?
+    """
+    get_config_from_backend_mock.return_value = [one_configuration_row_lmx]
+    show_lic_mock.return_value = scontrol_show_lic_output_lmx
+
+    output = request.getfixturevalue(output)
+    get_output_from_server_mock.return_value = output
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == reconciliation
+
+
+@mark.asyncio
 @mock.patch("lm_agent.tokenstat.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_flexlm_report_with_empty_backend(
@@ -277,6 +343,24 @@ async def test_lsdyna_report_with_empty_backend(
     """
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_lsdyna
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == []
+
+
+@mark.asyncio
+@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+async def test_lmx_report_with_empty_backend(
+    get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+    scontrol_show_lic_output_lmx: str,
+):
+    """
+    Do I collect the requested structured data when the backend is empty?
+    """
+    get_config_from_backend_mock.return_value = []
+    show_lic_mock.return_value = scontrol_show_lic_output_lmx
 
     reconcile_list = await tokenstat.report()
     assert reconcile_list == []
