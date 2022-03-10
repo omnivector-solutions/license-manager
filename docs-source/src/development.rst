@@ -290,54 +290,29 @@ Add the license to the cluster using the ``sacctmgr`` command.
 
 Configuring the fake license server client
 ******************************************
-Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
-The modifications that must be made in ``lms-util.py``, ``rlm-util.py``, ``lsdyna-util.py`` and ``lmx-util.py`` files are:
+The license-manager-simulator has a script and a template for each license server supported.
+The script requests license information from the license-manager-simulator API and renders
+it in the template, simulating the output from the real license server.
 
-1. change shebang to "#!/srv/license-manager-agent-venv/bin/python3.8";
-2. change template path to "/srv/license-manager-agent-venv/bin/python3.8/site-packages/bin";
-3. change the URL to the IP address of where the ``license-manager-simulator`` is running;
+To configure the license-manager-simulator, you need to:
 
-Copy the modified files and the templates to the cluster machine where the license manager agent is running.
+#. Modify the fake license server files available in the license-manager-simulador ``bin`` folder.
 
-.. code-block:: bash
+   * change shebang to the path of the Python installed in the license-manager-agent virtualenv;
 
-    juju scp bin/flexlm.out.tmpl license-manager-agent/0:/tmp
-    juju scp bin/rlm.out.tmpl license-manager-agent/0:/tmp
-    juju scp bin/lsdyna.out.tmpl license-manager-agent/0:/tmp
-    juju scp bin/lmx.out.tmpl license-manager-agent/0:/tmp
-    
-    juju scp bin/lms-util.py license-manager-agent/0:/tmp
-    juju scp bin/rlm-util.py license-manager-agent/0:/tmp
-    juju scp bin/lsdyna-util.py license-manager-agent/0:/tmp
-    juju scp bin/lmx-util.py license-manager-agent/0:/tmp
+   * change template path to the folder where the scripts and templates will be copied to;
 
-With the files in the ``/tmp`` folder, ssh into the machine to rename, set the permission and move them to the correct location.
+   * change the URL to the IP address of where the ``license-manager-simulator`` is running;
 
-.. code-block:: bash
+#. Copy the modified files and templates to the cluster machine where the license manager agent is running;
 
-    juju ssh license-manager-agent/0
+#. Rename scripts to the name of the binaries you are simulating;
 
-    cd /tmp
+#. Add executable permission to scripts;
 
-    sudo mv lms-util.py lmutil
-    sudo mv rlm-util.py rlmutil
-    sudo mv lsdyna-util.py lstc_qrun
-    sudo mv lmx-util.py lmxendutil
+#. Move scripts and templates to their correct location;
 
-    sudo chmod +x lmutil
-    sudo chmod +x rlmutil
-    sudo chmod +x lstc_qrun
-    sudo chmod +x lmxendutil
-
-    sudo mv lmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv rlmutil /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv lstc_qrun /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv lmxenditul /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-
-    sudo mv flexlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv rlm.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv lsdyna.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
-    sudo mv lmx.out.tmpl /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin
+The ``prepare-environment.sh`` script avaliable in the license-manager-simulator ``bin`` folder executes these steps automatically.
 
 To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install ``jinja2``.
 
