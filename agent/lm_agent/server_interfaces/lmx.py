@@ -49,7 +49,9 @@ class LMXLicenseServer(LicenseServerInterface):
         server_output = await self.get_output_from_server()
         parsed_output = self.parser(server_output)
 
-        current_feature_item = parsed_output.get(product_feature.split(".")[0])
+        (_, feature) = product_feature.split(".")
+
+        current_feature_item = parsed_output.get(feature)
 
         # raise exception if parser didn't output license information
         if current_feature_item is None:
