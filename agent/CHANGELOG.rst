@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Fixed parsers to output feature name in lowercase
 
 2.2.4 -- 2022-03-03
 -------------------

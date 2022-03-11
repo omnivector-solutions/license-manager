@@ -50,7 +50,7 @@ def parse(s: str) -> dict:
                     "user_name": total_data["user_name"],
                     "lead_host": total_data["lead_host"],
                     "booked": int(total_data["license_used_by_host"]),
-                    "feature": total_data["license_feature"],
+                    "feature": total_data["license_feature"].lower(),
                 }
             )
         elif parsed_data:
@@ -61,7 +61,7 @@ def parse(s: str) -> dict:
             data_data = parsed_data.groupdict()
             parsed_dict["total"].append(
                 {
-                    "feature": data_data["license_feature"],
+                    "feature": data_data["license_feature"].lower(),
                     "total": int(count_data["count"]),
                     "used": int(count_data["in_use"]),
                 }

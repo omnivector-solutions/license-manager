@@ -78,8 +78,8 @@ def one_configuration_row_lsdyna():
 @fixture
 def one_configuration_row_lmx():
     return BackendConfigurationRow(
-        product="HyperWorks",
-        features={"HyperWorks": 1000000},
+        product="hyperworks",
+        features={"hyperworks": 1000000},
         license_servers=["lmx:127.0.0.1:2345"],
         license_server_type="lmx",
         grace_time=10000,
