@@ -80,7 +80,11 @@ def _match_requested_license(requested_license: str) -> Union[dict, None]:
 def get_required_licenses_for_job(job_licenses: str) -> List:
     """Retrieve the required licenses for a job."""
 
-    license_array = job_licenses.split(',')
+    if job_licenses is None:
+        license_array = []
+    else:
+        license_array = job_licenses.split(',')
+
     logger.debug(f"##### License array for job: {license_array} #####")
 
     required_licenses: List = []
