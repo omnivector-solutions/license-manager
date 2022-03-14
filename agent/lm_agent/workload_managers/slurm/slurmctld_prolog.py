@@ -91,7 +91,7 @@ async def prolog():
             logger.debug("Booking request unsuccessful, not enough licenses.")
             sys.exit(1)
         logger.debug(f"License booking sucessful, job id: {job_id}.")
-        logger.debug(f"Licenses booked: {repr(tracked_licenses)}")
+        logger.debug(f"Licenses booked: {repr(tracked_license_booking_request.bookings)}")
     sys.exit(0)
 
 
