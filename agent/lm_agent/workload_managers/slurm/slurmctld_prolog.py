@@ -34,11 +34,12 @@ async def prolog():
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
     cluster_name = job_context.get("cluster_name")
+    job_licenses = job_context.get("job_licenses")
 
     logger.info(f"Prolog started for job id: {job_id}")
 
     try:
-        required_licenses = await get_required_licenses_for_job(job_id)
+        required_licenses = await get_required_licenses_for_job(job_licenses)
         logger.debug(f"Required licenses: {required_licenses}")
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
