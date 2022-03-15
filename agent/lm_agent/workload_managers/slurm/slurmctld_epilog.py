@@ -29,20 +29,24 @@ async def epilog():
     job_context = get_job_context()
     job_id = job_context["job_id"]
     job_licenses = job_context["job_licenses"]
+
     # force reconcile
     try:
         await update_report()
     except Exception as e:
         logger.error(f"Failed to call reconcile with {e}")
         sys.exit(1)
+
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
+
     if not required_licenses:
         logger.debug("No licenses required, exiting!")
         sys.exit(0)
+
     if len(required_licenses) > 0:
         # Attempt to remove the booking and log the result.
         booking_removed = await _remove_booking_for_job(job_id)
