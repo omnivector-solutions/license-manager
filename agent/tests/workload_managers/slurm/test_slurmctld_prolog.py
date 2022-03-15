@@ -1,3 +1,6 @@
+"""
+Test Prolog script.
+"""
 from unittest import mock
 
 import pytest
@@ -10,9 +13,16 @@ from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as main
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 async def test_main_error_in_get_required_licenses_for_job(
-    get_required_licenses_for_job_mock, get_job_context_mock, sys_mock
+    get_required_licenses_for_job_mock,
+    get_job_context_mock,
+    sys_mock,
 ):
-    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {
+        "job_id": "1",
+        "user_name": "user1",
+        "lead_host": "host1",
+        "job_licenses": "",
+    }
     get_required_licenses_for_job_mock.side_effect = Exception
 
     with pytest.raises(Exception):
@@ -25,9 +35,17 @@ async def test_main_error_in_get_required_licenses_for_job(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_config_from_backend")
 async def test_main_error_in_get_config_from_backend(
-    get_config_from_backend_mock, get_required_licenses_for_job_mock, get_job_context_mock, sys_mock
+    get_config_from_backend_mock,
+    get_required_licenses_for_job_mock,
+    get_job_context_mock,
+    sys_mock,
 ):
-    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {
+        "job_id": "1",
+        "user_name": "user1",
+        "lead_host": "host1",
+        "job_licenses": "test.feature@flexlm:10",
+    }
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
@@ -37,11 +55,10 @@ async def test_main_error_in_get_config_from_backend(
 
     with pytest.raises(Exception):
         await main()
-    get_required_licenses_for_job_mock.assert_awaited_once()
+    get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.sys")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_config_from_backend")
@@ -51,9 +68,13 @@ async def test_main_error_in_reconcile(
     get_config_from_backend_mock,
     get_required_licenses_for_job_mock,
     get_job_context_mock,
-    sys_mock,
 ):
-    get_job_context_mock.return_value = {"job_id": "1", "user_name": "user1", "lead_host": "host1"}
+    get_job_context_mock.return_value = {
+        "job_id": "1",
+        "user_name": "user1",
+        "lead_host": "host1",
+        "job_licenses": "test.feature@flexlm:10",
+    }
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
     bookings_mock.license_server_type = "flexlm"
@@ -70,7 +91,7 @@ async def test_main_error_in_reconcile(
     with pytest.raises(Exception):
         await main()
 
-    get_required_licenses_for_job_mock.assert_awaited_once()
+    get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
     get_config_from_backend_mock.assert_awaited_once()
 
 
@@ -94,6 +115,7 @@ async def test_main(
         "user_name": "user1",
         "lead_host": "host1",
         "cluster_name": "cluster1",
+        "job_licenses": "test.feature@flexlm:10",
     }
     bookings_mock = mock.MagicMock()
     bookings_mock.product_feature = "test.feature"
@@ -109,6 +131,6 @@ async def test_main(
     await main()
 
     get_config_from_backend_mock.assert_awaited_once()
-    get_required_licenses_for_job_mock.assert_awaited_once_with("1")
+    get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
     update_report_mock.assert_awaited_once()
     make_booking_request_mock.assert_awaited_once()
