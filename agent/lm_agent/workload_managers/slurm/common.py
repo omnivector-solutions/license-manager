@@ -28,7 +28,7 @@ def get_job_context():
         logger.error(
             f"All required environment variables were not set, missing: {e}. "
             "Expecting: SLURM_CLUSTER_NAME, SLURM_JOB_ID, SLURM_JOB_NODELIST, "
-            "SLURM_JOB_USER"
+            "SLURM_JOB_USER, SLURM_JOB_LICENSES"
         )
 
     return ctxt
