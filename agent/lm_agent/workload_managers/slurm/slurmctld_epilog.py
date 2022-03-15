@@ -28,6 +28,7 @@ async def epilog():
     init_logging("slurmctld-epilog")
     job_context = get_job_context()
     job_id = job_context["job_id"]
+    job_licenses = job_context["job_licenses"]
     # force reconcile
     try:
         await update_report()
@@ -35,7 +36,7 @@ async def epilog():
         logger.error(f"Failed to call reconcile with {e}")
         sys.exit(1)
     try:
-        required_licenses = await get_required_licenses_for_job(job_id)
+        required_licenses = get_required_licenses_for_job(job_licenses)
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
