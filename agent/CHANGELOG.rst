@@ -7,6 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 * Fixed parsers to output feature name in lowercase
+* Change Prolog and Epilog scripts to get job's license from env var instead of scontrol
 
 2.2.4 -- 2022-03-03
 -------------------
