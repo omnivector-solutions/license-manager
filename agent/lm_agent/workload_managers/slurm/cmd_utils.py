@@ -77,20 +77,19 @@ def _match_requested_license(requested_license: str) -> Union[dict, None]:
     }
 
 
-async def get_required_licenses_for_job(slurm_job_id: str) -> List:
+def get_required_licenses_for_job(job_licenses: str) -> List:
     """Retrieve the required licenses for a job."""
 
-    license_array = await get_licenses_for_job(slurm_job_id)
-    logger.debug(f"##### License array for job id: {slurm_job_id} #####")
-    logger.debug(license_array)
+    license_array = job_licenses.split(",")
+    logger.debug(f"##### License array for job: {license_array} #####")
 
-    required_liceses: List = []
+    required_licenses: List = []
 
     if not license_array:
-        return required_liceses
+        return required_licenses
 
     if license_array[0] == "(null)":
-        return required_liceses
+        return required_licenses
 
     for requested_license in license_array:
         matched_license_items = _match_requested_license(requested_license)
@@ -105,9 +104,9 @@ async def get_required_licenses_for_job(slurm_job_id: str) -> List:
             tokens=tokens,
             license_server_type=license_server_type,
         )
-        required_liceses.append(license_booking)
+        required_licenses.append(license_booking)
 
-    return required_liceses
+    return required_licenses
 
 
 async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
@@ -151,45 +150,6 @@ async def reconcile():
         return True
     logger.debug(f"##### Reconcile failed {resp.status_code} #####")
     return False
-
-
-async def get_licenses_for_job(slurm_job_id: str) -> List:
-    """
-    Parse the scontrol output and return licenses needed for job.
-    """
-
-    # Command to get license information back from slurm using the
-    # slurm_job_id.
-    scontrol_show_lic = await asyncio.create_subprocess_shell(
-        shlex.join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
-    )
-
-    scontrol_out_bytes, _ = await asyncio.wait_for(scontrol_show_lic.communicate(), CMD_TIMEOUT)
-    scontrol_out = scontrol_out_bytes.decode(ENCODING)
-    logger.debug("##### scontrol out #####")
-    logger.debug(scontrol_out)
-
-    # Check that the command completed successfully
-    if not scontrol_show_lic.returncode == 0:
-        msg = f"Could not get SLURM data for job id: {slurm_job_id}"
-        logger.error(msg)
-        raise ScontrolRetrievalFailure(msg)
-
-    # Parse license information from scontrol output
-    m = re.search(".* Licenses=([^ ]*).*", scontrol_out)
-    if not m:
-        msg = f"Command output for {slurm_job_id=} was malformed: no 'Licenses' section found"
-        logger.error(msg)
-        raise ScontrolRetrievalFailure(msg)
-
-    match_string = m.group(1)
-    if match_string == "(null)":
-        return []
-
-    license_list = match_string.split(",")
-    return license_list
 
 
 async def get_tokens_for_license(

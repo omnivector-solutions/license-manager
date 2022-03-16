@@ -1,10 +1,25 @@
-from pytest import mark, raises
+"""
+Test Slurm cmd_utils.
+"""
+from pytest import fixture, mark, raises
 
 from lm_agent.workload_managers.slurm.cmd_utils import (
+    LicenseBooking,
     SqueueParserUnexpectedInputError,
     _match_requested_license,
+    get_required_licenses_for_job,
     squeue_parser,
 )
+
+
+@fixture
+def job_licenses_good() -> str:
+    return "testproduct.testfeature@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"
+
+
+@fixture
+def job_licenses_bad() -> str:
+    return ""
 
 
 def test_squeue_with_bad_input():
@@ -74,3 +89,37 @@ def test_match_requested_license(license, output):
 )
 def test_match_requested_license_wrong_string(requested_license):
     assert _match_requested_license(requested_license) == None
+
+
+def test_get_required_licenses_for_job_good(job_licenses_good: str):
+    """
+    Do I return the correct licenses when the license format matches?
+    """
+    required_licenses = get_required_licenses_for_job(job_licenses_good)
+    assert len(required_licenses) == 3
+    assert required_licenses == [
+        LicenseBooking(
+            product_feature="testproduct.testfeature",
+            tokens=11,
+            license_server_type="flexlm",
+        ),
+        LicenseBooking(
+            product_feature="testproduct2.testfeature2",
+            tokens=22,
+            license_server_type="flexlm",
+        ),
+        LicenseBooking(
+            product_feature="testproduct3.testfeature3",
+            tokens=33,
+            license_server_type="flexlm",
+        ),
+    ]
+
+
+def test_get_required_licenses_for_job_bad(job_licenses_bad: None):
+    """
+    Do I return the correct licenses when the license format doesn't match?
+    """
+    required_licenses = get_required_licenses_for_job(job_licenses_bad)
+    assert len(required_licenses) == 0
+    assert required_licenses == []

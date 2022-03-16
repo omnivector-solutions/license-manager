@@ -21,13 +21,14 @@ def get_job_context():
             "job_id": os.environ["SLURM_JOB_ID"],
             "lead_host": os.environ["SLURM_JOB_NODELIST"].split(",")[0],
             "user_name": os.environ["SLURM_JOB_USER"],
+            "job_licenses": os.environ.get("SLURM_JOB_LICENSES", ""),
         }
     except KeyError as e:
         # If not all keys could be assigned, then return non 0 exit status
         logger.error(
             f"All required environment variables were not set, missing: {e}. "
             "Expecting: SLURM_CLUSTER_NAME, SLURM_JOB_ID, SLURM_JOB_NODELIST, "
-            "SLURM_JOB_USER"
+            "SLURM_JOB_USER, SLURM_JOB_LICENSES"
         )
 
     return ctxt

@@ -1,3 +1,6 @@
+"""
+Test Epilog script.
+"""
 from unittest import mock
 
 import pytest
@@ -27,8 +30,9 @@ async def test_epilog(
         "user_name": "user1",
         "lead_host": "host1",
         "cluster_name": "cluster1",
+        "job_licenses": "test.feature@flexlm:10",
     }
     await epilog()
     update_report_mock.assert_awaited_once()
-    get_required_licenses_for_job_mock.assert_awaited_once_with("1")
+    get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
     remove_booking_for_job_mock.assert_awaited_once_with("1")
