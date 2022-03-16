@@ -8,6 +8,7 @@ Unreleased
 ----------
 * Fixed parsers to output feature name in lowercase
 * Change Prolog and Epilog scripts to get job's license from env var instead of scontrol
+* Add env var to flag if reconciliation should be triggered during Prolog and Epilog scripts execution
 
 2.2.4 -- 2022-03-03
 -------------------
