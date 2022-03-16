@@ -15,6 +15,7 @@ import sys
 
 from lm_agent.backend_utils import get_config_from_backend
 from lm_agent.logs import init_logging, logger
+from lm_agent.config import settings
 from lm_agent.reconciliation import update_report
 from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBookingRequest,
@@ -80,12 +81,15 @@ async def prolog():
     logger.debug(f"Tracked license bookings: {tracked_license_booking_request}")
 
     if len(tracked_license_booking_request.bookings) > 0:
-        # Force a reconciliation before we check the feature tokenavailability.
-        try:
-            await update_report()
-        except Exception as e:
-            logger.error(f"Failed to call reconcile with {e}")
-            sys.exit(1)
+        # Check if reconciliation should be triggered.
+        if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
+            # Force a reconciliation before we check the feature token availability.
+            try:
+                await update_report()
+            except Exception as e:
+                logger.error(f"Failed to call reconcile with {e}")
+                sys.exit(1)
+
         booking_request = await make_booking_request(tracked_license_booking_request)
         if not booking_request:
             logger.debug("Booking request unsuccessful, not enough licenses.")
