@@ -6,6 +6,7 @@ import asyncio
 import sys
 
 from lm_agent.backend_utils import backend_client
+from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_report
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
@@ -30,12 +31,14 @@ async def epilog():
     job_id = job_context["job_id"]
     job_licenses = job_context["job_licenses"]
 
-    # force reconcile
-    try:
-        await update_report()
-    except Exception as e:
-        logger.error(f"Failed to call reconcile with {e}")
-        sys.exit(1)
+    # Check if reconciliation should be triggered.
+    if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
+        # Force a reconciliation before we attempt to remove bookings.
+        try:
+            await update_report()
+        except Exception as e:
+            logger.error(f"Failed to call reconcile with {e}")
+            sys.exit(1)
 
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)

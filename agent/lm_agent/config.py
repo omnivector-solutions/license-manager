@@ -92,6 +92,9 @@ class Settings(BaseSettings):
     # Token cache directory
     CACHE_DIR: Path = DEFAULT_CACHE_DIR
 
+    # If set to `True`, reconcile will be triggered by Prolog/Epilog. Set to `False` to disable this.
+    USE_RECONCILE_IN_PROLOG_EPILOG: bool = True
+
     class Config:
         env_prefix = "LM2_AGENT_"
         if DEFAULT_DOTENV_PATH.is_file():
