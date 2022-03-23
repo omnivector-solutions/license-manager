@@ -1,6 +1,7 @@
 """
 Provide utilities that communicate with the backend.
 """
+import shutil
 import typing
 
 import httpx
@@ -55,6 +56,7 @@ def _write_token_to_cache(token: str):
     try:
         token_path.touch(mode=0o600, exist_ok=True)
         token_path.write_text(token)
+        shutil.chown(token_path, "slurm", "slurm")
     except Exception as err:
         logger.warning(f"Couldn't save token to {token_path}: {err}")
 
