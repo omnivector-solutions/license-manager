@@ -79,50 +79,8 @@ Lastly, validate that the node has successfully enlisted and the cluster is oper
 
 The slurm cluster is now prepared for further configuration and use in ``license-manager`` development.
 
-------------------------------------
-2) Run the license-manager-simulator
-------------------------------------
-To run the license-manager-simulator, clone the repository and run ``make local``.
-
-
-.. code-block:: bash
-
-   git clone https://github.com/omnivector-solutions/license-manager-simulator
-   cd license-manager-simulator/
-
-   make local
-
-At this point you will need to create the artificial license in the license-manager-simulator
-backend.
-
-.. code-block:: bash
-
-   curl -X 'POST' \
-      'http://$MY_IP:8000/licenses/' \
-      -H 'accept: application/json' \
-      -H 'Content-Type: application/json' \
-      -d '{
-      "name": "product.feature"
-      "total": 5000
-    }'
-
-You should receive a 201 response.
-
-.. code-block:: bash
-
-   {
-     "name": "product.feature",
-     "total": 5000,
-     "id": 2,
-     "licenses_in_use": [],
-     "in_use": 0
-   }
-
-The ``license-manager-simulator`` is now configured for use with the rest of the system.
-
-
 --------------------------------------
-3) Compose the license-manager backend
+2) Compose the license-manager backend
 --------------------------------------
 Setting up the license-manager backend for development is done in three steps:
 
@@ -203,6 +161,18 @@ The 201 HTTP response should contain the configuration item you created.
 
 The ``license-manager`` backend is now configured and ready for use in the development environment.
 
+----------------------------------------
+3) Compose the license-manager-simulator
+----------------------------------------
+To run the license-manager-simulator API, clone the repository and run ``docker-compose up``.
+
+.. code-block:: bash
+
+   git clone https://github.com/omnivector-solutions/license-manager-simulator
+   cd license-manager-simulator/
+
+   docker-compose up
+
 -----------------------------------------------
 4) Add the license-manager-agent to the cluster
 -----------------------------------------------
@@ -272,57 +242,34 @@ Once the systems have been successfully deployed you will need to apply the post
 These configurations will ensure that your slurm cluster has a fake license server client and available licenses
 to be used by the fake application (which will be run as a batch script).
 
-Configuring the slurm cluster in LXD
-************************************
-Before being able to run jobs, the slurm cluster must have a partition and licenses added to it.
-Use the ``juju config`` command to create a partition.
-
-.. code-block:: bash
-
-    juju config slurmd partition-name=mypartition
-
-Add the license to the cluster using the ``sacctmgr`` command.
-
-.. code-block:: bash
-
-    juju ssh slurmctld/0 sudo sacctmgr add resource Type=license Clusters=osd-cluster \
-        Server=flexlm Names=product.feature Count=50 ServerType=flexlm  PercentAllowed=100 -i
-
-Configuring the fake license server client
-******************************************
+Configuring the license server client
+*************************************
 The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna and LM-X).
 The script requests license information from the license-manager-simulator API and renders
-it in the template, simulating the output from the real license server.
+it in the template, simulating the output from the real license server. These files need to be copied to the license-manager-agent machine.
 
-To configure the license-manager-simulator, you need to:
+You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
+application script, which requests a license to the simulator API, sleeps for a few seconds, and return the license. This
+application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.
 
-#. Modify the fake license server script files available in the license-manager-simulador ``bin`` folder.
-
-   * change shebang to the path of the Python installed in the license-manager-agent virtualenv;
-
-   * change template path to the folder where the scripts and templates will be copied to;
-
-   * change the URL to the IP address of where the ``license-manager-simulator`` is running;
-
-#. Copy the modified scripts and templates to the cluster machine where the license manager agent is running;
-
-#. Rename scripts to the name of the binaries you are simulating;
-
-#. Add executable permission to scripts;
-
-#. Move scripts and templates to their correct location;
-
-The ``prepare-environment.sh`` script avaliable in the license-manager-simulator ``bin`` folder executes these steps automatically.
-
-To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install ``jinja2``.
+To set up everything needed to use the simulator, use the make setup command available in the license-manager-simulator project.
+This commands expects as an argument the license-manager-simulator API IP address.
 
 .. code-block:: bash
 
-    juju ssh license-manager-agent/0
-    source /srv/license-manager-agent-venv/bin/activate
-    pip install jinja2
+   cd license-manager-simulator/
+   make setup lm_sim_ip=http://$MY_IP:8000
 
-Now you must be able to simulate FlexLM, RLM, LS-Dyna and LM-X license servers. You can check it by executing ``lmutil``, ``rlmutil``, ``lstc_qrun`` and ``lmxendutil`` files.
+Using the simulated license servers
+***********************************
+With the environment configured, you'll have one simulated license for each license server supported:
+
+1. abaqus.abaqus for FlexLM
+2. converge.super for RLM
+3. mppdyna.mppdyna for LS-Dyna
+4. hyperworks.hyperworks for LM-X
+
+These licenses will be available in the simulated license servers. You can check it by executing ``lmutil``, ``rlmutil``, ``lstc_qrun`` and ``lmxendutil`` files.
 
 .. code-block:: bash
 
@@ -330,7 +277,7 @@ Now you must be able to simulate FlexLM, RLM, LS-Dyna and LM-X license servers. 
     source /srv/license-manager-agent-venv/bin/activate
     /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 
-The output should display the "product.feature" license that was added to the license manager simulator:
+The output should display the "abaqus.abaqus" license that was added to the license-manager-simulator:
 
 .. code-block:: bash
 
@@ -349,54 +296,17 @@ The output should display the "product.feature" license that was added to the li
 
     Feature usage info:
 
-    Users of product.feature:  (Total of 5000 licenses issued;  Total of 0 licenses in use)
+    Users of abaqus:  (Total of 1000 licenses issued;  Total of 0 licenses in use)
 
-      "product.feature" v62.2, vendor: FakeLM
+      "abaqus" v62.2, vendor: FakeLM
 
       floating license
 
-Configuring the license manager agent charm
-*******************************************
-The license manager agent charm is responsible for downloading the correct agent package from ``pypi``.
-There's a juju action to specify which version of the package you want.
-
-.. code-block:: bash
-
-    juju run-action license-manager-agent/0 upgrade-to-latest version=2.1.0 --wait
-
-You should also make sure you have used the correct configurations for the agent. Some of them were already specified in the ``license-manager-agent.yaml``
-file. In case you need to update them, use the ``juju config`` command.
-
-.. code-block:: bash
-
-    juju config license-manager-agent sentry-dsn=""
-    juju config license-manager-agent lmutil-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
-    juju config license-manager-agent rlmutil-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/rlmutil
-    juju config license-manager-agent lsdyna-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lstc_qrun
-    juju config license-manager-agent lmx-path=/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmxendutil
-
-Lasty, restart the license manager agent service and timer.
-
-.. code-block:: bash
-
-    juju ssh license-manager-agent/0 sudo systemctl daemon-reload
-    juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.timer
-    juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.service
-
-
 Seeding the batch script and fake application
 *********************************************
-To test the license manager, there's a fake application and a batch script to run it inside the license-manager-simulator ``job`` folder.
-The fake application makes a request to the license-manager-simulator API to book 42 licenses, sleeps for a few seconds, and then deletes the booking after.
+To test the license manager, there's a fake application and a batch script. These files are available at the ``/tmp`` folder in the ``slurmd`` machine.
+The fake application makes a request to the license-manager-simulator API to book 42 ``abaqus`` licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.
-
-Copy the files to the slurmd machine ``/tmp`` folder. Also modify the URL in the ``application.sh`` to reflect the IP address of the machine where the
-license-manager-simulator is running. The ``license_name`` field in the payload must match the license added to the simulator ("product.feature").
-
-.. code-block:: bash
-
-    juju scp /job/application.sh slurmd/0:/tmp
-    juju scp /job/batch.sh slurmd/0:/tmp
 
 To run the job, use the ``sbatch`` command.
 
@@ -404,8 +314,10 @@ To run the job, use the ``sbatch`` command.
 
     juju ssh slurmd/0 sbatch /tmp/batch.sh
 
+To use other licenses, change the license's name in the ``application.sh`` and ``batch.sh`` file.
+
 -------------
-5) Validation
+6) Validation
 -------------
 After following the steps above, you should have a working development environment.
 To validate that it is indeed working, submit a job to slurm (using the batch script) and check license manager backend.
@@ -423,10 +335,10 @@ You should see that the ``used`` value for the license was updated with the valu
 
     [
       {
-        "product_feature": "product.feature",
+        "product_feature": "abaqus.abaqus",
         "used": 42,
-        "total": 50,
-        "available": 8
+        "total": 1000,
+        "available": 958
       }
     ]
 
@@ -446,7 +358,7 @@ The booking should contain information about the job and the cluster, and also h
       {
         "id": 1,
         "job_id": "1",
-        "product_feature": "product.feature",
+        "product_feature": "abaqus.abaqus",
         "booked": 42,
         "config_id": 1,
         "lead_host": "juju-d9201d-2",
@@ -454,8 +366,6 @@ The booking should contain information about the job and the cluster, and also h
         "cluster_name": "osd-cluster"
       }
     ]
-
-
 
 Wait for a few seconds (for the reconcile to run) and check again. The booking should be deleted
 and the ``used`` value will return to its original quantity.
