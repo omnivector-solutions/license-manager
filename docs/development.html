@@ -193,13 +193,13 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#run-the-license-manager-simulator">
-   2) Run the license-manager-simulator
+  <a class="reference internal nav-link" href="#compose-the-license-manager-backend">
+   2) Compose the license-manager backend
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#compose-the-license-manager-backend">
-   3) Compose the license-manager backend
+  <a class="reference internal nav-link" href="#compose-the-license-manager-simulator">
+   3) Compose the license-manager-simulator
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -213,18 +213,13 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-slurm-cluster-in-lxd">
-     Configuring the slurm cluster in LXD
+    <a class="reference internal nav-link" href="#configuring-the-license-server-client">
+     Configuring the license server client
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-fake-license-server-client">
-     Configuring the fake license server client
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-license-manager-agent-charm">
-     Configuring the license manager agent charm
+    <a class="reference internal nav-link" href="#using-the-simulated-license-servers">
+     Using the simulated license servers
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
@@ -236,7 +231,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#validation">
-   5) Validation
+   6) Validation
   </a>
  </li>
 </ul>
@@ -270,13 +265,13 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#run-the-license-manager-simulator">
-   2) Run the license-manager-simulator
+  <a class="reference internal nav-link" href="#compose-the-license-manager-backend">
+   2) Compose the license-manager backend
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#compose-the-license-manager-backend">
-   3) Compose the license-manager backend
+  <a class="reference internal nav-link" href="#compose-the-license-manager-simulator">
+   3) Compose the license-manager-simulator
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -290,18 +285,13 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-slurm-cluster-in-lxd">
-     Configuring the slurm cluster in LXD
+    <a class="reference internal nav-link" href="#configuring-the-license-server-client">
+     Configuring the license server client
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-fake-license-server-client">
-     Configuring the fake license server client
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#configuring-the-license-manager-agent-charm">
-     Configuring the license manager agent charm
+    <a class="reference internal nav-link" href="#using-the-simulated-license-servers">
+     Using the simulated license servers
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
@@ -313,7 +303,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#validation">
-   5) Validation
+   6) Validation
   </a>
  </li>
 </ul>
@@ -394,41 +384,8 @@ juju-b71748-2
 </div>
 <p>The slurm cluster is now prepared for further configuration and use in <code class="docutils literal notranslate"><span class="pre">license-manager</span></code> development.</p>
 </div>
-<div class="section" id="run-the-license-manager-simulator">
-<h2>2) Run the license-manager-simulator<a class="headerlink" href="#run-the-license-manager-simulator" title="Permalink to this headline">¶</a></h2>
-<p>To run the license-manager-simulator, clone the repository and run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">local</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/omnivector-solutions/license-manager-simulator
-<span class="nb">cd</span> license-manager-simulator/
-
-make <span class="nb">local</span>
-</pre></div>
-</div>
-<p>At this point you will need to create the artificial license in the license-manager-simulator
-backend.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-   <span class="s1">&#39;http://$MY_IP:8000/licenses/&#39;</span> <span class="se">\</span>
-   -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-   -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-   -d <span class="s1">&#39;{</span>
-<span class="s1">   &quot;name&quot;: &quot;product.feature&quot;</span>
-<span class="s1">   &quot;total&quot;: 5000</span>
-<span class="s1"> }&#39;</span>
-</pre></div>
-</div>
-<p>You should receive a 201 response.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
-  <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;product.feature&quot;</span>,
-  <span class="s2">&quot;total&quot;</span>: <span class="m">5000</span>,
-  <span class="s2">&quot;id&quot;</span>: <span class="m">2</span>,
-  <span class="s2">&quot;licenses_in_use&quot;</span>: <span class="o">[]</span>,
-  <span class="s2">&quot;in_use&quot;</span>: <span class="m">0</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-simulator</span></code> is now configured for use with the rest of the system.</p>
-</div>
 <div class="section" id="compose-the-license-manager-backend">
-<h2>3) Compose the license-manager backend<a class="headerlink" href="#compose-the-license-manager-backend" title="Permalink to this headline">¶</a></h2>
+<h2>2) Compose the license-manager backend<a class="headerlink" href="#compose-the-license-manager-backend" title="Permalink to this headline">¶</a></h2>
 <p>Setting up the license-manager backend for development is done in three steps:</p>
 <ol class="arabic simple">
 <li><p>Clone the project to your local machine</p></li>
@@ -496,6 +453,16 @@ list should contain the configuration you previously added.)</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager</span></code> backend is now configured and ready for use in the development environment.</p>
 </div>
+<div class="section" id="compose-the-license-manager-simulator">
+<h2>3) Compose the license-manager-simulator<a class="headerlink" href="#compose-the-license-manager-simulator" title="Permalink to this headline">¶</a></h2>
+<p>To run the license-manager-simulator API, clone the repository and run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/omnivector-solutions/license-manager-simulator
+<span class="nb">cd</span> license-manager-simulator/
+
+docker-compose up
+</pre></div>
+</div>
+</div>
 <div class="section" id="add-the-license-manager-agent-to-the-cluster">
 <h2>4) Add the license-manager-agent to the cluster<a class="headerlink" href="#add-the-license-manager-agent-to-the-cluster" title="Permalink to this headline">¶</a></h2>
 <p>The final component we need to deploy is the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>. The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> is deployed to the
@@ -552,52 +519,37 @@ juju relate license-manager-agent:prolog-epilog slurmctld
 <p>Once the systems have been successfully deployed you will need to apply the post deployment configurations.
 These configurations will ensure that your slurm cluster has a fake license server client and available licenses
 to be used by the fake application (which will be run as a batch script).</p>
-<div class="section" id="configuring-the-slurm-cluster-in-lxd">
-<h3>Configuring the slurm cluster in LXD<a class="headerlink" href="#configuring-the-slurm-cluster-in-lxd" title="Permalink to this headline">¶</a></h3>
-<p>Before being able to run jobs, the slurm cluster must have a partition and licenses added to it.
-Use the <code class="docutils literal notranslate"><span class="pre">juju</span> <span class="pre">config</span></code> command to create a partition.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju config slurmd partition-name<span class="o">=</span>mypartition
-</pre></div>
-</div>
-<p>Add the license to the cluster using the <code class="docutils literal notranslate"><span class="pre">sacctmgr</span></code> command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh slurmctld/0 sudo sacctmgr add resource <span class="nv">Type</span><span class="o">=</span>license <span class="nv">Clusters</span><span class="o">=</span>osd-cluster <span class="se">\</span>
-    <span class="nv">Server</span><span class="o">=</span>flexlm <span class="nv">Names</span><span class="o">=</span>product.feature <span class="nv">Count</span><span class="o">=</span><span class="m">50</span> <span class="nv">ServerType</span><span class="o">=</span>flexlm  <span class="nv">PercentAllowed</span><span class="o">=</span><span class="m">100</span> -i
-</pre></div>
-</div>
-</div>
-<div class="section" id="configuring-the-fake-license-server-client">
-<h3>Configuring the fake license server client<a class="headerlink" href="#configuring-the-fake-license-server-client" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="configuring-the-license-server-client">
+<h3>Configuring the license server client<a class="headerlink" href="#configuring-the-license-server-client" title="Permalink to this headline">¶</a></h3>
 <p>The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna and LM-X).
 The script requests license information from the license-manager-simulator API and renders
-it in the template, simulating the output from the real license server.</p>
-<p>To configure the license-manager-simulator, you need to:</p>
-<ol class="arabic simple">
-<li><p>Modify the fake license server script files available in the license-manager-simulador <code class="docutils literal notranslate"><span class="pre">bin</span></code> folder.</p>
-<ul class="simple">
-<li><p>change shebang to the path of the Python installed in the license-manager-agent virtualenv;</p></li>
-<li><p>change template path to the folder where the scripts and templates will be copied to;</p></li>
-<li><p>change the URL to the IP address of where the <code class="docutils literal notranslate"><span class="pre">license-manager-simulator</span></code> is running;</p></li>
-</ul>
-</li>
-<li><p>Copy the modified scripts and templates to the cluster machine where the license manager agent is running;</p></li>
-<li><p>Rename scripts to the name of the binaries you are simulating;</p></li>
-<li><p>Add executable permission to scripts;</p></li>
-<li><p>Move scripts and templates to their correct location;</p></li>
-</ol>
-<p>The <code class="docutils literal notranslate"><span class="pre">prepare-environment.sh</span></code> script avaliable in the license-manager-simulator <code class="docutils literal notranslate"><span class="pre">bin</span></code> folder executes these steps automatically.</p>
-<p>To be able to render the templates, activate the virtual enviroment in the license manager agent machine and install <code class="docutils literal notranslate"><span class="pre">jinja2</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
-<span class="nb">source</span> /srv/license-manager-agent-venv/bin/activate
-pip install jinja2
+it in the template, simulating the output from the real license server. These files need to be copied to the license-manager-agent machine.</p>
+<p>You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
+application script, which requests a license to the simulator API, sleeps for a few seconds, and return the license. This
+application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.</p>
+<p>To set up everything needed to use the simulator, use the make setup command available in the license-manager-simulator project.
+This commands expects as an argument the license-manager-simulator API IP address.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> license-manager-simulator/
+make setup <span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span class="nv">$MY_IP</span>:8000
 </pre></div>
 </div>
-<p>Now you must be able to simulate FlexLM, RLM, LS-Dyna and LM-X license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code> and <code class="docutils literal notranslate"><span class="pre">lmxendutil</span></code> files.</p>
+</div>
+<div class="section" id="using-the-simulated-license-servers">
+<h3>Using the simulated license servers<a class="headerlink" href="#using-the-simulated-license-servers" title="Permalink to this headline">¶</a></h3>
+<p>With the environment configured, you'll have one simulated license for each license server supported:</p>
+<ol class="arabic simple">
+<li><p>abaqus.abaqus for FlexLM</p></li>
+<li><p>converge.super for RLM</p></li>
+<li><p>mppdyna.mppdyna for LS-Dyna</p></li>
+<li><p>hyperworks.hyperworks for LM-X</p></li>
+</ol>
+<p>These licenses will be available in the simulated license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code> and <code class="docutils literal notranslate"><span class="pre">lmxendutil</span></code> files.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
 <span class="nb">source</span> /srv/license-manager-agent-venv/bin/activate
 /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 </pre></div>
 </div>
-<p>The output should display the &quot;product.feature&quot; license that was added to the license manager simulator:</p>
+<p>The output should display the &quot;abaqus.abaqus&quot; license that was added to the license-manager-simulator:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lmutil - Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">1989</span>-2012 Flexera Software LLC. All Rights Reserved.
 Flexible License Manager status on Thu <span class="m">10</span>/29/2020 <span class="m">17</span>:44
 
@@ -613,56 +565,28 @@ Vendor daemon status <span class="o">(</span>on server2<span class="o">)</span>:
 
 Feature usage info:
 
-Users of product.feature:  <span class="o">(</span>Total of <span class="m">5000</span> licenses issued<span class="p">;</span>  Total of <span class="m">0</span> licenses <span class="k">in</span> use<span class="o">)</span>
+Users of abaqus:  <span class="o">(</span>Total of <span class="m">1000</span> licenses issued<span class="p">;</span>  Total of <span class="m">0</span> licenses <span class="k">in</span> use<span class="o">)</span>
 
-  <span class="s2">&quot;product.feature&quot;</span> v62.2, vendor: FakeLM
+  <span class="s2">&quot;abaqus&quot;</span> v62.2, vendor: FakeLM
 
   floating license
 </pre></div>
 </div>
 </div>
-<div class="section" id="configuring-the-license-manager-agent-charm">
-<h3>Configuring the license manager agent charm<a class="headerlink" href="#configuring-the-license-manager-agent-charm" title="Permalink to this headline">¶</a></h3>
-<p>The license manager agent charm is responsible for downloading the correct agent package from <code class="docutils literal notranslate"><span class="pre">pypi</span></code>.
-There's a juju action to specify which version of the package you want.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju run-action license-manager-agent/0 upgrade-to-latest <span class="nv">version</span><span class="o">=</span><span class="m">2</span>.1.0 --wait
-</pre></div>
-</div>
-<p>You should also make sure you have used the correct configurations for the agent. Some of them were already specified in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code>
-file. In case you need to update them, use the <code class="docutils literal notranslate"><span class="pre">juju</span> <span class="pre">config</span></code> command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju config license-manager-agent sentry-dsn<span class="o">=</span><span class="s2">&quot;&quot;</span>
-juju config license-manager-agent lmutil-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
-juju config license-manager-agent rlmutil-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/rlmutil
-juju config license-manager-agent lsdyna-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lstc_qrun
-juju config license-manager-agent lmx-path<span class="o">=</span>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmxendutil
-</pre></div>
-</div>
-<p>Lasty, restart the license manager agent service and timer.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0 sudo systemctl daemon-reload
-juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.timer
-juju ssh license-manager-agent/0 sudo systemctl start license-manager-agent.service
-</pre></div>
-</div>
-</div>
 <div class="section" id="seeding-the-batch-script-and-fake-application">
 <h3>Seeding the batch script and fake application<a class="headerlink" href="#seeding-the-batch-script-and-fake-application" title="Permalink to this headline">¶</a></h3>
-<p>To test the license manager, there's a fake application and a batch script to run it inside the license-manager-simulator <code class="docutils literal notranslate"><span class="pre">job</span></code> folder.
-The fake application makes a request to the license-manager-simulator API to book 42 licenses, sleeps for a few seconds, and then deletes the booking after.
+<p>To test the license manager, there's a fake application and a batch script. These files are available at the <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> folder in the <code class="docutils literal notranslate"><span class="pre">slurmd</span></code> machine.
+The fake application makes a request to the license-manager-simulator API to book 42 <code class="docutils literal notranslate"><span class="pre">abaqus</span></code> licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.</p>
-<p>Copy the files to the slurmd machine <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> folder. Also modify the URL in the <code class="docutils literal notranslate"><span class="pre">application.sh</span></code> to reflect the IP address of the machine where the
-license-manager-simulator is running. The <code class="docutils literal notranslate"><span class="pre">license_name</span></code> field in the payload must match the license added to the simulator (&quot;product.feature&quot;).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju scp /job/application.sh slurmd/0:/tmp
-juju scp /job/batch.sh slurmd/0:/tmp
-</pre></div>
-</div>
 <p>To run the job, use the <code class="docutils literal notranslate"><span class="pre">sbatch</span></code> command.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh slurmd/0 sbatch /tmp/batch.sh
 </pre></div>
 </div>
+<p>To use other licenses, change the license's name in the <code class="docutils literal notranslate"><span class="pre">application.sh</span></code> and <code class="docutils literal notranslate"><span class="pre">batch.sh</span></code> file.</p>
 </div>
 </div>
 <div class="section" id="validation">
-<h2>5) Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h2>
+<h2>6) Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h2>
 <p>After following the steps above, you should have a working development environment.
 To validate that it is indeed working, submit a job to slurm (using the batch script) and check license manager backend.
 Make a request to the <code class="docutils literal notranslate"><span class="pre">license</span></code> endpoint.</p>
@@ -674,10 +598,10 @@ Make a request to the <code class="docutils literal notranslate"><span class="pr
 <p>You should see that the <code class="docutils literal notranslate"><span class="pre">used</span></code> value for the license was updated with the value used in the job (42).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>
   <span class="o">{</span>
-    <span class="s2">&quot;product_feature&quot;</span>: <span class="s2">&quot;product.feature&quot;</span>,
+    <span class="s2">&quot;product_feature&quot;</span>: <span class="s2">&quot;abaqus.abaqus&quot;</span>,
     <span class="s2">&quot;used&quot;</span>: <span class="m">42</span>,
-    <span class="s2">&quot;total&quot;</span>: <span class="m">50</span>,
-    <span class="s2">&quot;available&quot;</span>: <span class="m">8</span>
+    <span class="s2">&quot;total&quot;</span>: <span class="m">1000</span>,
+    <span class="s2">&quot;available&quot;</span>: <span class="m">958</span>
   <span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
@@ -693,7 +617,7 @@ Make a request to the <code class="docutils literal notranslate"><span class="pr
   <span class="o">{</span>
     <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
     <span class="s2">&quot;job_id&quot;</span>: <span class="s2">&quot;1&quot;</span>,
-    <span class="s2">&quot;product_feature&quot;</span>: <span class="s2">&quot;product.feature&quot;</span>,
+    <span class="s2">&quot;product_feature&quot;</span>: <span class="s2">&quot;abaqus.abaqus&quot;</span>,
     <span class="s2">&quot;booked&quot;</span>: <span class="m">42</span>,
     <span class="s2">&quot;config_id&quot;</span>: <span class="m">1</span>,
     <span class="s2">&quot;lead_host&quot;</span>: <span class="s2">&quot;juju-d9201d-2&quot;</span>,
