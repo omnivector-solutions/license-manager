@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.2.5 -- 2022-04-04
+-------------------
 * Fixed parsers to output feature name in lowercase
 * Change Prolog and Epilog scripts to get job's license from env var instead of scontrol
 * Add env var to flag if reconciliation should be triggered during Prolog and Epilog scripts execution
