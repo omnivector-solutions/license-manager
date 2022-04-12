@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.5 -- 2022-04-12
+-------------------
+* Bump to sync with lm-agent version
+
 2.2.2 -- 2022-02-03
 -------------------
 * Fixed reconcile query
