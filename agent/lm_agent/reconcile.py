@@ -11,7 +11,6 @@ from lm_agent.exceptions import LicenseManagerSentryDsnNotSet
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
-
 if settings.SENTRY_DSN is None:
     raise LicenseManagerSentryDsnNotSet("Sentry DSN must be set.")
 
