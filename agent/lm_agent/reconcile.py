@@ -7,15 +7,19 @@ import sentry_sdk
 
 from lm_agent.backend_utils import check_backend_health
 from lm_agent.config import settings
+from lm_agent.exceptions import LicenseManagerSentryDsnNotSet
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile
 
-if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
-        environment=settings.DEPLOY_ENV,
-    )
+
+if settings.SENTRY_DSN is None:
+    raise LicenseManagerSentryDsnNotSet("Sentry DSN must be set.")
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
+    environment=settings.DEPLOY_ENV,
+)
 
 
 def begin_logging():
