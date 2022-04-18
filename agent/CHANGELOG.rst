@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Raise explicit exception if Sentry DSN is not set
 
 2.2.5 -- 2022-04-04
 -------------------
