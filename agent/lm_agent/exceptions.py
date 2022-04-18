@@ -27,3 +27,7 @@ class LicenseManagerNonSupportedServerTypeError(Buzz):
 
 class LicenseManagerBadServerOutput(Buzz):
     """Exception for license server bad output."""
+
+
+class LicenseManagerSentryDsnNotSet(Buzz):
+    """Exception for Sentry DSN not set."""
