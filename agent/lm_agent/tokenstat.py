@@ -47,7 +47,7 @@ def get_local_license_configurations(
         for feature in entry.features.keys():
             if f"{entry.product}.{feature}" in local_licenses:
                 filtered_entries.append(entry)
-                continue
+                break
     return filtered_entries
 
 
