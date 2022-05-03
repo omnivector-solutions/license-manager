@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.6 -- 2022-03-03
+-------------------
+* Fixed local licenses filtering
+
 2.2.5 -- 2022-04-04
 -------------------
 * Fixed parsers to output feature name in lowercase
