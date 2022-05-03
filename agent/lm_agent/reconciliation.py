@@ -17,6 +17,7 @@ from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseMan
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
+    get_all_product_features_from_cluster,
     get_cluster_name,
     get_tokens_for_license,
     return_formatted_squeue_out,
@@ -128,6 +129,17 @@ async def clean_bookings(squeue_result, cluster_name):
     await asyncio.gather(*delete_booking_call)
 
 
+async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
+    """Get the licenses in the cluster to filter the cluster update response."""
+    local_licenses = await get_all_product_features_from_cluster()
+
+    filtered_licenses = []
+    for license in licenses_to_update:
+        if license["product_feature"] in local_licenses:
+            filtered_licenses.append(license)
+    return filtered_licenses
+
+
 async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
     await clean_booked_grace_time()
@@ -135,7 +147,11 @@ async def reconcile():
     response = await backend_client.get("/lm/api/v1/license/cluster_update")
     configs = await get_config_from_backend()
     licenses_to_update = response.json()
-    for license_data in licenses_to_update:
+
+    # Filter licenses to reconcile only licenses in the cluster
+    filtered_licenses = await filter_cluster_update_licenses(licenses_to_update)
+
+    for license_data in filtered_licenses:
         product_feature = license_data["product_feature"]
         bookings_sum = license_data["bookings_sum"]
         license_total = license_data["license_total"]
