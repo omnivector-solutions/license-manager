@@ -1,7 +1,6 @@
 """
 Invoke license stat tools to build a view of license token counts.
 """
-import re
 import typing
 
 from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
