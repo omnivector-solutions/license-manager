@@ -267,6 +267,28 @@ async def sacctmgr_modify_resource(product: str, feature: str, num_tokens) -> bo
     return True
 
 
+async def get_all_product_features_from_cluster() -> List[str]:
+    """
+    Returns a list of all product.feature in the cluster.
+    """
+    show_lic_output = await scontrol_show_lic()
+
+    PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9_]+)[_\-.](?P<feature>\w+)"
+    RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
+
+    parsed_features = []
+    output = show_lic_output.split("\n")
+    for line in output:
+        parsed_line = RX_PRODUCT_FEATURE.match(line)
+        if parsed_line:
+            parsed_data = parsed_line.groupdict()
+            product = parsed_data["product"]
+            feature = parsed_data["feature"]
+            parsed_features.append(f"{product}.{feature}")
+
+    return parsed_features
+
+
 def return_formatted_squeue_out() -> str:
     """
     Call squeue via Popen and return the formatted output.

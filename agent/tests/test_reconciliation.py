@@ -2,11 +2,13 @@ from unittest import mock
 
 import pytest
 from httpx import Response
+from pytest import mark
 
 from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,
+    filter_cluster_update_licenses,
     get_all_grace_times,
     get_greatest_grace_time,
     reconcile,
@@ -258,3 +260,45 @@ async def test_clean_bookings_not_in_squeue(remove_booked_for_job_id_mock, get_b
     await clean_bookings(squeue_parsed, "test_cluster_name")
 
     remove_booked_for_job_id_mock.call_count == 1
+
+
+@mark.asyncio
+@mock.patch("lm_agent.reconciliation.get_all_product_features_from_cluster")
+async def test_filter_cluster_update_licenses(get_product_feature_from_cluster_mock: mock.MagicMock):
+    licenses_to_update = [
+        {
+            "product_feature": "product1.feature1",
+            "bookings_sum": 0,
+            "license_total": 100,
+            "license_used": 50,
+        },
+        {
+            "product_feature": "product2.feature2",
+            "bookings_sum": 0,
+            "license_total": 200,
+            "license_used": 120,
+        },
+        {
+            "product_feature": "product3.feature3",
+            "bookings_sum": 0,
+            "license_total": 30,
+            "license_used": 10,
+        },
+    ]
+
+    get_product_feature_from_cluster_mock.return_value = ["product1.feature1", "product3.feature3"]
+
+    assert await filter_cluster_update_licenses(licenses_to_update) == [
+        {
+            "product_feature": "product1.feature1",
+            "bookings_sum": 0,
+            "license_total": 100,
+            "license_used": 50,
+        },
+        {
+            "product_feature": "product3.feature3",
+            "bookings_sum": 0,
+            "license_total": 30,
+            "license_used": 10,
+        },
+    ]

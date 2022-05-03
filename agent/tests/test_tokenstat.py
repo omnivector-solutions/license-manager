@@ -1,5 +1,4 @@
 from textwrap import dedent
-from typing import List
 from unittest import mock
 
 from pytest import fixture, mark
@@ -82,7 +81,7 @@ def scontrol_show_lic_output_lmx():
     ],
 )
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_flexlm_get_report(
     get_config_from_backend_mock: mock.MagicMock,
@@ -152,7 +151,7 @@ async def test_flexlm_get_report(
     ],
 )
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_rlm_get_report(
     get_config_from_backend_mock: mock.MagicMock,
@@ -213,7 +212,7 @@ async def test_rlm_get_report(
     ],
 )
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_lsdyna_get_report(
     get_config_from_backend_mock: mock.MagicMock,
@@ -269,7 +268,7 @@ async def test_lsdyna_get_report(
     ],
 )
 @mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_output_from_server")
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_lmx_get_report(
     get_config_from_backend_mock: mock.MagicMock,
@@ -295,7 +294,7 @@ async def test_lmx_get_report(
 
 
 @mark.asyncio
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_flexlm_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
@@ -313,7 +312,7 @@ async def test_flexlm_report_with_empty_backend(
 
 
 @mark.asyncio
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_rlm_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
@@ -331,7 +330,7 @@ async def test_rlm_report_with_empty_backend(
 
 
 @mark.asyncio
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_lsdyna_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
@@ -349,7 +348,7 @@ async def test_lsdyna_report_with_empty_backend(
 
 
 @mark.asyncio
-@mock.patch("lm_agent.tokenstat.scontrol_show_lic")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_lmx_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
@@ -364,45 +363,6 @@ async def test_lmx_report_with_empty_backend(
 
     reconcile_list = await tokenstat.report()
     assert reconcile_list == []
-
-
-@mark.parametrize(
-    "show_lic_output,features_from_cluster",
-    [
-        (
-            dedent(
-                """
-                LicenseName=testproduct1.feature1@flexlm
-                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
-                """
-            ),
-            ["testproduct1.feature1"],
-        ),
-        (
-            dedent(
-                """
-                LicenseName=product_name.feature_name@flexlm
-                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
-                """
-            ),
-            ["product_name.feature_name"],
-        ),
-        (
-            dedent(
-                """
-                LicenseName=converge_super@rlm
-                    Total=9 Used=0 Free=9 Reserved=0 Remote=yes
-                LicenseName=converge_tecplot@rlm
-                    Total=45 Used=0 Free=45 Reserved=0 Remote=yes
-                """
-            ),
-            ["converge.super", "converge.tecplot"],
-        ),
-        ("", []),
-    ],
-)
-def test_get_product_features_from_cluster(show_lic_output: str, features_from_cluster: List[str]):
-    assert features_from_cluster == tokenstat.get_all_product_features_from_cluster(show_lic_output)
 
 
 def test_get_local_license_configurations():
