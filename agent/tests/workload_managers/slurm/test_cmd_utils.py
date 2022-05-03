@@ -1,12 +1,17 @@
 """
 Test Slurm cmd_utils.
 """
+from textwrap import dedent
+from typing import List
+from unittest import mock
+
 from pytest import fixture, mark, raises
 
 from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBooking,
     SqueueParserUnexpectedInputError,
     _match_requested_license,
+    get_all_product_features_from_cluster,
     get_required_licenses_for_job,
     squeue_parser,
 )
@@ -123,3 +128,47 @@ def test_get_required_licenses_for_job_bad(job_licenses_bad: None):
     required_licenses = get_required_licenses_for_job(job_licenses_bad)
     assert len(required_licenses) == 0
     assert required_licenses == []
+
+
+@mark.asyncio
+@mark.parametrize(
+    "show_lic_output,features_from_cluster",
+    [
+        (
+            dedent(
+                """
+                LicenseName=testproduct1.feature1@flexlm
+                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+                """
+            ),
+            ["testproduct1.feature1"],
+        ),
+        (
+            dedent(
+                """
+                LicenseName=product_name.feature_name@flexlm
+                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+                """
+            ),
+            ["product_name.feature_name"],
+        ),
+        (
+            dedent(
+                """
+                LicenseName=converge_super@rlm
+                    Total=9 Used=0 Free=9 Reserved=0 Remote=yes
+                LicenseName=converge_tecplot@rlm
+                    Total=45 Used=0 Free=45 Reserved=0 Remote=yes
+                """
+            ),
+            ["converge.super", "converge.tecplot"],
+        ),
+        ("", []),
+    ],
+)
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
+async def test_get_product_features_from_cluster(
+    show_lic_mock: mock.MagicMock, show_lic_output: str, features_from_cluster: List[str]
+):
+    show_lic_mock.return_value = show_lic_output
+    assert features_from_cluster == await get_all_product_features_from_cluster()
