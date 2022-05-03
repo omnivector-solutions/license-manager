@@ -7,7 +7,11 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
-2.2.6 -- 2022-03-03
+2.2.7 -- 2022-05-03
+-------------------
+* Filter cluster update response to only update licenses in the cluster
+
+2.2.6 -- 2022-05-03
 -------------------
 * Fixed local licenses filtering
 
