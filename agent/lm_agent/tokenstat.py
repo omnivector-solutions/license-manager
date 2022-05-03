@@ -12,27 +12,7 @@ from lm_agent.server_interfaces.license_server_interface import LicenseServerInt
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
-from lm_agent.workload_managers.slurm.cmd_utils import scontrol_show_lic
-
-
-def get_all_product_features_from_cluster(show_lic_output: str) -> typing.List[str]:
-    """
-    Returns a list of all product.feature in the cluster.
-    """
-    PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9_]+)[_\-.](?P<feature>\w+)"
-    RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
-
-    parsed_features = []
-    output = show_lic_output.split("\n")
-    for line in output:
-        parsed_line = RX_PRODUCT_FEATURE.match(line)
-        if parsed_line:
-            parsed_data = parsed_line.groupdict()
-            product = parsed_data["product"]
-            feature = parsed_data["feature"]
-            parsed_features.append(f"{product}.{feature}")
-
-    return parsed_features
+from lm_agent.workload_managers.slurm.cmd_utils import get_all_product_features_from_cluster
 
 
 def get_local_license_configurations(
@@ -66,7 +46,7 @@ async def report() -> typing.List[dict]:
     report_items = []
 
     license_configurations = await get_config_from_backend()
-    local_licenses = get_all_product_features_from_cluster(await scontrol_show_lic())
+    local_licenses = await get_all_product_features_from_cluster()
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
 
     logger.debug("#### Getting reconciliation report ####")
