@@ -20,6 +20,16 @@ license_table = Table(
     CheckConstraint("used<=total"),
 )
 
+license_searchable_fields = [
+    license_table.c.product_feature,
+]
+
+license_sortable_fields = [
+    license_table.c.product_feature,
+    license_table.c.used,
+    license_table.c.total,
+]
+
 
 booking_table = Table(
     "booking",
@@ -35,6 +45,22 @@ booking_table = Table(
     Column("config_id", Integer, ForeignKey("config.id"), nullable=False),
 )
 
+booking_searchable_fields = [
+    booking_table.c.product_feature,
+    booking_table.c.lead_host,
+    booking_table.c.user_name,
+    booking_table.c.cluster_name,
+]
+
+booking_sortable_fields = [
+    booking_table.c.job_id,
+    booking_table.c.product_feature,
+    booking_table.c.booked,
+    booking_table.c.lead_host,
+    booking_table.c.user_name,
+    booking_table.c.cluster_name,
+]
+
 
 config_table = Table(
     "config",
@@ -47,3 +73,18 @@ config_table = Table(
     Column("license_server_type", String),
     Column("grace_time", Integer, CheckConstraint("grace_time>=0")),
 )
+
+config_searchable_fields = [
+    config_table.c.name,
+    config_table.c.product,
+    config_table.c.features,
+    config_table.c.license_server_type,
+]
+
+config_sortable_fields = [
+    config_table.c.name,
+    config_table.c.product,
+    config_table.c.features,
+    config_table.c.license_server_type,
+    config_table.c.grace_time,
+]

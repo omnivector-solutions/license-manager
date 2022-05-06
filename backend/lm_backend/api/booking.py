@@ -11,8 +11,14 @@ from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import Booking, BookingRow, BookingRowDetail, LicenseUse, LicenseUseBooking
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
-from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table, config_table, license_table
+from lm_backend.storage import database, search_clause, sort_clause
+from lm_backend.table_schemas import (
+    booking_searchable_fields,
+    booking_sortable_fields,
+    booking_table,
+    config_table,
+    license_table,
+)
 
 router = APIRouter()
 
@@ -22,13 +28,25 @@ router = APIRouter()
     response_model=List[BookingRow],
     dependencies=[Depends(guard.lockdown(Permissions.BOOKING_VIEW))],
 )
-async def get_bookings_all(cluster_name: Optional[str] = Query(None)):
+async def get_bookings_all(
+    cluster_name: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+):
     """
     All license counts we are tracking, with the possibility to filter by cluster_name.
+
+    Note that search and sort are not applied if the cluster_name parameter is supplied.
     """
     query = booking_table.select()
     if cluster_name:
         query = query.where(booking_table.c.cluster_name == cluster_name)
+    else:
+        if search is not None:
+            query = query.where(search_clause(search, booking_searchable_fields))
+        if sort_field is not None:
+            query = query.order_by(sort_clause(sort_field, booking_sortable_fields, sort_ascending))
     fetched = await database.fetch_all(query)
     return [BookingRow.parse_obj(x) for x in fetched]
 
