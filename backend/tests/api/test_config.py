@@ -148,7 +148,7 @@ async def test_get_all_configurations__with_search(
     inject_security_header,
 ):
     """
-    Test fetching all configuration rows in the db.
+    Test fetching configuration rows in the db.
     """
     await insert_objects(some_configuration_rows, table_schemas.config_table)
 
@@ -176,7 +176,7 @@ async def test_get_all_configurations__with_sort(
     inject_security_header,
 ):
     """
-    Test fetching all configuration rows in the db.
+    Test fetching configuration rows in the db.
     """
     await insert_objects(some_configuration_rows, table_schemas.config_table)
 

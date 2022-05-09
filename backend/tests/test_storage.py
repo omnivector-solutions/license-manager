@@ -102,7 +102,7 @@ def test_sort_clause__produces_valid_query():
     )
 
 
-def test_sort_clause__produces_valid_query():
+def test_sort_clause__raises_exception_for_invalid_sort_field():
     """
     Does the ``sort_clause()`` function raise an exception if selected
     sort field is not in the list of sortable fields?
