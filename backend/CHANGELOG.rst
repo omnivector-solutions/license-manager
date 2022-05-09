@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Update docker-compose to use postgresql instead of postgres
 
 2.2.5 -- 2022-04-12
 -------------------
