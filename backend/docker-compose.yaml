@@ -23,7 +23,6 @@ services:
       - ./lm_backend:/app/lm_backend
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:123@postgres-back:5432/postgres}
-      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:123@postgres-back:5432/postgres}
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
       ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
       ARMASEC_DEBUG: ${ARMASEC_DEBUG}
