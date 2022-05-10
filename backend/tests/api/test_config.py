@@ -140,6 +140,55 @@ async def test_get_all_configurations__success(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
+async def test_get_all_configurations__with_search(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Test fetching configuration rows in the db.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/all?search=product2")
+
+    assert resp.status_code == 200
+    expected_matches = [some_configuration_items[1]]
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+    resp = await backend_client.get("/lm/api/v1/config/all?search=flexlm")
+
+    assert resp.status_code == 200
+    expected_matches = some_configuration_items
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_all_configurations__with_sort(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Test fetching configuration rows in the db.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/all?sort_field=name&sort_ascending=false")
+
+    assert resp.status_code == 200
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in reversed(some_configuration_items)]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
 async def test_get_all_configurations__fails_with_invalid_permissions(
     backend_client: AsyncClient,
     some_configuration_rows,

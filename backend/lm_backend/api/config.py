@@ -1,14 +1,14 @@
 from ast import literal_eval
 from typing import Dict, List, Optional, Union
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
-from lm_backend.storage import database
-from lm_backend.table_schemas import config_table
+from lm_backend.storage import database, search_clause, sort_clause
+from lm_backend.table_schemas import config_searchable_fields, config_sortable_fields, config_table
 
 router = APIRouter()
 
@@ -18,11 +18,19 @@ router = APIRouter()
     response_model=List[ConfigurationItem],
     dependencies=[Depends(guard.lockdown(Permissions.CONFIG_VIEW))],
 )
-async def get_all_configurations():
+async def get_all_configurations(
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+):
     """
     Query database for all configurations.
     """
     query = config_table.select()
+    if search is not None:
+        query = query.where(search_clause(search, config_searchable_fields))
+    if sort_field is not None:
+        query = query.order_by(sort_clause(sort_field, config_sortable_fields, sort_ascending))
     fetched = await database.fetch_all(query)
     config_rows = [ConfigurationRow.parse_obj(x) for x in fetched]
     return [

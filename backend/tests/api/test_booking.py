@@ -213,7 +213,7 @@ async def test_get_config_id_for_product_feature(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_bookings_all(
+async def test_bookings_all__basic(
     backend_client: AsyncClient,
     some_licenses,
     some_booking_rows,
@@ -259,6 +259,132 @@ async def test_bookings_all(
             product_feature="cool.beans",
             booked=11,
             config_id=2,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+    ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_bookings_all__with_search(
+    backend_client: AsyncClient,
+    some_licenses,
+    some_booking_rows,
+    some_config_rows,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Do I fetch all the bookings and apply search? Do I ignore search if cluster_name param provided?
+    """
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    resp = await backend_client.get("/lm/api/v1/booking/all?search=dolly")
+
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(
+            id=2,
+            job_id="hellodolly",
+            product_feature="hello.dolly",
+            booked=11,
+            config_id=1,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+    ]
+
+    resp = await backend_client.get("/lm/api/v1/booking/all?search=dolly&cluster_name=cluster1")
+
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(
+            id=1,
+            job_id="helloworld",
+            product_feature="hello.world",
+            booked=19,
+            config_id=1,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+        dict(
+            id=2,
+            job_id="hellodolly",
+            product_feature="hello.dolly",
+            booked=11,
+            config_id=1,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+        dict(
+            id=3,
+            job_id="coolbeans",
+            product_feature="cool.beans",
+            booked=11,
+            config_id=2,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+    ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_bookings_all__with_sort(
+    backend_client: AsyncClient,
+    some_licenses,
+    some_booking_rows,
+    some_config_rows,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Do I fetch all the bookings sorted by provided sort field?
+    """
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+    await insert_objects(some_booking_rows, table_schemas.booking_table)
+
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    resp = await backend_client.get("/lm/api/v1/booking/all?sort_field=job_id")
+
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(
+            id=3,
+            job_id="coolbeans",
+            product_feature="cool.beans",
+            booked=11,
+            config_id=2,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+        dict(
+            id=2,
+            job_id="hellodolly",
+            product_feature="hello.dolly",
+            booked=11,
+            config_id=1,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+        dict(
+            id=1,
+            job_id="helloworld",
+            product_feature="hello.world",
+            booked=19,
+            config_id=1,
             lead_host="host1",
             user_name="user1",
             cluster_name="cluster1",

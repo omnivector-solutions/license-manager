@@ -193,6 +193,54 @@ async def test_licenses_all__success(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
+async def test_licenses_all__with_search(
+    backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
+):
+    """
+    Do I fetch and filter by the supplied search term the licenses in the db?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
+    resp = await backend_client.get("/lm/api/v1/license/all?search=dolly")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(
+            product_feature="hello.dolly",
+            total=80,
+            used=11,
+            available=69,
+        ),
+    ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_licenses_all__success(
+    backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
+):
+    """
+    Do I fetch and order the licenses in the db by the supplied sort params?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
+    resp = await backend_client.get("/lm/api/v1/license/all?sort_field=total&sort_ascending=false")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(product_feature="hello.world", total=100, used=19, available=81),
+        dict(
+            product_feature="hello.dolly",
+            total=80,
+            used=11,
+            available=69,
+        ),
+        dict(product_feature="cool.beans", total=11, used=11, available=0),
+    ]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
 async def test_licenses_all__fail_on_bad_permission(
     backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
 ):

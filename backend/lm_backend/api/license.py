@@ -1,7 +1,7 @@
 import asyncio
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.sql import select, update
 
 from lm_backend.api.permissions import Permissions
@@ -13,8 +13,13 @@ from lm_backend.api_schemas import (
     LicenseUseReconcileRequest,
 )
 from lm_backend.security import guard
-from lm_backend.storage import database
-from lm_backend.table_schemas import booking_table, license_table
+from lm_backend.storage import database, search_clause, sort_clause
+from lm_backend.table_schemas import (
+    booking_table,
+    license_searchable_fields,
+    license_sortable_fields,
+    license_table,
+)
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
@@ -25,11 +30,21 @@ router = APIRouter()
     response_model=List[LicenseUse],
     dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
 )
-async def licenses_all():
+async def licenses_all(
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+):
     """
     All license counts we are tracking
     """
-    query = license_table.select().order_by(license_table.c.product_feature)
+    query = license_table.select()
+    if search is not None:
+        query = query.where(search_clause(search, license_searchable_fields))
+    if sort_field is not None:
+        query = query.order_by(sort_clause(sort_field, license_sortable_fields, sort_ascending))
+    else:
+        query = query.order_by(license_table.c.product_feature)
     fetched = await database.fetch_all(query)
     return [LicenseUse.parse_obj(x) for x in fetched]
 
