@@ -6,8 +6,12 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.2.7 -- 2022-05-10
+-------------------
 * Update docker-compose to use postgresql instead of postgres
 * Added search and sort to list endpoints.
+* Skipped 2.2.6 to sync with agent
 
 2.2.5 -- 2022-04-12
 -------------------
