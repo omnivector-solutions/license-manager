@@ -21,7 +21,7 @@ def scontrol_show_lic_output_flexlm():
 def scontrol_show_lic_output_rlm():
     return dedent(
         """
-        LicenseName=converge.super@rlm
+        LicenseName=converge.converge_super@rlm
             Total=10 Used=0 Free=10 Reserved=0 Remote=yes
         """
     )
@@ -114,7 +114,7 @@ async def test_flexlm_get_report(
             "rlm_output",
             [
                 {
-                    "product_feature": "converge.super",
+                    "product_feature": "converge.converge_super",
                     "used": 93,
                     "total": 1000,
                     "used_licenses": [
@@ -141,7 +141,7 @@ async def test_flexlm_get_report(
             "rlm_output_no_licenses",
             [
                 {
-                    "product_feature": "converge.super",
+                    "product_feature": "converge.converge_super",
                     "used": 0,
                     "total": 1000,
                     "used_licenses": [],
@@ -368,7 +368,7 @@ async def test_lmx_report_with_empty_backend(
 def test_get_local_license_configurations():
     configuration_super = BackendConfigurationRow(
         product="converge",
-        features={"super": 10},
+        features={"converge_super": 10},
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
@@ -376,14 +376,14 @@ def test_get_local_license_configurations():
 
     configuration_polygonica = BackendConfigurationRow(
         product="converge",
-        features={"polygonica": 10},
+        features={"converge_polygonica": 10},
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
     )
 
     license_configurations = [configuration_super, configuration_polygonica]
-    local_licenses = ["converge.super"]
+    local_licenses = ["converge.converge_super"]
 
     assert tokenstat.get_local_license_configurations(license_configurations, local_licenses) == [
         configuration_super

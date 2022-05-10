@@ -49,8 +49,8 @@ async def test_rlm_get_report_item(
     """
     get_output_from_server_mock.return_value = rlm_output
 
-    assert await rlm_server.get_report_item("converge.super") == LicenseReportItem(
-        product_feature="converge.super",
+    assert await rlm_server.get_report_item("converge.converge_super") == LicenseReportItem(
+        product_feature="converge.converge_super",
         used=93,
         total=1000,
         used_licenses=[
@@ -72,7 +72,7 @@ async def test_rlm_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = lsdyna_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await rlm_server.get_report_item("converge.super")
+        await rlm_server.get_report_item("converge.converge_super")
 
 
 @mark.asyncio
@@ -85,8 +85,8 @@ async def test_rlm_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = rlm_output_no_licenses
 
-    assert await rlm_server.get_report_item("converge.super") == LicenseReportItem(
-        product_feature="converge.super",
+    assert await rlm_server.get_report_item("converge.converge_super") == LicenseReportItem(
+        product_feature="converge.converge_super",
         used=0,
         total=1000,
         used_licenses=[],
