@@ -376,7 +376,7 @@ def test_get_local_license_configurations():
 
     configuration_polygonica = BackendConfigurationRow(
         product="converge",
-        features={"converge_polygonica": 10},
+        features={"converge_gui_polygonica": 10},
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
