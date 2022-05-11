@@ -71,23 +71,9 @@ class RLMLicenseServer(LicenseServerInterface):
         The output from the RLM server returns information about all the licenses
         in the server. This function filters the output to return only the information
         about the feature we want.
-
-        Also, the output from the RLM server returns only a ``feature`` identifier,
-        which can be the ``product`` and the ``feature`` concatenated.
-        To extract the ``feature``, we check if it has more than one word concatenated with ``_``.
-        If so, we consider the first word as the ``product`` and the rest as the ``feature``.
-        If it's only one word, we consider it as both the ``product`` and the ``feature``.
-
-        Example:
-        "converge" -> "converge.converge"
-        "converge_super" -> "converge.super"
-        "converge_gui_polygonica" -> "converge.gui_polygonica"
         """
         for feature_item in parsed_list:
-            if feature_item["feature"].count("_") == 0:
-                if feature_item["feature"] == feature:
-                    return feature_item
-            elif "_".join(feature_item["feature"].split("_")[1:]) == feature:
+            if feature_item["feature"] == feature:
                 return feature_item
 
     def _filter_used_features(self, parsed_list, feature):
@@ -95,24 +81,10 @@ class RLMLicenseServer(LicenseServerInterface):
         The output from the RLM server returns information about all the licenses
         that are in use. This function filters the output to return only the information
         about the usage of the feature we want.
-
-        Also, the output from the RLM server returns only a ``feature`` identifier,
-        which can be the ``product`` and the ``feature`` concatenated.
-        To extract the ``feature``, we check if it has more than one word concatenated with ``_``.
-        If so, we consider the first word as the ``product`` and the rest as the ``feature``.
-        If it's only one word, we consider it as both the ``product`` and the ``feature``.
-
-        Example:
-        "converge" -> "converge.converge"
-        "converge_super" -> "converge.super"
-        "converge_gui_polygonica" -> "converge.gui_polygonica"
         """
         used_licenses = []
         for feature_booked in parsed_list:
-            if feature_booked["feature"].count("_") == 0:
-                if feature_booked["feature"] == feature:
-                    used_licenses.append(feature_booked)
-            elif "_".join(feature_booked["feature"].split("_")[1:]) == feature:
+            if feature_booked["feature"] == feature:
                 used_licenses.append(feature_booked)
 
         for license in used_licenses:

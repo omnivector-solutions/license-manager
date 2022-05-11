@@ -57,7 +57,7 @@ def one_configuration_row_flexlm():
 def one_configuration_row_rlm():
     return BackendConfigurationRow(
         product="converge",
-        features={"super": 10},
+        features={"converge_super": 10},
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,

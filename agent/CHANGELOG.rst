@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Update RLM integration to use the same feature name displayed in the license server
 
 2.2.7 -- 2022-05-03
 -------------------
