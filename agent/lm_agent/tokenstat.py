@@ -46,6 +46,7 @@ async def report() -> typing.List[dict]:
     """
     report_items = []
     get_report_awaitables = []
+    product_features_awaited = []
 
     license_configurations = await get_config_from_backend()
     local_licenses = await get_all_product_features_from_cluster()
@@ -84,13 +85,15 @@ async def report() -> typing.List[dict]:
 
         for product_feature in product_features_to_check:
             get_report_awaitables.append(license_server_interface.get_report_item(product_feature))
+            product_features_awaited.append(product_feature)
 
     results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
 
-    for product_feature, result in zip(product_features_to_check, results):
+    for result, product_feature in zip(results, product_features_awaited):
         if isinstance(result, Exception):
             formatted = traceback.format_exception(type(result), result, result.__traceback__)
             logger.error(f"#### Report for feature {product_feature} failed! ####")
+            logger.error("#### Traceback: ####")
             logger.error("".join(formatted))
         else:
             report_items.append(result)
