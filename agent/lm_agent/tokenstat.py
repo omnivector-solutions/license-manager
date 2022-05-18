@@ -1,10 +1,12 @@
 """
 Invoke license stat tools to build a view of license token counts.
 """
+import asyncio
+import traceback
 import typing
 
 from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
-from lm_agent.exceptions import LicenseManagerBadServerOutput, LicenseManagerNonSupportedServerTypeError
+from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
@@ -43,6 +45,7 @@ async def report() -> typing.List[dict]:
     license server database.
     """
     report_items = []
+    get_report_awaitables = []
 
     license_configurations = await get_config_from_backend()
     local_licenses = await get_all_product_features_from_cluster()
@@ -80,12 +83,17 @@ async def report() -> typing.List[dict]:
         license_server_interface = server_type(entry.license_servers)
 
         for product_feature in product_features_to_check:
-            try:
-                report_item = await license_server_interface.get_report_item(product_feature)
-                report_items.append(report_item)
-            except LicenseManagerBadServerOutput:
+            get_report_awaitables.append(license_server_interface.get_report_item(product_feature))
+
+        results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
+
+        for product_feature, result in zip(product_features_to_check, results):
+            if isinstance(result, Exception):
+                formatted = traceback.format_exception(type(result), result, result.__traceback__)
                 logger.error(f"#### Report for feature {product_feature} failed! ####")
-                continue
+                logger.error("".join(formatted))
+            else:
+                report_items.append(result)
 
     reconciliation = [item.dict() for item in report_items]
     logger.debug("#### Reconciliation items:")
