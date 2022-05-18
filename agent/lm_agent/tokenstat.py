@@ -85,15 +85,15 @@ async def report() -> typing.List[dict]:
         for product_feature in product_features_to_check:
             get_report_awaitables.append(license_server_interface.get_report_item(product_feature))
 
-        results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
+    results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
 
-        for product_feature, result in zip(product_features_to_check, results):
-            if isinstance(result, Exception):
-                formatted = traceback.format_exception(type(result), result, result.__traceback__)
-                logger.error(f"#### Report for feature {product_feature} failed! ####")
-                logger.error("".join(formatted))
-            else:
-                report_items.append(result)
+    for product_feature, result in zip(product_features_to_check, results):
+        if isinstance(result, Exception):
+            formatted = traceback.format_exception(type(result), result, result.__traceback__)
+            logger.error(f"#### Report for feature {product_feature} failed! ####")
+            logger.error("".join(formatted))
+        else:
+            report_items.append(result)
 
     reconciliation = [item.dict() for item in report_items]
     logger.debug("#### Reconciliation items:")
