@@ -2,7 +2,6 @@
 Invoke license stat tools to build a view of license token counts.
 """
 import asyncio
-import traceback
 import typing
 
 from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
@@ -91,10 +90,7 @@ async def report() -> typing.List[dict]:
 
     for result, product_feature in zip(results, product_features_awaited):
         if isinstance(result, Exception):
-            formatted = traceback.format_exception(type(result), result, result.__traceback__)
-            logger.error(f"#### Report for feature {product_feature} failed! ####")
-            logger.error("#### Traceback: ####")
-            logger.error("".join(formatted))
+            logger.error(f"#### Report for feature {product_feature} failed with: {result} ####")
         else:
             report_items.append(result)
 
