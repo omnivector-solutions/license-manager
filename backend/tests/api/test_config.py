@@ -283,7 +283,6 @@ async def test_add_configuration__success(
         "license_server_type": "servertype100",
         "grace_time": "10000",
         "client_id": "cluster-staging",
-
     }
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
@@ -404,7 +403,7 @@ async def test_update_nonexistant_configuration(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
-        "client_id": "cluster-staging"
+        "client_id": "cluster-staging",
     }
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
