@@ -23,6 +23,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=100,
+            client_id="cluster-staging",
         ),
         ConfigurationRow(
             id=2,
@@ -32,6 +33,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=200,
+            client_id="cluster-staging",
         ),
         ConfigurationRow(
             id=3,
@@ -41,6 +43,7 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=300,
+            client_id="cluster-staging",
         ),
     ]
 
@@ -59,6 +62,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=100,
+            client_id="cluster-staging",
         ),
         ConfigurationItem(
             id=2,
@@ -68,6 +72,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=200,
+            client_id="cluster-staging",
         ),
         ConfigurationItem(
             id=3,
@@ -77,6 +82,7 @@ def some_configuration_items() -> List[ConfigurationItem]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=300,
+            client_id="cluster-staging",
         ),
     ]
 
@@ -95,6 +101,7 @@ def one_configuration_row():
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=10000,
+            client_id="cluster-staging",
         )
     ]
 
@@ -113,6 +120,7 @@ def one_configuration_item():
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=10000,
+            client_id="cluster-staging",
         )
     ]
 
@@ -274,6 +282,8 @@ async def test_add_configuration__success(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
+        "client_id": "cluster-staging",
+
     }
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
@@ -289,6 +299,7 @@ async def test_add_configuration__success(
     assert fetched.license_servers == ["licenseserver100"]
     assert fetched.license_server_type == "servertype100"
     assert fetched.grace_time == 10000
+    assert fetched.client_id == "cluster-staging"
 
 
 @mark.asyncio
@@ -306,6 +317,7 @@ async def test_add_configuration__fail_on_bad_permission(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
+        "client_id": "cluster-staging",
     }
 
     # No Permission
@@ -337,6 +349,7 @@ async def test_update_configuration__success(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
+        "client_id": "cluster-staging",
     }
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.put("/lm/api/v1/config/100", json=data)
@@ -362,6 +375,7 @@ async def test_update_configuration__fail_on_bad_permission(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
+        "client_id": "cluster-staging",
     }
 
     # No Permission
@@ -390,6 +404,7 @@ async def test_update_nonexistant_configuration(
         "license_servers": ["licenseserver100"],
         "license_server_type": "servertype100",
         "grace_time": "10000",
+        "client_id": "cluster-staging"
     }
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)

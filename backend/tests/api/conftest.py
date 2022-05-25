@@ -17,6 +17,7 @@ def some_config_rows():
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
+            client_id="cluster-staging",
         ),
         ConfigurationRow(
             id=2,
@@ -26,6 +27,7 @@ def some_config_rows():
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
+            client_id="cluster-staging",
         ),
     ]
 
