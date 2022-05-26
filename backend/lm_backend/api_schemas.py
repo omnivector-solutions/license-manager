@@ -19,6 +19,7 @@ class ConfigurationRow(BaseModel):
     license_servers: List[str]
     license_server_type: str
     grace_time: int
+    client_id: str
 
     class Config:
         orm_mode = True
@@ -36,6 +37,7 @@ class ConfigurationItem(BaseModel):
     license_servers: List[str]
     license_server_type: str
     grace_time: int
+    client_id: str
 
     class Config:
         orm_mode = True
