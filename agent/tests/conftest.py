@@ -50,6 +50,7 @@ def one_configuration_row_flexlm():
         license_servers=["flexlm:127.0.0.1:2345"],
         license_server_type="flexlm",
         grace_time=10000,
+        client_id="cluster-staging",
     )
 
 
@@ -61,6 +62,7 @@ def one_configuration_row_rlm():
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
+        client_id="cluster-staging",
     )
 
 
@@ -72,6 +74,7 @@ def one_configuration_row_lsdyna():
         license_servers=["lsdyna:127.0.0.1:2345"],
         license_server_type="lsdyna",
         grace_time=10000,
+        client_id="cluster-staging",
     )
 
 
@@ -83,6 +86,7 @@ def one_configuration_row_lmx():
         license_servers=["lmx:127.0.0.1:2345"],
         license_server_type="lmx",
         grace_time=10000,
+        client_id="cluster-staging",
     )
 
 
