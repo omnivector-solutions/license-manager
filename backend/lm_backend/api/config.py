@@ -31,8 +31,8 @@ async def get_all_configurations_by_client_id(
         client_id = token_payload.azp
     except AttributeError:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(f"Couldn't find a valid client id in the token."),
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
         )
 
     query = config_table.select().where(config_table.c.client_id == client_id)

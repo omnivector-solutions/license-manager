@@ -241,7 +241,7 @@ async def test_get_all_configurations_by_client_id__invalid_client_id(
     resp = await backend_client.get("/lm/api/v1/config/agent/all")
 
     # no client_id in the token
-    assert resp.status_code == 409
+    assert resp.status_code == 400
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
