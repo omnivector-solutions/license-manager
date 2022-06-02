@@ -45,6 +45,16 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             grace_time=300,
             client_id="cluster-staging",
         ),
+        ConfigurationRow(
+            id=4,
+            name="Product 4: Features 1, 2, 3",
+            product="testproduct4",
+            features='{"feature1": 1, "feature2": 2, "feature3": 3}',
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
+            grace_time=300,
+            client_id="another-cluster-staging",
+        ),
     ]
 
 
@@ -83,6 +93,16 @@ def some_configuration_items() -> List[ConfigurationItem]:
             license_server_type="flexlm",
             grace_time=300,
             client_id="cluster-staging",
+        ),
+        ConfigurationItem(
+            id=4,
+            name="Product 4: Features 1, 2, 3",
+            product="testproduct4",
+            features={"feature1": 1, "feature2": 2, "feature3": 3},
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
+            grace_time=300,
+            client_id="another-cluster-staging",
         ),
     ]
 
