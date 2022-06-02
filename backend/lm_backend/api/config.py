@@ -25,10 +25,11 @@ async def get_all_configurations_by_client_id(
     token_payload: TokenPayload = Depends(guard.lockdown(Permissions.CONFIG_VIEW))
 ):
     """
-    Query database for all configurations filtering by client_id .
+    Query database for all configurations filtering by client_id.
     """
     try:
-        client_id = token_payload.azp
+        # client_id identifies the cluster where the agent is running
+        client_id = token_payload.azp 
     except AttributeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
