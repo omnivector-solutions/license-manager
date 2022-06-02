@@ -196,6 +196,35 @@ async def test_get_all_configurations__with_search(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
+async def test_get_all_configurations_by_client_id__success(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_client_id_in_security_header,
+):
+    """
+    Test fetching configuration rows in the db filtering by client_id.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_client_id_in_security_header("cluster-staging", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    assert resp.status_code == 200
+    expected_matches = some_configuration_items[:3]
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+    inject_client_id_in_security_header("another-cluster-staging", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    assert resp.status_code == 200
+    expected_matches = [some_configuration_items[3]]
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
 async def test_get_all_configurations__with_sort(
     backend_client: AsyncClient,
     some_configuration_rows,
