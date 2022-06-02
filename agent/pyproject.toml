@@ -9,7 +9,7 @@ packages = [{ include = "lm_agent" }]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9"
 httpx = "^0.18.2"
-PyJWT = "^2.1.0"
+PyJWT = "^2.4.0"
 typer = "^0.3.2"
 pydantic = {version = "^1.8.2", extras = ["dotenv"]}
 requests = "^2.26.0"
