@@ -225,6 +225,26 @@ async def test_get_all_configurations_by_client_id__success(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
+async def test_get_all_configurations_by_client_id__invalid_client_id(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Test fetching configuration rows in the db with invalid client_id.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    # no client_id in the token
+    assert resp.status_code == 409
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
 async def test_get_all_configurations__with_sort(
     backend_client: AsyncClient,
     some_configuration_rows,
