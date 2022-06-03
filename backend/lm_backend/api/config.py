@@ -27,10 +27,10 @@ async def get_all_configurations_by_client_id(
     """
     Query database for all configurations filtering by client_id.
     """
-    try:
-        # client_id identifies the cluster where the agent is running
-        client_id = token_payload.azp 
-    except AttributeError:
+    # client_id identifies the cluster where the agent is running
+    client_id = token_payload.client_id
+
+    if not client_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=("Couldn't find a valid client_id in the access token."),
