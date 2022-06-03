@@ -1,7 +1,7 @@
 from ast import literal_eval
-from armasec import TokenPayload
 from typing import Dict, List, Optional, Union
 
+from armasec import TokenPayload
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.permissions import Permissions
@@ -22,7 +22,7 @@ async def get_all_configurations_by_client_id(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    token_payload: TokenPayload = Depends(guard.lockdown(Permissions.CONFIG_VIEW))
+    token_payload: TokenPayload = Depends(guard.lockdown(Permissions.CONFIG_VIEW)),
 ):
     """
     Query database for all configurations filtering by client_id.
@@ -37,7 +37,7 @@ async def get_all_configurations_by_client_id(
         )
 
     query = config_table.select().where(config_table.c.client_id == client_id)
-    
+
     if search is not None:
         query = query.where(search_clause(search, config_searchable_fields))
     if sort_field is not None:

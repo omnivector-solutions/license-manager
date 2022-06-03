@@ -243,6 +243,7 @@ async def test_get_all_configurations_by_client_id__invalid_client_id(
     # no client_id in the token
     assert resp.status_code == 400
 
+
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_get_all_configurations__with_sort(

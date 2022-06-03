@@ -91,7 +91,7 @@ async def inject_security_header(backend_client, build_rs256_token):
 async def inject_client_id_in_security_header(backend_client, build_rs256_token):
     """
     Provides a helper method that will inject a security token into the requests for a test client. If no
-    client_id is provided, the security token will still be valid but will not carry any identification 
+    client_id is provided, the security token will still be valid but will not carry any identification
     in the `azp` parameter. Uses the `build_rs256_token()` fixture from the armasec package.
     """
 
