@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.2.9 -- 2022-06-06
+-------------------
 * Implement async calls to license servers to fetch information in parallel
 
 2.2.8 -- 2022-05-16
