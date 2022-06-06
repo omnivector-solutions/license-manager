@@ -7,7 +7,7 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 * Add cluster_id column to config table to identify which cluster the configuration applies to
-* Created new route to fetch configurations filtering by the cluster requesting the data
+* Added new route to fetch all configurations from a specific cluster
 
 2.2.7 -- 2022-05-10
 -------------------
