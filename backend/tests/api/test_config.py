@@ -42,6 +42,16 @@ def some_configuration_rows() -> List[ConfigurationRow]:
             license_server_type="flexlm",
             grace_time=300,
         ),
+        ConfigurationRow(
+            id=4,
+            name="Product 4: Features 1, 2, 3",
+            product="testproduct4",
+            features='{"feature1": 1, "feature2": 2, "feature3": 3}',
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
+            grace_time=300,
+            client_id="another-cluster-staging",
+        ),
     ]
 
 
@@ -77,6 +87,16 @@ def some_configuration_items() -> List[ConfigurationItem]:
             license_servers=["flexlm:127.0.0.1:2345"],
             license_server_type="flexlm",
             grace_time=300,
+        ),
+        ConfigurationItem(
+            id=4,
+            name="Product 4: Features 1, 2, 3",
+            product="testproduct4",
+            features={"feature1": 1, "feature2": 2, "feature3": 3},
+            license_servers=["flexlm:127.0.0.1:2345"],
+            license_server_type="flexlm",
+            grace_time=300,
+            client_id="another-cluster-staging",
         ),
     ]
 
@@ -164,6 +184,56 @@ async def test_get_all_configurations__with_search(
     assert resp.status_code == 200
     expected_matches = some_configuration_items
     assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_all_configurations_by_client_id__success(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_client_id_in_security_header,
+):
+    """
+    Test fetching configuration rows in the db filtering by client_id.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_client_id_in_security_header("cluster-staging", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    assert resp.status_code == 200
+    expected_matches = some_configuration_items[:3]
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+    inject_client_id_in_security_header("another-cluster-staging", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    assert resp.status_code == 200
+    expected_matches = [some_configuration_items[3]]
+    assert resp.json() == [ConfigurationItem.parse_obj(x) for x in expected_matches]
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_all_configurations_by_client_id__invalid_client_id(
+    backend_client: AsyncClient,
+    some_configuration_rows,
+    some_configuration_items,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Test fetching configuration rows in the db with invalid client_id.
+    """
+    await insert_objects(some_configuration_rows, table_schemas.config_table)
+
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    resp = await backend_client.get("/lm/api/v1/config/agent/all")
+
+    # no client_id in the token
+    assert resp.status_code == 400
 
 
 @mark.asyncio
