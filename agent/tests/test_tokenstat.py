@@ -372,7 +372,6 @@ def test_get_local_license_configurations():
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
-        client_id="cluster-staging",
     )
 
     configuration_polygonica = BackendConfigurationRow(
@@ -381,7 +380,6 @@ def test_get_local_license_configurations():
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
-        client_id="cluster-staging",
     )
 
     license_configurations = [configuration_super, configuration_polygonica]

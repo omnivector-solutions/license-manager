@@ -202,7 +202,6 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
                     license_servers=["A", "list", "of", "license", "servers"],
                     license_server_type="O-Negative",
                     grace_time=13,
-                    client_id="cluster-staging",
                 ),
                 # Invalid config row
                 dict(bad="Data. Should NOT work"),
@@ -213,7 +212,6 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
                     license_servers=["A", "collection", "of", "license", "servers"],
                     license_server_type="AB-Positive",
                     grace_time=21,
-                    client_id="cluster-staging",
                 ),
             ],
         ),
