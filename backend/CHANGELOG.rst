@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.10 -- 2022-06-29
+--------------------
+* Changed DEPLOY_ENV to a string (to accept arbitrary values)
+
 2.2.5 -- 2022-04-12
 -------------------
 * Bump to sync with lm-agent version
