@@ -12,22 +12,12 @@ class LogLevelEnum(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-class DeployEnvEnum(str, Enum):
-    """
-    Describes the environment where the app is currently deployed.
-    """
-
-    PROD = "PROD"
-    STAGING = "STAGING"
-    LOCAL = "LOCAL"
-
-
 class Settings(BaseSettings):
     """
     App config.
     """
 
-    DEPLOY_ENV: Optional[DeployEnvEnum] = DeployEnvEnum.LOCAL
+    DEPLOY_ENV: str = "LOCAL"
 
     # Sentry settings
     SENTRY_DSN: Optional[str] = None
