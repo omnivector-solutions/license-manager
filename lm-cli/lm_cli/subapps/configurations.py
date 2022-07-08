@@ -69,7 +69,7 @@ def list_all(
 
     render_list_results(
         data,
-        title=" Configurations List",
+        title="Configurations List",
         style_mapper=style_mapper,
     )
 
@@ -202,6 +202,6 @@ def delete(
         support=True,
     )
     terminal_message(
-        "The configuration was successfully deleted.",
+        "The configuration was deleted successfully.",
         subject="Configuration delete succeeded",
     )
