@@ -33,17 +33,3 @@ def tweak_settings():
             setattr(settings, key, value)
 
     return _helper
-
-
-@pytest.fixture
-def dummy_data():
-    return [
-        dict(
-            column1="dummy data for column 1",
-            column2="dummy data for column 2",
-        ),
-        dict(
-            column1="more dummy data for column 1",
-            column2="more dummy data for column 2",
-        ),
-    ]
