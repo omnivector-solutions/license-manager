@@ -32,13 +32,6 @@ def conjoin(*items: str, join_str: str = "\n") -> str:
     return join_str.join(items)
 
 
-def dedent_all(*texts: str, join_str: str = "\n") -> str:
-    """
-    Dedents each blob supplied as an argument and then joins them.
-    """
-    return conjoin(*(dedent(b) for b in texts), join_str=join_str)
-
-
 def indent(text: str, prefix: str = "    ", **kwargs) -> str:
     """
     Simple wrapper for the textwrap.indent() method but includes a default prefix.
