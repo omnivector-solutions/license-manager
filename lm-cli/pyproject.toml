@@ -25,9 +25,36 @@ python-dotenv = "^0.20.0"
 black = "^22.3.0"
 isort = "^5.10.1"
 mypy = "^0.961"
+plummet = "^1.1.0"
+pytest = "^7.1.2"
+pytest-random-order = "^1.0.4"
+pytest-cov = "^3.0.0"
+pytest-responsemock = "^1.1.1"
+pytest-env = "^0.6.2"
+pytest-mock = "^3.8.2"
+respx = "^0.19.2"
+pyproject-flake8 = "^0.0.1-alpha.4"
 
 [tool.poetry.scripts]
 lm-cli = "lm_cli.main:app"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "--random-order",
+    "--cov=lm_cli",
+    "--cov-report=term-missing",
+    "--cov-fail-under=75",
+]
+env = [
+    "LM_API_ENDPOINT = https://armada-k8s.staging.omnivector.solutions/lm/api/v1",
+    "LM_DEBUG = false",
+    "AUTH0_DOMAIN = dummy_auth_domain.com",
+    "AUTH0_AUDIENCE = https://dummy_auth_audience.com",
+    "AUTH0_CLIENT_ID = dummy_client_id",
+    "AUTH0_CLIENT_SECRET = dummy_client_secret",
+    "IDENTITY_CLAIMS_KEY = https://test-domain.test",
+]
 
 [tool.black]
 line-length = 120
