@@ -92,7 +92,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
         LICENSE_SERVER_LINE = r"[a-z]+:[a-zA-Z0-9-]+(\.[a-zA-Z0-9]+)*:[0-9]*"
         LICENSE_SERVER_RX = re.compile(LICENSE_SERVER_LINE)
 
-        license_servers_list = license_servers.split()
+        license_servers_list = license_servers.split(",")
 
         for license_server in license_servers_list:
             valid_license_server = LICENSE_SERVER_RX.match(license_server)
@@ -102,7 +102,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
                         """
                         You must supply the [yellow]license_servers[/yellow] connection strings in the format:
                         [green]license_server_type[/green]:[blue]hostname[/blue]:[magenta]port[/magenta]
-                        Use spaces to concatenate in case there's more than one entry.
+                        Use commas to concatenate in case there's more than one entry.
                         """
                     ),
                     subject="Invalid license servers parameter",

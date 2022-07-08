@@ -130,7 +130,7 @@ def create(
             """
             The list of license servers connection strings, in order of preference.
             Must be in the format <license_server_type>:<hostname>:<port>.
-            Use spaces to concatenate in case there's more than one entry.
+            Use commas to concatenate in case there's more than one entry.
             """
         ),
     ),
