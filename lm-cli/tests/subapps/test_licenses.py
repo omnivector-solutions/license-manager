@@ -11,6 +11,9 @@ def test_list_all__makes_request_and_renders_results(
     cli_runner,
     mocker,
 ):
+    """
+    Test if the list all command fetches and renders the licenses result.
+    """
     respx_mock.get(f"{dummy_domain}/license/all").mock(
         return_value=httpx.Response(
             httpx.codes.OK,

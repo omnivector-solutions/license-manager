@@ -14,6 +14,9 @@ def test_list_all__makes_request_and_renders_results(
     cli_runner,
     mocker,
 ):
+    """
+    Test if the list all command fetches and renders the configurations result.
+    """
     respx_mock.get(f"{dummy_domain}/config/all").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
@@ -39,6 +42,9 @@ def test_get_one__success(
     cli_runner,
     mocker,
 ):
+    """
+    Test if the get one command fetches and renders a single configuration by id.
+    """
     respx_mock.get(f"{dummy_domain}/config/1").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
@@ -64,6 +70,9 @@ def test_create__success(
     cli_runner,
     mocker,
 ):
+    """
+    Test if the create command makes the request with the parsed arguments to create the configuration.
+    """
     create_route = respx_mock.post(f"{dummy_domain}/config/").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
@@ -96,6 +105,9 @@ def test_create__success(
 
 
 def test_delete__success(respx_mock, make_test_app, dummy_domain, cli_runner, mocker):
+    """
+    Test if the delete command makes the request to delete the configuration by id.
+    """
     delete_route = respx_mock.delete(f"{dummy_domain}/config/1").mock(
         return_value=httpx.Response(
             httpx.codes.OK,

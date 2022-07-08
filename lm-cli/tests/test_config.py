@@ -6,7 +6,9 @@ from lm_cli.config import build_settings
 
 
 def test_Validation_error__when_parameter_is_missing():
-
+    """
+    Test if settings raise a validation error when a parameter is missing.
+    """
     original_value = os.environ.get("AUTH0_DOMAIN")
     try:
         if "AUTH0_DOMAIN" in os.environ:
