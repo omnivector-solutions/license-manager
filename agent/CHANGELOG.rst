@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.10 -- 2022-06-29
+--------------------
+* Changed DEPLOY_ENV setting to a string (can now take arbitrary values)
+
 2.2.9 -- 2022-06-06
 -------------------
 * Implement async calls to license servers to fetch information in parallel
@@ -35,7 +39,7 @@ Unreleased
 * Add LM-X license server support
 
 2.2.3 - 2022-02-09
-* Fixed permission error when accessing cached token 
+* Fixed permission error when accessing cached token
 
 2.2.2 - 2022-02-03
 ------------------
