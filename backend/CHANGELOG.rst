@@ -6,6 +6,10 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.2.10 -- 2022-06-29
+--------------------
+* Changed DEPLOY_ENV to a string (to accept arbitrary values)
 * Add cluster_id column to config table to identify which cluster the configuration applies to
 * Added new route to fetch all configurations from a specific cluster
 
@@ -14,6 +18,7 @@ Unreleased
 * Update docker-compose to use postgresql instead of postgres
 * Added search and sort to list endpoints.
 * Skipped 2.2.6 to sync with agent
+
 
 2.2.5 -- 2022-04-12
 -------------------
