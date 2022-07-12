@@ -1,13 +1,12 @@
 from unittest.mock import patch
-from lm_backend import security
 
+from lm_backend import security
 
 
 def test_get_domain_configs__loads_only_base_settings():
     with patch.object(security.settings, "ARMASEC_DOMAIN", new="foo.io"):
         with patch.object(security.settings, "ARMASEC_AUDIENCE", new="https://bar.dev"):
             domain_configs = security.get_domain_configs()
-
 
     assert len(domain_configs) == 1
     first_config = domain_configs.pop()
@@ -20,7 +19,6 @@ def test_get_domain_configs__loads_admin_settings_if_all_are_present():
         with patch.object(security.settings, "ARMASEC_AUDIENCE", new="https://bar.dev"):
             with patch.object(security.settings, "ARMASEC_ADMIN_DOMAIN", new="admin.io"):
                 domain_configs = security.get_domain_configs()
-
 
     assert len(domain_configs) == 1
     first_config = domain_configs.pop()

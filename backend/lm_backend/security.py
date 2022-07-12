@@ -26,7 +26,6 @@ def get_domain_configs() -> List[DomainConfig]:
             settings.ARMASEC_ADMIN_AUDIENCE,
             settings.ARMASEC_ADMIN_MATCH_KEY,
             settings.ARMASEC_ADMIN_MATCH_VALUE,
-
         ]
     ):
         domain_configs.append(
