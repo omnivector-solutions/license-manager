@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     ARMASEC_DOMAIN: str
     ARMASEC_AUDIENCE: Optional[HttpUrl]
     ARMASEC_DEBUG: bool = Field(False)
+    ARMASEC_ADMIN_DOMAIN: Optional[str]
+    ARMASEC_ADMIN_AUDIENCE: Optional[HttpUrl]
+    ARMASEC_ADMIN_MATCH_KEY: Optional[str]
+    ARMASEC_ADMIN_MATCH_VALUE: Optional[str]
 
     class Config:
         env_file = ".env"
