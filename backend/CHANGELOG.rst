@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.11 -- 2022-07-11
+--------------------
+* Added support for multiple domains in auth settings (for keycloak)
+
 2.2.10 -- 2022-06-29
 --------------------
 * Changed DEPLOY_ENV to a string (to accept arbitrary values)
