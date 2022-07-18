@@ -100,7 +100,7 @@ def test_create__success(
 
     mocked_terminal_message.assert_called_once_with(
         "The configuration was created successfully.",
-        subject="Configuration creation succeeded",
+        subject="Configuration creation succeeded.",
     )
 
 

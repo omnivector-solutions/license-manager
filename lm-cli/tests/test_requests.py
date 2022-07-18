@@ -142,7 +142,7 @@ def test_make_request__raises_Abort_if_client_request_raises_exception(respx_moc
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True
-    assert err_info.value.log_message == "There was an error making the request to the API"
+    assert err_info.value.log_message == "There was an error making the request to the API."
     assert err_info.value.original_error == original_error
 
 
@@ -175,7 +175,7 @@ def test_make_request__raises_Abort_when_expected_status_is_not_None_and_respons
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True
-    assert err_info.value.log_message == "Got an error code for request: 400: It blowed up"
+    assert err_info.value.log_message == "Got an error code for request: 400: It blowed up."
     assert err_info.value.original_error is None
 
 
@@ -240,7 +240,7 @@ def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_wi
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True
-    assert err_info.value.log_message == "Failed unpacking json: Not JSON, my dude"
+    assert err_info.value.log_message == "Failed unpacking json: Not JSON, my dude."
     assert isinstance(err_info.value.original_error, json.decoder.JSONDecodeError)
 
 
@@ -291,7 +291,7 @@ def test_make_request__raises_an_Abort_if_the_response_data_cannot_be_serialized
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True
-    assert err_info.value.log_message == f"Unexpected format in response data: {dict(a=1, b=2, c=3)}"
+    assert err_info.value.log_message == f"Unexpected format in response data: {dict(a=1, b=2, c=3)}."
     assert isinstance(err_info.value.original_error, pydantic.ValidationError)
 
 
