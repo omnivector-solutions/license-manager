@@ -1,5 +1,5 @@
 """
-Provide a ``typer`` app that can interact with Licenses endpoint to list data.
+A ``typer`` app that can interact with Licenses endpoint to list data.
 """
 
 from typing import Any, Dict, List, Optional, cast
@@ -21,19 +21,19 @@ style_mapper = StyleMapper(
 )
 
 
-app = typer.Typer(help="Commands to interact with licenses")
+app = typer.Typer(help="Commands to interact with licenses.")
 
 
 @app.command("list")
 @handle_abort
 def list_all(
     ctx: typer.Context,
-    search: Optional[str] = typer.Option(None, help="Apply a search term to results"),
-    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order"),
-    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted"),
+    search: Optional[str] = typer.Option(None, help="Apply a search term to results."),
+    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order."),
+    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted."),
 ):
     """
-    Show license usage information
+    Show license usage information.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
