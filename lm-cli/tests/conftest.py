@@ -16,7 +16,7 @@ def caplog(caplog):
 @pytest.fixture
 def tweak_settings():
     """
-    Provides a fixture to use as a context manager where the cli settings may be temporarily changed.
+    Provide a fixture to use as a context manager where the cli settings may be temporarily changed.
     """
 
     @contextlib.contextmanager

@@ -31,7 +31,7 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
 
     Reports an error in the logs and to the user if there is an issue with the access_token.
     """
-    logger.debug("Validating access token")
+    logger.debug("Validating access token.")
 
     token_file_is_empty = not token_set.access_token
     if token_file_is_empty:
@@ -42,9 +42,9 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
 
             Please try logging in again.
             """,
-            subject="Empty access token file",
+            subject="Empty access token file.",
             support=True,
-            log_message="Empty access token file",
+            log_message="Empty access token file.",
         )
 
     try:
@@ -66,19 +66,19 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
 
             Please try logging in again.
             """,
-            subject="Invalid access token",
+            subject="Invalid access token.",
             support=True,
-            log_message=f"Unknown error while validating access access token: {err}",
+            log_message=f"Unknown error while validating access access token: {err}.",
             original_error=err,
         )
 
-    logger.debug("Extracting identity data from the access token")
+    logger.debug("Extracting identity data from the access token.")
     identity_claims = token_data.get(settings.IDENTITY_CLAIMS_KEY)
     Abort.require_condition(
         identity_claims,
-        "No identity data found in access token data",
+        "No identity data found in access token data.",
         raise_kwargs=dict(
-            subject="No identity found",
+            subject="No identity found.",
             support=True,
         ),
     )
@@ -91,15 +91,15 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
 
             Please try logging in again.
             """,
-            subject="Invalid identity data",
+            subject="Invalid identity data.",
             support=True,
-            log_message=f"Identity data is incomplete: {err}",
+            log_message=f"Identity data is incomplete: {err}.",
         )
 
 
 def load_tokens_from_cache() -> TokenSet:
     """
-    Loads an access token (and a refresh token if one exists) from the cache.
+    Load an access token (and a refresh token if one exists) from the cache.
     """
 
     # Make static type checkers happy
@@ -108,15 +108,15 @@ def load_tokens_from_cache() -> TokenSet:
 
     Abort.require_condition(
         settings.LM_API_ACCESS_TOKEN_PATH.exists(),
-        "Please login with your auth token first using the `lm-cli login` command",
-        raise_kwargs=dict(subject="You need to login"),
+        "Please login with your auth token first using the `lm-cli login` command.",
+        raise_kwargs=dict(subject="You need to login."),
     )
 
-    logger.debug("Retrieving access token from cache")
+    logger.debug("Retrieving access token from cache.")
     token_set = TokenSet(access_token=settings.LM_API_ACCESS_TOKEN_PATH.read_text())
 
     if settings.LM_API_REFRESH_TOKEN_PATH.exists():
-        logger.debug("Retrieving refresh token from cache")
+        logger.debug("Retrieving refresh token from cache.")
         token_set.refresh_token = settings.LM_API_REFRESH_TOKEN_PATH.read_text()
 
     return token_set
@@ -124,7 +124,7 @@ def load_tokens_from_cache() -> TokenSet:
 
 def save_tokens_to_cache(token_set: TokenSet):
     """
-    Saves tokens from a token_set to the cache.
+    Save tokens from a token_set to the cache.
     """
 
     # Make static type checkers happy
@@ -178,16 +178,16 @@ def init_persona(ctx: LicenseManagerContext, token_set: Optional[TokenSet] = Non
             token_set.refresh_token is not None,
             "The auth token is expired. Please retrieve a new and log in again.",
             raise_kwargs=dict(
-                subject="Expired access token",
+                subject="Expired access token.",
                 support=True,
             ),
         )
 
-        logger.debug("The access token is expired. Attempting to refresh token")
+        logger.debug("The access token is expired. Attempting to refresh token.")
         refresh_access_token(ctx, token_set)
         identity_data = validate_token_and_extract_identity(token_set)
 
-    logger.debug(f"Persona created with identity data: {identity_data}")
+    logger.debug(f"Persona created with identity data: {identity_data}.")
 
     save_tokens_to_cache(token_set)
 
@@ -210,7 +210,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
 
     LicenseManagerCliError.require_condition(
         ctx.client is not None,
-        "Attempted to refresh with a null client. This should not happen",
+        "Attempted to refresh with a null client. This should not happen.",
     )
 
     # Make static type-checkers happy
@@ -223,7 +223,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
             "/oauth/token",
             "POST",
             abort_message="The auth token could not be refreshed. Please try logging in again.",
-            abort_subject="EXPIRED ACCESS TOKEN",
+            abort_subject="EXPIRED ACCESS TOKEN.",
             support=True,
             response_model_cls=TokenSet,
             data=dict(
@@ -243,7 +243,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
     Fetch an access token (and possibly a refresh token) from Auth0.
 
     Prints out a URL for the user to use to authenticate and polls the token endpoint to fetch it when
-    the browser-based process finishes
+    the browser-based process finishes.
     """
     # Make static type-checkers happy
     assert ctx.client is not None
@@ -256,7 +256,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
             "POST",
             expected_status=200,
             abort_message="There was a problem retrieving a device verification code from the auth provider",
-            abort_subject="COULD NOT RETRIEVE TOKEN",
+            abort_subject="COULD NOT RETRIEVE TOKEN.",
             support=True,
             response_model_cls=DeviceCodeData,
             data=dict(
@@ -280,7 +280,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
 
     for tick in TimeLoop(
         settings.AUTH0_MAX_POLL_TIME,
-        message="Waiting for web login",
+        message="Waiting for web login.",
     ):
 
         response_data = cast(
@@ -290,7 +290,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                 "/oauth/token",
                 "POST",
                 abort_message="There was a problem retrieving a device verification code from the auth provider",
-                abort_subject="COULD NOT FETCH ACCESS TOKEN",
+                abort_subject="COULD NOT FETCH ACCESS TOKEN.",
                 support=True,
                 data=dict(
                     grant_type="urn:ietf:params:oauth:grant-type:device_code",
@@ -301,7 +301,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
         )
         if "error" in response_data:
             if response_data["error"] == "authorization_pending":
-                logger.debug(f"Token fetch attempt #{tick.counter} failed")
+                logger.debug(f"Token fetch attempt #{tick.counter} failed.")
                 sleep(device_code_data.interval)
             else:
                 # TODO: Test this failure condition
@@ -321,6 +321,6 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
 
     raise Abort(
         "Login process was not completed in time. Please try again.",
-        subject="Timed out",
-        log_message="Timed out while waiting for user to complete login",
+        subject="Timed out.",
+        log_message="Timed out while waiting for user to complete login.",
     )

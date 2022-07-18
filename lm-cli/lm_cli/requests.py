@@ -1,5 +1,5 @@
 """
-Provide utilities for making requests against the License Manager API.
+Utilities for making requests against the License Manager API.
 """
 from typing import Any, Dict, Optional, Type, TypeVar, Union
 
@@ -40,7 +40,7 @@ def _deserialize_request_model(
             log_message=unwrap(
                 """
                 When using `request_model`, you may not pass
-                `data`, `json`, or `content` in the `request_kwargs`
+                `data`, `json`, or `content` in the `request_kwargs`.
                 """
             ),
         ),
@@ -88,17 +88,17 @@ def make_request(
     """
     Make a request against the License Manager API.
 
-    :param: client:              The Httpx client to use for the request
-    :param: url_path:            The path to add to the base url of the client where the request should be sent
-    :param: method:              The REST method to use for the request (GET, PUT, UPDATE, POST, DELETE, etc)
-    :param: expected_status:     The status code to expect on the response. If it is not received, raise an Abort
-    :param: expect_response:     Indicates if response data (JSON) is expected from the API endpoint
-    :param: abort_message:       The message to show the user if there is a problem and the app must be aborted
-    :param: abort_subject:       The subject to use in Abort output to the user
-    :param: support:             If true, add a message to the output instructing the user to seek help
-    :param: response_model_cls:  If supplied, serialize the response data into this Pydantic model class
-    :param: request_model:       Use a pydantic model instance as the data body for the request
-    :param: request_kwargs:      Any additional keyword arguments that need to be passed on to the client
+    :param: client:              The Httpx client to use for the request.
+    :param: url_path:            The path to add to the base url of the client where the request should be sent.
+    :param: method:              The REST method to use for the request (GET, PUT, UPDATE, POST, DELETE, etc).
+    :param: expected_status:     The status code to expect on the response. If it is not received, raise an Abort.
+    :param: expect_response:     Indicates if response data (JSON) is expected from the API endpoint.
+    :param: abort_message:       The message to show the user if there is a problem and the app must be aborted.
+    :param: abort_subject:       The subject to use in Abort output to the user.
+    :param: support:             If true, add a message to the output instructing the user to seek help.
+    :param: response_model_cls:  If supplied, serialize the response data into this Pydantic model class.
+    :param: request_model:       Use a pydantic model instance as the data body for the request.
+    :param: request_kwargs:      Any additional keyword arguments that need to be passed on to the client.
     """
 
     if request_model is not None:
@@ -133,7 +133,7 @@ def make_request(
             ),
             subject=abort_subject,
             support=support,
-            log_message="There was an error making the request to the API",
+            log_message="There was an error making the request to the API.",
             original_error=err,
         )
 
@@ -147,7 +147,7 @@ def make_request(
             ),
             subject=abort_subject,
             support=support,
-            log_message=f"Got an error code for request: {response.status_code}: {response.text}",
+            log_message=f"Got an error code for request: {response.status_code}: {response.text}.",
         )
 
     if expect_response is False:
@@ -165,15 +165,15 @@ def make_request(
             ),
             subject=abort_subject,
             support=support,
-            log_message=f"Failed unpacking json: {response.text}",
+            log_message=f"Failed unpacking json: {response.text}.",
             original_error=err,
         )
-    logger.debug(f"Extracted data from response: {data}")
+    logger.debug(f"Extracted data from response: {data}.")
 
     if response_model_cls is None:
         return data
 
-    logger.debug("Validating response data with ResponseModel")
+    logger.debug("Validating response data with ResponseModel.")
     try:
         return response_model_cls(**data)
     except pydantic.ValidationError as err:
@@ -186,6 +186,6 @@ def make_request(
             ),
             subject=abort_subject,
             support=support,
-            log_message=f"Unexpected format in response data: {data}",
+            log_message=f"Unexpected format in response data: {data}.",
             original_error=err,
         )

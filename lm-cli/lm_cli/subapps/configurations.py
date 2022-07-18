@@ -1,5 +1,5 @@
 """
-Provide a ``typer`` app that can interact with Configurations data in a cruddy manner.
+A ``typer`` app that can interact with Configurations data in a cruddy manner.
 """
 
 from typing import Any, Dict, List, Optional, cast
@@ -25,19 +25,19 @@ style_mapper = StyleMapper(
 )
 
 
-app = typer.Typer(help="Commands to interact with configurations")
+app = typer.Typer(help="Commands to interact with configurations.")
 
 
 @app.command("list")
 @handle_abort
 def list_all(
     ctx: typer.Context,
-    search: Optional[str] = typer.Option(None, help="Apply a search term to results"),
-    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order"),
-    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted"),
+    search: Optional[str] = typer.Option(None, help="Apply a search term to results."),
+    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order."),
+    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted."),
 ):
     """
-    Show configuration information
+    Show configuration information.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -171,7 +171,7 @@ def create(
 
     terminal_message(
         "The configuration was created successfully.",
-        subject="Configuration creation succeeded",
+        subject="Configuration creation succeeded.",
     )
 
 
@@ -181,7 +181,7 @@ def delete(
     ctx: typer.Context,
     id: int = typer.Option(
         ...,
-        help="The id of the configuration to delete",
+        help="The id of the configuration to delete.",
     ),
 ):
     """

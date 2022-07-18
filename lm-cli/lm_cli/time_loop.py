@@ -1,5 +1,5 @@
 """
-Provide a time-loop class that can be used to to iterate during a given window of time.
+A time-loop class that can be used to to iterate during a given window of time.
 """
 
 from typing import Optional, Union

@@ -1,5 +1,5 @@
 """
-Provide a ``typer`` app that can interact with Bookings endpoint to list data.
+A ``typer`` app that can interact with Bookings endpoint to list data.
 """
 
 from typing import Any, Dict, List, Optional, cast
@@ -25,19 +25,19 @@ style_mapper = StyleMapper(
 )
 
 
-app = typer.Typer(help="Commands to interact with bookings")
+app = typer.Typer(help="Commands to interact with bookings.")
 
 
 @app.command("list")
 @handle_abort
 def list_all(
     ctx: typer.Context,
-    search: Optional[str] = typer.Option(None, help="Apply a search term to results"),
-    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order"),
-    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted"),
+    search: Optional[str] = typer.Option(None, help="Apply a search term to results."),
+    sort_order: SortOrder = typer.Option(SortOrder.UNSORTED, help="Specify sort order."),
+    sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted."),
 ):
     """
-    Show booking information
+    Show booking information.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 

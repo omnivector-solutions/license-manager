@@ -86,7 +86,7 @@ def build_settings(*args, **kwargs):
                 "",
                 f"[yellow]Please contact [bold]{OV_CONTACT}[/bold] for support and trouble-shooting[/yellow]",
             ),
-            subject="Configuration Error",
+            subject="Configuration Error.",
         )
         exit(1)
 

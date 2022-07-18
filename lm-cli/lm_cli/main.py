@@ -1,5 +1,5 @@
 """
-Provide main entry point for the License Manager CLI App.
+Entry point for the License Manager CLI App.
 """
 
 from typing import Optional
@@ -51,7 +51,7 @@ def main(
                 "",
                 f"[yellow]{ctx.get_help()}[/yellow]",
             ),
-            subject="Need a License Manager CLI command",
+            subject="Need a License Manager CLI command.",
         )
         raise typer.Exit()
 
@@ -93,12 +93,12 @@ def login(ctx: typer.Context):
 @handle_abort
 def logout():
     """
-    Logs out of the lm-cli. Clears the saved user credentials.
+    Log out of the lm-cli.
     """
     clear_token_cache()
     terminal_message(
         "User was logged out.",
-        subject="Logged out",
+        subject="Logged out.",
     )
 
 
@@ -143,17 +143,17 @@ def show_token(
             token is not None,
             "User is not logged in. Please log in first.",
             raise_kwargs=dict(
-                subject="Not logged in",
+                subject="Not logged in.",
             ),
         )
     else:
         token = token_set.refresh_token
-        subject = "Refresh Token"
+        subject = "Refresh Token."
         Abort.require_condition(
             token is not None,
             "User is not logged in or does not have a refresh token. Please try loggin in again.",
             raise_kwargs=dict(
-                subject="No refresh token",
+                subject="No refresh token.",
             ),
         )
 
@@ -190,6 +190,6 @@ def show_token(
     else:
         kwargs = dict(subject=subject, indent=False)
         if on_clipboard:
-            kwargs["footer"] = "The output was copied to your clipboard"
+            kwargs["footer"] = "The output was copied to your clipboard."
 
         terminal_message(token_text, **kwargs)

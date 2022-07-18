@@ -1,5 +1,5 @@
 """
-Provide helpers to render output for users.
+Helpers for rendering user facing output.
 """
 
 import json
@@ -18,12 +18,12 @@ class StyleMapper:
     Provide a mapper that can set ``rich`` styles for rendered output of data tables and dicts.
 
     The subapps have list endpoints that return sets of values. These are rendered as tables in
-    the output. The StyleMapper class provides a way to simply define styles that should be applied
+    the output. The StyleMapper class provides a way to simply define styles that are applied
     to the columns of the table.
 
     Example:
 
-    The following code will print a table where the columns are colored according to the style_mapper
+    The following code will print a table where the columns are colored according to the style_mapper:
 
     .. code-block: python
 
@@ -67,11 +67,11 @@ def terminal_message(message, subject=None, color="green", footer=None, indent=T
     """
     Print a nicely formatted message as output to the user using a ``rich`` ``Panel``.
 
-    :param: message: The message to print out
-    :param: subject: An optional subject line to add in the header of the ``Panel``
-    :param: color:   An optional color to style the ``subject`` header with
-    :param: footer:  An optional message to display in the footer of the ``Panel``
-    :param: indent:  Adds padding to the left of the message
+    :param: message: The message to print.
+    :param: subject: An optional subject line to add in the header of the ``Panel``.
+    :param: color:   An optional color to style the ``subject`` header.
+    :param: footer:  An optional message to display in the footer of the ``Panel``.
+    :param: indent:  Adds padding to the left of the message.
     """
     panel_kwargs = dict(padding=1)
     if subject is not None:
@@ -89,7 +89,7 @@ def terminal_message(message, subject=None, color="green", footer=None, indent=T
 
 def render_json(data: Any):
     """
-    Print nicely formatted representation of a JSON serializable python primitive.
+    Print a nicely formatted representation of a JSON serializable python primitive.
     """
     console = Console()
     console.print()
@@ -106,11 +106,11 @@ def render_list_results(
     Render a list of result data items in a ``rich`` ``Table``.
 
     :param: data:          The list of data that will be rendered.
-    :param: style_mapper:  The style mapper that should be used to apply styles to the columns of the table
-    :param: title:         The title header to include above the ``Table`` output
+    :param: style_mapper:  The style mapper that should be used to apply styles to the columns of the table.
+    :param: title:         The title header to include above the ``Table`` output.
     """
     if len(data) == 0:
-        terminal_message("There are no results to display", subject="Nothing here...")
+        terminal_message("There are no results to display.", subject="Nothing here...")
         return
 
     first_row = data[0]
@@ -138,7 +138,7 @@ def render_single_result(
     Render a single data item in a ``rich`` ``Table. That shows the key and value of each item.
 
     :param: data:        The data item to display. Should be a dict.
-    :param: title:       The title header to include above the ``Tale`` output
+    :param: title:       The title header to include above the ``Table`` output.
     """
     table = Table(title=title)
     table.add_column("Key", header_style="bold yellow", style="yellow")

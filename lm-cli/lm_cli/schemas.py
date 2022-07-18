@@ -1,5 +1,5 @@
 """
-Provide Pydantic models for various data items.
+Pydantic models for various data items.
 """
 
 import json
@@ -16,7 +16,7 @@ from lm_cli.text_tools import dedent
 
 class TokenSet(pydantic.BaseModel, extra=pydantic.Extra.ignore):
     """
-    A model representing a pairing of access and refresh tokens
+    A model representing a pairing of access and refresh tokens.
     """
 
     access_token: str
@@ -35,6 +35,7 @@ class IdentityData(pydantic.BaseModel):
 class Persona(pydantic.BaseModel):
     """
     A model representing a pairing of a TokenSet and Identity data.
+
     This is a convenience to combine all of the identifying data and credentials for a given user.
     """
 
@@ -63,7 +64,7 @@ class LicenseManagerContext(pydantic.BaseModel, arbitrary_types_allowed=True):
 
 class ConfigurationCreateRequestData(pydantic.BaseModel):
     """
-    Describes the data that will be sent to the ``create`` endpoint of the LM API for configurations.
+    Describe the data that will be sent to the ``create`` endpoint of the LM API for configurations.
     """
 
     id: int
@@ -83,7 +84,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
                 """
                 You must supply the [yellow]features[/yellow] as a string with a valid JSON object serialized.
                 """,
-                subject="Invalid features parameter",
+                subject="Invalid features parameter.",
             )
         return features
 
@@ -105,7 +106,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
                         Use commas to concatenate in case there's more than one entry.
                         """
                     ),
-                    subject="Invalid license servers parameter",
+                    subject="Invalid license servers parameter.",
                 )
 
         return license_servers_list

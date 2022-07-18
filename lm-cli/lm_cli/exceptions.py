@@ -1,5 +1,5 @@
 """
-Provide exceptions and custom handlers for the CLI.
+Exceptions and custom handlers for the CLI.
 """
 
 from functools import wraps
@@ -21,7 +21,7 @@ traceback.install()
 
 class LicenseManagerCliError(buzz.Buzz):
     """
-    A generic exception base class to use in License Manager CLI
+    A generic exception base class to use in License Manager CLI.
     """
 
 

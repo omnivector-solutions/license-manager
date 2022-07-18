@@ -1,5 +1,5 @@
 """
-Provide some basic tools for manipulating text.
+Basic tools for manipulating text.
 """
 
 import textwrap

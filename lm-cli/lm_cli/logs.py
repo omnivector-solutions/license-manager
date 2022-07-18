@@ -1,5 +1,5 @@
 """
-Provide initializers for logging.
+Initializers for logging.
 """
 
 import sys
