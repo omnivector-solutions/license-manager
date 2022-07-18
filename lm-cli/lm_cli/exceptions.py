@@ -25,7 +25,7 @@ class LicenseManagerCliError(buzz.Buzz):
     """
 
 
-class Abort(buzz.Buzz):
+class Abort(LicenseManagerCliError):
     """
     A special exception used to abort the License Manager CLI.
 
