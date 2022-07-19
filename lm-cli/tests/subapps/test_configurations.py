@@ -87,7 +87,7 @@ def test_create__success(
         shlex.split(
             unwrap(
                 """
-                create --id 1 --name 'Configuration 1' --product product1
+                create --name 'Configuration 1' --product product1
                        --features '{"license1": 100}' --license-servers 'flexlm:127.0.0.1:1234'
                        --license-server-type 'flexlm' --grace-time 60
                 """

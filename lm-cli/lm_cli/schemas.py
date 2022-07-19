@@ -67,7 +67,6 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
     Describe the data that will be sent to the ``create`` endpoint of the LM API for configurations.
     """
 
-    id: int
     name: str
     product: str
     features: str

@@ -111,7 +111,6 @@ def get_one(
 @handle_abort
 def create(
     ctx: typer.Context,
-    id: int = typer.Option(..., help="The id of the configuration to create."),
     name: str = typer.Option(
         ...,
         help="The name of configuration to create.",
@@ -150,7 +149,6 @@ def create(
     assert lm_ctx.client is not None
 
     request_data = ConfigurationCreateRequestData(
-        id=id,
         name=name,
         product=product,
         features=features,
