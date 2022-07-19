@@ -7,8 +7,25 @@ import httpx
 import pydantic
 from loguru import logger
 
+from lm_cli.constants import SortOrder
 from lm_cli.exceptions import Abort
 from lm_cli.text_tools import dedent, unwrap
+
+
+def parse_query_params(search: Optional[str], sort_order: Optional[SortOrder], sort_field: Optional[str]):
+    """
+    Parse the search, sort order and sort field params to use as query params.
+    """
+    params: Dict[str, Any] = dict()
+
+    if search is not None:
+        params["search"] = search
+    if sort_order is not SortOrder.UNSORTED:
+        params["sort_ascending"] = sort_order is SortOrder.ASCENDING
+    if sort_field is not None:
+        params["sort_field"] = sort_field
+
+    return params
 
 
 def _deserialize_request_model(

@@ -5,8 +5,9 @@ import httpx
 import pydantic
 import pytest
 
+from lm_cli.constants import SortOrder
 from lm_cli.exceptions import Abort
-from lm_cli.requests import _deserialize_request_model, make_request
+from lm_cli.requests import _deserialize_request_model, make_request, parse_query_params
 
 
 DEFAULT_DOMAIN = "https://dummy-domain.com"
@@ -328,3 +329,27 @@ def test_make_request__uses_request_model_instance_for_request_body_if_passed(re
 
     assert dummy_route.calls.last.request.content == json.dumps(dict(foo=1, bar="one")).encode("utf-8")
     assert dummy_route.calls.last.request.headers["Content-Type"] == "application/json"
+
+
+def test_parse_query_params__returns_correct_dict():
+    """
+    Validate that the ``parse_query_params()`` function produces a dict with the query params to be sent
+    to the requests to the API.
+    """
+    search = "foo"
+    sort_field = "bar"
+    sort_order = SortOrder.ASCENDING
+
+    assert parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field) == {
+        "search": search,
+        "sort_ascending": True,
+        "sort_field": sort_field,
+    }
+
+    sort_order = SortOrder.DESCENDING
+
+    assert parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field) == {
+        "search": search,
+        "sort_ascending": False,
+        "sort_field": sort_field,
+    }

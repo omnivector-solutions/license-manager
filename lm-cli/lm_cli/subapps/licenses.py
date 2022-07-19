@@ -2,14 +2,14 @@
 A ``typer`` app that can interact with Licenses endpoint to list data.
 """
 
-from typing import Any, Dict, List, Optional, cast
+from typing import List, Optional, cast
 
 import typer
 
 from lm_cli.constants import SortOrder
 from lm_cli.exceptions import handle_abort
 from lm_cli.render import StyleMapper, render_list_results
-from lm_cli.requests import make_request
+from lm_cli.requests import make_request, parse_query_params
 from lm_cli.schemas import LicenseManagerContext
 
 
@@ -41,14 +41,7 @@ def list_all(
     assert lm_ctx is not None
     assert lm_ctx.client is not None
 
-    params: Dict[str, Any] = dict()
-
-    if search is not None:
-        params["search"] = search
-    if sort_order is not SortOrder.UNSORTED:
-        params["sort_ascending"] = SortOrder is SortOrder.ASCENDING
-    if sort_field is not None:
-        params["sort_field"] = sort_field
+    params = parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field)
 
     data = cast(
         List,
