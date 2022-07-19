@@ -77,6 +77,11 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
 
     @pydantic.validator("features", pre=True)
     def validate_features_is_valid_json(cls, features):
+        """
+        Validate the feature field to ensure it contains a valid JSON serialized object.
+        The expected format is a string containing a JSON object.
+        Example: ``"{\"feature\": 1}"``.
+        """
         try:
             json.loads(features)
         except JSONDecodeError:
@@ -90,6 +95,11 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
 
     @pydantic.validator("license_servers", pre=True)
     def validate_license_servers_are_valid_connection_strings(cls, license_servers):
+        """
+        Validate the license servers list to ensure each entry is in the correct format.
+        The expected format is: <license_server_type>:<hostname>:<port>.
+        Example: ``flexlm:127.0.0.1:1234``.
+        """
         LICENSE_SERVER_LINE = r"[a-z]+:[a-zA-Z0-9-]+(\.[a-zA-Z0-9]+)*:[0-9]*"
         LICENSE_SERVER_RX = re.compile(LICENSE_SERVER_LINE)
 
