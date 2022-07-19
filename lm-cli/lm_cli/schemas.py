@@ -45,7 +45,7 @@ class Persona(pydantic.BaseModel):
 
 class DeviceCodeData(pydantic.BaseModel, extra=pydantic.Extra.ignore):
     """
-    A model representing the data that is returned from Auth0's device code endpoint.
+    A model representing the data that is returned from OICD's device code endpoint.
     """
 
     device_code: str

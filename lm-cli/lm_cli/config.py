@@ -34,13 +34,13 @@ class Settings(BaseSettings):
     LM_API_ACCESS_TOKEN_PATH: Optional[Path]
     LM_API_REFRESH_TOKEN_PATH: Optional[Path]
 
-    # Auth0 config for machine-to-machine security
-    AUTH0_DOMAIN: str
-    AUTH0_LOGIN_DOMAIN: Optional[str]
-    AUTH0_AUDIENCE: str
-    AUTH0_CLIENT_ID: str
-    AUTH0_CLIENT_SECRET: str
-    AUTH0_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
+    # OICD config for machine-to-machine security
+    OICD_DOMAIN: str
+    OICD_LOGIN_DOMAIN: Optional[str]
+    OICD_AUDIENCE: str
+    OICD_CLIENT_ID: str
+    OICD_CLIENT_SECRET: str
+    OICD_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 
     IDENTITY_CLAIMS_KEY: str = "https://omnivector.solutions"
 
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
         values["LM_API_ACCESS_TOKEN_PATH"] = token_dir / "access.token"
         values["LM_API_REFRESH_TOKEN_PATH"] = token_dir / "refresh.token"
 
-        values.setdefault("AUTH0_LOGIN_DOMAIN", values["AUTH0_DOMAIN"])
+        values.setdefault("OICD_LOGIN_DOMAIN", values["OICD_DOMAIN"])
 
         return values
 

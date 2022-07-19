@@ -378,7 +378,7 @@ def test_init_persona__uses_passed_token_set(make_token, tmp_path, dummy_context
 def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
     """
     Validate that the ``refreshed_access_token()`` function uses a refresh token to retrieve a new access
-    token from the ``oauth/token`` endpoint of the ``settings.AUTH0_DOMAIN``.
+    token from the ``oauth/token`` endpoint of the ``settings.OICD_DOMAIN``.
     """
     access_token = "expired-access-token"
     refresh_token = "dummy-refresh-token"
@@ -406,7 +406,7 @@ def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
 def test_refresh_access_token__raises_abort_on_non_200_response(respx_mock, dummy_context):
     """
     Validate that the ``refreshed_access_token()`` function raises an abort if the response from the
-    ``oauth/token`` endpoint of the ``settings.AUTH0_DOMAIN`` is not a 200.
+    ``oauth/token`` endpoint of the ``settings.OICD_DOMAIN`` is not a 200.
     """
     access_token = "expired-access-token"
     refresh_token = "dummy-refresh-token"

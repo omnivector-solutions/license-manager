@@ -9,10 +9,10 @@ def test_Validation_error__when_parameter_is_missing():
     """
     Test if settings raise a validation error when a parameter is missing.
     """
-    original_value = os.environ.get("AUTH0_DOMAIN")
+    original_value = os.environ.get("OICD_DOMAIN")
     try:
-        if "AUTH0_DOMAIN" in os.environ:
-            del os.environ["AUTH0_DOMAIN"]
+        if "OICD_DOMAIN" in os.environ:
+            del os.environ["OICD_DOMAIN"]
 
         with pytest.raises(SystemExit) as e:
             build_settings(_env_file=None)
@@ -20,4 +20,4 @@ def test_Validation_error__when_parameter_is_missing():
         assert e.value.code == 1
     finally:
         if original_value is not None:
-            os.environ["AUTH0_DOMAIN"] = original_value
+            os.environ["OICD_DOMAIN"] = original_value
