@@ -252,7 +252,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
         DeviceCodeData,
         make_request(
             ctx.client,
-            "/oauth/device/code",
+            "/protocol/openid-connect/auth/device",
             "POST",
             expected_status=200,
             abort_message="There was a problem retrieving a device verification code from the auth provider",
@@ -261,8 +261,9 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
             response_model_cls=DeviceCodeData,
             data=dict(
                 client_id=settings.OICD_CLIENT_ID,
+                grant_type="client_credentials",
                 audience=settings.OICD_AUDIENCE,
-                scope="offline_access",  # To get refresh token
+                client_secret=settings.OICD_CLIENT_SECRET,
             ),
         ),
     )
@@ -287,7 +288,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
             Dict,
             make_request(
                 ctx.client,
-                "/oauth/token",
+                "/protocol/openid-connect/token",
                 "POST",
                 abort_message="There was a problem retrieving a device verification code from the auth provider",
                 abort_subject="COULD NOT FETCH ACCESS TOKEN.",
@@ -296,6 +297,7 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                     grant_type="urn:ietf:params:oauth:grant-type:device_code",
                     device_code=device_code_data.device_code,
                     client_id=settings.OICD_CLIENT_ID,
+                    client_secret=settings.OICD_CLIENT_SECRET,
                 ),
             ),
         )
