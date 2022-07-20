@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     OICD_CLIENT_SECRET: str
     OICD_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 
-    IDENTITY_CLAIMS_KEY: str = "https://omnivector.solutions"
+    IDENTITY_CLAIMS_KEY: str = "email"
 
     @root_validator(skip_on_failure=True)
     def compute_extra_settings(cls, values):

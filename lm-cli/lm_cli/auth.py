@@ -73,7 +73,9 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
         )
 
     logger.debug("Extracting identity data from the access token.")
-    identity_claims = token_data.get(settings.IDENTITY_CLAIMS_KEY)
+    user_email = token_data.get(settings.IDENTITY_CLAIMS_KEY)
+    identity_claims = {"user_email": user_email}
+
     Abort.require_condition(
         identity_claims,
         "No identity data found in access token data.",
