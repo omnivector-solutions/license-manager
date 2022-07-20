@@ -90,7 +90,7 @@ To run the tests, use the Makefile:
 
     $ make test
 
-To lint and format the code, use the Makefile
+To lint and format the code, use the Makefile:
 
 .. code-block:: console
 
