@@ -60,6 +60,11 @@ def list_all(
         ),
     )
 
+    # Add grace time measure unit to the results before printing
+    for configuration in data:
+        grace_time = str(configuration["grace_time"]) + " (seconds)"
+        configuration["grace_time"] = grace_time
+
     render_list_results(
         data,
         title="Configurations List",
@@ -93,6 +98,10 @@ def get_one(
             support=True,
         ),
     )
+
+    # Add grace time measure unit to the results before printing
+    grace_time = str(result["grace_time"]) + " (seconds)"
+    result["grace_time"] = grace_time
 
     render_single_result(
         result,
