@@ -50,6 +50,51 @@ Usage
 +-----------------------------------------------------------------------------+----------------------------------------------------+
 | lm-cli configurations list --sort-field <sort field> --sort-order ascending | Sort configurations by the specified order         |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations create                                                | Create a new configuration                         |
+| --name <config name>                                                        |                                                    |
+| --product <product name>                                                    |                                                    |
+| --features <features as a string serialized JSON object>                    |                                                    |
+| --license-servers <license servers list>                                    |                                                    |
+| --license-server-type <license server type>                                 |                                                    |
+| --grace-time <grace time in seconds>                                        |                                                    |
++-----------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations delete --id <id to delete>                            | Delete the configuration with the specified id     |
++-----------------------------------------------------------------------------+----------------------------------------------------+
+
+Development Setup
+-----------------
+To create a development setup, use ``Poetry`` to create the virtualenv with the dependencies:
+
+.. code-block:: console
+    
+    $ cd lm-cli
+    $ poetry install
+
+Also create a ``.env`` file with the needed values needed to run the project. These include the License Manager API endpoint and the 
+OICD provider information to retrieve the access token.
+
+.. code-block:: console
+
+    $ cat <<EOF > .env
+    LM_API_ENDPOINT="<API endpoint>"
+    OICD_DOMAIN="<OICD domain>"
+    OICD_LOGIN_DOMAIN="<OICD login domain>"
+    OICD_AUDIENCE="<OICD audience>"
+    OICD_CLIENT_ID="<OICD client id>"
+    OICD_CLIENT_SECRET="<OICD client secret>"
+    EOF
+
+To run the tests, use the Makefile:
+
+.. code-block:: console
+
+    $ make test
+
+To lint and format the code, use the Makefile
+
+.. code-block:: console
+
+    $ make format
 
 License
 -------
