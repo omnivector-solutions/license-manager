@@ -10,6 +10,7 @@ def test_list_all__makes_request_and_renders_results(
     respx_mock,
     make_test_app,
     dummy_configuration_data,
+    dummy_configuration_data_for_printing,
     dummy_domain,
     cli_runner,
     mocker,
@@ -28,7 +29,7 @@ def test_list_all__makes_request_and_renders_results(
     result = cli_runner.invoke(test_app, ["list-all"])
     assert result.exit_code == 0, f"list-all failed: {result.stdout}"
     mocked_render.assert_called_once_with(
-        dummy_configuration_data,
+        dummy_configuration_data_for_printing,
         title="Configurations List",
         style_mapper=style_mapper,
     )
@@ -38,6 +39,7 @@ def test_get_one__success(
     respx_mock,
     make_test_app,
     dummy_configuration_data,
+    dummy_configuration_data_for_printing,
     dummy_domain,
     cli_runner,
     mocker,
@@ -58,7 +60,7 @@ def test_get_one__success(
     assert result.exit_code == 0, f"get-one failed: {result.stdout}"
 
     mocked_render.assert_called_once_with(
-        dummy_configuration_data[0],
+        dummy_configuration_data_for_printing[0],
         title="Configuration id 1",
     )
 

@@ -120,3 +120,27 @@ def dummy_configuration_data():
             grace_time=60,
         ),
     ]
+
+
+@pytest.fixture
+def dummy_configuration_data_for_printing():
+    return [
+        dict(
+            id=1,
+            name="Configuration 1",
+            product="product1",
+            features='{"license1": 100}',
+            license_servers=["flexlm:127.0.0.1:1234"],
+            license_server_type="flexlm",
+            grace_time="60 (seconds)",
+        ),
+        dict(
+            id=2,
+            name="Configuration 2",
+            product="product2",
+            features='{"license2": 200}',
+            license_servers=["rlm:127.0.0.1:2345"],
+            license_server_type="rlm",
+            grace_time="60 (seconds)",
+        ),
+    ]
