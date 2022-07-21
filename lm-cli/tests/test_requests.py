@@ -1,0 +1,355 @@
+import json
+from typing import Dict, Optional
+
+import httpx
+import pydantic
+import pytest
+
+from lm_cli.constants import SortOrder
+from lm_cli.exceptions import Abort
+from lm_cli.requests import _deserialize_request_model, make_request, parse_query_params
+
+
+DEFAULT_DOMAIN = "https://dummy-domain.com"
+
+
+@pytest.fixture
+def dummy_client():
+    """
+    Provide factory for a test client. Can supply custom base_url and headers.
+    """
+
+    def _helper(base_url: str = DEFAULT_DOMAIN, headers: Optional[Dict] = None) -> httpx.Client:
+        """
+        Create the dummy httpx client.
+        """
+        if headers is None:
+            headers = dict()
+
+        return httpx.Client(base_url=base_url, headers=headers)
+
+    return _helper
+
+
+class DummyResponseModel(pydantic.BaseModel):
+    """
+    Provide a dummy pydantic model for testing standard responses.
+    """
+
+    foo: int
+    bar: str
+
+
+class ErrorResponseModel(pydantic.BaseModel):
+    """
+    Provide a dummy pydantic model for testing error responses.
+    """
+
+    error: str
+
+
+def test__deserialize_request_model__success():
+    """
+    Validate that the ``_deserialize_request_model`` method can successfully deserialize a pydantic model instance into
+    the ``content`` part of the ``request_kwargs``. Also, validate that the ``content-type`` part of the request is set
+    to ``application/json``.
+    """
+    request_kwargs = dict()
+    _deserialize_request_model(
+        DummyResponseModel(foo=1, bar="one"),
+        request_kwargs,
+        "Abort message does not matter here",
+        "Whatever Subject",
+    )
+    assert json.loads(request_kwargs["content"]) == dict(foo=1, bar="one")
+    assert request_kwargs["headers"] == {"Content-Type": "application/json"}
+
+
+def test__deserialize_request_model__raises_Abort_if_request_kwargs_already_has_other_body_parts():
+    """
+    Validate that the ``_deserialize_request_model`` raises an Abort if the ``request_kwargs`` already has a "body" part
+    (``data``, ``json``, or ``content``).
+    """
+    with pytest.raises(Abort, match="Request was incorrectly structured"):
+        _deserialize_request_model(
+            DummyResponseModel(foo=1, bar="one"),
+            dict(data=dict(foo=11)),
+            "Abort message does not matter here",
+            "Whatever Subject",
+        )
+
+    with pytest.raises(Abort, match="Request was incorrectly structured"):
+        _deserialize_request_model(
+            DummyResponseModel(foo=1, bar="one"),
+            dict(json=dict(foo=11)),
+            "Abort message does not matter here",
+            "Whatever Subject",
+        )
+
+    with pytest.raises(Abort, match="Request was incorrectly structured"):
+        _deserialize_request_model(
+            DummyResponseModel(foo=1, bar="one"),
+            dict(content=json.dumps(dict(foo=11))),
+            "Abort message does not matter here",
+            "Whatever Subject",
+        )
+
+
+def test_make_request__success(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will make a request to the supplied path for the
+    client domain, check the status code, extract the data, validate it, and return an instance of the
+    supplied response model.
+    """
+
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.OK,
+            json=dict(
+                foo=1,
+                bar="one",
+            ),
+        ),
+    )
+    dummy_response_instance = make_request(
+        client,
+        req_path,
+        "GET",
+        expected_status=200,
+        response_model_cls=DummyResponseModel,
+    )
+    assert isinstance(dummy_response_instance, DummyResponseModel)
+    assert dummy_response_instance.foo == 1
+    assert dummy_response_instance.bar == "one"
+
+
+def test_make_request__raises_Abort_if_client_request_raises_exception(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will raise an Abort if the call to ``client.send`` raises an
+    exception.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+    original_error = httpx.RequestError("BOOM!")
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(side_effect=original_error)
+
+    with pytest.raises(Abort, match="There was a big problem: Communication with the API failed") as err_info:
+        make_request(
+            client, req_path, "GET", abort_message="There was a big problem", abort_subject="BIG PROBLEM", support=True
+        )
+    assert err_info.value.subject == "BIG PROBLEM"
+    assert err_info.value.support is True
+    assert err_info.value.log_message == "There was an error making the request to the API."
+    assert err_info.value.original_error == original_error
+
+
+def test_make_request__raises_Abort_when_expected_status_is_not_None_and_response_status_does_not_match_it(
+    respx_mock, dummy_client
+):
+    """
+    Validate that the ``make_request()`` function will raise an Abort if the ``expected_status`` arg is set and it
+    does not match the status code of the response.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.BAD_REQUEST,
+            text="It blowed up",
+        ),
+    )
+
+    with pytest.raises(Abort, match="There was a big problem: Received an error response") as err_info:
+        make_request(
+            client,
+            req_path,
+            "GET",
+            expected_status=200,
+            abort_message="There was a big problem",
+            abort_subject="BIG PROBLEM",
+            support=True,
+        )
+    assert err_info.value.subject == "BIG PROBLEM"
+    assert err_info.value.support is True
+    assert err_info.value.log_message == "Got an error code for request: 400: It blowed up."
+    assert err_info.value.original_error is None
+
+
+def test_make_request__does_not_raise_Abort_when_expected_status_is_None_and_response_status_is_a_fail_code(
+    respx_mock, dummy_client
+):
+    """
+    Validate that the ``make_request()`` function will not raise an Abort if the ``expected_status`` arg is not set
+    and the response is an error status code.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.BAD_REQUEST,
+            json=dict(error="It blowed up"),
+        ),
+    )
+
+    err = make_request(
+        client,
+        req_path,
+        "GET",
+        response_model_cls=ErrorResponseModel,
+    )
+    assert err.error == "It blowed up"
+
+
+def test_make_request__returns_the_response_status_code_if_expect_response_is_False(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will return None if the ``expect_response`` arg is False and the
+    request was successfull.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.post(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(httpx.codes.BAD_REQUEST),
+    )
+
+    assert make_request(client, req_path, "POST", expect_response=False) == httpx.codes.BAD_REQUEST
+
+
+def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_with_JSON(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will raise an Abort if the response is not JSON de-serializable.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.OK,
+            text="Not JSON, my dude",
+        ),
+    )
+
+    with pytest.raises(Abort, match="There was a big problem: Response carried no data") as err_info:
+        make_request(
+            client, req_path, "GET", abort_message="There was a big problem", abort_subject="BIG PROBLEM", support=True
+        )
+    assert err_info.value.subject == "BIG PROBLEM"
+    assert err_info.value.support is True
+    assert err_info.value.log_message == "Failed unpacking json: Not JSON, my dude."
+    assert isinstance(err_info.value.original_error, json.decoder.JSONDecodeError)
+
+
+def test_make_request__returns_a_plain_dict_if_response_model_cls_is_None(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will return a plain dictionary containing the response data if the
+    ``response_model_cls`` argument is not supplied.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.OK,
+            json=dict(a=1, b=2, c=3),
+        ),
+    )
+
+    assert make_request(client, req_path, "GET") == dict(a=1, b=2, c=3)
+
+
+def test_make_request__raises_an_Abort_if_the_response_data_cannot_be_serialized_into_the_response_model_cls(
+    respx_mock, dummy_client
+):
+    """
+    Validate that the ``make_request()`` function will raise an Abort if the response data cannot be serialized as and
+    validated with the ``response_model_cls``.
+    """
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    respx_mock.get(f"{DEFAULT_DOMAIN}{req_path}").mock(
+        return_value=httpx.Response(
+            httpx.codes.OK,
+            json=dict(a=1, b=2, c=3),
+        ),
+    )
+
+    with pytest.raises(Abort, match="There was a big problem: Unexpected data in response") as err_info:
+        make_request(
+            client,
+            req_path,
+            "GET",
+            abort_message="There was a big problem",
+            abort_subject="BIG PROBLEM",
+            support=True,
+            response_model_cls=DummyResponseModel,
+        )
+    assert err_info.value.subject == "BIG PROBLEM"
+    assert err_info.value.support is True
+    assert err_info.value.log_message == f"Unexpected format in response data: {dict(a=1, b=2, c=3)}."
+    assert isinstance(err_info.value.original_error, pydantic.ValidationError)
+
+
+def test_make_request__uses_request_model_instance_for_request_body_if_passed(respx_mock, dummy_client):
+    """
+    Validate that the ``make_request()`` function will use a pydantic model instance to build the body of the request if
+    the ``request_model`` argument is passed.
+    """
+
+    client = dummy_client(headers={"content-type": "garbage"})
+    req_path = "/fake-path"
+
+    dummy_route = respx_mock.post(f"{DEFAULT_DOMAIN}{req_path}")
+    dummy_route.mock(
+        return_value=httpx.Response(
+            httpx.codes.CREATED,
+            json=dict(
+                foo=1,
+                bar="one",
+            ),
+        ),
+    )
+    dummy_response_instance = make_request(
+        client,
+        req_path,
+        "POST",
+        expected_status=201,
+        response_model_cls=DummyResponseModel,
+        request_model=DummyResponseModel(foo=1, bar="one"),
+    )
+    assert isinstance(dummy_response_instance, DummyResponseModel)
+    assert dummy_response_instance.foo == 1
+    assert dummy_response_instance.bar == "one"
+
+    assert dummy_route.calls.last.request.content == json.dumps(dict(foo=1, bar="one")).encode("utf-8")
+    assert dummy_route.calls.last.request.headers["Content-Type"] == "application/json"
+
+
+def test_parse_query_params__returns_correct_dict():
+    """
+    Validate that the ``parse_query_params()`` function produces a dict with the query params to be sent
+    to the requests to the API.
+    """
+    search = "foo"
+    sort_field = "bar"
+    sort_order = SortOrder.ASCENDING
+
+    assert parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field) == {
+        "search": search,
+        "sort_ascending": True,
+        "sort_field": sort_field,
+    }
+
+    sort_order = SortOrder.DESCENDING
+
+    assert parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field) == {
+        "search": search,
+        "sort_ascending": False,
+        "sort_field": sort_field,
+    }
