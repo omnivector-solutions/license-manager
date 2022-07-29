@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.12 -- 2022-07-29
+--------------------
+* Keep version synced with the Agent
+
 2.2.11 -- 2022-07-11
 --------------------
 * Added support for multiple domains in auth settings (for keycloak)
