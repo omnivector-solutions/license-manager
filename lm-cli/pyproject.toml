@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lm-cli"
-version = "0.1.0"
+version = "2.2.12"
 description = "License Manager CLI Client"
 authors = ["Omnivector Solutions <info@omnivector.solutions>"]
 license = "MIT"
