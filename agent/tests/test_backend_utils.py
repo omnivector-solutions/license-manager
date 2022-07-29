@@ -160,7 +160,7 @@ def test_acquire_token__gets_a_token_from_the_cache(mock_cache_dir):
 
 def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(respx_mock, mock_cache_dir):
     """
-    Verifies that a token is pulled from auth0 if it is not found in the cache.
+    Verifies that a token is pulled from OIDC if it is not found in the cache.
     Also checks to make sure the token is cached.
     """
     mock_cache_dir.mkdir()

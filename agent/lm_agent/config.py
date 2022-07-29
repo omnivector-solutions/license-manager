@@ -73,11 +73,11 @@ class Settings(BaseSettings):
     # log level
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 
-    # Auth0 config for machine-to-machine security
-    AUTH0_DOMAIN: str
-    AUTH0_AUDIENCE: str
-    AUTH0_CLIENT_ID: str
-    AUTH0_CLIENT_SECRET: str
+    # OIDC config for machine-to-machine security
+    OIDC_DOMAIN: str
+    OIDC_AUDIENCE: str
+    OIDC_CLIENT_ID: str
+    OIDC_CLIENT_SECRET: str
 
     # Token cache directory
     CACHE_DIR: Path = DEFAULT_CACHE_DIR

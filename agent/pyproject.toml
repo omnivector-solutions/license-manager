@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager-agent"
-version = "2.2.10"
+version = "2.2.12"
 description = "Provides an agent for interacting with license manager"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
@@ -38,10 +38,10 @@ minversion = "6.0"
 addopts = "--random-order --cov=lm_agent --cov-report=term-missing --cov-fail-under=70"
 testpaths = ["tests"]
 env = [
-    "LM2_AGENT_AUTH0_DOMAIN = str",
-    "LM2_AGENT_AUTH0_AUDIENCE = str",
-    "LM2_AGENT_AUTH0_CLIENT_ID = str",
-    "LM2_AGENT_AUTH0_CLIENT_SECRET = str",
+    "LM2_AGENT_OIDC_DOMAIN = str",
+    "LM2_AGENT_OIDC_AUDIENCE = str",
+    "LM2_AGENT_OIDC_CLIENT_ID = str",
+    "LM2_AGENT_OIDC_CLIENT_SECRET = str",
     "LM2_AGENT_BACKEND_BASE_URL = http://backend",
     "LM2_AGENT_LMUTIL_PATH = ./tests/mock_tools",
     "LM2_AGENT_RLMUTIL_PATH = ./tests/mock_tools",
