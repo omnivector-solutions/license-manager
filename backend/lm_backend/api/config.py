@@ -1,7 +1,6 @@
 from ast import literal_eval
 from typing import Dict, List, Optional, Union
 
-from armasec import TokenPayload
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.permissions import Permissions
@@ -12,42 +11,6 @@ from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import config_searchable_fields, config_sortable_fields, config_table
 
 router = APIRouter()
-
-
-@router.get(
-    "/agent/all",
-    response_model=List[ConfigurationItem],
-)
-async def get_all_configurations_by_client_id(
-    search: Optional[str] = Query(None),
-    sort_field: Optional[str] = Query(None),
-    sort_ascending: bool = Query(True),
-    token_payload: TokenPayload = Depends(guard.lockdown(Permissions.CONFIG_VIEW)),
-):
-    """
-    Query database for all configurations filtering by client_id.
-    """
-    # client_id identifies the cluster where the agent is running
-    client_id = token_payload.client_id
-
-    if not client_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=("Couldn't find a valid client_id in the access token."),
-        )
-
-    query = config_table.select().where(config_table.c.client_id == client_id)
-
-    if search is not None:
-        query = query.where(search_clause(search, config_searchable_fields))
-    if sort_field is not None:
-        query = query.order_by(sort_clause(sort_field, config_sortable_fields, sort_ascending))
-    fetched = await database.fetch_all(query)
-    config_rows = [ConfigurationRow.parse_obj(x) for x in fetched]
-    return [
-        ConfigurationItem(**item.dict(exclude={"features"}), features=literal_eval(item.features))
-        for item in config_rows
-    ]
 
 
 @router.get(
