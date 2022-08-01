@@ -149,6 +149,25 @@ class LicenseUse(LicenseUseBase):
         return values["total"] - values["used"]
 
 
+class LicenseUseWithBooking(LicenseUseBase):
+    """
+    Used/Available/Booked/Total counts for a product.feature license category
+
+    Returned by GET queries, including `available` for convenience
+    """
+
+    total: int
+    booked: Optional[int]
+    available: Optional[int]
+
+    @validator("available", always=True)
+    def validate_available(cls, value, values):
+        """
+        Set available as a function of the other fields
+        """
+        return values["total"] - (values["used"] + values["booked"])
+
+
 class LicenseUseBooking(LicenseUseBase):
     """
     A booking [PUT] object, specifying how many tokens are needed and no total
