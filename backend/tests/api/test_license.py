@@ -23,6 +23,14 @@ def test_license_use_available():
     assert lu.available == 19
 
 
+def test_license_use_with_booking_calculate_available():
+    """
+    Do we correctly calculate available on a LicenseUseWithBooking object?
+    """
+    lu = license.LicenseUseWithBooking(product_feature="hello.world", total=100, used=81, booked=10)
+    assert lu.available == 9
+
+
 @mark.asyncio
 @database.transaction(force_rollback=True)
 async def test_get_these_licenses(some_licenses, insert_objects):
@@ -164,6 +172,32 @@ async def test_licenses_product_feature__fail_on_bad_permission(
     inject_security_header("owner1", "invalid-permission")
     resp = await backend_client.get("/lm/api/v1/license/use/cool/beans")
     assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_licenses_with_booking_all__success(
+    backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
+):
+    """
+    Do I fetch and order the licenses with booking in the db?
+    """
+    await insert_objects(some_licenses, license_table)
+
+    inject_security_header("owner1", Permissions.LICENSE_VIEW)
+    resp = await backend_client.get("/lm/api/v1/license/complete/all")
+    assert resp.status_code == 200
+    assert resp.json() == [
+        dict(product_feature="cool.beans", total=11, used=11, booked=0, available=0),
+        dict(
+            product_feature="hello.dolly",
+            total=80,
+            used=11,
+            booked=0,
+            available=69,
+        ),
+        dict(product_feature="hello.world", total=100, used=19, booked=0, available=81),
+    ]
 
 
 @mark.asyncio
