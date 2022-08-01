@@ -17,6 +17,7 @@ style_mapper = StyleMapper(
     product_feature="green",
     used="cyan",
     total="magenta",
+    booked="blue",
     available="yellow",
 )
 
