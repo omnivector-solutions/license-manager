@@ -78,15 +78,20 @@ async def licenses_all_with_booking(
             license_table.c.id,
             license_table.c.product_feature,
         )
+        .order_by(license_table.c.product_feature)
     )
     if search is not None:
         query = query.where(search_clause(search, license_searchable_fields))
-    if sort_field is not None:
-        query = query.order_by(sort_clause(sort_field, license_sortable_fields, sort_ascending))
-    else:
-        query = query.order_by(license_table.c.product_feature)
+
     fetched = await database.fetch_all(query)
-    return [LicenseUseWithBooking.parse_obj(x) for x in fetched]
+    licenses = [LicenseUseWithBooking.parse_obj(x) for x in fetched]
+
+    if sort_field is not None:
+        licenses = sorted(
+            licenses, key=lambda license: getattr(license, sort_field), reverse=not sort_ascending
+        )
+
+    return licenses
 
 
 @router.get(
