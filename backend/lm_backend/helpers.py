@@ -20,7 +20,10 @@ class LicenseUseWithBookingSortFieldChecker:
             if sort_field not in LicenseUseWithBooking.__fields__.keys():
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid sorting column requested: {sort_field}. Must be one of {self.available_fields()}.",
+                    detail=(
+                        f"Invalid sorting column requested: {sort_field}. "
+                        f"Must be one of {self.available_fields()}."
+                    ),
                 )
         return sort_field
 
