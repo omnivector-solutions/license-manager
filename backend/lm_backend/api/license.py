@@ -14,6 +14,7 @@ from lm_backend.api_schemas import (
     LicenseUseReconcileRequest,
     LicenseUseWithBooking,
 )
+from lm_backend.helpers import LicenseUseWithBookingSortFieldChecker
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import (
@@ -22,7 +23,6 @@ from lm_backend.table_schemas import (
     license_sortable_fields,
     license_table,
 )
-from lm_backend.helpers import LicenseUseWithBookingSortFieldChecker
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
