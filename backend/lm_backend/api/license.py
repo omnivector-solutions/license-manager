@@ -22,6 +22,7 @@ from lm_backend.table_schemas import (
     license_sortable_fields,
     license_table,
 )
+from lm_backend.helpers import LicenseUseWithBookingSortFieldChecker
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
@@ -58,7 +59,7 @@ async def licenses_all(
 )
 async def licenses_all_with_booking(
     search: Optional[str] = Query(None),
-    sort_field: Optional[str] = Query(None),
+    sort_field: Optional[str] = Depends(LicenseUseWithBookingSortFieldChecker()),
     sort_ascending: bool = Query(True),
 ):
     """
