@@ -14,7 +14,7 @@ class LicenseUseWithBookingSortFieldChecker:
     """
     _model = LicenseUseWithBooking
 
-    def __call__(self, sort_field: Optional[str] = None) -> str:
+    def __call__(self, sort_field: Optional[str] = "") -> Optional[str]:
         if sort_field is not None:
             if sort_field not in LicenseUseWithBooking.__fields__.keys():
                 raise HTTPException(

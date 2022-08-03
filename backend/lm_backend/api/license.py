@@ -59,7 +59,7 @@ async def licenses_all(
 )
 async def licenses_all_with_booking(
     search: Optional[str] = Query(None),
-    sort_field: Optional[str] = Depends(LicenseUseWithBookingSortFieldChecker()),
+    sort_field: str = Depends(LicenseUseWithBookingSortFieldChecker()),
     sort_ascending: bool = Query(True),
 ):
     """
