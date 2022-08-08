@@ -88,21 +88,6 @@ async def inject_security_header(backend_client, build_rs256_token):
 
 
 @fixture
-async def inject_client_id_in_security_header(backend_client, build_rs256_token):
-    """
-    Provides a helper method that will inject a security token into the requests for a test client. If no
-    client_id is provided, the security token will still be valid but will not carry any identification
-    in the `azp` parameter. Uses the `build_rs256_token()` fixture from the armasec package.
-    """
-
-    def _helper(client_id: str, *permissions: typing.List[str]):
-        token = build_rs256_token(claim_overrides=dict(azp=client_id, permissions=permissions))
-        backend_client.headers.update({"Authorization": f"Bearer {token}"})
-
-    return _helper
-
-
-@fixture
 async def backend_client():
     """
     A client that can issue fake requests against fastapi endpoint functions in the backend

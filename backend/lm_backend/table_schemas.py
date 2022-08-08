@@ -73,7 +73,6 @@ config_table = Table(
     Column("license_servers", ScalarListType(str)),
     Column("license_server_type", String),
     Column("grace_time", Integer, CheckConstraint("grace_time>=0")),
-    Column("client_id", String, nullable=False, index=True),
 )
 
 config_searchable_fields = [
@@ -81,7 +80,6 @@ config_searchable_fields = [
     config_table.c.product,
     config_table.c.features,
     config_table.c.license_server_type,
-    config_table.c.client_id,
 ]
 
 config_sortable_fields = [
@@ -90,5 +88,4 @@ config_sortable_fields = [
     config_table.c.features,
     config_table.c.license_server_type,
     config_table.c.grace_time,
-    config_table.c.client_id,
 ]

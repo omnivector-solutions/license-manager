@@ -16,8 +16,6 @@ Unreleased
 2.2.10 -- 2022-06-29
 --------------------
 * Changed DEPLOY_ENV to a string (to accept arbitrary values)
-* Add cluster_id column to config table to identify which cluster the configuration applies to
-* Added new route to fetch all configurations from a specific cluster
 
 2.2.7 -- 2022-05-10
 -------------------
