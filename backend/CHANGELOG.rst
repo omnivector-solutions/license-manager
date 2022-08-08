@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added a new endpoint to retrieve license usage with booked information
 
 2.2.11 -- 2022-07-11
 --------------------

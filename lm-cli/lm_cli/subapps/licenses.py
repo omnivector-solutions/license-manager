@@ -17,6 +17,7 @@ style_mapper = StyleMapper(
     product_feature="green",
     used="cyan",
     total="magenta",
+    booked="blue",
     available="yellow",
 )
 
@@ -47,7 +48,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/license/all",
+            "/license/complete/all",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve license list from API",

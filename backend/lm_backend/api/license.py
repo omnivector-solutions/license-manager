@@ -2,7 +2,8 @@ import asyncio
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.sql import select, update
+from sqlalchemy import func
+from sqlalchemy.sql import join, select, update
 
 from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import (
@@ -11,7 +12,9 @@ from lm_backend.api_schemas import (
     LicenseUseBase,
     LicenseUseReconcile,
     LicenseUseReconcileRequest,
+    LicenseUseWithBooking,
 )
+from lm_backend.helpers import LicenseUseWithBookingSortFieldChecker
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import (
@@ -47,6 +50,49 @@ async def licenses_all(
         query = query.order_by(license_table.c.product_feature)
     fetched = await database.fetch_all(query)
     return [LicenseUse.parse_obj(x) for x in fetched]
+
+
+@router.get(
+    "/complete/all",
+    response_model=List[LicenseUseWithBooking],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
+)
+async def licenses_all_with_booking(
+    search: Optional[str] = Query(None),
+    sort_field: str = Depends(LicenseUseWithBookingSortFieldChecker()),
+    sort_ascending: bool = Query(True),
+):
+    """
+    All license counts we are tracking with booked tokens included.
+    """
+    query = (
+        select([*license_table.c, func.sum(func.coalesce(booking_table.c.booked, 0)).label("booked")])
+        .select_from(
+            join(
+                license_table,
+                booking_table,
+                license_table.c.product_feature == booking_table.c.product_feature,
+                isouter=True,
+            )
+        )
+        .group_by(
+            license_table.c.id,
+            license_table.c.product_feature,
+        )
+        .order_by(license_table.c.product_feature)
+    )
+    if search is not None:
+        query = query.where(search_clause(search, license_searchable_fields))
+
+    fetched = await database.fetch_all(query)
+    licenses = [LicenseUseWithBooking.parse_obj(x) for x in fetched]
+
+    if sort_field is not None:
+        licenses = sorted(
+            licenses, key=lambda license: getattr(license, sort_field), reverse=not sort_ascending
+        )
+
+    return licenses
 
 
 @router.get(
