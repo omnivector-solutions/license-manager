@@ -14,15 +14,10 @@ from lm_backend.api_schemas import (
     LicenseUseReconcileRequest,
     LicenseUseWithBooking,
 )
-from lm_backend.helpers import LicenseUseWithBookingSortFieldChecker
+from lm_backend.helpers import LicenseUseSortFieldChecker, LicenseUseWithBookingSortFieldChecker
 from lm_backend.security import guard
-from lm_backend.storage import database, search_clause, sort_clause
-from lm_backend.table_schemas import (
-    booking_table,
-    license_searchable_fields,
-    license_sortable_fields,
-    license_table,
-)
+from lm_backend.storage import database, search_clause
+from lm_backend.table_schemas import booking_table, license_searchable_fields, license_table
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
 router = APIRouter()
@@ -35,21 +30,26 @@ router = APIRouter()
 )
 async def licenses_all(
     search: Optional[str] = Query(None),
-    sort_field: Optional[str] = Query(None),
+    sort_field: str = Depends(LicenseUseSortFieldChecker()),
     sort_ascending: bool = Query(True),
 ):
     """
     All license counts we are tracking
     """
-    query = license_table.select()
+    query = license_table.select().order_by(license_table.c.product_feature)
+
     if search is not None:
         query = query.where(search_clause(search, license_searchable_fields))
-    if sort_field is not None:
-        query = query.order_by(sort_clause(sort_field, license_sortable_fields, sort_ascending))
-    else:
-        query = query.order_by(license_table.c.product_feature)
+
     fetched = await database.fetch_all(query)
-    return [LicenseUse.parse_obj(x) for x in fetched]
+    licenses = [LicenseUse.parse_obj(x) for x in fetched]
+
+    if sort_field is not None:
+        licenses = sorted(
+            licenses, key=lambda license: getattr(license, sort_field), reverse=not sort_ascending
+        )
+
+    return licenses
 
 
 @router.get(
