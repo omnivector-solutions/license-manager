@@ -63,7 +63,7 @@ async def licenses_all_with_booking(
     sort_ascending: bool = Query(True),
 ):
     """
-    All license counts we are tracking with booked tokens included
+    All license counts we are tracking with booked tokens included.
     """
     query = (
         select([*license_table.c, func.sum(func.coalesce(booking_table.c.booked, 0)).label("booked")])
