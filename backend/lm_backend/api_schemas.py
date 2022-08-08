@@ -151,9 +151,9 @@ class LicenseUse(LicenseUseBase):
 
 class LicenseUseWithBooking(LicenseUseBase):
     """
-    Used/Available/Booked/Total counts for a product.feature license category
+    Used/Available/Booked/Total counts for a product.feature license category.
 
-    Returned by GET queries, including `available` for convenience
+    Returned by GET queries, including `available` for convenience.
     """
 
     total: int

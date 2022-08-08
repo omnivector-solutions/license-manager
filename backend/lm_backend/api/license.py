@@ -96,6 +96,49 @@ async def licenses_all_with_booking(
 
 
 @router.get(
+    "/complete/all",
+    response_model=List[LicenseUseWithBooking],
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
+)
+async def licenses_all_with_booking(
+    search: Optional[str] = Query(None),
+    sort_field: str = Depends(LicenseUseWithBookingSortFieldChecker()),
+    sort_ascending: bool = Query(True),
+):
+    """
+    All license counts we are tracking with booked tokens included.
+    """
+    query = (
+        select([*license_table.c, func.sum(func.coalesce(booking_table.c.booked, 0)).label("booked")])
+        .select_from(
+            join(
+                license_table,
+                booking_table,
+                license_table.c.product_feature == booking_table.c.product_feature,
+                isouter=True,
+            )
+        )
+        .group_by(
+            license_table.c.id,
+            license_table.c.product_feature,
+        )
+        .order_by(license_table.c.product_feature)
+    )
+    if search is not None:
+        query = query.where(search_clause(search, license_searchable_fields))
+
+    fetched = await database.fetch_all(query)
+    licenses = [LicenseUseWithBooking.parse_obj(x) for x in fetched]
+
+    if sort_field is not None:
+        licenses = sorted(
+            licenses, key=lambda license: getattr(license, sort_field), reverse=not sort_ascending
+        )
+
+    return licenses
+
+
+@router.get(
     "/cluster_update",
     response_model=List[Dict],
     dependencies=[Depends(guard.lockdown(Permissions.LICENSE_VIEW))],
