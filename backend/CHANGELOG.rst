@@ -6,7 +6,6 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
-* Add cluster_id column to config table to identify which cluster the configuration applies to
 
 2.2.12 -- 2022-09-05
 --------------------

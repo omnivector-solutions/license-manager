@@ -9,13 +9,15 @@ Unreleased
 
 2.2.12 -- 2022-09-05
 --------------------
-* Implement async calls to license servers to fetch information in parallel
 * Update backend configuration row schema to include new client_id field
 
 2.2.10 -- 2022-06-29
 --------------------
 * Changed DEPLOY_ENV setting to a string (can now take arbitrary values)
 
+2.2.9 -- 2022-06-06
+-------------------
+* Implement async calls to license servers to fetch information in parallel
 
 2.2.8 -- 2022-05-16
 -------------------
