@@ -150,6 +150,7 @@ async def update_configuration(
     license_servers: Optional[List[str]] = Body(None),
     license_server_type: Optional[str] = Body(None),
     grace_time: Optional[int] = Body(None),
+    client_id: Optional[str] = Body(None),
 ):
     """
     Update a configuration row in the database with all of the
@@ -166,6 +167,8 @@ async def update_configuration(
         update_dict["license_server_type"] = license_server_type
     if grace_time is not None:
         update_dict["grace_time"] = grace_time
+    if client_id is not None:
+        update_dict["client_id"] = client_id
     q_update = config_table.update().where(config_table.c.id == config_id).values(update_dict)
     async with database.transaction():
         try:
