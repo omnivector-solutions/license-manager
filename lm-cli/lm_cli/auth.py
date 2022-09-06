@@ -207,7 +207,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
 
     If refresh fails, notify the user that they need to log in again.
     """
-    url = f"https://{settings.OICD_DOMAIN}/protocol/openid-connect/token"
+    url = f"https://{settings.OIDC_DOMAIN}/protocol/openid-connect/token"
     logger.debug(f"Requesting refreshed access token from {url}")
 
     LicenseManagerCliError.require_condition(
@@ -229,8 +229,8 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
             support=True,
             response_model_cls=TokenSet,
             data=dict(
-                client_id=settings.OICD_CLIENT_ID,
-                audience=settings.OICD_AUDIENCE,
+                client_id=settings.OIDC_CLIENT_ID,
+                audience=settings.OIDC_AUDIENCE,
                 grant_type="refresh_token",
                 refresh_token=token_set.refresh_token,
             ),
@@ -242,7 +242,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
 
 def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
     """
-    Fetch an access token (and possibly a refresh token) from OICD provider.
+    Fetch an access token (and possibly a refresh token) from OIDC provider.
 
     Prints out a URL for the user to use to authenticate and polls the token endpoint to fetch it when
     the browser-based process finishes.
@@ -262,10 +262,10 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
             support=True,
             response_model_cls=DeviceCodeData,
             data=dict(
-                client_id=settings.OICD_CLIENT_ID,
+                client_id=settings.OIDC_CLIENT_ID,
                 grant_type="client_credentials",
-                audience=settings.OICD_AUDIENCE,
-                client_secret=settings.OICD_CLIENT_SECRET,
+                audience=settings.OIDC_AUDIENCE,
+                client_secret=settings.OIDC_CLIENT_SECRET,
             ),
         ),
     )
@@ -276,13 +276,13 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
 
           {device_code_data.verification_uri_complete}
 
-        Waiting up to {settings.OICD_MAX_POLL_TIME / 60} minutes for you to complete the process...
+        Waiting up to {settings.OIDC_MAX_POLL_TIME / 60} minutes for you to complete the process...
         """,
         subject="Waiting for login",
     )
 
     for tick in TimeLoop(
-        settings.OICD_MAX_POLL_TIME,
+        settings.OIDC_MAX_POLL_TIME,
         message="Waiting for web login.",
     ):
 
@@ -298,8 +298,8 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                 data=dict(
                     grant_type="urn:ietf:params:oauth:grant-type:device_code",
                     device_code=device_code_data.device_code,
-                    client_id=settings.OICD_CLIENT_ID,
-                    client_secret=settings.OICD_CLIENT_SECRET,
+                    client_id=settings.OIDC_CLIENT_ID,
+                    client_secret=settings.OIDC_CLIENT_SECRET,
                 ),
             ),
         )

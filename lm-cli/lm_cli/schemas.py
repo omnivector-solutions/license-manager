@@ -45,7 +45,7 @@ class Persona(pydantic.BaseModel):
 
 class DeviceCodeData(pydantic.BaseModel, extra=pydantic.Extra.ignore):
     """
-    A model representing the data that is returned from OICD's device code endpoint.
+    A model representing the data that is returned from OIDC's device code endpoint.
     """
 
     device_code: str
@@ -73,6 +73,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
     license_servers: List[str]
     license_server_type: str
     grace_time: str
+    client_id: str
 
     @pydantic.validator("features", pre=True)
     def validate_features_is_valid_json(cls, features):

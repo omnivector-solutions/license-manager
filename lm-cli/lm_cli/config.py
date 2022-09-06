@@ -34,13 +34,13 @@ class Settings(BaseSettings):
     LM_API_ACCESS_TOKEN_PATH: Optional[Path]
     LM_API_REFRESH_TOKEN_PATH: Optional[Path]
 
-    # OICD config for machine-to-machine security
-    OICD_DOMAIN: str
-    OICD_LOGIN_DOMAIN: Optional[str]
-    OICD_AUDIENCE: str
-    OICD_CLIENT_ID: str
-    OICD_CLIENT_SECRET: str
-    OICD_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
+    # OIDC config for machine-to-machine security
+    OIDC_DOMAIN: str
+    OIDC_LOGIN_DOMAIN: Optional[str]
+    OIDC_AUDIENCE: str
+    OIDC_CLIENT_ID: str
+    OIDC_CLIENT_SECRET: str
+    OIDC_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 
     IDENTITY_CLAIMS_KEY: str = "email"
 
@@ -62,7 +62,7 @@ class Settings(BaseSettings):
         values["LM_API_ACCESS_TOKEN_PATH"] = token_dir / "access.token"
         values["LM_API_REFRESH_TOKEN_PATH"] = token_dir / "refresh.token"
 
-        values.setdefault("OICD_LOGIN_DOMAIN", values["OICD_DOMAIN"])
+        values.setdefault("OIDC_LOGIN_DOMAIN", values["OIDC_DOMAIN"])
 
         return values
 
