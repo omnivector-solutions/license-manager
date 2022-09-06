@@ -207,7 +207,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
 
     If refresh fails, notify the user that they need to log in again.
     """
-    url = f"https://{settings.OICD_DOMAIN}/oauth/token"
+    url = f"https://{settings.OICD_DOMAIN}/protocol/openid-connect/token"
     logger.debug(f"Requesting refreshed access token from {url}")
 
     LicenseManagerCliError.require_condition(
@@ -222,7 +222,7 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
         TokenSet,
         make_request(
             ctx.client,
-            "/oauth/token",
+            "/protocol/openid-connect/token",
             "POST",
             abort_message="The auth token could not be refreshed. Please try logging in again.",
             abort_subject="EXPIRED ACCESS TOKEN.",

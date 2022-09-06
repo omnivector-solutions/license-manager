@@ -33,10 +33,10 @@ def respx_mock():
     """
     Run a test in the respx context (similar to respx decorator, but it's a fixture).
 
-    Mocks the auth0 route used to secure a token.
+    Mocks the OIDC route used to secure a token.
     """
     with respx.mock as mock:
-        respx.post(f"https://{settings.AUTH0_DOMAIN}/oauth/token").mock(
+        respx.post(f"https://{settings.OIDC_DOMAIN}/protocol/openid-connect/token").mock(
             return_value=httpx.Response(status_code=200, json=dict(access_token="dummy-token"))
         )
         yield mock

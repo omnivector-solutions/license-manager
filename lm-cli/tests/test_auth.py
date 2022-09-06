@@ -378,7 +378,7 @@ def test_init_persona__uses_passed_token_set(make_token, tmp_path, dummy_context
 def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
     """
     Validate that the ``refreshed_access_token()`` function uses a refresh token to retrieve a new access
-    token from the ``oauth/token`` endpoint of the ``settings.OICD_DOMAIN``.
+    token from the ``/protocol/openid-connect/token`` endpoint of the ``settings.OICD_DOMAIN``.
     """
     access_token = "expired-access-token"
     refresh_token = "dummy-refresh-token"
@@ -392,7 +392,7 @@ def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
         expires="2023-02-17 22:30:00",
     )
 
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/token").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/token").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dict(access_token=refreshed_access_token),
@@ -406,13 +406,13 @@ def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
 def test_refresh_access_token__raises_abort_on_non_200_response(respx_mock, dummy_context):
     """
     Validate that the ``refreshed_access_token()`` function raises an abort if the response from the
-    ``oauth/token`` endpoint of the ``settings.OICD_DOMAIN`` is not a 200.
+    ``/protocol/openid-connect/token`` endpoint of the ``settings.OICD_DOMAIN`` is not a 200.
     """
     access_token = "expired-access-token"
     refresh_token = "dummy-refresh-token"
     token_set = TokenSet(access_token=access_token, refresh_token=refresh_token)
 
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/token").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/token").mock(
         return_value=httpx.Response(
             httpx.codes.BAD_REQUEST,
             json=dict(error_description="BOOM!"),
@@ -432,7 +432,7 @@ def test_fetch_auth_tokens__success(respx_mock, dummy_context):
     access_token = "dummy-access-token"
     refresh_token = "dummy-refresh-token"
 
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/device/code").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/auth/device").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dict(
@@ -442,7 +442,7 @@ def test_fetch_auth_tokens__success(respx_mock, dummy_context):
             ),
         ),
     )
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/token").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/token").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dict(
@@ -461,7 +461,7 @@ def test_fetch_auth_tokens__raises_Abort_when_it_times_out_waiting_for_the_user(
     Validate that the ``fetch_auth_tokens()`` function will raise an Abort if the time runs out before a user
     completes the login process.
     """
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/device/code").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/auth/device").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dict(
@@ -471,7 +471,7 @@ def test_fetch_auth_tokens__raises_Abort_when_it_times_out_waiting_for_the_user(
             ),
         ),
     )
-    respx_mock.post(f"{LOGIN_DOMAIN}/oauth/token").mock(
+    respx_mock.post(f"{LOGIN_DOMAIN}//protocol/openid-connect/token").mock(
         return_value=httpx.Response(httpx.codes.BAD_REQUEST, json=dict(error="authorization_pending")),
     )
     one_tick = Tick(counter=1, elapsed=pendulum.Duration(seconds=1), total_elapsed=pendulum.Duration(seconds=1))

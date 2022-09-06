@@ -7,11 +7,11 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
-2.2.12 -- 2022-09-05
+2.2.12 -- 2022-09-06
 --------------------
 * Add cluster_id column to config table to identify which cluster the configuration applies to
 * Added new route to fetch all configurations from a specific cluster
-* Added a new endpoint to retrieve license usage with booked information
+* Added new route to fetch license usage with booked information
 * Updated the sort logic for license endpoint to enable sorting using all columns
 
 2.2.11 -- 2022-07-11

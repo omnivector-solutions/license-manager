@@ -63,30 +63,30 @@ def _write_token_to_cache(token: str):
 
 def acquire_token() -> str:
     """
-    Retrieves a token from Auth0 based on the app settings.
+    Retrieves a token from OIDC based on the app settings.
     """
     logger.debug("Attempting to use cached token")
     token = _load_token_from_cache()
 
     if token is None:
-        logger.debug("Attempting to acquire token from Auth0")
-        auth0_body = dict(
-            audience=settings.AUTH0_AUDIENCE,
-            client_id=settings.AUTH0_CLIENT_ID,
-            client_secret=settings.AUTH0_CLIENT_SECRET,
+        logger.debug("Attempting to acquire token from OIDC")
+        oidc_body = dict(
+            audience=settings.OIDC_AUDIENCE,
+            client_id=settings.OIDC_CLIENT_ID,
+            client_secret=settings.OIDC_CLIENT_SECRET,
             grant_type="client_credentials",
         )
-        auth0_url = f"https://{settings.AUTH0_DOMAIN}/oauth/token"
-        logger.debug(f"Posting Auth0 request to {auth0_url}")
-        response = httpx.post(auth0_url, data=auth0_body)
+        oidc_url = f"https://{settings.OIDC_DOMAIN}/protocol/openid-connect/token"
+        logger.debug(f"Posting OIDC request to {oidc_url}")
+        response = httpx.post(oidc_url, data=oidc_body)
         LicenseManagerAuthTokenError.require_condition(
-            response.status_code == 200, f"Failed to get auth token from Auth0: {response.text}"
+            response.status_code == 200, f"Failed to get auth token from OIDC: {response.text}"
         )
-        with LicenseManagerAuthTokenError.handle_errors("Malformed response payload from Auth0"):
+        with LicenseManagerAuthTokenError.handle_errors("Malformed response payload from OIDC"):
             token = response.json()["access_token"]
         _write_token_to_cache(token)
 
-    logger.debug("Successfully acquired auth token from Auth0")
+    logger.debug("Successfully acquired auth token from OIDC")
     return token
 
 
