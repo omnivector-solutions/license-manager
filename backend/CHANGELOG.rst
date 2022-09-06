@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Update configuration edit endpoint to allow the client id field to be updated
 
 2.2.12 -- 2022-09-06
 --------------------
