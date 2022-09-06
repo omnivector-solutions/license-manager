@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.12 -- 2022-09-05
+--------------------
+* Update backend configuration row schema to include new client_id field
+
 2.2.10 -- 2022-06-29
 --------------------
 * Changed DEPLOY_ENV setting to a string (can now take arbitrary values)
