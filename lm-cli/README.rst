@@ -57,6 +57,7 @@ Usage
 | --license-servers <license servers list>                                    |                                                    |
 | --license-server-type <license server type>                                 |                                                    |
 | --grace-time <grace time in seconds>                                        |                                                    |
+| --client-id <cluster identification where the license is configured>        |                                                    |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
 | lm-cli configurations delete --id <id to delete>                            | Delete the configuration with the specified id     |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
@@ -71,17 +72,17 @@ To create a development setup, use ``Poetry`` to create the virtualenv with the 
     $ poetry install
 
 Also create a ``.env`` file with the needed values needed to run the project. These include the License Manager API endpoint and the 
-OICD provider information to retrieve the access token.
+OIDC provider information to retrieve the access token.
 
 .. code-block:: console
 
     $ cat <<EOF > .env
     LM_API_ENDPOINT="<API endpoint>"
-    OICD_DOMAIN="<OICD domain>"
-    OICD_LOGIN_DOMAIN="<OICD login domain>"
-    OICD_AUDIENCE="<OICD audience>"
-    OICD_CLIENT_ID="<OICD client id>"
-    OICD_CLIENT_SECRET="<OICD client secret>"
+    OIDC_DOMAIN="<OIDC domain>"
+    OIDC_LOGIN_DOMAIN="<OIDC login domain>"
+    OIDC_AUDIENCE="<OIDC audience>"
+    OIDC_CLIENT_ID="<OIDC client id>"
+    OIDC_CLIENT_SECRET="<OIDC client secret>"
     EOF
 
 To run the tests, use the Makefile:

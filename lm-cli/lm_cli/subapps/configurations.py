@@ -22,6 +22,7 @@ style_mapper = StyleMapper(
     license_servers="yellow",
     license_server_type="white",
     grace_time="red",
+    client_id="black",
 )
 
 
@@ -140,6 +141,10 @@ def create(
         ...,
         help="The grace time for jobs using the license. Must be in seconds.",
     ),
+    client_id: str = typer.Option(
+        ...,
+        help="The identification (client_id) of the cluster where the license is configured.",
+    ),
 ):
     """
     Create a new configuration.
@@ -157,6 +162,7 @@ def create(
         license_servers=license_servers,
         license_server_type=license_server_type,
         grace_time=grace_time,
+        client_id=client_id,
     )
 
     make_request(
