@@ -46,6 +46,7 @@ booking_table = Table(
 )
 
 booking_searchable_fields = [
+    booking_table.c.job_id,
     booking_table.c.product_feature,
     booking_table.c.lead_host,
     booking_table.c.user_name,

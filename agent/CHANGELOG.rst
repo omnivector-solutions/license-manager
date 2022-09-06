@@ -7,8 +7,9 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
-2.2.12 -- 2022-07-29
+2.2.12 -- 2022-09-06
 --------------------
+* Update backend configuration row schema to include new client_id field
 * Patch code to fit Keycloak's authentication endpoints
 
 2.2.11 -- 2022-07-11
@@ -46,19 +47,19 @@ Unreleased
 * Add LS-Dyna license server support
 * Add LM-X license server support
 
-2.2.3 - 2022-02-09
+2.2.3 -- 2022-02-09
 * Fixed permission error when accessing cached token
 
-2.2.2 - 2022-02-03
+2.2.2 -- 2022-02-03
 ------------------
 * Bump to sync with lm-backend version
 
-2.2.1 - 2022-02-03
+2.2.1 -- 2022-02-03
 ------------------
 * Removed version check from backend
 * Adjusted default token cache dir
 
-2.2.0 - 2022-02-02
+2.2.0 -- 2022-02-02
 ------------------
 * Refactored tokenstat module
 * Remove lmstat binary
@@ -66,12 +67,12 @@ Unreleased
 * Fix rlmutil command path
 * Added auth via Auth0 and removed static token logic
 
-2.1.1 - 2022-01-10
+2.1.1 -- 2022-01-10
 ------------------
 * Remove lmstat binary
 * Raise exception for empty reports on reconciliation
 
-2.1.0 - 2021-12-09
+2.1.0 -- 2021-12-09
 ------------------
 * Added RLM parser
 * Converted agent to a CLI application (from FastAPI with internal scheduler)

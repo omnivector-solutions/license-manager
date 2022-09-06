@@ -159,6 +159,7 @@ class BackendConfigurationRow(BaseModel):
     license_servers: typing.List[str]
     license_server_type: str
     grace_time: int
+    client_id: str
 
 
 class BackendBookingRow(BaseModel):
