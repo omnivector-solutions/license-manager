@@ -109,6 +109,7 @@ def dummy_configuration_data():
             license_servers=["flexlm:127.0.0.1:1234"],
             license_server_type="flexlm",
             grace_time=60,
+            client_id="cluster-staging",
         ),
         dict(
             id=2,
@@ -118,6 +119,7 @@ def dummy_configuration_data():
             license_servers=["rlm:127.0.0.1:2345"],
             license_server_type="rlm",
             grace_time=60,
+            client_id="cluster-staging"
         ),
     ]
 
@@ -133,6 +135,7 @@ def dummy_configuration_data_for_printing():
             license_servers=["flexlm:127.0.0.1:1234"],
             license_server_type="flexlm",
             grace_time="60 (seconds)",
+            client_id="cluster-staging",
         ),
         dict(
             id=2,
@@ -142,5 +145,6 @@ def dummy_configuration_data_for_printing():
             license_servers=["rlm:127.0.0.1:2345"],
             license_server_type="rlm",
             grace_time="60 (seconds)",
+            client_id="cluster-staging",
         ),
     ]

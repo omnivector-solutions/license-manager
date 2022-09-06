@@ -57,6 +57,7 @@ Usage
 | --license-servers <license servers list>                                    |                                                    |
 | --license-server-type <license server type>                                 |                                                    |
 | --grace-time <grace time in seconds>                                        |                                                    |
+| --client-id <cluster identification where the license is configured>        |                                                    |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
 | lm-cli configurations delete --id <id to delete>                            | Delete the configuration with the specified id     |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
