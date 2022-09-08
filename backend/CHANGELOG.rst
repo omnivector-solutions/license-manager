@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.13 -- 2022-09-06
+--------------------
+* Update configuration edit endpoint to allow the client id field to be updated
+
 2.2.12 -- 2022-09-06
 --------------------
 * Add cluster_id column to config table to identify which cluster the configuration applies to
