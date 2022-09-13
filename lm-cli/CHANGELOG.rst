@@ -7,6 +7,9 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 
+2.2.14 -- 2022-09-13
+--------------------
+
 2.2.13 -- 2022-09-06
 --------------------
 * Bumped version to keep in sync with backend
