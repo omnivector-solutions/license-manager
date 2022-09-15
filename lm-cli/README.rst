@@ -79,10 +79,8 @@ OIDC provider information to retrieve the access token.
     $ cat <<EOF > .env
     LM_API_ENDPOINT="<API endpoint>"
     OIDC_DOMAIN="<OIDC domain>"
-    OIDC_LOGIN_DOMAIN="<OIDC login domain>"
     OIDC_AUDIENCE="<OIDC audience>"
     OIDC_CLIENT_ID="<OIDC client id>"
-    OIDC_CLIENT_SECRET="<OIDC client secret>"
     EOF
 
 To run the tests, use the Makefile:
