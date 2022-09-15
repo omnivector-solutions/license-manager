@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         values["LM_API_ACCESS_TOKEN_PATH"] = token_dir / "access.token"
         values["LM_API_REFRESH_TOKEN_PATH"] = token_dir / "refresh.token"
 
-        values.setdefault("OIDC_LOGIN_DOMAIN", values["OIDC_DOMAIN"])
+        values["OIDC_LOGIN_DOMAIN"] = values["OIDC_LOGIN_DOMAIN"] or values["OIDC_DOMAIN"]
 
         return values
 
