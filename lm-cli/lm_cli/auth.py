@@ -265,7 +265,6 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                 client_id=settings.OIDC_CLIENT_ID,
                 grant_type="client_credentials",
                 audience=settings.OIDC_AUDIENCE,
-                client_secret=settings.OIDC_CLIENT_SECRET,
             ),
         ),
     )
@@ -299,7 +298,6 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                     grant_type="urn:ietf:params:oauth:grant-type:device_code",
                     device_code=device_code_data.device_code,
                     client_id=settings.OIDC_CLIENT_ID,
-                    client_secret=settings.OIDC_CLIENT_SECRET,
                 ),
             ),
         )

@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     OIDC_LOGIN_DOMAIN: Optional[str]
     OIDC_AUDIENCE: str
     OIDC_CLIENT_ID: str
-    OIDC_CLIENT_SECRET: str
     OIDC_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 
     IDENTITY_CLAIMS_KEY: str = "email"
