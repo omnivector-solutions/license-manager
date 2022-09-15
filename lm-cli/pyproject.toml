@@ -50,13 +50,12 @@ addopts = [
     "--cov-fail-under=75",
 ]
 env = [
-    "LM_API_ENDPOINT = https://armada-k8s.staging.omnivector.solutions/lm/api/v1",
+    "LM_API_ENDPOINT = https://dummy_api.com/lm/api/v1",
     "LM_DEBUG = false",
     "OIDC_DOMAIN = dummy_auth_domain.com",
     "OIDC_AUDIENCE = https://dummy_auth_audience.com",
     "OIDC_CLIENT_ID = dummy_client_id",
-    "OIDC_CLIENT_SECRET = dummy_client_secret",
-    "IDENTITY_CLAIMS_KEY = https://test-domain.test",
+    "IDENTITY_CLAIMS_KEY = email",
 ]
 
 [tool.black]
