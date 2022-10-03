@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.14 -- 2022-10-03
+--------------------
+* Bumped version to keep in sync with lm-cli
+
 2.2.13 -- 2022-09-06
 --------------------
 * Bumped version to keep in sync with backend

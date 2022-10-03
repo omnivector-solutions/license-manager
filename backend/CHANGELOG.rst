@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.14 -- 2022-10-03
+--------------------
+* Bump to sync with lm-cli version
+
 2.2.13 -- 2022-09-06
 --------------------
 * Update configuration edit endpoint to allow the client id field to be updated
