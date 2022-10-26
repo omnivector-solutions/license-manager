@@ -7,6 +7,10 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 
+2.2.15 -- 2022-10-26
+--------------------
+* Bumped version to keep in sync with lm-agent
+
 2.2.14 -- 2022-10-03
 --------------------
 * Changed Python version to 3.6.2 for compatibility
