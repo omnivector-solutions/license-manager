@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.15 -- 2022-10-26
+--------------------
+* Updated route to fetch licenses' configuration to use cluster specific route
+
 2.2.14 -- 2022-10-03
 --------------------
 * Bumped version to keep in sync with lm-cli
