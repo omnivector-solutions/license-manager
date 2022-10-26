@@ -191,7 +191,7 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
     caplog,
     respx_mock,
 ):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/all").mock(
+    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/agent/all").mock(
         return_value=Response(
             200,
             json=[
@@ -228,7 +228,7 @@ async def test_get_config_from_backend__returns_empty_list_on_connect_error(
     caplog,
     respx_mock,
 ):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/all").mock(
+    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/agent/all").mock(
         side_effect=ConnectError("BOOM"),
     )
     configs = await get_config_from_backend()
