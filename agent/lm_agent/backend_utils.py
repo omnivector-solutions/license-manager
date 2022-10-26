@@ -210,7 +210,7 @@ async def get_config_id_from_backend(product_feature: str) -> int:
 
 async def get_config_from_backend() -> typing.List[BackendConfigurationRow]:
     """Get all config rows from the backend."""
-    path = "/lm/api/v1/config/all"
+    path = "/lm/api/v1/config/agent/all"
 
     try:
         resp = await backend_client.get(path)
