@@ -610,3 +610,19 @@ async def test_is_booking_available(
     )
 
     assert await booking._is_booking_available(booking_row) is True
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature(
+    some_config_rows,
+    some_licenses,
+    insert_objects,
+):
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+
+    assert await booking._get_limit_for_booking_feature("hello.world") == 100
+    assert await booking._get_limit_for_booking_feature("hello.dolly") == 80
+    assert await booking._get_limit_for_booking_feature("cool.beans") == 11
+    assert await booking._get_limit_for_booking_feature("limited.license") == 40
