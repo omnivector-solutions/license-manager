@@ -619,6 +619,7 @@ async def test_get_limit_for_booking_feature(
     some_licenses,
     insert_objects,
 ):
+    """Test that the correct limit is returned for a given feature."""
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
 
