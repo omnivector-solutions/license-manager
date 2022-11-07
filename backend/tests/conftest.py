@@ -11,7 +11,6 @@ from httpx import AsyncClient
 from pydantic import BaseModel
 from pytest import fixture
 
-from lm_backend.api_schemas import LicenseUseReconcile as LUR
 from lm_backend.config import settings
 from lm_backend.main import app as backend_app
 from lm_backend.storage import database
@@ -110,34 +109,6 @@ async def backend_client():
 
     async with AsyncClient(app=backend_app, base_url="http://test") as ac:
         yield ac
-
-
-@fixture
-def some_licenses():
-    """
-    Some LicenseUse bookings
-    """
-    inserts = [
-        LUR(
-            product_feature="hello.world",
-            total=100,
-            used=19,
-            used_licenses=[{"booked": 19, "lead_host": "host1", "user_name": "user1"}],
-        ),
-        LUR(
-            product_feature="hello.dolly",
-            total=80,
-            used=11,
-            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
-        ),
-        LUR(
-            product_feature="cool.beans",
-            total=11,
-            used=11,
-            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
-        ),
-    ]
-    return inserts
 
 
 @fixture
