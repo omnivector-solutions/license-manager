@@ -7,6 +7,10 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 
+2.2.16-alpha.0 -- 2022-11-07
+----------------------------
+* Updated configuration create command help text to include new configuration format
+
 2.2.15 -- 2022-10-26
 --------------------
 * Bumped version to keep in sync with lm-agent
