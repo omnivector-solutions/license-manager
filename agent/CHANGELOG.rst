@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.16-alpha.0 -- 2022-11-07
+----------------------------
+* Updated configuration row to use new feature quantities format
+
 2.2.15 -- 2022-10-26
 --------------------
 * Updated route to fetch licenses' configuration to use cluster specific route
