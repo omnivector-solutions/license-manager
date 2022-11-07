@@ -105,7 +105,7 @@ async def get_bookings_job(job_id: str):
     return [BookingRow.parse_obj(x) for x in fetched]
 
 
-async def _get_limit_for_booking_feature(product_feature: str):
+async def _get_limit_for_booking_feature(product_feature: str) -> int:
     """
     Get the maximum amount of licenses that can be booked.
     If the limit is the same as the total amount of licenses, all licenses can be booked.
@@ -124,7 +124,7 @@ async def _get_limit_for_booking_feature(product_feature: str):
     return config_item.features[feature]["limit"]
 
 
-async def _is_booking_available(booking: Booking):
+async def _is_booking_available(booking: Booking) -> bool:
     """
     Check if the total needed for the booking + in_use_total is lower than the limit for the feature.
     If it's not, then there are no more bookings available.
