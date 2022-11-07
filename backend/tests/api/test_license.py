@@ -63,15 +63,15 @@ async def test_find_license_updates_and_inserts(some_licenses):
     # initially, everything should be an insert
     updates, inserts = await license._find_license_updates_and_inserts(some_licenses)
     assert len(updates) == 0
-    assert len(inserts) == 3
+    assert len(inserts) == 4
 
-    # let's insert 2 of the three
+    # let's insert 3 of the four
     del inserts["cool.beans"]
     await database.execute_many(query=license_table.insert(), values=[i.dict() for i in inserts.values()])
 
-    # try again, now 2 should be updates and 2 should be inserts
+    # try again, now 3 should be updates and 1 should be inserts
     updates, inserts = await license._find_license_updates_and_inserts(some_licenses)
-    assert list(updates.keys()) == ["hello.dolly", "hello.world"]
+    assert list(updates.keys()) == ["hello.dolly", "hello.world", "limited.license"]
     assert list(inserts.keys()) == ["cool.beans"]
 
 
@@ -197,6 +197,7 @@ async def test_licenses_with_booking_all__success(
             available=69,
         ),
         dict(product_feature="hello.world", total=100, used=19, booked=0, available=81),
+        dict(product_feature="limited.license", total=50, used=40, booked=0, available=10),
     ]
 
 
@@ -222,6 +223,7 @@ async def test_licenses_all__success(
             available=69,
         ),
         dict(product_feature="hello.world", total=100, used=19, available=81),
+        dict(product_feature="limited.license", total=50, used=40, available=10),
     ]
 
 
@@ -250,7 +252,7 @@ async def test_licenses_all__with_search(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_licenses_all__success(
+async def test_licenses_all__with_sort(
     backend_client: AsyncClient, some_licenses, insert_objects, inject_security_header
 ):
     """
@@ -269,6 +271,7 @@ async def test_licenses_all__success(
             used=11,
             available=69,
         ),
+        dict(product_feature="limited.license", total=50, used=40, available=10),
         dict(product_feature="cool.beans", total=11, used=11, available=0),
     ]
 
@@ -366,7 +369,7 @@ async def test_clean_up_in_use_booking_conversion(delete_in_use_mock: mock.Async
             used=19, product_feature="hello.world", total=100, used_licenses=used_licenses
         ),
         LicenseUseReconcileRequest(
-            used=11, product_feature="hello.dolly", total=100, used_licenses=used_licenses
+            used=11, product_feature="hello.dolly", total=80, used_licenses=used_licenses
         ),
     ]
 
