@@ -27,7 +27,7 @@ RX_IN_USE = re.compile(IN_USE_LINE)
 RX_USAGE = re.compile(USAGE_LINE)
 
 
-def parse_feature_line(line: str) -> Optional[str]:
+def parse_feature_line(line: str) -> Optional[dict]:
     """
     Parse the feature line in the OLicense output.
     Data we need:
@@ -49,7 +49,7 @@ def parse_feature_line(line: str) -> Optional[str]:
     }
 
 
-def parse_in_use_line(line: str) -> Optional[dict]:
+def parse_in_use_line(line: str) -> Optional[int]:
     """
     Parse the in use line in the Olicense output.
     Data we need:
