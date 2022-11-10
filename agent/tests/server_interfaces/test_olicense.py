@@ -77,7 +77,7 @@ async def test_olicense_get_report_item_with_bad_output(
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.olicense.OLicenseLicenseServer.get_output_from_server")
-async def test_lmx_get_report_item_with_no_used_licenses(
+async def test_olicense_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock,
     olicense_server: OLicenseLicenseServer,
     olicense_output_no_licenses: str,
