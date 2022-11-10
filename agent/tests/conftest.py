@@ -1,5 +1,5 @@
 """
-Configuration of pytest for agent tests
+Configuration of pytest for agent tests.
 """
 from pathlib import Path
 from textwrap import dedent
@@ -17,6 +17,7 @@ MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
 
 @fixture(autouse=True)
 def mock_cache_dir(tmp_path):
+    """Mock a cache directory."""
     _cache_dir = tmp_path / "license-manager-cache"
     assert not _cache_dir.exists()
     with patch("lm_agent.config.settings.CACHE_DIR", new=_cache_dir):
@@ -25,6 +26,7 @@ def mock_cache_dir(tmp_path):
 
 @fixture
 def license_servers():
+    """List of license servers."""
     return ["172.0.1.2 2345", "172.0.1.3 2345"]
 
 
@@ -44,6 +46,7 @@ def respx_mock():
 
 @fixture
 def one_configuration_row_flexlm():
+    """A FlexLM configuration row."""
     return BackendConfigurationRow(
         product="testproduct",
         features={"testfeature": 10},
@@ -56,6 +59,7 @@ def one_configuration_row_flexlm():
 
 @fixture
 def one_configuration_row_rlm():
+    """A RLM configuration row."""
     return BackendConfigurationRow(
         product="converge",
         features={"converge_super": 10},
@@ -68,6 +72,7 @@ def one_configuration_row_rlm():
 
 @fixture
 def one_configuration_row_lsdyna():
+    """A LSDyna configuration row."""
     return BackendConfigurationRow(
         product="mppdyna",
         features={"mppdyna": 500},
@@ -80,6 +85,7 @@ def one_configuration_row_lsdyna():
 
 @fixture
 def one_configuration_row_lmx():
+    """A LM-X configuration row."""
     return BackendConfigurationRow(
         product="hyperworks",
         features={"hyperworks": 1000000},
@@ -92,6 +98,7 @@ def one_configuration_row_lmx():
 
 @fixture
 def one_configuration_row_olicense():
+    """An OLicense configuration row."""
     return BackendConfigurationRow(
         product="cosin",
         features={"ftire_adams": 4},
@@ -104,6 +111,7 @@ def one_configuration_row_olicense():
 
 @fixture
 def scontrol_show_lic_output_flexlm():
+    """An output of scontrol show lic command for FlexLM license."""
     return dedent(
         """
         LicenseName=testproduct.testfeature@flexlm
@@ -114,6 +122,7 @@ def scontrol_show_lic_output_flexlm():
 
 @fixture
 def scontrol_show_lic_output_rlm():
+    """An output of scontrol show lic command for RLM license."""
     return dedent(
         """
         LicenseName=converge.converge_super@rlm
@@ -124,6 +133,7 @@ def scontrol_show_lic_output_rlm():
 
 @fixture
 def scontrol_show_lic_output_lsdyna():
+    """An output of scontrol show lic command for LSDyna license."""
     return dedent(
         """
         LicenseName=mppdyna.mppdyna@lsdyna
@@ -134,6 +144,7 @@ def scontrol_show_lic_output_lsdyna():
 
 @fixture
 def scontrol_show_lic_output_lmx():
+    """An output of scontrol show lic command for LM-X license."""
     return dedent(
         """
         LicenseName=hyperworks.hyperworks@lmx
@@ -144,6 +155,7 @@ def scontrol_show_lic_output_lmx():
 
 @fixture
 def scontrol_show_lic_output_olicense():
+    """An output of scontrol show lic command for OLicense license."""
     return dedent(
         """
         LicenseName=cosin.ftire_adams@olicense
@@ -154,9 +166,7 @@ def scontrol_show_lic_output_olicense():
 
 @fixture
 def lmstat_output_bad():
-    """
-    Some unparseable lmstat output
-    """
+    """Some unparseable lmstat output."""
     return dedent(
         """\
         lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
@@ -169,9 +179,7 @@ def lmstat_output_bad():
 
 @fixture
 def lmstat_output():
-    """
-    Some lmstat output to parse
-    """
+    """Some lmstat output to parse."""
     return dedent(
         """\
         lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
@@ -194,9 +202,7 @@ def lmstat_output():
 
 @fixture
 def lmstat_output_no_licenses():
-    """
-    Some lmstat output with no licenses in use to parse
-    """
+    """Some lmstat output with no licenses in use to parse."""
     return dedent(
         """\
         lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
@@ -212,9 +218,7 @@ def lmstat_output_no_licenses():
 
 @fixture
 def rlm_output_bad():
-    """
-    Some unparseable lmstat output
-    """
+    """Some unparseable rlm output."""
     return dedent(
         """\
         rlmutil v12.2
@@ -232,9 +236,7 @@ def rlm_output_bad():
 
 @fixture
 def rlm_output():
-    """
-    Some rlm output to parse
-    """
+    """Some rlm output to parse."""
     return dedent(
         """\
         Setting license file path to 10@licserv.server.com
@@ -312,9 +314,7 @@ def rlm_output():
 
 @fixture
 def rlm_output_no_licenses():
-    """
-    Some rlm output with no licenses in use to parse
-    """
+    """Some rlm output with no licenses in use to parse."""
     return dedent(
         """\
         Setting license file path to 35015@licserv0011.com:35015@licserv0012.com
@@ -382,22 +382,18 @@ def rlm_output_no_licenses():
 
 @fixture
 def lsdyna_output_bad():
-    """
-    Some unparseable lsdyna output
-    """
+    """Some unparseable lsdyna output."""
     return dedent(
         """\
-		Using default server 31010@localhost
-		*** ERROR failed to open server localhost
-		"""
+        Using default server 31010@localhost
+        *** ERROR failed to open server localhost
+        """
     )
 
 
 @fixture
 def lsdyna_output():
-    """
-    Some lsdyna output to parse
-    """
+    """Some lsdyna output to parse."""
     return dedent(
         """\
         Using user specified server 31010@licserv0004.com
@@ -427,9 +423,7 @@ def lsdyna_output():
 
 @fixture
 def lsdyna_output_no_licenses():
-    """
-    Some lsdyna output with no licenses in use to parse
-    """
+    """Some lsdyna output with no licenses in use to parse."""
     return dedent(
         """\
         Using user specified server 31010@licserv0004.com
@@ -453,9 +447,7 @@ def lsdyna_output_no_licenses():
 
 @fixture
 def lmx_output_bad():
-    """
-    Some unparseable  output
-    """
+    """Some unparseable LM-X output."""
     return dedent(
         """\
         LM-X End-user Utility v3.32
@@ -471,9 +463,7 @@ def lmx_output_bad():
 
 @fixture
 def lmx_output():
-    """
-    Some LM-X output to parse
-    """
+    """Some LM-X output to parse."""
     return dedent(
         """\
         LM-X End-user Utility v3.32
@@ -551,9 +541,7 @@ def lmx_output():
 
 @fixture
 def lmx_output_no_licenses():
-    """
-    Some LM-X output with no licenses in use to parse
-    """
+    """Some LM-X output with no licenses in use to parse."""
     return dedent(
         """\
         LM-X End-user Utility v3.32
@@ -611,9 +599,7 @@ def lmx_output_no_licenses():
 
 @fixture
 def olicense_output_bad():
-    """
-    Some OLicense unparseable  output
-    """
+    """Some OLicense unparseable  output."""
     return dedent(
         """\
         olixtool 4.8.0 - OLicense XML Status Application
@@ -628,9 +614,7 @@ def olicense_output_bad():
 
 @fixture
 def olicense_output():
-    """
-    Some OLicense output to parse
-    """
+    """Some OLicense output to parse."""
     return dedent(
         """\
         olixtool 4.8.0 - OLicense XML Status Application
@@ -674,9 +658,7 @@ def olicense_output():
 
 @fixture
 def olicense_output_no_licenses():
-    """
-    Some OLicense output with no licenses in use to parse
-    """
+    """Some OLicense output with no licenses in use to parse."""
     return dedent(
         """\
         olixtool 4.8.0 - OLicense XML Status Application
