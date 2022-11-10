@@ -91,6 +91,18 @@ def one_configuration_row_lmx():
 
 
 @fixture
+def one_configuration_row_olicense():
+    return BackendConfigurationRow(
+        product="cosin",
+        features={"ftire_adams": 4},
+        license_servers=["olicense:127.0.0.1:2345"],
+        license_server_type="olicense",
+        grace_time=10000,
+        client_id="cluster-staging",
+    )
+
+
+@fixture
 def scontrol_show_lic_output_flexlm():
     return dedent(
         """
@@ -126,6 +138,16 @@ def scontrol_show_lic_output_lmx():
         """
         LicenseName=hyperworks.hyperworks@lmx
             Total=1000000 Used=0 Free=500 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
+def scontrol_show_lic_output_olicense():
+    return dedent(
+        """
+        LicenseName=cosin.ftire_adams@olicense
+            Total=4 Used=0 Free=4 Reserved=0 Remote=yes
         """
     )
 
@@ -583,5 +605,107 @@ def lmx_output_no_licenses():
         Key type: EXCLUSIVE License sharing: CUSTOM VIRTUAL
 
         0 of 1000000 license(s) used
+        """
+    )
+
+
+@fixture
+def olicense_output_bad():
+    """
+    Some OLicense unparseable  output
+    """
+    return dedent(
+        """\
+        olixtool 4.8.0 - OLicense XML Status Application
+        Copyright (C) 2007-2013 Optimum GmbH, Karlsruhe, Germany
+
+        Server: <123:80:0> (Proxy: <>)
+
+        OlComm 454 Request cannot connect to target
+        """
+    )
+
+
+@fixture
+def olicense_output():
+    """
+    Some OLicense output to parse
+    """
+    return dedent(
+        """\
+        olixtool 4.8.0 - OLicense XML Status Application
+        Copyright (C) 2007-2013 Optimum GmbH, Karlsruhe, Germany
+
+        Server: <138.106.32.97:31212:0> (Proxy: <>)
+
+        List of requested licenses:
+
+        ==============================================
+        Application:	cosin
+        VersionRange:	0-20231
+        Licenser:	cosin scientific software
+        Licensee:	Tomas Fjällström
+        License-ID:	cosin-faf71fdc@cos550218
+        Modules:
+          Name; LicenseType; FloatCount; Expiration
+          --------------------------------------------
+          ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;
+            2 FloatsLockedBy:
+              sbhyma@RD0087712 #1
+              sbhyma@RD0087713 #2
+
+            1 FloatsLockedBy:
+              user22@RD0087713 #1
+
+
+        ==============================================
+        Application:	cosin
+        VersionRange:	0-20231
+        Licenser:	cosin scientific software
+        Licensee:	Tomas Fjällström
+        License-ID:	cosin-faf71fdc@cos558164
+        Modules:
+          Name; LicenseType; FloatCount; Expiration
+          --------------------------------------------
+          ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;
+        """
+    )
+
+
+@fixture
+def olicense_output_no_licenses():
+    """
+    Some OLicense output with no licenses in use to parse
+    """
+    return dedent(
+        """\
+        olixtool 4.8.0 - OLicense XML Status Application
+        Copyright (C) 2007-2013 Optimum GmbH, Karlsruhe, Germany
+
+        Server: <138.106.32.97:31212:0> (Proxy: <>)
+
+        List of requested licenses:
+
+        ==============================================
+        Application:	cosin
+        VersionRange:	0-20231
+        Licenser:	cosin scientific software
+        Licensee:	Tomas Fjällström
+        License-ID:	cosin-faf71fdc@cos550218
+        Modules:
+          Name; LicenseType; FloatCount; Expiration
+          --------------------------------------------
+          ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;	
+
+        ==============================================
+        Application:	cosin
+        VersionRange:	0-20231
+        Licenser:	cosin scientific software
+        Licensee:	Tomas Fjällström
+        License-ID:	cosin-faf71fdc@cos558164
+        Modules:
+          Name; LicenseType; FloatCount; Expiration
+          --------------------------------------------
+          ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;	
         """
     )
