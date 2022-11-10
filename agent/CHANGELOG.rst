@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Add OLicense license server support
 
 2.2.15 -- 2022-10-26
 --------------------
