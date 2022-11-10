@@ -254,6 +254,64 @@ async def test_lmx_get_report(
 
 
 @mark.asyncio
+@mark.parametrize(
+    "output,reconciliation",
+    [
+        (
+            "olicense_output",
+            [
+                {
+                    "product_feature": "cosin.ftire_adams",
+                    "used": 3,
+                    "total": 4,
+                    "used_licenses": [
+                        {"user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1},
+                        {"user_name": "sbhyma", "lead_host": "RD0087713", "booked": 1},
+                        {"user_name": "user22", "lead_host": "RD0087713", "booked": 1},
+                    ],
+                },
+            ],
+        ),
+        (
+            "olicense_output_no_licenses",
+            [
+                {
+                    "product_feature": "cosin.ftire_adams",
+                    "used": 0,
+                    "total": 4,
+                    "used_licenses": [],
+                },
+            ],
+        ),
+    ],
+)
+@mock.patch("lm_agent.server_interfaces.olicense.OLicenseLicenseServer.get_output_from_server")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+async def test_olicense_get_report(
+    get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+    get_output_from_server_mock: mock.MagicMock,
+    output: str,
+    reconciliation: dict,
+    one_configuration_row_olicense: BackendConfigurationRow,
+    scontrol_show_lic_output_olicense: str,
+    request,
+):
+    """
+    Do I get a report for the OLicense licenses in the cluster?
+    """
+    get_config_from_backend_mock.return_value = [one_configuration_row_olicense]
+    show_lic_mock.return_value = scontrol_show_lic_output_olicense
+
+    output = request.getfixturevalue(output)
+    get_output_from_server_mock.return_value = output
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == reconciliation
+
+
+@mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.tokenstat.get_config_from_backend")
 async def test_flexlm_report_with_empty_backend(
@@ -320,6 +378,24 @@ async def test_lmx_report_with_empty_backend(
     """
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_lmx
+
+    reconcile_list = await tokenstat.report()
+    assert reconcile_list == []
+
+
+@mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
+@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+async def test_olicense_report_with_empty_backend(
+    get_config_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+    scontrol_show_lic_output_olicense: str,
+):
+    """
+    Do I collect the requested structured data when the backend is empty?
+    """
+    get_config_from_backend_mock.return_value = []
+    show_lic_mock.return_value = scontrol_show_lic_output_olicense
 
     reconcile_list = await tokenstat.report()
     assert reconcile_list == []
