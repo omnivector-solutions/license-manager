@@ -100,12 +100,25 @@ def parse(server_output: str) -> dict:
     -``in use line``: info about licenses in use
     -``usage line``: info about users using licenses
 
-    Since the "in use" and "usage" linea don't have the name of the license in use,
+    Since the "in use" and "usage" lines don't have the name of the license in use,
     we're saving each parsed license in a list. This way, we can find which
     license is being used by checking the last parsed license in the list.
 
     If a feature has more than one license associated with it, the total amount
     of licenses is the sum of all licenses with the same name.
+
+    Example of output:
+        ...
+        ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;
+        1 FloatsLockedBy:
+        sbhyma@RD0087712 #1
+        ...
+        ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;
+
+    This would be parsed as:
+        "ftire_adams": {"total": 4, "used" 1, "uses": {
+            "user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1
+        }}
     """
     parsed_data: dict = {}
     feature_list: list = []
