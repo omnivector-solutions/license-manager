@@ -91,6 +91,46 @@ def one_configuration_row_lmx():
 
 
 @fixture
+def scontrol_show_lic_output_flexlm():
+    return dedent(
+        """
+        LicenseName=testproduct.testfeature@flexlm
+            Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
+def scontrol_show_lic_output_rlm():
+    return dedent(
+        """
+        LicenseName=converge.converge_super@rlm
+            Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
+def scontrol_show_lic_output_lsdyna():
+    return dedent(
+        """
+        LicenseName=mppdyna.mppdyna@lsdyna
+            Total=500 Used=0 Free=500 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
+def scontrol_show_lic_output_lmx():
+    return dedent(
+        """
+        LicenseName=hyperworks.hyperworks@lmx
+            Total=1000000 Used=0 Free=500 Reserved=0 Remote=yes
+        """
+    )
+
+
+@fixture
 def lmstat_output_bad():
     """
     Some unparseable lmstat output
