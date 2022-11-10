@@ -29,7 +29,7 @@ RX_USAGE = re.compile(USAGE_LINE)
 
 def parse_feature_line(line: str) -> Optional[dict]:
     """
-    Parse the feature line in the OLicense output.
+    Parse the "feature" line in the OLicense output.
     Data we need:
     - ``feature``: license name
     - ``total``: total amount of licenses
@@ -51,15 +51,15 @@ def parse_feature_line(line: str) -> Optional[dict]:
 
 def parse_in_use_line(line: str) -> Optional[int]:
     """
-    Parse the in use line in the Olicense output.
+    Parse the "in use" line in the Olicense output.
     Data we need:
     - ``in_use``: quantity of licenses being used by each user
 
     Obs: this line doesn't include the license name.
     The license in use is the last one parsed before this line.
     It also doesn't include the user name.
-    The user using the license is the next usage line parsed after this line.
-    The total amount of licenses being used is the sum of all in use lines.
+    The user using the license is the next "usage" line parsed after this line.
+    The total amount of licenses being used is the sum of all "in use" lines.
     """
 
     parsed_in_use = RX_IN_USE.match(line)
@@ -100,7 +100,7 @@ def parse(server_output: str) -> dict:
     -``in use line``: info about licenses in use
     -``usage line``: info about users using licenses
 
-    Since the in use and usage line don't have the name of the license in use,
+    Since the "in use" and "usage" linea don't have the name of the license in use,
     we're saving each parsed license in a list. This way, we can find which
     license is being used by checking the last parsed license in the list.
 
