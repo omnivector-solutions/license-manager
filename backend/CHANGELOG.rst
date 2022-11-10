@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Updated license configuration to include a limit of how many features can be booked
 
 2.2.15 -- 2022-10-26
 --------------------
