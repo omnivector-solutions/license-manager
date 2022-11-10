@@ -634,11 +634,9 @@ def olicense_output():
           Name; LicenseType; FloatCount; Expiration
           --------------------------------------------
           ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;
-            2 FloatsLockedBy:
+            3 FloatsLockedBy:
               sbhyma@RD0087712 #1
-              sbhyma@RD0087713 #2
-
-            1 FloatsLockedBy:
+              sbhyma@RD0087713 #1
               user22@RD0087713 #1
 
 

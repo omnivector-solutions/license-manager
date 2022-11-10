@@ -20,7 +20,7 @@ FEATURE_LINE = (
 
 IN_USE_LINE = rf"^\s+(?P<in_use>{INT})\s+FloatsLockedBy:$"
 
-USAGE_LINE = rf"^\s+(?P<user>\S+)@(?P<lead_host>{HOSTNAME})\s+#{INT}$"
+USAGE_LINE = rf"^\s+(?P<user>\S+)@(?P<lead_host>{HOSTNAME})\s+#(?P<booked>{INT})$"
 
 RX_FEATURE = re.compile(FEATURE_LINE)
 RX_IN_USE = re.compile(IN_USE_LINE)
@@ -59,7 +59,6 @@ def parse_in_use_line(line: str) -> Optional[int]:
     The license in use is the last one parsed before this line.
     It also doesn't include the user name.
     The user using the license is the next usage line parsed after this line.
-    This line is printed for each user using the license.
     The total amount of licenses being used is the sum of all in use lines.
     """
 
@@ -77,11 +76,10 @@ def parse_usage_line(line: str) -> Optional[dict]:
     Data we need:
     -``user_name``: user who booked the license
     -``lead_host``: host using the license
+    -``booked``: quantity of licenses booked by the user
 
     Obs: this line also doesn't include the license name.
     The license in use is the last one parsed before this line.
-    It also doesn't include the quantity of licenses being used.
-    Since this line is printed for each license used by the user, the booked quantity is always 1.
     """
     parsed_usage = RX_USAGE.match(line)
     if parsed_usage is None:
@@ -91,7 +89,7 @@ def parse_usage_line(line: str) -> Optional[dict]:
     return {
         "user_name": usage_data["user"],
         "lead_host": usage_data["lead_host"],
-        "booked": 1,
+        "booked": int(usage_data["booked"]),
     }
 
 
