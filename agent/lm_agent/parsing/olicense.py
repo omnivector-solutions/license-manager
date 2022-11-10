@@ -125,9 +125,6 @@ def parse(server_output: str) -> dict:
 
     for line in server_output.splitlines():
         parsed_feature = parse_feature_line(line)
-        parsed_in_use = parse_in_use_line(line)
-        parsed_usage = parse_usage_line(line)
-
         if parsed_feature:
             feature = parsed_feature["feature"]
             total = parsed_feature["total"]
@@ -136,10 +133,16 @@ def parse(server_output: str) -> dict:
                 parsed_data[feature] = {"used": 0, "total": total, "uses": []}
             else:
                 parsed_data[feature]["total"] += total
-        elif parsed_in_use:
+            continue
+
+        parsed_in_use = parse_in_use_line(line)
+        if parsed_in_use:
             feature = feature_list[-1]
             parsed_data[feature]["used"] += parsed_in_use
-        elif parsed_usage:
+            continue
+
+        parsed_usage = parse_usage_line(line)
+        if parsed_usage:
             feature = feature_list[-1]
             parsed_data[feature]["uses"].append(parsed_usage)
 
