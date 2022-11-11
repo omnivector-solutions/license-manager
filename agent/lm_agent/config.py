@@ -63,6 +63,9 @@ class Settings(BaseSettings):
     # path to the binary for lmxendutil (needed for LM-X licenses)
     LMXENDUTIL_PATH: Path = _DEFAULT_BIN_PATH
 
+    # path to the binary for olixtool (needed for OLicense licenses)
+    OLIXTOOL_PATH: Path = _DEFAULT_BIN_PATH
+
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 

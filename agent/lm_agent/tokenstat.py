@@ -11,6 +11,7 @@ from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
+from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
 from lm_agent.workload_managers.slurm.cmd_utils import get_all_product_features_from_cluster
 
@@ -64,6 +65,7 @@ async def report() -> typing.List[dict]:
         rlm=RLMLicenseServer,
         lsdyna=LSDynaLicenseServer,
         lmx=LMXLicenseServer,
+        olicense=OLicenseLicenseServer,
     )
 
     for entry in filtered_entries:
