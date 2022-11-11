@@ -48,7 +48,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/license/complete/all",
+            "/lm/api/v1/license/complete/all",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve license list from API",

@@ -7,6 +7,7 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 * Updated configuration create command help text to include new configuration format
+* Updated requests to the backend API to use full path for routes
 
 2.2.15 -- 2022-10-26
 --------------------
