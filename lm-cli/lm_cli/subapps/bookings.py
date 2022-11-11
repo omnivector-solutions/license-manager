@@ -51,7 +51,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/booking/all",
+            "/lm/api/v1/booking/all",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve booking list from API",

@@ -52,7 +52,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/config/all",
+            "/lm/api/v1/config/all",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve configuration list from API",
@@ -92,7 +92,7 @@ def get_one(
         Dict,
         make_request(
             lm_ctx.client,
-            f"/config/{id}",
+            f"/lm/api/v1/config/{id}",
             "GET",
             expected_status=200,
             abort_message="Couldn't get the configuration from the API",
@@ -173,7 +173,7 @@ def create(
 
     make_request(
         lm_ctx.client,
-        "/config/",
+        "/lm/api/v1/config/",
         "POST",
         expected_status=200,
         abort_message="Couldn't create configuration",
@@ -207,7 +207,7 @@ def delete(
 
     make_request(
         lm_ctx.client,
-        f"/config/{id}",
+        f"/lm/api/v1/config/{id}",
         "DELETE",
         expected_status=200,
         abort_message="Request to delete configuration was not accepted by the API",
