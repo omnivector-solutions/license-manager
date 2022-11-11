@@ -198,7 +198,12 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
                 # Valid config row
                 dict(
                     product="SomeProduct",
-                    features={"A": 1, "list": 2, "of": 3, "features": 4},
+                    features={
+                        "A": {"total": 1, "limit": 1},
+                        "list": {"total": 2, "limit": 2},
+                        "of": {"total": 3, "limit": 3},
+                        "features": {"total": 4, "limit": 4},
+                    },
                     license_servers=["A", "list", "of", "license", "servers"],
                     license_server_type="O-Negative",
                     grace_time=13,
@@ -209,7 +214,12 @@ async def test_get_config_from_backend__omits_invalid_config_rows(
                 # Another valid conig row
                 dict(
                     product="AnotherProduct",
-                    features={"A": 1, "colletion": 2, "of": 3, "features": 4},
+                    features={
+                        "A": {"total": 1, "limit": 1},
+                        "colletion": {"total": 2, "limit": 2},
+                        "of": {"total": 3, "limit": 3},
+                        "features": {"total": 4, "limit": 4},
+                    },
                     license_servers=["A", "collection", "of", "license", "servers"],
                     license_server_type="AB-Positive",
                     grace_time=21,

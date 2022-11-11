@@ -1,6 +1,7 @@
 from pytest import fixture
 
 from lm_backend.api_schemas import BookingRow, ConfigurationRow
+from lm_backend.api_schemas import LicenseUseReconcile as LUR
 
 
 @fixture
@@ -13,7 +14,7 @@ def some_config_rows():
             id=1,
             name="HelloDolly",
             product="hello",
-            features='{"world": 10, "dolly": 10}',
+            features='{"world": {"total": 100, "limit": 100}, "dolly": {"total": 80, "limit": 80}}',
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
@@ -23,7 +24,17 @@ def some_config_rows():
             id=2,
             name="CoolBeans",
             product="cool",
-            features='{"beans": 10}',
+            features='{"beans": {"total": 11, "limit": 11}}',
+            license_servers=["bla"],
+            license_server_type="test",
+            grace_time=10,
+            client_id="cluster-staging",
+        ),
+        ConfigurationRow(
+            id=3,
+            name="LimitedLicense",
+            product="limited",
+            features='{"license": {"total": 50, "limit": 40}}',
             license_servers=["bla"],
             license_server_type="test",
             grace_time=10,
@@ -68,4 +79,48 @@ def some_booking_rows():
             user_name="user1",
             cluster_name="cluster1",
         ),
+        BookingRow(
+            id=4,
+            job_id="limitedlicense",
+            product_feature="limited.license",
+            booked=40,
+            config_id=3,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
     ]
+
+
+@fixture
+def some_licenses():
+    """
+    Some LicenseUse bookings
+    """
+    inserts = [
+        LUR(
+            product_feature="hello.world",
+            total=100,
+            used=19,
+            used_licenses=[{"booked": 19, "lead_host": "host1", "user_name": "user1"}],
+        ),
+        LUR(
+            product_feature="hello.dolly",
+            total=80,
+            used=11,
+            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
+        ),
+        LUR(
+            product_feature="cool.beans",
+            total=11,
+            used=11,
+            used_licenses=[{"booked": 11, "lead_host": "host1", "user_name": "user1"}],
+        ),
+        LUR(
+            product_feature="limited.license",
+            total=50,
+            used=40,
+            used_licenses=[{"booked": 40, "lead_host": "host1", "user_name": "user1"}],
+        ),
+    ]
+    return inserts

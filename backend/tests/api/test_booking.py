@@ -132,7 +132,7 @@ async def test_get_bookings_for_cluster_name__success(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
     booking = BookingRow(
-        id=4,
+        id=5,
         job_id="99",
         product_feature="hello.world",
         booked=1,
@@ -149,7 +149,7 @@ async def test_get_bookings_for_cluster_name__success(
     assert resp.status_code == 200
     assert resp.json() == [
         dict(
-            id=4,
+            id=5,
             job_id="99",
             product_feature="hello.world",
             booked=1,
@@ -178,7 +178,7 @@ async def test_get_bookings__fails_on_bad_permission(
     await insert_objects(some_config_rows, table_schemas.config_table)
     await insert_objects(some_booking_rows, table_schemas.booking_table)
     booking = BookingRow(
-        id=4,
+        id=5,
         job_id="99",
         product_feature="hello.world",
         booked=1,
@@ -263,6 +263,16 @@ async def test_bookings_all__basic(
             user_name="user1",
             cluster_name="cluster1",
         ),
+        dict(
+            id=4,
+            job_id="limitedlicense",
+            product_feature="limited.license",
+            booked=40,
+            config_id=3,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
     ]
 
 
@@ -334,6 +344,16 @@ async def test_bookings_all__with_search(
             user_name="user1",
             cluster_name="cluster1",
         ),
+        dict(
+            id=4,
+            job_id="limitedlicense",
+            product_feature="limited.license",
+            booked=40,
+            config_id=3,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
     ]
 
 
@@ -385,6 +405,16 @@ async def test_bookings_all__with_sort(
             product_feature="hello.world",
             booked=19,
             config_id=1,
+            lead_host="host1",
+            user_name="user1",
+            cluster_name="cluster1",
+        ),
+        dict(
+            id=4,
+            job_id="limitedlicense",
+            product_feature="limited.license",
+            booked=40,
+            config_id=3,
             lead_host="host1",
             user_name="user1",
             cluster_name="cluster1",
@@ -472,7 +502,7 @@ async def test_booking_create_negative_booked_error(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
-async def test_booking_create_booked_greater_than_total(
+async def test_booking_create_booked_greater_than_limit(
     backend_client,
     some_config_rows,
     some_licenses,
@@ -480,12 +510,12 @@ async def test_booking_create_booked_greater_than_total(
     inject_security_header,
 ):
     """This test proves that the correct response (400) is returned when a booking
-    request exceeds the total available by asserting that the response detail contains
-    the string "<= total".
+    request exceeds the limit of licenses  available by asserting that the response
+    detail contains the string "<= total".
     """
     await insert_objects(some_licenses, table_schemas.license_table)
     await insert_objects(some_config_rows, table_schemas.config_table)
-    features = BookingFeature(booked=1000, product_feature="hello.world")
+    features = BookingFeature(booked=5, product_feature="limited.license")
     booking = Booking(
         job_id=1, features=[features], lead_host="host1", user_name="user1", cluster_name="cluster1"
     )
@@ -580,3 +610,20 @@ async def test_is_booking_available(
     )
 
     assert await booking._is_booking_available(booking_row) is True
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature(
+    some_config_rows,
+    some_licenses,
+    insert_objects,
+):
+    """Test that the correct limit is returned for a given feature."""
+    await insert_objects(some_licenses, table_schemas.license_table)
+    await insert_objects(some_config_rows, table_schemas.config_table)
+
+    assert await booking._get_limit_for_booking_feature("hello.world") == 100
+    assert await booking._get_limit_for_booking_feature("hello.dolly") == 80
+    assert await booking._get_limit_for_booking_feature("cool.beans") == 11
+    assert await booking._get_limit_for_booking_feature("limited.license") == 40

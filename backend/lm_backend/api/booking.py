@@ -1,6 +1,7 @@
 """
 Booking objects and routes
 """
+from ast import literal_eval
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -8,7 +9,15 @@ from sqlalchemy.sql import delete, join, select
 
 from lm_backend.api.config import get_config_id_for_product_features
 from lm_backend.api.permissions import Permissions
-from lm_backend.api_schemas import Booking, BookingRow, BookingRowDetail, LicenseUse, LicenseUseBooking
+from lm_backend.api_schemas import (
+    Booking,
+    BookingRow,
+    BookingRowDetail,
+    ConfigurationItem,
+    ConfigurationRow,
+    LicenseUse,
+    LicenseUseBooking,
+)
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause, sort_clause
@@ -96,9 +105,30 @@ async def get_bookings_job(job_id: str):
     return [BookingRow.parse_obj(x) for x in fetched]
 
 
-async def _is_booking_available(booking: Booking):
-    """Check if the total available is greater than the sum of in_use_total and new_booked, if it is then
-    there is no more bookings available. The in_use_total is calculated accounting for all bookings.
+async def _get_limit_for_booking_feature(product_feature: str) -> int:
+    """
+    Get the maximum amount of licenses that can be booked.
+    If the limit is the same as the total amount of licenses, all licenses can be booked.
+    """
+    product, feature = product_feature.split(".")
+
+    # Use product name to fetch config item from database
+    query = config_table.select().where(config_table.c.product == product)
+    fetched = await database.fetch_one(query)
+    config_row = ConfigurationRow.parse_obj(fetched)
+    config_item = ConfigurationItem(
+        **config_row.dict(exclude={"features"}), features=literal_eval(config_row.features)
+    )
+
+    # Use feature name to get limit from feature data in the config item
+    return config_item.features[feature]["limit"]
+
+
+async def _is_booking_available(booking: Booking) -> bool:
+    """
+    Check if the total needed for the booking + in_use_total is lower than the limit for the feature.
+    If it's not, then there are no more bookings available.
+    The in_use_total is calculated accounting for all bookings.
     """
     query = booking_table.select()
     fetched = await database.fetch_all(query)
@@ -110,11 +140,11 @@ async def _is_booking_available(booking: Booking):
 
     for feature in booking.features:
         in_use_total = 0
-        total = 0
+        limit = 0
         for license in all_licenses:
             if feature.product_feature == license.product_feature:
                 in_use_total = license.used
-                total = license.total
+                limit = await _get_limit_for_booking_feature(license.product_feature)
                 break
         for book in all_bookings:
             if feature.product_feature == book.product_feature:
@@ -122,7 +152,7 @@ async def _is_booking_available(booking: Booking):
 
         insert_quantity = feature.booked
 
-        if insert_quantity + in_use_total > total:
+        if insert_quantity + in_use_total > limit:
             return False
     return True
 

@@ -124,7 +124,13 @@ def create(
     ),
     features: str = typer.Option(
         ...,
-        help="The features of the license and the quantity. Must be a string with a valid JSON object serialized.",
+        help=dedent(
+            """
+            The features of the license, with total quantity and limit.
+            Must be a string with a valid JSON object serialized.
+            Example: '{"feature1": {"total": 10, "limit": 10}, "feature2": {"total": 20, "limit": 10}}'
+            """
+        ),
     ),
     license_servers: str = typer.Option(
         ...,
