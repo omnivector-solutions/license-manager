@@ -416,14 +416,15 @@ license-manager backend http endpoints.</p>
   -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
   -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
   -d <span class="s1">&#39;{</span>
-<span class="s1">  &quot;id&quot;: 0,</span>
+<span class="s1">  &quot;name&quot;: &quot;Product Feature&quot;,</span>
 <span class="s1">  &quot;product&quot;: &quot;product&quot;,</span>
-<span class="s1">  &quot;features&quot;: &quot;{\&quot;feature\&quot;: 50}&quot;,</span>
+<span class="s1">  &quot;features&quot;: &quot;{\&quot;feature\&quot;: {\&quot;total\&quot;: 50, \&quot;limit\&quot;: 50}}&quot;,</span>
 <span class="s1">  &quot;license_servers&quot;: [</span>
 <span class="s1">    &quot;flexlm:myexampleflexlmhost.example.com:24000&quot;</span>
 <span class="s1">  ],</span>
 <span class="s1">  &quot;license_server_type&quot;: &quot;flexlm&quot;,</span>
-<span class="s1">  &quot;grace_time&quot;: 30</span>
+<span class="s1">  &quot;grace_time&quot;: 30,</span>
+<span class="s1">  &quot;client_id&quot;: &quot;osd-cluster&quot;,</span>
 <span class="s1">}&#39;</span>
 </pre></div>
 </div>
@@ -437,16 +438,21 @@ list should contain the configuration you previously added.)</p>
 <p>The 201 HTTP response should contain the configuration item you created.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>
   <span class="o">{</span>
-    <span class="s2">&quot;id&quot;</span>: <span class="m">0</span>,
+    <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Product Feature&quot;</span>,
     <span class="s2">&quot;product&quot;</span>: <span class="s2">&quot;product&quot;</span>,
     <span class="s2">&quot;features&quot;</span>: <span class="o">{</span>
-      <span class="s2">&quot;feature&quot;</span>: <span class="m">50</span>
+      <span class="s2">&quot;feature&quot;</span>: <span class="o">{</span>
+        <span class="s2">&quot;total&quot;</span>: <span class="m">50</span>,
+        <span class="s2">&quot;limit&quot;</span>: <span class="m">50</span>
+      <span class="o">}</span>
     <span class="o">}</span>,
     <span class="s2">&quot;license_servers&quot;</span>: <span class="o">[</span>
       <span class="s2">&quot;flexlm:myexampleflexlmhost.example.com:24000&quot;</span>
     <span class="o">]</span>,
     <span class="s2">&quot;license_server_type&quot;</span>: <span class="s2">&quot;flexlm&quot;</span>,
-    <span class="s2">&quot;grace_time&quot;</span>: <span class="m">30</span>
+    <span class="s2">&quot;grace_time&quot;</span>: <span class="m">30</span>,
+    <span class="s2">&quot;client_id&quot;</span>: <span class="s2">&quot;osd-cluster&quot;</span>
   <span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
@@ -467,38 +473,40 @@ docker-compose up
 <h2>4) Add the license-manager-agent to the cluster<a class="headerlink" href="#add-the-license-manager-agent-to-the-cluster" title="Permalink to this headline">¶</a></h2>
 <p>The final component we need to deploy is the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>. The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> is deployed to the
 same model as the slurm charms, and related to <code class="docutils literal notranslate"><span class="pre">slurmctld</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:omnivector-solutions/license-manager-agent
-<span class="nb">cd</span> license-manager-agent/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:omnivector-solutions/charm-license-manager-agent
+<span class="nb">cd</span> charm-license-manager-agent/
 
 make charm
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">charm</span></code> command will produce a resultant charm artifact named
-<code class="docutils literal notranslate"><span class="pre">license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm</span></code>. This is the charm that we will deploy.</p>
+<code class="docutils literal notranslate"><span class="pre">license-manager-agent.charm</span></code>. This is the charm that we will deploy.</p>
 <p>Before deploying the charm, create a <code class="docutils literal notranslate"><span class="pre">yaml</span></code> configuration file that contains the needed settings for the
 license-manager-agent charm. The config should look something like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">license-manager-agent</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">log-level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span><span class="w"></span>
 <span class="w">  </span><span class="nt">stat-interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"></span>
-<span class="w">  </span><span class="nt">jwt-key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your.jwt.key&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">pypi-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://pypicloud.omnivector.solutions&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">pypi-username</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pypi-username&gt;&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">pypi-password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pypi-password&gt;&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">license-manager-backend-base-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://$MY_IP:7000&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">lmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmutil&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">rlmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/rlmutil&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">lsdyna-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lstc_qrun&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">lmxendutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmxendutil&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">olixtool-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/olixtool&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">oidc-domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-domain&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">oidc-audience</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-audience&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">oidc-client-id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-id&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">oidc-client-secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-secret&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="nt">sentry-dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Make sure to substitute the correct values into the new <code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code> configuration file
-(especially the IP address of your host machine)</p>
-<p>Now that we have the charm artifact (<code class="docutils literal notranslate"><span class="pre">license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm</span></code>) and
+(especially the IP address of your host machine). You'll also need to provision an OIDC instance to authenticate
+agains the backend API.</p>
+<p>Now that we have the charm artifact (<code class="docutils literal notranslate"><span class="pre">license-manager-agent.charm</span></code>) and
 the config file for the charm (<code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code>), we are ready to deploy.</p>
 <p>Using <code class="docutils literal notranslate"><span class="pre">juju</span></code>, deploy the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> charm to the model, specifying the config file as an argument to the
 deploy command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju deploy ./license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju deploy ./license-manager-agent.charm <span class="se">\</span>
     --config ./license-manager-agent.yaml --series focal
 </pre></div>
 </div>
@@ -521,7 +529,7 @@ These configurations will ensure that your slurm cluster has a fake license serv
 to be used by the fake application (which will be run as a batch script).</p>
 <div class="section" id="configuring-the-license-server-client">
 <h3>Configuring the license server client<a class="headerlink" href="#configuring-the-license-server-client" title="Permalink to this headline">¶</a></h3>
-<p>The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna and LM-X).
+<p>The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
 The script requests license information from the license-manager-simulator API and renders
 it in the template, simulating the output from the real license server. These files need to be copied to the license-manager-agent machine.</p>
 <p>You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
@@ -542,8 +550,10 @@ make setup <span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span
 <li><p>converge.super for RLM</p></li>
 <li><p>mppdyna.mppdyna for LS-Dyna</p></li>
 <li><p>hyperworks.hyperworks for LM-X</p></li>
+<li><p>cosin.ftire_adams for OLicense</p></li>
 </ol>
-<p>These licenses will be available in the simulated license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code> and <code class="docutils literal notranslate"><span class="pre">lmxendutil</span></code> files.</p>
+<p>These licenses will be available in the simulated license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code>, <code class="docutils literal notranslate"><span class="pre">lmxendutil</span></code>
+and <code class="docutils literal notranslate"><span class="pre">olixtool.lin</span></code> files.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
 <span class="nb">source</span> /srv/license-manager-agent-venv/bin/activate
 /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil

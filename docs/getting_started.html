@@ -178,6 +178,29 @@
         <!-- Table of contents -->
         <div class="d-none d-md-block col-md-2 bd-toc show noprint">
             
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#slurm-cluster">
+   Slurm cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license-servers">
+   License servers
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license-manager-backend">
+   License Manager Backend
+  </a>
+ </li>
+</ul>
+
+            </nav>
         </div>
     </div>
 </div>
@@ -190,6 +213,29 @@
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#slurm-cluster">
+   Slurm cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license-servers">
+   License servers
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license-manager-backend">
+   License Manager Backend
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -198,13 +244,39 @@
                 
   <div class="section" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p>To run the license-manager you will need three different systems:</p>
+<p>To run License Manager you will need three different systems:</p>
 <ol class="arabic simple">
-<li><p>Slurm cluster (where <code class="docutils literal notranslate"><span class="pre">lm_agent</span></code> runs)</p></li>
-<li><p>License server (FlexLM, RLM, LS-Dyna, LM-X, license-manager-simulator)</p></li>
-<li><p>license-manager-backend</p></li>
+<li><p>Slurm cluster (where <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> runs)</p></li>
+<li><p>License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense or license-manager-simulator)</p></li>
+<li><p>API with license information (<code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code>)</p></li>
 </ol>
-<p>(TODO)</p>
+<div class="section" id="slurm-cluster">
+<h2>Slurm cluster<a class="headerlink" href="#slurm-cluster" title="Permalink to this headline">¶</a></h2>
+<p>License Manager is designed to work with Slurm. To learn how to create a Slurm cluster, please refer to the
+<a class="reference external" href="https://omnivector-solutions.github.io/osd-documentation/master/index.html">Omnivector Slurm Distribution documentation</a>.</p>
+</div>
+<div class="section" id="license-servers">
+<h2>License servers<a class="headerlink" href="#license-servers" title="Permalink to this headline">¶</a></h2>
+<p>License Manager supports the following license servers:</p>
+<ul class="simple">
+<li><p>FlexLM</p></li>
+<li><p>RLM</p></li>
+<li><p>LS-Dyna</p></li>
+<li><p>LM-X</p></li>
+<li><p>OLicense</p></li>
+</ul>
+<p>You need to have the license server installed and working on a path that is accessible to the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>.
+The path for each license server binary is configurable in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> charm.
+In case you don't have a license server, you can use the <code class="docutils literal notranslate"><span class="pre">license-manager-simulator</span></code> to simulate the output of a license server.</p>
+</div>
+<div class="section" id="license-manager-backend">
+<h2>License Manager Backend<a class="headerlink" href="#license-manager-backend" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> is an API that stores license usage information gathered from the license servers by the agent's reconciliation
+process. This data is used to update the license counters in the cluster to reflect the actual usage of the licenses.
+For each license tracked by License Manager, you need to create a configuration in the API, which includes the license name, the license
+features, the license server type and location, and the grace time (how long it takes for the license to be checked out after the job starts).</p>
+<p>To learn how to set up each system needed, please refer to the Development section.</p>
+</div>
 </div>
 
 
