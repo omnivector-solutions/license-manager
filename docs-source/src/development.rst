@@ -121,14 +121,15 @@ Now initialize the backend with an example configuration that we can use for tes
       -H 'accept: application/json' \
       -H 'Content-Type: application/json' \
       -d '{
-      "id": 0,
+      "name": "Product Feature",
       "product": "product",
-      "features": "{\"feature\": 50}",
+      "features": "{\"feature\": {\"total\": 50, \"limit\": 50}}",
       "license_servers": [
         "flexlm:myexampleflexlmhost.example.com:24000"
       ],
       "license_server_type": "flexlm",
-      "grace_time": 30
+      "grace_time": 30,
+      "client_id": "osd-cluster",
     }'
 
 You can check that the configuration was successfully added by making a request to list the configurations in the database. (this
@@ -146,16 +147,21 @@ The 201 HTTP response should contain the configuration item you created.
 
       [
         {
-          "id": 0,
+          "id": 1,
+          "name": "Product Feature",
           "product": "product",
           "features": {
-            "feature": 50
+            "feature": {
+              "total": 50,
+              "limit": 50
+            }
           },
           "license_servers": [
             "flexlm:myexampleflexlmhost.example.com:24000"
           ],
           "license_server_type": "flexlm",
-          "grace_time": 30
+          "grace_time": 30,
+          "client_id": "osd-cluster"
         }
       ]
 
@@ -181,13 +187,13 @@ same model as the slurm charms, and related to ``slurmctld``.
 
 .. code-block:: bash
 
-   git clone git@github.com:omnivector-solutions/license-manager-agent
-   cd license-manager-agent/
+   git clone git@github.com:omnivector-solutions/charm-license-manager-agent
+   cd charm-license-manager-agent/
 
    make charm
 
 The ``make charm`` command will produce a resultant charm artifact named
-``license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm``. This is the charm that we will deploy.
+``license-manager-agent.charm``. This is the charm that we will deploy.
 
 Before deploying the charm, create a ``yaml`` configuration file that contains the needed settings for the
 license-manager-agent charm. The config should look something like this:
@@ -197,21 +203,23 @@ license-manager-agent charm. The config should look something like this:
    license-manager-agent:
      log-level: DEBUG
      stat-interval: 30
-     jwt-key: "your.jwt.key"
-     pypi-url: "https://pypicloud.omnivector.solutions"
-     pypi-username: "<pypi-username>"
-     pypi-password: "<pypi-password>"
      license-manager-backend-base-url: "http://$MY_IP:7000"
      lmutil-path: "/usr/local/bin/lmutil"
      rlmutil-path: "/usr/local/bin/rlmutil"
      lsdyna-path: "/usr/local/bin/lstc_qrun"
      lmxendutil-path: "/usr/local/bin/lmxendutil"
+     olixtool-path: "/usr/local/bin/olixtool"
+     oidc-domain: "your-oidc-domain"
+     oidc-audience: "your-oidc-audience"
+     oidc-client-id: "your-oidc-client-id"
+     oidc-client-secret: "your-oidc-client-secret"
      sentry-dsn: ""
 
 Make sure to substitute the correct values into the new ``license-manager-agent.yaml`` configuration file
-(especially the IP address of your host machine)
+(especially the IP address of your host machine). You'll also need to provision an OIDC instance to authenticate
+agains the backend API.
 
-Now that we have the charm artifact (``license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm``) and
+Now that we have the charm artifact (``license-manager-agent.charm``) and
 the config file for the charm (``license-manager-agent.yaml``), we are ready to deploy.
 
 Using ``juju``, deploy the ``license-manager-agent`` charm to the model, specifying the config file as an argument to the
@@ -219,7 +227,7 @@ deploy command.
 
 .. code-block:: bash
 
-   juju deploy ./license-manager-agent_ubuntu-20.04-amd64_centos-7-amd64.charm \
+   juju deploy ./license-manager-agent.charm \
        --config ./license-manager-agent.yaml --series focal
 
 After the deploy, make sure to relate the charm to the juju-info and prolog-epilog interface.
@@ -244,7 +252,7 @@ to be used by the fake application (which will be run as a batch script).
 
 Configuring the license server client
 *************************************
-The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna and LM-X).
+The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
 The script requests license information from the license-manager-simulator API and renders
 it in the template, simulating the output from the real license server. These files need to be copied to the license-manager-agent machine.
 
@@ -268,8 +276,10 @@ With the environment configured, you'll have one simulated license for each lice
 2. converge.super for RLM
 3. mppdyna.mppdyna for LS-Dyna
 4. hyperworks.hyperworks for LM-X
+5. cosin.ftire_adams for OLicense
 
-These licenses will be available in the simulated license servers. You can check it by executing ``lmutil``, ``rlmutil``, ``lstc_qrun`` and ``lmxendutil`` files.
+These licenses will be available in the simulated license servers. You can check it by executing ``lmutil``, ``rlmutil``, ``lstc_qrun``, ``lmxendutil``
+and ``olixtool.lin`` files.
 
 .. code-block:: bash
 
