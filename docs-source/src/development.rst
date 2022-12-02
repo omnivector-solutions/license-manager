@@ -217,7 +217,7 @@ license-manager-agent charm. The config should look something like this:
 
 Make sure to substitute the correct values into the new ``license-manager-agent.yaml`` configuration file
 (especially the IP address of your host machine). You'll also need to provision an OIDC instance to authenticate
-agains the backend API.
+against the backend API.
 
 Now that we have the charm artifact (``license-manager-agent.charm``) and
 the config file for the charm (``license-manager-agent.yaml``), we are ready to deploy.
