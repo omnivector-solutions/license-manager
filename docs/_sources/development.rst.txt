@@ -129,7 +129,7 @@ Now initialize the backend with an example configuration that we can use for tes
       ],
       "license_server_type": "flexlm",
       "grace_time": 30,
-      "client_id": "osd-cluster",
+      "client_id": "osd-cluster"
     }'
 
 You can check that the configuration was successfully added by making a request to list the configurations in the database. (this
