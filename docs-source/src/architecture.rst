@@ -1,6 +1,6 @@
 License Manager Architecture
 ============================
-The License Manager is based on a client/backend architecture. The backend consists of a Python HTTP API and a
+The License Manager is based on a client/backend architecture. The backend consists of a RESTful API built with Python over a
 PostgreSQL database. The client consists of a timed reconcile job that runs on the control node in the cluster and
 a prolog integration to Slurm.
 
