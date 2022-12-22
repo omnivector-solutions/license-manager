@@ -68,7 +68,6 @@ module = [
 ignore_missing_imports = true
 
 [tool.poetry.scripts]
-lm-configure = "bin.lmconfigure:app"
 reconcile = "lm_agent.reconcile:main"
 slurmctld-prolog = "lm_agent.workload_managers.slurm.slurmctld_prolog:main"
 slurmctld-epilog = "lm_agent.workload_managers.slurm.slurmctld_epilog:main"
