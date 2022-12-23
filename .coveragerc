@@ -1,7 +1,0 @@
-[run]
-omit =
-    */flexlmsim.py
-    */lmconfigure.py
-    # Omit workload_managers module from coverage for now.
-    # Note: come back to this and create tests for workload_managers
-    */workload_managers/*

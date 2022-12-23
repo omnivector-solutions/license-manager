@@ -159,7 +159,7 @@ async def reconcile():
         config_id = await get_config_id_from_backend(product_feature)
         minimum_value = 0
         server_type = ""
-        (_, feature) = product_feature.split('.')
+        (_, feature) = product_feature.split(".")
         for config in configs:
             if config.id == config_id:
                 minimum_value = config.features[feature]["total"]
