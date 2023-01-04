@@ -11,6 +11,7 @@ Unreleased
 --------------------
 * Updated configuration create command help text to include new configuration format
 * Updated requests to the backend API to use full path for routes
+* Improved error message handling when a request to the API fails
 
 2.2.15 -- 2022-10-26
 --------------------
