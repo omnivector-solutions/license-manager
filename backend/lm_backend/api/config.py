@@ -117,6 +117,7 @@ async def get_config_id(product_feature: str):
 @database.transaction()
 @router.post(
     "/",
+    status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(guard.lockdown(Permissions.CONFIG_EDIT))],
 )
 async def add_configuration(configuration: ConfigurationRow):
