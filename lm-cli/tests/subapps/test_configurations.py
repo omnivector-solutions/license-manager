@@ -77,7 +77,7 @@ def test_create__success(
     """
     create_route = respx_mock.post(f"{dummy_domain}/lm/api/v1/config/").mock(
         return_value=httpx.Response(
-            httpx.codes.OK,
+            httpx.codes.CREATED,
             json={"message": "inserted 1"},
         ),
     )
