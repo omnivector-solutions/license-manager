@@ -128,15 +128,18 @@ async def add_configuration(configuration: ConfigurationRow):
         # It is necessary to exclude None so the database won't attempt to insert a null id
         **configuration.dict(exclude_none=True),
     )
+
     try:
-        await database.execute(query)
-    except INTEGRITY_CHECK_EXCEPTIONS:
+        inserted_id = await database.execute(query)
+    except INTEGRITY_CHECK_EXCEPTIONS as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=(f"Couldn't insert config {configuration.id}), it already exists."),
+            detail=(f"Couldn't create configuration. Error: {str(e)}"),
         )
 
-    return dict(message=f"inserted {configuration.id}")
+    return dict(
+        message=f"Configuration id {inserted_id} created.",
+    )
 
 
 @database.transaction()
