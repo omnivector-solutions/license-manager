@@ -145,7 +145,7 @@ def make_request(
             unwrap(
                 f"""
                 {abort_message}:
-                Communication with the API failed.
+                Communication with the API failed. Error: [red]{str(err)}[/red]
                 """
             ),
             subject=abort_subject,
@@ -155,11 +155,15 @@ def make_request(
         )
 
     if expected_status is not None and response.status_code != expected_status:
+        try:
+            error_message_text = response.json()["detail"]
+        except Exception:
+            error_message_text = response.text
+
         raise Abort(
             unwrap(
                 f"""
-                {abort_message}:
-                Received an error response [red]({response.text})[/red].
+                {abort_message}: Received an error response. Error message: [red]{error_message_text}[/red].
                 """
             ),
             subject=abort_subject,

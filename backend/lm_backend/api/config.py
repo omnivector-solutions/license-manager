@@ -117,6 +117,7 @@ async def get_config_id(product_feature: str):
 @database.transaction()
 @router.post(
     "/",
+    status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(guard.lockdown(Permissions.CONFIG_EDIT))],
 )
 async def add_configuration(configuration: ConfigurationRow):
@@ -127,15 +128,18 @@ async def add_configuration(configuration: ConfigurationRow):
         # It is necessary to exclude None so the database won't attempt to insert a null id
         **configuration.dict(exclude_none=True),
     )
+
     try:
-        await database.execute(query)
-    except INTEGRITY_CHECK_EXCEPTIONS:
+        inserted_id = await database.execute(query)
+    except INTEGRITY_CHECK_EXCEPTIONS as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=(f"Couldn't insert config {configuration.id}), it already exists."),
+            detail=(f"Couldn't create configuration. Error: {str(e)}"),
         )
 
-    return dict(message=f"inserted {configuration.id}")
+    return dict(
+        message=f"Configuration id {inserted_id} created.",
+    )
 
 
 @database.transaction()
@@ -170,13 +174,17 @@ async def update_configuration(
     if client_id is not None:
         update_dict["client_id"] = client_id
     q_update = config_table.update().where(config_table.c.id == config_id).values(update_dict)
+
     async with database.transaction():
         try:
             await database.execute(q_update)
         except INTEGRITY_CHECK_EXCEPTIONS as e:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(f"Couldn't update configuration {config_id}. Error: {str(e)}"),
+            )
 
-    return dict(message=f"updated configuration id: {config_id}")
+    return dict(message=f"Configuration id {config_id} updated.")
 
 
 @database.transaction()
@@ -193,14 +201,18 @@ async def delete_configuration(config_id: int):
     if not rows:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=(f"Couldn't find config id: {config_id} to delete, " "it does not exist in the database."),
+            detail=(
+                f"Couldn't find configuration id {config_id} to delete, it does not exist in the database."
+            ),
         )
     q = config_table.delete().where(config_table.c.id == config_id)
+
     try:
         await database.execute(q)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=(f"Couldn't delete config {config_id})"),
+            detail=(f"Couldn't delete configuration {config_id})."),
         )
-    return dict(message=f"Deleted {config_id} from the configuration table.")
+
+    return dict(message=f"Configuration id {config_id} deleted.")

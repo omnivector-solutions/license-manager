@@ -373,7 +373,7 @@ async def test_add_configuration__success(
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
     response = await backend_client.post("/lm/api/v1/config", json=data)
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     query = table_schemas.config_table.select().where(
         table_schemas.config_table.c.name == "Product 1: Features 1, 2, 3"
@@ -517,7 +517,7 @@ async def test_delete_configuration__success(
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.delete("/lm/api/v1/config/100")
     assert resp.status_code == 200
-    assert resp.json()["message"] == "Deleted 100 from the configuration table."
+    assert resp.json()["message"] == "Configuration id 100 deleted."
 
 
 @mark.asyncio

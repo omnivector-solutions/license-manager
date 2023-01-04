@@ -175,8 +175,8 @@ def create(
         lm_ctx.client,
         "/lm/api/v1/config/",
         "POST",
-        expected_status=200,
-        abort_message="Couldn't create configuration",
+        expected_status=201,
+        abort_message="Configuration creation failed",
         support=True,
         request_model=request_data,
     )

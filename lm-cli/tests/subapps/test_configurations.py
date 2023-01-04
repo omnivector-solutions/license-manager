@@ -18,7 +18,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the configurations result.
     """
-    respx_mock.get(f"{dummy_domain}/config/all").mock(
+    respx_mock.get(f"{dummy_domain}/lm/api/v1/config/all").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_configuration_data,
@@ -47,7 +47,7 @@ def test_get_one__success(
     """
     Test if the get one command fetches and renders a single configuration by id.
     """
-    respx_mock.get(f"{dummy_domain}/config/1").mock(
+    respx_mock.get(f"{dummy_domain}/lm/api/v1/config/1").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_configuration_data[0],
@@ -75,9 +75,9 @@ def test_create__success(
     """
     Test if the create command makes the request with the parsed arguments to create the configuration.
     """
-    create_route = respx_mock.post(f"{dummy_domain}/config/").mock(
+    create_route = respx_mock.post(f"{dummy_domain}/lm/api/v1/config/").mock(
         return_value=httpx.Response(
-            httpx.codes.OK,
+            httpx.codes.CREATED,
             json={"message": "inserted 1"},
         ),
     )
@@ -110,7 +110,7 @@ def test_delete__success(respx_mock, make_test_app, dummy_domain, cli_runner, mo
     """
     Test if the delete command makes the request to delete the configuration by id.
     """
-    delete_route = respx_mock.delete(f"{dummy_domain}/config/1").mock(
+    delete_route = respx_mock.delete(f"{dummy_domain}/lm/api/v1/config/1").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json={"message": "Deleted 1 from the configuration table."},
