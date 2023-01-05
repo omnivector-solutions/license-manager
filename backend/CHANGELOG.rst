@@ -8,6 +8,7 @@ Unreleased
 ----------
 * Changed return code for configuration create endpoint to 201
 * Improved configuration endpoints message responses
+* Added new endpoint to get the versin of the API
 
 2.2.16 -- 2022-11-22
 --------------------
