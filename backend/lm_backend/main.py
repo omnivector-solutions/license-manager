@@ -18,7 +18,22 @@ from lm_backend import __version__
 from lm_backend.api import api_v1
 from lm_backend.config import settings
 
-subapp = FastAPI(root_path=settings.ASGI_ROOT_PATH)
+
+subapp = FastAPI(
+    title="License Manager API",
+    version=__version__,
+    contact={
+        "name": "Omnivector Solutions",
+        "url": "https://www.omnivector.solutions/",
+        "email": "info@omnivector.solutions",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://github.com/omnivector-solutions/license-manager/blob/main/LICENSE",
+    },
+    root_path=settings.ASGI_ROOT_PATH,
+)
+
 subapp.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
