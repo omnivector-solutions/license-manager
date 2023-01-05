@@ -14,6 +14,7 @@ from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_backend import storage
+from lm_backend import __version__
 from lm_backend.api import api_v1
 from lm_backend.config import settings
 
@@ -44,6 +45,15 @@ if settings.SENTRY_DSN:
 )
 async def health_check():
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@subapp.get(
+    "/version",
+    status_code=status.HTTP_200_OK,
+    responses={200: {"description": "API version"}},
+)
+async def get_version():
+    return __version__
 
 
 app = FastAPI()
