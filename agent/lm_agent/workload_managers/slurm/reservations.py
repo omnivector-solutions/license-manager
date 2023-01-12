@@ -2,7 +2,7 @@
 import asyncio
 import shlex
 
-from lm_agent.config.settings import RESERVATION_IDENTIFIER
+from lm_agent.config import RESERVATION_IDENTIFIER
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import CMD_TIMEOUT, SCONTROL_PATH
 
