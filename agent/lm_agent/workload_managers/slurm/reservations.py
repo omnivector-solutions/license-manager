@@ -9,10 +9,12 @@ from lm_agent.workload_managers.slurm.common import CMD_TIMEOUT, SCONTROL_PATH
 
 async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     """
-    Create a reservation for licenses with the specified duration.
+    Create the reservation for licenses with the specified duration.
 
     Duration format: [days-]hours:minutes:seconds
     Licenses format: foo.bar@server:123,foo.baz@server:234
+
+    Returns True if the reservation was created successfully, otherwise returns False.
     """
     cmd = [
         SCONTROL_PATH,
@@ -56,10 +58,12 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
 
 async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
     """
-    Update a reservation duration and licenses.
+    Update reservation duration and licenses.
 
     Duration format: [days-]hours:minutes:seconds
     Licenses format: foo.bar@server:123,foo.baz@server:234
+
+    Returns True if the reservation was updated successfully, otherwise returns False.
     """
     cmd = [
         SCONTROL_PATH,
@@ -100,7 +104,9 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
 
 async def scontrol_delete_reservation() -> bool:
     """
-    Delete a reservation.
+    Delete reservation.
+
+    Returns True if the reservation was deleted successfully, otherwise returns False.
     """
     cmd = [
         SCONTROL_PATH,
