@@ -1,11 +1,12 @@
-"""Provide utilities to be used by some of the license server interfaces."""
+"""Provide utilities to be used by interfaces."""
 import asyncio
+from typing import Union
 
 from lm_agent.config import ENCODING, TOOL_TIMEOUT
 from lm_agent.logs import logger
 
 
-async def run_command(command_line: str):
+async def run_command(command_line: str) -> Union[str, bool]:
     """Run a command using a subprocess shell."""
 
     proc = await asyncio.create_subprocess_shell(
@@ -17,6 +18,10 @@ async def run_command(command_line: str):
     output = str(stdout, encoding=ENCODING)
 
     if proc.returncode != 0:
-        logger.error(f"Error: {output} | Return Code: {proc.returncode}")
-        return None
+        logger.error(
+            f"Command {command_line} failed!",
+            f"Error: {output}",
+            f"Return code: {proc.returncode}",
+        )
+        return False
     return output
