@@ -1,12 +1,11 @@
 """Slurm reservation interface."""
-import asyncio
 import shlex
 from typing import Union
 
 from lm_agent.config import settings
 from lm_agent.logs import logger
 from lm_agent.utils import run_command
-from lm_agent.workload_managers.slurm.common import CMD_TIMEOUT, SCONTROL_PATH
+from lm_agent.workload_managers.slurm.common import SCONTROL_PATH
 
 
 async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
@@ -34,10 +33,10 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     reservation_output = await run_command(shlex.join(cmd))
 
     if reservation_output != f"Reservation created: {settings.RESERVATION_IDENTIFIER}":
-        logger.error(f"#### Failed to create reservation ####")
+        logger.error("#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
-    logger.debug(f"#### Successfully created reservation ####")
+    logger.debug("#### Successfully created reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
 
 
@@ -90,10 +89,10 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
     reservation_output = await run_command(shlex.join(cmd))
 
     if reservation_output != "Reservation updated.":
-        logger.error(f"#### Failed to update reservation ####")
+        logger.error(f"#### Failed to update reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
-    logger.debug(f"#### Successfully updated reservation ####")
+    logger.debug(f"#### Successfully updated reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
 
 
@@ -114,8 +113,8 @@ async def scontrol_delete_reservation() -> bool:
 
     # Reservation delete command doesn't output any message on success
     if reservation_output != "":
-        logger.error(f"#### Failed to delete reservation ####")
+        logger.error(f"#### Failed to delete reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
-    logger.debug(f"#### Successfully deleted reservation ####")
+    logger.debug(f"#### Successfully deleted reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
