@@ -91,7 +91,6 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
         return False
 
     logger.debug(f"#### Successfully updated reservation ####")
-
     return True
 
 
@@ -104,7 +103,6 @@ async def scontrol_delete_reservation() -> bool:
     cmd = [
         SCONTROL_PATH,
         "delete",
-        "reservation",
         f"ReservationName={RESERVATION_IDENTIFIER}",
     ]
 
@@ -117,5 +115,4 @@ async def scontrol_delete_reservation() -> bool:
         return False
 
     logger.debug(f"#### Successfully deleted reservation ####")
-
     return True
