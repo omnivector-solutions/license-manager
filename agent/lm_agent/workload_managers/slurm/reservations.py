@@ -1,4 +1,4 @@
-"""Slurm reservation interface."""
+"""Slurm reservation CRUD module."""
 import shlex
 from typing import Union
 
