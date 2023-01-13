@@ -1,6 +1,7 @@
 """Slurm reservation interface."""
 import asyncio
 import shlex
+from typing import Optional
 
 from lm_agent.config import RESERVATION_IDENTIFIER
 from lm_agent.logs import logger
@@ -40,17 +41,28 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     return True
 
 
-    if return_code != 0:
-        logger.error(
-            f"#### Failed to create reservation"
-            f"return code: {return_code}"
-            f"stdout: {reservation_create_stdout} ####"
-        )
-        return False
+async def scontrol_read_reservation() -> Optional[Str]:
+    """
+    Read reservation from the cluster.
 
-    logger.debug(f"#### Successfully created reservation ####")
+    Returns the reservation information if it exists, otherwise returns None.
+    """
+    cmd = [
+        SCONTROL_PATH,
+        "show",
+        "reservation",
+        RESERVATION_IDENTIFIER,
+    ]
 
-    return True
+    logger.debug(f"#### Getting reservation {RESERVATION_IDENTIFIER} ####")
+    reservation_output = run_command(shlex.join(cmd))
+
+    if not reservation_output or f"Reservation {RESERVATION_IDENTIFIER} not found" in reservation_output:
+        logger.error(f"#### Failed to read reservation {RESERVATION_IDENTIFIER} ####")
+        return None
+
+    logger.debug(f"#### Successfully read reservation {RESERVATION_IDENTIFIER}####")
+    return reservation_output
 
 
 async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
