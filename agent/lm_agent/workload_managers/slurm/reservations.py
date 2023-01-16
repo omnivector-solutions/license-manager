@@ -33,10 +33,10 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     reservation_output = await run_command(shlex.join(cmd))
 
     if reservation_output != f"Reservation created: {settings.RESERVATION_IDENTIFIER}":
-        logger.error("#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
+        logger.error(f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
-    logger.debug("#### Successfully created reservation {settings.RESERVATION_IDENTIFIER} ####")
+    logger.debug(f"#### Successfully created reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
 
 
