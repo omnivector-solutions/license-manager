@@ -21,7 +21,7 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
         SCONTROL_PATH,
         "create",
         "reservation",
-        "user=license-manager",
+        f"user={settings.LM_USER}",
         f"reservation={settings.RESERVATION_IDENTIFIER}",
         "starttime=now",
         f"duration={duration}",

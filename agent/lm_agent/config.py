@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     # reservation name for reconciliation
     RESERVATION_IDENTIFIER: str = "license-manager-reservation"
 
+    # License Manager user name to create reservations
+    LM_USER: str = "license-manager"
+
     # debug mode turns on certain dangerous operations
     DEBUG: bool = False
 
