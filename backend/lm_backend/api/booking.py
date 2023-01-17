@@ -121,7 +121,18 @@ async def _get_limit_for_booking_feature(product_feature: str) -> int:
     )
 
     # Use feature name to get limit from feature data in the config item
-    return config_item.features[feature]["limit"]
+    try:
+        # New feature format
+        total = config_item.features[feature].get("total")
+    except AttributeError:
+        # Fallback to old feature format
+        total = config_item.features[feature]
+
+    # If the limit is not specified, use the total amount of licenses
+    try:
+        return config_item.features[feature].get("limit")
+    except AttributeError:
+        return total
 
 
 async def _is_booking_available(booking: Booking) -> bool:
