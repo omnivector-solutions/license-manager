@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager-backend"
-version = "2.2.16"
+version = "2.2.16.1"
 description = "Provides an API for managing license data"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
