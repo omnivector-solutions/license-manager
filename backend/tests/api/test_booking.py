@@ -8,7 +8,7 @@ from pytest import mark
 from lm_backend import table_schemas
 from lm_backend.api import booking
 from lm_backend.api.permissions import Permissions
-from lm_backend.api_schemas import Booking, BookingFeature, BookingRow
+from lm_backend.api_schemas import Booking, BookingFeature, BookingRow, ConfigurationRow, LicenseUseReconcile
 from lm_backend.storage import database
 
 
@@ -627,3 +627,38 @@ async def test_get_limit_for_booking_feature(
     assert await booking._get_limit_for_booking_feature("hello.dolly") == 80
     assert await booking._get_limit_for_booking_feature("cool.beans") == 11
     assert await booking._get_limit_for_booking_feature("limited.license") == 40
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature__fallback_to_old_format(insert_objects):
+    """Test that the total is used when the limit is not in the feature configuration."""
+    await insert_objects(
+        [
+            LicenseUseReconcile(
+                product_feature="limited.license",
+                total=50,
+                used=19,
+                used_licenses=[{"booked": 19, "lead_host": "host1", "user_name": "user1"}],
+            )
+        ],
+        table_schemas.license_table,
+    )
+
+    await insert_objects(
+        [
+            ConfigurationRow(
+                id=1,
+                name="NotALimitedLicense",
+                product="notlimited",
+                features='{"license": 50}',
+                license_servers=["bla"],
+                license_server_type="test",
+                grace_time=10,
+                client_id="cluster-staging",
+            )
+        ],
+        table_schemas.config_table,
+    )
+
+    assert await booking._get_limit_for_booking_feature("limited.license") == 50
