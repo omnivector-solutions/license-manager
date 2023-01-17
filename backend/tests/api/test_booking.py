@@ -661,4 +661,4 @@ async def test_get_limit_for_booking_feature__fallback_to_old_format(insert_obje
         table_schemas.config_table,
     )
 
-    assert await booking._get_limit_for_booking_feature("limited.license") == 50
+    assert await booking._get_limit_for_booking_feature("notlimited.license") == 50
