@@ -64,6 +64,7 @@ async def test__scontrol_create_reservation__fail(
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.reservations.run_command")
 async def test__scontrol_show_reservation__success(run_command_mock: mock.MagicMock, reservation_show_output):
+    """Test if reservation is fetched succesfully."""
     run = run_command_mock.return_value = reservation_show_output
     read_reservation = await scontrol_show_reservation()
     assert read_reservation == reservation_show_output
