@@ -45,7 +45,7 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     return True
 
 
-async def scontrol_read_reservation() -> Union[str, bool]:
+async def scontrol_show_reservation() -> Union[str, bool]:
     """
     Read reservation from the cluster.
 
