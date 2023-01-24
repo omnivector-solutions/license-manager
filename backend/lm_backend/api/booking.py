@@ -135,7 +135,7 @@ async def _get_limit_for_booking_feature(product_feature: str) -> int:
         total = config_item.features[feature].get("total")
         if not total:
             raise LicenseManagerFeatureConfigurationIncorrect(
-                f"The configuration for feature {feature} is incorrect. Please include the total amount of licenses."
+                f"The configuration for {feature} is incorrect. Please include the total amount of licenses."
             )
     except AttributeError:
         # Fallback to get the total from the old feature format
