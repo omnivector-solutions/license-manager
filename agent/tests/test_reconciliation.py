@@ -2,9 +2,13 @@ from unittest import mock
 
 import pytest
 from httpx import Response
-from pytest import mark
+from pytest import mark, raises
 
-from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
+from lm_agent.exceptions import (
+    LicenseManagerBackendConnectionError,
+    LicenseManagerEmptyReportError,
+    LicenseManagerFeatureConfigurationIncorrect,
+)
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,
@@ -207,6 +211,61 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
     report_mock.return_value = [{"foo": "bar"}]
     await reconcile()
     clean_booked_grace_time_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
+@mock.patch("lm_agent.reconciliation.get_all_product_features_from_cluster")
+@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile__raise_exception_incorrect_feature(
+    clean_booked_grace_time_mock, report_mock, get_licenses_from_cluster_mock, get_config_id_mock, respx_mock
+):
+    """
+    Test that an exception is raised if the features doesn't have the total.
+    """
+    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
+        return_value=Response(
+            status_code=200,
+            json={},
+        )
+    )
+    respx_mock.get("/lm/api/v1/config/agent/all").mock(
+        return_value=Response(
+            status_code=200,
+            json=[
+                {
+                    "id": 1,
+                    "product": "product",
+                    "features": {"feature": {"bla": 123}},
+                    "license_servers": ["flexlm:127.0.0.1:2345"],
+                    "license_server_type": "flexlm",
+                    "grace_time": 10000,
+                    "client_id": "cluster-staging",
+                }
+            ],
+        )
+    )
+    respx_mock.get("/lm/api/v1/license/cluster_update").mock(
+        return_value=Response(
+            status_code=200,
+            json=[
+                {
+                    "product_feature": "product.feature",
+                    "bookings_sum": 100,
+                    "license_total": 1000,
+                    "license_used": 200,
+                },
+            ],
+        )
+    )
+    report_mock.return_value = [{"foo": "bar"}]
+    get_licenses_from_cluster_mock.return_value = ["product.feature"]
+    get_config_id_mock.return_value = 1
+
+    with raises(LicenseManagerFeatureConfigurationIncorrect):
+        await reconcile()
 
 
 @pytest.mark.asyncio
