@@ -6,6 +6,8 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Refactored feature parsing to allow retroactive compatibility with old feature format
+* Updated the configuration format to make the limit optional
 
 2.2.17 -- 2023-01-24
 --------------------
