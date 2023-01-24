@@ -220,7 +220,13 @@ async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
 @mock.patch("lm_agent.reconciliation.report")
 @mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
 async def test_reconcile__raise_exception_incorrect_feature(
-    clean_booked_grace_time_mock, report_mock, get_licenses_from_cluster_mock, get_config_id_mock, respx_mock
+    clean_booked_grace_time_mock,
+    report_mock,
+    get_licenses_from_cluster_mock,
+    get_config_id_mock,
+    respx_mock,
+    cluster_update_payload,
+    invalid_configuration_format_for_agent,
 ):
     """
     Test that an exception is raised if the features doesn't have the total.
@@ -234,30 +240,13 @@ async def test_reconcile__raise_exception_incorrect_feature(
     respx_mock.get("/lm/api/v1/config/agent/all").mock(
         return_value=Response(
             status_code=200,
-            json=[
-                {
-                    "id": 1,
-                    "product": "product",
-                    "features": {"feature": {"bla": 123}},
-                    "license_servers": ["flexlm:127.0.0.1:2345"],
-                    "license_server_type": "flexlm",
-                    "grace_time": 10000,
-                    "client_id": "cluster-staging",
-                }
-            ],
+            json=invalid_configuration_format_for_agent,
         )
     )
     respx_mock.get("/lm/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=200,
-            json=[
-                {
-                    "product_feature": "product.feature",
-                    "bookings_sum": 100,
-                    "license_total": 1000,
-                    "license_used": 200,
-                },
-            ],
+            json=cluster_update_payload,
         )
     )
     report_mock.return_value = [{"foo": "bar"}]
@@ -275,7 +264,13 @@ async def test_reconcile__raise_exception_incorrect_feature(
 @mock.patch("lm_agent.reconciliation.report")
 @mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
 async def test_reconcile__parse_old_feature_format(
-    clean_booked_grace_time_mock, report_mock, get_licenses_from_cluster_mock, get_config_id_mock, respx_mock
+    clean_booked_grace_time_mock,
+    report_mock,
+    get_licenses_from_cluster_mock,
+    get_config_id_mock,
+    respx_mock,
+    cluster_update_payload,
+    old_configuration_format_for_agent,
 ):
     """
     Test that the reconcile can parse a feature with the old format (without the dict with total/limit).
@@ -289,30 +284,13 @@ async def test_reconcile__parse_old_feature_format(
     respx_mock.get("/lm/api/v1/config/agent/all").mock(
         return_value=Response(
             status_code=200,
-            json=[
-                {
-                    "id": 1,
-                    "product": "product",
-                    "features": {"feature": 123},
-                    "license_servers": ["flexlm:127.0.0.1:2345"],
-                    "license_server_type": "flexlm",
-                    "grace_time": 10000,
-                    "client_id": "cluster-staging",
-                }
-            ],
+            json=old_configuration_format_for_agent,
         )
     )
     respx_mock.get("/lm/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=200,
-            json=[
-                {
-                    "product_feature": "product.feature",
-                    "bookings_sum": 100,
-                    "license_total": 1000,
-                    "license_used": 200,
-                },
-            ],
+            json=cluster_update_payload,
         )
     )
     report_mock.return_value = [{"foo": "bar"}]

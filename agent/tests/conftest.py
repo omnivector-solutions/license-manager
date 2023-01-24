@@ -110,6 +110,51 @@ def one_configuration_row_olicense():
 
 
 @fixture
+def invalid_configuration_format_for_agent():
+    """Incorrect configuration format returned by /config/agent endpoint."""
+    return [
+        {
+            "id": 1,
+            "product": "product",
+            "features": {"feature": {"bla": 123}},
+            "license_servers": ["flexlm:127.0.0.1:2345"],
+            "license_server_type": "flexlm",
+            "grace_time": 10000,
+            "client_id": "cluster-staging",
+        }
+    ]
+
+
+@fixture
+def old_configuration_format_for_agent():
+    """Old configuration format returned by /config/agent endpoint."""
+    return [
+        {
+            "id": 1,
+            "product": "product",
+            "features": {"feature": 123},
+            "license_servers": ["flexlm:127.0.0.1:2345"],
+            "license_server_type": "flexlm",
+            "grace_time": 10000,
+            "client_id": "cluster-staging",
+        }
+    ]
+
+
+@fixture
+def cluster_update_payload():
+    """A response returned by /license/cluster_update endpoint."""
+    return [
+        {
+            "product_feature": "product.feature",
+            "bookings_sum": 100,
+            "license_total": 1000,
+            "license_used": 200,
+        },
+    ]
+
+
+@fixture
 def scontrol_show_lic_output_flexlm():
     """An output of scontrol show lic command for FlexLM license."""
     return dedent(
