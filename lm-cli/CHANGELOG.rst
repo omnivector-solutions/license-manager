@@ -7,11 +7,14 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 
+2.2.17 -- 2023-01-24
+--------------------
+* Improved error message handling when a request to the API fails
+
 2.2.16 -- 2022-11-22
 --------------------
 * Updated configuration create command help text to include new configuration format
 * Updated requests to the backend API to use full path for routes
-* Improved error message handling when a request to the API fails
 
 2.2.15 -- 2022-10-26
 --------------------

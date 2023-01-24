@@ -6,9 +6,12 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.2.17 -- 2023-01-24
+--------------------
 * Changed return code for configuration create endpoint to 201
-* Improved configuration endpoints message responses
-* Added new endpoint to get the versin of the API
+* Improved message responses in configuration create and update endpoints
+* Added new endpoint to get the version of the API
 
 2.2.16 -- 2022-11-22
 --------------------
