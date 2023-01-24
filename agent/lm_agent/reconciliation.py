@@ -162,7 +162,11 @@ async def reconcile():
         (_, feature) = product_feature.split(".")
         for config in configs:
             if config.id == config_id:
-                minimum_value = config.features[feature]["total"]
+                try:
+                    minimum_value = config.features[feature]["total"]
+                except AttributeError:
+                    # Fallback to old feature format
+                    minimum_value = config.features[feature]
                 server_type = config.license_server_type
                 break
         slurm_used = await get_tokens_for_license(product_feature + "@" + server_type, "Used")
