@@ -1,13 +1,18 @@
 """Provide utilities to be used by interfaces."""
 import asyncio
-from typing import Union
+import shlex
 
 from lm_agent.config import ENCODING, TOOL_TIMEOUT
+from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 
 
-async def run_command(command_line: str) -> Union[str, bool]:
-    """Run a command using a subprocess shell."""
+async def run_command(command_line: str) -> str:
+    """
+    Run a command using a subprocess shell.
+    Returns the output as string if the command succeeds.
+    Raises CommandFailedToExecute exception if return code is not zero.
+    """
 
     proc = await asyncio.create_subprocess_shell(
         command_line, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
@@ -18,10 +23,14 @@ async def run_command(command_line: str) -> Union[str, bool]:
     output = str(stdout, encoding=ENCODING)
 
     if proc.returncode != 0:
-        logger.error(
-            f"Command {command_line} failed!",
-            f"Error: {output}",
-            f"Return code: {proc.returncode}",
+        error_message = shlex.join(
+            [
+                f"Command {command_line} failed!",
+                f"Error: {output}",
+                f"Return code: {proc.returncode}",
+            ]
         )
-        return False
+        logger.error(error_message)
+        raise CommandFailedToExecute(f"The command failed to execute, with return code {proc.returncode}.")
+
     return output

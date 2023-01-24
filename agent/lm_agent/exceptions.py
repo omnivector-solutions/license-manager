@@ -27,3 +27,7 @@ class LicenseManagerNonSupportedServerTypeError(Buzz):
 
 class LicenseManagerBadServerOutput(Buzz):
     """Exception for license server bad output."""
+
+
+class CommandFailedToExecute(Buzz):
+    """Exception for failed execution of command."""
