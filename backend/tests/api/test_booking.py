@@ -684,8 +684,8 @@ async def test_get_limit_for_booking_feature__raise_exception_incorrect_feature(
         [
             ConfigurationRow(
                 id=1,
-                name="OldFormatLicense",
-                product="old",
+                name="IncorrectFormatLicense",
+                product="incorrect",
                 features='{"license": {"bla": 123}}',
                 license_servers=["bla"],
                 license_server_type="test",
@@ -697,4 +697,4 @@ async def test_get_limit_for_booking_feature__raise_exception_incorrect_feature(
     )
 
     with raises(LicenseManagerFeatureConfigurationIncorrect):
-        await booking._get_limit_for_booking_feature("old.license")
+        await booking._get_limit_for_booking_feature("incorrect.license")
