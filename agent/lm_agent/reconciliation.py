@@ -18,7 +18,6 @@ from lm_agent.exceptions import (
     LicenseManagerEmptyReportError,
     LicenseManagerFeatureConfigurationIncorrect,
 )
-
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
@@ -172,7 +171,12 @@ async def reconcile():
                     minimum_value = config.features[feature].get("total")
                     if not minimum_value:
                         raise LicenseManagerFeatureConfigurationIncorrect(
-                            f"The configuration for {feature} is incorrect. Please include the total amount of licenses."
+                            " ".join(
+                                [
+                                    f"The configuration for {feature} is incorrect.",
+                                    "Please include the total amount of licenses.",
+                                ]
+                            )
                         )
                 except AttributeError:
                     # Fallback to get the total from the old feature format

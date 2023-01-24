@@ -28,5 +28,6 @@ class LicenseManagerNonSupportedServerTypeError(Buzz):
 class LicenseManagerBadServerOutput(Buzz):
     """Exception for license server bad output."""
 
+
 class LicenseManagerFeatureConfigurationIncorrect(Buzz):
     """Exception for feature configuration incorrectly formatted."""
