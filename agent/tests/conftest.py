@@ -101,7 +101,7 @@ def one_configuration_row_olicense():
     """An OLicense configuration row."""
     return BackendConfigurationRow(
         product="cosin",
-        features={"ftire_adams": {"total": 4}},
+        features={"ftire_adams": {"total": 4, "limit": 3}},
         license_servers=["olicense:127.0.0.1:2345"],
         license_server_type="olicense",
         grace_time=10000,
