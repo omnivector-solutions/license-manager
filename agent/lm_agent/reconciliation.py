@@ -13,7 +13,12 @@ from lm_agent.backend_utils import (
     get_config_from_backend,
     get_config_id_from_backend,
 )
-from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
+from lm_agent.exceptions import (
+    LicenseManagerBackendConnectionError,
+    LicenseManagerEmptyReportError,
+    LicenseManagerFeatureConfigurationIncorrect,
+)
+
 from lm_agent.logs import logger
 from lm_agent.tokenstat import report
 from lm_agent.workload_managers.slurm.cmd_utils import (
@@ -162,10 +167,15 @@ async def reconcile():
         (_, feature) = product_feature.split(".")
         for config in configs:
             if config.id == config_id:
+                # Using the total amount of licenses as the minimum value
                 try:
-                    minimum_value = config.features[feature]["total"]
+                    minimum_value = config.features[feature].get("total")
+                    if not minimum_value:
+                        raise LicenseManagerFeatureConfigurationIncorrect(
+                            f"The configuration for {feature} is incorrect. Please include the total amount of licenses."
+                        )
                 except AttributeError:
-                    # Fallback to old feature format
+                    # Fallback to get the total from the old feature format
                     minimum_value = config.features[feature]
                 server_type = config.license_server_type
                 break
