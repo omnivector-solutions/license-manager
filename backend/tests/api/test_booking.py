@@ -3,12 +3,13 @@ from unittest import mock
 
 from fastapi import status
 from httpx import AsyncClient
-from pytest import mark
+from pytest import mark, raises
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
 from lm_backend.api.permissions import Permissions
-from lm_backend.api_schemas import Booking, BookingFeature, BookingRow
+from lm_backend.api_schemas import Booking, BookingFeature, BookingRow, ConfigurationRow, LicenseUseReconcile
+from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
 from lm_backend.storage import database
 
 
@@ -627,3 +628,73 @@ async def test_get_limit_for_booking_feature(
     assert await booking._get_limit_for_booking_feature("hello.dolly") == 80
     assert await booking._get_limit_for_booking_feature("cool.beans") == 11
     assert await booking._get_limit_for_booking_feature("limited.license") == 40
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature__without_limit_specified(insert_objects):
+    """Test that the total is used when the limit is not in the feature configuration."""
+    await insert_objects(
+        [
+            ConfigurationRow(
+                id=1,
+                name="NotALimitedLicense",
+                product="notlimited",
+                features='{"license": {"total": 50}}',
+                license_servers=["bla"],
+                license_server_type="test",
+                grace_time=10,
+                client_id="cluster-staging",
+            )
+        ],
+        table_schemas.config_table,
+    )
+
+    assert await booking._get_limit_for_booking_feature("notlimited.license") == 50
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature__fallback_to_old_format(insert_objects):
+    """Test that the total is used as limit when the feature configuration is in the old format."""
+    await insert_objects(
+        [
+            ConfigurationRow(
+                id=1,
+                name="OldFormatLicense",
+                product="old",
+                features='{"license": 50}',
+                license_servers=["bla"],
+                license_server_type="test",
+                grace_time=10,
+                client_id="cluster-staging",
+            )
+        ],
+        table_schemas.config_table,
+    )
+
+    assert await booking._get_limit_for_booking_feature("old.license") == 50
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_limit_for_booking_feature__raise_exception_incorrect_feature(insert_objects):
+    """Test that an exception is raised if the feature doesn't have the total."""
+    await insert_objects(
+        [
+            ConfigurationRow(
+                id=1,
+                name="OldFormatLicense",
+                product="old",
+                features='{"license": {"bla": 123}}',
+                license_servers=["bla"],
+                license_server_type="test",
+                grace_time=10,
+                client_id="cluster-staging",
+            )
+        ],
+        table_schemas.config_table,
+    )
+
+    with raises(LicenseManagerFeatureConfigurationIncorrect):
+        await booking._get_limit_for_booking_feature("old.license")
