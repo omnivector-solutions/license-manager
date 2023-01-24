@@ -7,13 +7,14 @@ from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 
 
-async def run_command(command_line: str) -> str:
+async def run_command(*command_line_parts: str) -> str:
     """
     Run a command using a subprocess shell.
     Returns the output as string if the command succeeds.
     Raises CommandFailedToExecute exception if return code is not zero.
     """
 
+    command_line = shlex.join(command_line_parts)
     proc = await asyncio.create_subprocess_shell(
         command_line, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
     )
