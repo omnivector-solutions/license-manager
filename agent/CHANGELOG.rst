@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.17 -- 2023-01-24
+--------------------
+* Bumped version to keep in sync with backend and lm-cli
+
 2.2.16 -- 2022-11-22
 --------------------
 * Updated configuration row to use new feature quantities format
