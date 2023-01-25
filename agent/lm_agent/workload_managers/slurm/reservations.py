@@ -30,14 +30,13 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     ]
 
     logger.debug(f"#### Creating reservation for {licenses} with duration {duration} ####")
-    reservation_output = await run_command(shlex.join(cmd))
+    reservation_output = await run_command(*cmd)
 
     logger_error_message = f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####"
     if not reservation_output:
         logger.error(logger_error_message)
         return False
-    if isinstance(reservation_output, str):
-        if f"Reservation created: {settings.RESERVATION_IDENTIFIER}" not in reservation_output:
+    if f"Reservation created: {settings.RESERVATION_IDENTIFIER}" not in reservation_output:
             logger.error(logger_error_message)
             return False
 
@@ -59,14 +58,13 @@ async def scontrol_show_reservation() -> Union[str, bool]:
     ]
 
     logger.debug(f"#### Getting reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(shlex.join(cmd))
+    reservation_output = await run_command(*cmd)
 
     logger_error_message = f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####"
     if not reservation_output:
         logger.error(logger_error_message)
         return False
-    if isinstance(reservation_output, str):
-        if f"Reservation {settings.RESERVATION_IDENTIFIER} not found" in reservation_output:
+    if f"Reservation {settings.RESERVATION_IDENTIFIER} not found" in reservation_output:
             logger.error(logger_error_message)
             return False
 
@@ -93,14 +91,13 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
     ]
 
     logger.debug(f"#### Updating reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(shlex.join(cmd))
+    reservation_output = await run_command(*cmd)
 
     logger_error_message = f"#### Failed to update reservation {settings.RESERVATION_IDENTIFIER} ####"
     if not reservation_output:
         logger.error(logger_error_message)
         return False
-    if isinstance(reservation_output, str):
-        if "Reservation updated." not in reservation_output:
+    if "Reservation updated." not in reservation_output:
             logger.error(logger_error_message)
             return False
 
@@ -121,7 +118,7 @@ async def scontrol_delete_reservation() -> bool:
     ]
 
     logger.debug(f"#### Deleting reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(shlex.join(cmd))
+    reservation_output = await run_command(*cmd)
 
     # Reservation delete command doesn't output any message on success
     if reservation_output != "":
