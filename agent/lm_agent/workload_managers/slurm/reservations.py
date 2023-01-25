@@ -33,7 +33,7 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     try:
         await run_command(*cmd)
     except CommandFailedToExecute:
-        logger.debug(f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
+        logger.error(f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
     logger.debug(f"#### Successfully created reservation {settings.RESERVATION_IDENTIFIER} ####")
@@ -57,7 +57,7 @@ async def scontrol_show_reservation() -> Union[str, bool]:
     try:
         reservation_output = await run_command(*cmd)
     except CommandFailedToExecute:
-        logger.debug(f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####")
+        logger.error(f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 
     logger.debug(f"#### Successfully read reservation {settings.RESERVATION_IDENTIFIER} ####")
