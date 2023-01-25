@@ -1,8 +1,8 @@
 """Slurm reservation CRUD module."""
-import shlex
 from typing import Union
 
 from lm_agent.config import settings
+from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 from lm_agent.utils import run_command
 from lm_agent.workload_managers.slurm.common import SCONTROL_PATH
@@ -30,15 +30,11 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     ]
 
     logger.debug(f"#### Creating reservation for {licenses} with duration {duration} ####")
-    reservation_output = await run_command(*cmd)
-
-    logger_error_message = f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####"
-    if not reservation_output:
-        logger.error(logger_error_message)
+    try:
+        await run_command(*cmd)
+    except CommandFailedToExecute:
+        logger.debug(f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
-    if f"Reservation created: {settings.RESERVATION_IDENTIFIER}" not in reservation_output:
-            logger.error(logger_error_message)
-            return False
 
     logger.debug(f"#### Successfully created reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
@@ -58,15 +54,11 @@ async def scontrol_show_reservation() -> Union[str, bool]:
     ]
 
     logger.debug(f"#### Getting reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(*cmd)
-
-    logger_error_message = f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####"
-    if not reservation_output:
-        logger.error(logger_error_message)
+    try:
+        reservation_output = await run_command(*cmd)
+    except CommandFailedToExecute:
+        logger.debug(f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
-    if f"Reservation {settings.RESERVATION_IDENTIFIER} not found" in reservation_output:
-            logger.error(logger_error_message)
-            return False
 
     logger.debug(f"#### Successfully read reservation {settings.RESERVATION_IDENTIFIER} ####")
     return reservation_output
@@ -91,15 +83,11 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
     ]
 
     logger.debug(f"#### Updating reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(*cmd)
-
-    logger_error_message = f"#### Failed to update reservation {settings.RESERVATION_IDENTIFIER} ####"
-    if not reservation_output:
-        logger.error(logger_error_message)
+    try:
+        await run_command(*cmd)
+    except CommandFailedToExecute:
+        logger.error(f"#### Failed to update reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
-    if "Reservation updated." not in reservation_output:
-            logger.error(logger_error_message)
-            return False
 
     logger.debug(f"#### Successfully updated reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
@@ -118,10 +106,9 @@ async def scontrol_delete_reservation() -> bool:
     ]
 
     logger.debug(f"#### Deleting reservation {settings.RESERVATION_IDENTIFIER} ####")
-    reservation_output = await run_command(*cmd)
-
-    # Reservation delete command doesn't output any message on success
-    if reservation_output != "":
+    try:
+        await run_command(*cmd)
+    except CommandFailedToExecute:
         logger.error(f"#### Failed to delete reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
 

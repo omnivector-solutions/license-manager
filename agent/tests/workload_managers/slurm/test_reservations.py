@@ -6,6 +6,7 @@ from unittest import mock
 from pytest import fixture, mark, raises
 
 from lm_agent.config import settings
+from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.workload_managers.slurm.reservations import (
     scontrol_create_reservation,
     scontrol_delete_reservation,
@@ -52,11 +53,7 @@ async def test__scontrol_create_reservation__fail(
     run_command_mock: mock.MagicMock, reservation_license_data, reservation_duration
 ):
     """Test if reservation creation fails when the command fails or the reservation is invalid."""
-    run_command_mock.return_value = False
-    create_reservation = await scontrol_create_reservation(reservation_license_data, reservation_duration)
-    assert not create_reservation
-
-    run_command_mock.return_value = "Error creating the reservation: reservation name already exists."
+    run_command_mock.side_effect = CommandFailedToExecute("Command failed")
     create_reservation = await scontrol_create_reservation(reservation_license_data, reservation_duration)
     assert not create_reservation
 
@@ -74,11 +71,7 @@ async def test__scontrol_show_reservation__success(run_command_mock: mock.MagicM
 @mock.patch("lm_agent.workload_managers.slurm.reservations.run_command")
 async def test__scontrol_show_reservation__fail(run_command_mock: mock.MagicMock):
     """Test if reservation fetch fails when the command fails or the reservation is not found."""
-    run_command_mock.return_value = False
-    read_reservation = await scontrol_show_reservation()
-    assert not read_reservation
-
-    run_command_mock.return_value = f"Reservation {settings.RESERVATION_IDENTIFIER} not found"
+    run_command_mock.side_effect = CommandFailedToExecute("Command failed")
     read_reservation = await scontrol_show_reservation()
     assert not read_reservation
 
@@ -100,11 +93,7 @@ async def test__scontrol_update_reservation__fail(
     run_command_mock: mock.MagicMock, reservation_license_data, reservation_duration
 ):
     """Test if reservation update fails when the command fails or the reservation is invalid."""
-    run_command_mock.return_value = False
-    update_reservation = await scontrol_update_reservation(reservation_license_data, reservation_duration)
-    assert not update_reservation
-
-    run_command_mock.return_value = "Error updating the reservation: reservation not found"
+    run_command_mock.side_effect = CommandFailedToExecute("Command failed")
     update_reservation = await scontrol_update_reservation(reservation_license_data, reservation_duration)
     assert not update_reservation
 
@@ -122,10 +111,6 @@ async def test__scontrol_delete_reservation__success(run_command_mock: mock.Magi
 @mock.patch("lm_agent.workload_managers.slurm.reservations.run_command")
 async def test__scontrol_delete_reservation__fail(run_command_mock: mock.MagicMock):
     """Test if reservation deletion fails when the command fails or the reservation is invalid."""
-    run_command_mock.return_value = False
-    delete_reservation = await scontrol_delete_reservation()
-    assert not delete_reservation
-
-    run_command_mock.return_value = "Error deleting the reservation: reservation not found"
+    run_command_mock.side_effect = CommandFailedToExecute("Command failed")
     delete_reservation = await scontrol_delete_reservation()
     assert not delete_reservation
