@@ -4,8 +4,8 @@
 
 This file keeps track of all notable changes to license-manager-agent
 
-Unreleased
-----------
+2.2.18 -- 2023-01-26
+--------------------
 * Added fallback in reconciliation to parse old feature format for retroactive compatibility
 
 2.2.17.1 -- 2023-01-26

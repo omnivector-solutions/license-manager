@@ -6,12 +6,14 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
-* Refactored feature parsing to allow retroactive compatibility with old feature format
+
+2.2.18 -- 2023-01-26
+--------------------
 * Updated the configuration format to make the limit optional
 
 2.2.17.1 -- 2023-01-26
 --------------------
-* Changed license configuration schema to make the limit optional
+* Bumped to sync with lm-agent version
 
 2.2.17 -- 2023-01-24
 --------------------
