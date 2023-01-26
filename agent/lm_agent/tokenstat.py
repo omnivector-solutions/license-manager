@@ -80,7 +80,7 @@ async def report() -> typing.List[dict]:
         server_type = server_type_map.get(entry.license_server_type)
 
         if server_type is None:
-            raise LicenseManagerNonSupportedServerTypeError()
+            raise LicenseManagerNonSupportedServerTypeError("License server type not supported.")
 
         license_server_interface = server_type(entry.license_servers)
 

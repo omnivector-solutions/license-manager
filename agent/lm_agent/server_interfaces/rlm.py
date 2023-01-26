@@ -5,7 +5,7 @@ from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import rlm
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
-from lm_agent.server_interfaces.utils import run_command
+from lm_agent.utils import run_command
 
 
 class RLMLicenseServer(LicenseServerInterface):
@@ -36,7 +36,7 @@ class RLMLicenseServer(LicenseServerInterface):
             output = await run_command(cmd)
 
             # try the next server if the previous didn't return the expected data
-            if output is None:
+            if not output:
                 continue
             return output
 
