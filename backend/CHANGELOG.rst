@@ -9,6 +9,10 @@ Unreleased
 * Refactored feature parsing to allow retroactive compatibility with old feature format
 * Updated the configuration format to make the limit optional
 
+2.2.17.1 -- 2023-01-26
+--------------------
+* Changed license configuration schema to make the limit optional
+
 2.2.17 -- 2023-01-24
 --------------------
 * Changed return code for configuration create endpoint to 201

@@ -6,8 +6,11 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
-* Added Slurm reservation module with CRUD operations for reservations
 * Added fallback in reconciliation to parse old feature format for retroactive compatibility
+
+2.2.17.1 -- 2023-01-26
+----------------------
+* Added Slurm reservation module with CRUD operations for reservations
 
 2.2.17 -- 2023-01-24
 --------------------
