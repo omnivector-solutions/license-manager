@@ -9,7 +9,7 @@ Unreleased
 
 2.2.18 -- 2023-01-26
 ----------------------
-* Bumped version to keep in sync with lm-agent
+* Bumped version to keep in sync with lm-agent and backend
 
 2.2.17 -- 2023-01-24
 --------------------
