@@ -19,6 +19,7 @@ from lm_backend.api_schemas import (
     LicenseUseBooking,
 )
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import (
@@ -109,6 +110,14 @@ async def _get_limit_for_booking_feature(product_feature: str) -> int:
     """
     Get the maximum amount of licenses that can be booked.
     If the limit is the same as the total amount of licenses, all licenses can be booked.
+
+    Possible feature formats:
+    -> Old feature format (for retroactive compatibility): limit = total
+    features = {"feature1": 123}
+    -> New feature format (limit not specified): limit = total
+    features = {"feature1": {"total": 123}}
+    -> New feature format (limit specified): limit != total
+    features = {"feature1": {"total": 123, "limit": 120}}
     """
     product, feature = product_feature.split(".")
 
@@ -120,8 +129,25 @@ async def _get_limit_for_booking_feature(product_feature: str) -> int:
         **config_row.dict(exclude={"features"}), features=literal_eval(config_row.features)
     )
 
-    # Use feature name to get limit from feature data in the config item
-    return config_item.features[feature]["limit"]
+    # Use feature name to get total and limit from feature data in the config item
+    try:
+        # Get total from new feature format
+        total = config_item.features[feature].get("total")
+        if not total:
+            raise LicenseManagerFeatureConfigurationIncorrect(
+                f"The configuration for {feature} is incorrect. Please include the total amount of licenses."
+            )
+    except AttributeError:
+        # Fallback to get the total from the old feature format
+        total = config_item.features[feature]
+
+    try:
+        # Get limit from new feature format. If not specified, use the total as the limit
+        limit = config_item.features[feature].get("limit", total)
+    except AttributeError:
+        # Fallback to use the total as the limit for the old feature format
+        limit = total
+    return limit
 
 
 async def _is_booking_available(booking: Booking) -> bool:

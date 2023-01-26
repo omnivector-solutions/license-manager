@@ -49,7 +49,7 @@ def one_configuration_row_flexlm():
     """A FlexLM configuration row."""
     return BackendConfigurationRow(
         product="testproduct",
-        features={"testfeature": 10},
+        features={"testfeature": {"total": 10}},
         license_servers=["flexlm:127.0.0.1:2345"],
         license_server_type="flexlm",
         grace_time=10000,
@@ -62,7 +62,7 @@ def one_configuration_row_rlm():
     """A RLM configuration row."""
     return BackendConfigurationRow(
         product="converge",
-        features={"converge_super": 10},
+        features={"converge_super": {"total": 10}},
         license_servers=["rlm:127.0.0.1:2345"],
         license_server_type="rlm",
         grace_time=10000,
@@ -75,7 +75,7 @@ def one_configuration_row_lsdyna():
     """A LSDyna configuration row."""
     return BackendConfigurationRow(
         product="mppdyna",
-        features={"mppdyna": 500},
+        features={"mppdyna": {"total": 500}},
         license_servers=["lsdyna:127.0.0.1:2345"],
         license_server_type="lsdyna",
         grace_time=10000,
@@ -88,7 +88,7 @@ def one_configuration_row_lmx():
     """A LM-X configuration row."""
     return BackendConfigurationRow(
         product="hyperworks",
-        features={"hyperworks": 1000000},
+        features={"hyperworks": {"total": 1000000}},
         license_servers=["lmx:127.0.0.1:2345"],
         license_server_type="lmx",
         grace_time=10000,
@@ -101,12 +101,57 @@ def one_configuration_row_olicense():
     """An OLicense configuration row."""
     return BackendConfigurationRow(
         product="cosin",
-        features={"ftire_adams": 4},
+        features={"ftire_adams": {"total": 4, "limit": 3}},
         license_servers=["olicense:127.0.0.1:2345"],
         license_server_type="olicense",
         grace_time=10000,
         client_id="cluster-staging",
     )
+
+
+@fixture
+def invalid_configuration_format_for_agent():
+    """Incorrect configuration format returned by /config/agent endpoint."""
+    return [
+        {
+            "id": 1,
+            "product": "product",
+            "features": {"feature": {"bla": 123}},
+            "license_servers": ["flexlm:127.0.0.1:2345"],
+            "license_server_type": "flexlm",
+            "grace_time": 10000,
+            "client_id": "cluster-staging",
+        }
+    ]
+
+
+@fixture
+def old_configuration_format_for_agent():
+    """Old configuration format returned by /config/agent endpoint."""
+    return [
+        {
+            "id": 1,
+            "product": "product",
+            "features": {"feature": 123},
+            "license_servers": ["flexlm:127.0.0.1:2345"],
+            "license_server_type": "flexlm",
+            "grace_time": 10000,
+            "client_id": "cluster-staging",
+        }
+    ]
+
+
+@fixture
+def cluster_update_payload():
+    """A response returned by /license/cluster_update endpoint."""
+    return [
+        {
+            "product_feature": "product.feature",
+            "bookings_sum": 100,
+            "license_total": 1000,
+            "license_used": 200,
+        },
+    ]
 
 
 @fixture
