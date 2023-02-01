@@ -17,7 +17,6 @@ from lm_backend.api_schemas import (
     ConfigurationItem,
     ConfigurationRow,
     LicenseUse,
-    LicenseUseBooking,
 )
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
@@ -33,6 +32,7 @@ from lm_backend.table_schemas import (
 
 router = APIRouter()
 
+# Lock used to prevent concurrent updates to the booking table
 lock = Lock()
 
 
