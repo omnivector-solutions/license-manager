@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Updated the booking create endpoint to fix overbooking issues
 
 2.2.18 -- 2023-01-26
 --------------------
