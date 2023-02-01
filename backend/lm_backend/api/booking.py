@@ -2,6 +2,7 @@
 Booking objects and routes
 """
 from ast import literal_eval
+from asyncio import Lock
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -31,6 +32,8 @@ from lm_backend.table_schemas import (
 )
 
 router = APIRouter()
+
+lock = Lock()
 
 
 @router.get(
@@ -197,48 +200,40 @@ async def create_booking(booking: Booking):
 
     An error occurs if the new total for `booked` exceeds `total`
     """
-    if not await _is_booking_available(booking):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Couldn't book {booking.job_id}, not enough licenses available.",
-        )
-    # update the booking table
-    inserts = []
-
-    for feature in booking.features:
-        inserts.append(
-            BookingRow(
-                job_id=booking.job_id,
-                product_feature=feature.product_feature,
-                booked=feature.booked,
-                config_id=await get_config_id_for_product_features(feature.product_feature),
-                lead_host=booking.lead_host,
-                user_name=booking.user_name,
-                cluster_name=booking.cluster_name,
+    async with lock:
+        if not await _is_booking_available(booking):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Couldn't book {booking.job_id}, not enough licenses available.",
             )
-        )
+        # update the booking table
+        inserts = []
 
-    inserts_without_id = []
-    for insert in inserts:
-        inserts_without_id.append(insert.dict(exclude={"id"}))
-    try:
-        await database.execute_many(query=booking_table.insert(), values=[i for i in inserts_without_id])
-    except INTEGRITY_CHECK_EXCEPTIONS as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Couldn't book {booking.job_id}, it is already booked\n{e}",
-        )
-
-    # update the license table
-    lubs = []
-    for feat in booking.features:
-        lubs.append(
-            LicenseUseBooking(
-                product_feature=feat.product_feature,
-                used=feat.booked,
+        for feature in booking.features:
+            inserts.append(
+                BookingRow(
+                    job_id=booking.job_id,
+                    product_feature=feature.product_feature,
+                    booked=feature.booked,
+                    config_id=await get_config_id_for_product_features(feature.product_feature),
+                    lead_host=booking.lead_host,
+                    user_name=booking.user_name,
+                    cluster_name=booking.cluster_name,
+                )
             )
-        )
-    return dict(message=f"inserted {booking.job_id}")
+
+        inserts_without_id = []
+        for insert in inserts:
+            inserts_without_id.append(insert.dict(exclude={"id"}))
+        try:
+            await database.execute_many(query=booking_table.insert(), values=[i for i in inserts_without_id])
+        except INTEGRITY_CHECK_EXCEPTIONS as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Couldn't book {booking.job_id}, it is already booked\n{e}",
+            )
+
+        return dict(message=f"inserted {booking.job_id}")
 
 
 @database.transaction()
@@ -266,16 +261,6 @@ async def delete_booking(job_id: str):
     # update the booking table
     q = delete(booking_table).where(booking_table.c.job_id == job_id)
     await database.execute(q)
-
-    # update the license table
-    lubs = []
-    for row in rows:
-        lubs.append(
-            LicenseUseBooking(
-                product_feature=row.product_feature,
-                used=-row.booked,
-            )
-        )
 
     return dict(
         message=f"deleted {job_id}",
