@@ -17,4 +17,4 @@ RUN poetry install --no-root --no-dev
 COPY ./alembic /app/alembic
 COPY ./lm_backend /app/lm_backend
 
-CMD ["uvicorn", "lm_backend.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "none"]
+CMD ["uvicorn", "lm_backend.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
