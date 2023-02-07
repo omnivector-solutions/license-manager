@@ -9,7 +9,7 @@ Unreleased
 
 2.2.20 -- 2023-02-07
 --------------------
-* Fix overbooking issue
+* Fix issue with async lock by using an async loop to start uvicorn
 
 2.2.19 -- 2023-02-01
 --------------------
