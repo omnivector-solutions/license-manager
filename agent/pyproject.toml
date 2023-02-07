@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "license-manager-agent"
-version = "2.2.19"
+version = "2.2.20"
 description = "Provides an agent for interacting with license manager"
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
