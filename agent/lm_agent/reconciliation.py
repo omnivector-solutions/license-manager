@@ -17,9 +17,10 @@ from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
     LicenseManagerFeatureConfigurationIncorrect,
+    LicenseManagerReservationFailure,
 )
-from lm_agent.logs import logger
 from lm_agent.license_report import report
+from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_product_features_from_cluster,
     get_cluster_name,
@@ -27,6 +28,11 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     return_formatted_squeue_out,
     sacctmgr_modify_resource,
     squeue_parser,
+)
+from lm_agent.workload_managers.slurm.reservations import (
+    scontrol_create_reservation,
+    scontrol_show_reservation,
+    scontrol_update_reservation,
 )
 
 RECONCILE_URL_PATH = "/lm/api/v1/license/reconcile"
@@ -144,55 +150,144 @@ async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
     return filtered_licenses
 
 
+async def get_booking_sum_for_cluster(cluster_name: str) -> List:
+    """
+    Get booking sum for bookings in the specified cluster.
+    """
+    response = await backend_client.get(f"/lm/api/v1/booking/all")
+    bookings = response.json()
+
+    booking_sum = 0
+
+    for booking in bookings:
+        if booking["cluster_name"] == cluster_name:
+            booking_sum += booking["booked"]
+
+    return booking_sum
+
+
+async def get_booking_sum_for_other_clusters(cluster_name: str) -> List:
+    """
+    Get booking sum for bookings in clusters other than the specified cluster.
+    """
+    response = await backend_client.get(f"/lm/api/v1/booking/all")
+    bookings = response.json()
+
+    booking_sum = 0
+
+    for booking in bookings:
+        if booking["cluster_name"] != cluster_name:
+            booking_sum += booking["booked"]
+
+    return booking_sum
+
+
+async def create_or_update_reservation(reservation_data):
+    """
+    Create the reservation if it doesn't exist, otherwise update it.
+    If the reservation cannot be updated, delete it and create a new one.
+    """
+    reservation = await scontrol_show_reservation()
+
+    if reservation:
+        updated = await scontrol_update_reservation(reservation_data, "30:00")
+        if not updated:
+            deleted = await scontrol_delete_reservation()
+            if not deleted:
+                raise LicenseManagerReservationFailure("Could not update or delete reservation.")
+
+    created = await scontrol_create_reservation(reservation_data, "30:00")
+    if not created:
+        raise LicenseManagerReservationFailure("Could not create reservation.")
+
+
 async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
+    logger.debug("Starting reconciliation")
+    # Delete bookings for jobs that reached the grace time
+    logger.debug("Cleaning bookings by grace time")
     await clean_booked_grace_time()
-    r = await update_report()
+    logger.debug("Bookings cleaned by grace time")
+
+    # Generate report and update the backend
+    logger.debug("Reconciliating licenses in the backend")
+    await generate_report()
+    logger.debug("Backend licenses reconciliated")
+
+    # Fetch from backend the licenses usage information
+    logger.debug("Fetching licenses usage information from backend")
     response = await backend_client.get("/lm/api/v1/license/cluster_update")
-    configs = await get_config_from_backend()
-    licenses_to_update = response.json()
+    licenses_usage_info = response.json()
+    logger.debug("Licenses usage information fetched from backend")
 
-    # Filter licenses to reconcile only licenses in the cluster
-    filtered_licenses = await filter_cluster_update_licenses(licenses_to_update)
+    # Filter the licenses to update
+    licenses_to_update = await filter_cluster_update_licenses(licenses_usage_info)
+    logger.debug(f"Licenses to update: {licenses_to_update}")
 
-    for license_data in filtered_licenses:
+    reservation_data = []
+
+    # Calculate how many licenses should be reserved for each license
+    for license_data in licenses_to_update:
+        # Get license usage from backend
         product_feature = license_data["product_feature"]
-        bookings_sum = license_data["bookings_sum"]
-        license_total = license_data["license_total"]
-        license_used = license_data["license_used"]
+        server_used = license_data["license_used"]
+        cluster_name = await get_cluster_name()
+        cluster_booking_sum = await get_booking_sum_for_cluster(cluster_name)
+        other_cluster_booking_sum = await get_booking_sum_for_other_clusters(cluster_name)
+
+        # Get license configuration from backend
         config_id = await get_config_id_from_backend(product_feature)
-        minimum_value = 0
-        server_type = ""
-        (_, feature) = product_feature.split(".")
-        for config in configs:
-            if config.id == config_id:
-                # Using the total amount of licenses as the minimum value
-                try:
-                    minimum_value = config.features[feature].get("total")
-                    LicenseManagerFeatureConfigurationIncorrect.require_condition(
-                        minimum_value,
-                        f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
-                    )
-                except AttributeError:
-                    # Fallback to get the total from the old feature format
-                    minimum_value = config.features[feature]
-                server_type = config.license_server_type
-                break
-        slurm_used = await get_tokens_for_license(product_feature + "@" + server_type, "Used")
-        if slurm_used is None:
-            slurm_used = 0
-        new_quantity = license_total - license_used - bookings_sum + slurm_used
-        if new_quantity > license_total:
-            new_quantity = license_total
-        if new_quantity < minimum_value:
-            new_quantity = minimum_value
-        product, feature = product_feature.split(".")
-        update_resource = await sacctmgr_modify_resource(product, feature, new_quantity)
-        if update_resource:
-            logger.info("Slurmdbd updated successfully.")
-        else:
-            logger.info("Slurmdbd update unsuccessful.")
-    return r
+        config = await backend_client.get(f"/lm/api/v1/config/{config_id}")
+
+        license_server_type = config.license_server_type
+        # Use feature name to get total and limit from feature data in the license config
+        try:
+            # Get total from new feature format
+            total = config.features[feature].get("total")
+            LicenseManagerFeatureConfigurationIncorrect.require_condition(
+                total,
+                f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
+            )
+        except AttributeError:
+            # Fallback to get the total from the old feature format
+            total = config.features[feature]
+
+        try:
+            # Get limit from new feature format. If not specified, use the total as the limit
+            limit = config.features[feature].get("limit", total)
+        except AttributeError:
+            # Fallback to use the total as the limit for the old feature format
+            limit = total
+
+        # Get license usage from the cluster
+        slurm_used = await get_tokens_for_license(product_feature + "@" + license_server_type, "Used")
+
+        """
+        The reserved amount represents how many licenses are already in use:
+        Either in the license server or booked for a job (bookings from other cluster as well).
+        If the license has a limit, the amount of licenses past the limit should be reserved too.
+
+        The reservation is not meant to be used by any user, it's a way to block usage of licenses
+        """
+
+        reserved = (
+            server_used - (slurm_used - cluster_booking_sum) + other_cluster_booking_sum + (total - limit)
+        )
+
+        if reserved < 0:
+            reserved = 0
+
+        if reserved > total:
+            reserved = total
+
+        if reservation:
+            reservation_data.append("{product_feature}@{license_server_type}:{reserved}")
+
+    # Create the reservation or update the existing one
+    logger.debug("Reservation data: {reservation_data}")
+    await create_or_update_reservation(",".join(reservation_data))
+
+    logger.debug("Reconciliation done")
 
 
 async def update_report():
