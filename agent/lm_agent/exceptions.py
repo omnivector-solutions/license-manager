@@ -35,3 +35,7 @@ class CommandFailedToExecute(Buzz):
 
 class LicenseManagerFeatureConfigurationIncorrect(Buzz):
     """Exception for feature configuration incorrectly formatted."""
+
+
+class LicenseManagerReservationFailure(Buzz):
+    """Exception for failure during reservation management."""
