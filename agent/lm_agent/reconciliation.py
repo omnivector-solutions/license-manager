@@ -145,7 +145,7 @@ async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
     return filtered_licenses
 
 
-async def get_booking_sum_for_cluster(cluster_name: str) -> List:
+async def get_booking_sum_for_cluster(cluster_name: str) -> int:
     """
     Get booking sum for bookings in the specified cluster.
     """
@@ -161,7 +161,7 @@ async def get_booking_sum_for_cluster(cluster_name: str) -> List:
     return booking_sum
 
 
-async def get_booking_sum_for_other_clusters(cluster_name: str) -> List:
+async def get_booking_sum_for_other_clusters(cluster_name: str) -> int:
     """
     Get booking sum for bookings in clusters other than the specified cluster.
     """
@@ -234,23 +234,24 @@ async def reconcile():
         # Get license configuration from backend
         config_id = await get_config_id_from_backend(product_feature)
         config = await backend_client.get(f"/lm/api/v1/config/{config_id}")
+        config = config.json()
 
-        license_server_type = config.license_server_type
+        license_server_type = config["license_server_type"]
         # Use feature name to get total and limit from feature data in the license config
         try:
             # Get total from new feature format
-            total = config.features[feature].get("total")
+            total = config["features"][feature].get("total")
             LicenseManagerFeatureConfigurationIncorrect.require_condition(
                 total,
                 f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
             )
         except AttributeError:
             # Fallback to get the total from the old feature format
-            total = config.features[feature]
+            total = config["features"][feature]
 
         try:
             # Get limit from new feature format. If not specified, use the total as the limit
-            limit = config.features[feature].get("limit", total)
+            limit = config["features"][feature].get("limit", total)
         except AttributeError:
             # Fallback to use the total as the limit for the old feature format
             limit = total
@@ -277,10 +278,10 @@ async def reconcile():
             reserved = total
 
         if reserved:
-            reservation_data.append("{product_feature}@{license_server_type}:{reserved}")
+            reservation_data.append(f"{product_feature}@{license_server_type}:{reserved}")
 
     # Create the reservation or update the existing one
-    logger.debug("Reservation data: {reservation_data}")
+    logger.debug(f"Reservation data: {reservation_data}")
     await create_or_update_reservation(",".join(reservation_data))
 
     logger.debug("Reconciliation done")
