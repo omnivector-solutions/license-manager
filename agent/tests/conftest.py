@@ -110,34 +110,81 @@ def one_configuration_row_olicense():
 
 
 @fixture
-def invalid_configuration_format_for_agent():
-    """Incorrect configuration format returned by /config/agent endpoint."""
-    return [
-        {
-            "id": 1,
-            "product": "product",
-            "features": {"feature": {"bla": 123}},
-            "license_servers": ["flexlm:127.0.0.1:2345"],
-            "license_server_type": "flexlm",
-            "grace_time": 10000,
-            "client_id": "cluster-staging",
-        }
-    ]
+def invalid_configuration_format():
+    """Incorrect configuration format returned by /config/ endpoint."""
+    return {
+        "id": 1,
+        "product": "product",
+        "features": {"feature": {"bla": 123}},
+        "license_servers": ["flexlm:127.0.0.1:2345"],
+        "license_server_type": "flexlm",
+        "grace_time": 10000,
+        "client_id": "cluster-staging",
+    }
 
 
 @fixture
-def old_configuration_format_for_agent():
-    """Old configuration format returned by /config/agent endpoint."""
+def old_configuration_format():
+    """Old configuration format returned by /config endpoint."""
+    return {
+        "id": 1,
+        "product": "product",
+        "features": {"feature": 123},
+        "license_servers": ["flexlm:127.0.0.1:2345"],
+        "license_server_type": "flexlm",
+        "grace_time": 10000,
+        "client_id": "cluster-staging",
+    }
+
+
+@fixture
+def configuration_row():
+    """Configuration row returned by /config/{id} endpoint."""
+    return {
+        "id": 1,
+        "product": "product",
+        "features": {"feature": {"total": 1000, "limit": 900}},
+        "license_servers": ["flexlm:127.0.0.1:2345"],
+        "license_server_type": "flexlm",
+        "grace_time": 60,
+        "client_id": "cluster1",
+    }
+
+
+@fixture
+def bookings():
+    """Bookings returned by /booking/all endpoint."""
     return [
         {
             "id": 1,
-            "product": "product",
-            "features": {"feature": 123},
-            "license_servers": ["flexlm:127.0.0.1:2345"],
-            "license_server_type": "flexlm",
-            "grace_time": 10000,
-            "client_id": "cluster-staging",
-        }
+            "job_id": 123,
+            "product_feature": "product.feature",
+            "booked": 15,
+            "config_id": 1,
+            "lead_host": "host1",
+            "user_name": "user1",
+            "cluster_name": "cluster1",
+        },
+        {
+            "id": 2,
+            "job_id": 123,
+            "product_feature": "product.feature",
+            "booked": 17,
+            "config_id": 1,
+            "lead_host": "host1",
+            "user_name": "user1",
+            "cluster_name": "cluster2",
+        },
+        {
+            "id": 3,
+            "job_id": 123,
+            "product_feature": "product.feature",
+            "booked": 4,
+            "config_id": 1,
+            "lead_host": "host1",
+            "user_name": "user1",
+            "cluster_name": "cluster3",
+        },
     ]
 
 
