@@ -7,12 +7,7 @@ from typing import Dict, List
 
 from httpx import ConnectError
 
-from lm_agent.backend_utils import (
-    backend_client,
-    get_bookings_from_backend,
-    get_config_from_backend,
-    get_config_id_from_backend,
-)
+from lm_agent.backend_utils import backend_client, get_bookings_from_backend, get_config_id_from_backend
 from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
@@ -26,11 +21,11 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     get_cluster_name,
     get_tokens_for_license,
     return_formatted_squeue_out,
-    sacctmgr_modify_resource,
     squeue_parser,
 )
 from lm_agent.workload_managers.slurm.reservations import (
     scontrol_create_reservation,
+    scontrol_delete_reservation,
     scontrol_show_reservation,
     scontrol_update_reservation,
 )
@@ -154,7 +149,7 @@ async def get_booking_sum_for_cluster(cluster_name: str) -> List:
     """
     Get booking sum for bookings in the specified cluster.
     """
-    response = await backend_client.get(f"/lm/api/v1/booking/all")
+    response = await backend_client.get("/lm/api/v1/booking/all")
     bookings = response.json()
 
     booking_sum = 0
@@ -170,7 +165,7 @@ async def get_booking_sum_for_other_clusters(cluster_name: str) -> List:
     """
     Get booking sum for bookings in clusters other than the specified cluster.
     """
-    response = await backend_client.get(f"/lm/api/v1/booking/all")
+    response = await backend_client.get("/lm/api/v1/booking/all")
     bookings = response.json()
 
     booking_sum = 0
@@ -211,7 +206,7 @@ async def reconcile():
 
     # Generate report and update the backend
     logger.debug("Reconciliating licenses in the backend")
-    await generate_report()
+    await update_report()
     logger.debug("Backend licenses reconciliated")
 
     # Fetch from backend the licenses usage information
@@ -230,6 +225,7 @@ async def reconcile():
     for license_data in licenses_to_update:
         # Get license usage from backend
         product_feature = license_data["product_feature"]
+        product, feature = product_feature.split(".")
         server_used = license_data["license_used"]
         cluster_name = await get_cluster_name()
         cluster_booking_sum = await get_booking_sum_for_cluster(cluster_name)
@@ -280,7 +276,7 @@ async def reconcile():
         if reserved > total:
             reserved = total
 
-        if reservation:
+        if reserved:
             reservation_data.append("{product_feature}@{license_server_type}:{reserved}")
 
     # Create the reservation or update the existing one
