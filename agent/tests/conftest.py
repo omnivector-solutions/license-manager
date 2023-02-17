@@ -185,6 +185,16 @@ def bookings():
             "user_name": "user1",
             "cluster_name": "cluster3",
         },
+        {
+            "id": 4,
+            "job_id": 123,
+            "product_feature": "product.feature",
+            "booked": 67,
+            "config_id": 1,
+            "lead_host": "host1",
+            "user_name": "user1",
+            "cluster_name": "cluster3",
+        },
     ]
 
 

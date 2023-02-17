@@ -14,8 +14,7 @@ from lm_agent.reconciliation import (
     clean_bookings,
     filter_cluster_update_licenses,
     get_all_grace_times,
-    get_booking_sum_for_cluster,
-    get_booking_sum_for_other_clusters,
+    get_bookings_sum_per_cluster,
     get_greatest_grace_time,
     reconcile,
     update_report,
@@ -185,8 +184,7 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
 @mock.patch("lm_agent.reconciliation.create_or_update_reservation")
 @mock.patch("lm_agent.reconciliation.get_tokens_for_license")
 @mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_other_clusters")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_cluster")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
 @mock.patch("lm_agent.reconciliation.get_cluster_name")
 @mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
 @mock.patch("lm_agent.reconciliation.update_report")
@@ -196,8 +194,7 @@ async def test_reconcile(
     update_report_mock,
     filter_licenses_mock,
     get_cluster_name_mock,
-    get_cluster_booking_mock,
-    get_other_clusters_booking_mock,
+    get_bookings_sum_mock,
     get_config_id_mock,
     get_tokens_mock,
     create_or_update_reservation_mock,
@@ -206,7 +203,28 @@ async def test_reconcile(
     configuration_row,
 ):
     """
-    Check if reconcile updates the reservation and await for clean_booked_grace_time.
+    Check if reconcile updates the reservation with the correct value.
+    The reservation should block all licenses that are in use.
+
+    License: product.feature@flexlm
+    Total: 1000
+
+    Cluster: cluster1
+    Used in cluster: 23
+
+    Overview of the license:
+    ________________________________________________________________________________
+    |    200   |    15     |     17    |    71    |     100     ||       597       |
+    |   used   |   booked  |   booked  |  booked  |    limit    ||      free       |
+    | Lic serv | cluster 1 | cluster 2 | cluster3 | not to use  ||     to use      |
+    --------------------------------------------------------------------------------
+
+    Since we have 303 licenses in use (booked or license server) and 100 that should
+    not be used (past the limit), the amount of licenses available is 597.
+
+    This way, we need to block the remaing 403 licenses. But considering that Slurm
+    is already "blocking" 23 licenses that are in use in the cluster, the reservation
+    should block 380 licenses.
     """
     respx_mock.get("/lm/api/v1/license/cluster_update").mock(
         return_value=Response(
@@ -216,8 +234,11 @@ async def test_reconcile(
     )
     filter_licenses_mock.return_value = cluster_update_payload
     get_cluster_name_mock.return_value = "cluster1"
-    get_cluster_booking_mock.return_value = 71
-    get_other_clusters_booking_mock.return_value = 29
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
     get_config_id_mock.return_value = 1
     respx_mock.get("/lm/api/v1/config/1").mock(
         return_value=Response(
@@ -228,14 +249,13 @@ async def test_reconcile(
     get_tokens_mock.return_value = 23
 
     await reconcile()
-    create_or_update_reservation_mock.assert_called_with("product.feature@flexlm:377")
+    create_or_update_reservation_mock.assert_called_with("product.feature@flexlm:380")
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_other_clusters")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_cluster")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
 @mock.patch("lm_agent.reconciliation.get_cluster_name")
 @mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
 @mock.patch("lm_agent.reconciliation.update_report")
@@ -245,8 +265,7 @@ async def test_reconcile__raise_exception_incorrect_feature(
     update_report_mock,
     filter_licenses_mock,
     get_cluster_name_mock,
-    get_cluster_booking_mock,
-    get_other_clusters_booking_mock,
+    get_bookings_sum_mock,
     get_config_id_mock,
     respx_mock,
     invalid_configuration_format,
@@ -263,6 +282,13 @@ async def test_reconcile__raise_exception_incorrect_feature(
     )
 
     filter_licenses_mock.return_value = cluster_update_payload
+
+    get_cluster_name_mock.return_value = "cluster1"
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
 
     get_config_id_mock.return_value = 1
     respx_mock.get("/lm/api/v1/config/1").mock(
@@ -281,8 +307,7 @@ async def test_reconcile__raise_exception_incorrect_feature(
 @mock.patch("lm_agent.reconciliation.create_or_update_reservation")
 @mock.patch("lm_agent.reconciliation.get_tokens_for_license")
 @mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_other_clusters")
-@mock.patch("lm_agent.reconciliation.get_booking_sum_for_cluster")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
 @mock.patch("lm_agent.reconciliation.get_cluster_name")
 @mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
 @mock.patch("lm_agent.reconciliation.update_report")
@@ -292,8 +317,7 @@ async def test_reconcile__parse_old_feature_format(
     update_report_mock,
     filter_licenses_mock,
     get_cluster_name_mock,
-    get_cluster_booking_mock,
-    get_other_clusters_booking_mock,
+    get_bookings_sum_mock,
     get_config_id_mock,
     get_tokens_mock,
     create_or_update_reservation_mock,
@@ -314,9 +338,12 @@ async def test_reconcile__parse_old_feature_format(
     filter_licenses_mock.return_value = cluster_update_payload
 
     get_cluster_name_mock.return_value = "cluster1"
-    get_cluster_booking_mock.return_value = 71
-    get_other_clusters_booking_mock.return_value = 29
-
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
+    
     get_config_id_mock.return_value = 1
     respx_mock.get("/lm/api/v1/config/1").mock(
         return_value=Response(
@@ -425,31 +452,16 @@ async def test_filter_cluster_update_licenses(get_product_feature_from_cluster_m
 
 @mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test_get_booking_sum_for_cluster(bookings, respx_mock):
-    """Test that get_booking_sum_for_cluster returns the correct sum of bookings for cluster."""
+async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
+    """Test that get_bookings_sum_per_clusters returns the correct sum of bookings for each clusters."""
     respx_mock.get("/lm/api/v1/booking/all").mock(
         return_value=Response(
             status_code=200,
             json=bookings,
         )
     )
-    assert await get_booking_sum_for_cluster("cluster1") == 15
-    assert await get_booking_sum_for_cluster("cluster2") == 17
-    assert await get_booking_sum_for_cluster("cluster3") == 4
-    assert await get_booking_sum_for_cluster("cluster4") == 0
-
-
-@mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test_get_booking_sum_for_other_clusters(bookings, respx_mock):
-    """Test that get_booking_sum_for_other_clusters returns the correct sum of bookings for other clusters."""
-    respx_mock.get("/lm/api/v1/booking/all").mock(
-        return_value=Response(
-            status_code=200,
-            json=bookings,
-        )
-    )
-    assert await get_booking_sum_for_other_clusters("cluster1") == 21
-    assert await get_booking_sum_for_other_clusters("cluster2") == 19
-    assert await get_booking_sum_for_other_clusters("cluster3") == 32
-    assert await get_booking_sum_for_other_clusters("cluster4") == 36
+    assert await get_bookings_sum_per_cluster() == {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
