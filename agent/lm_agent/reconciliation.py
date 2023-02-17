@@ -205,7 +205,7 @@ async def reconcile():
     logger.debug("Bookings cleaned by grace time")
 
     # Generate report and update the backend
-    logger.debug("Reconciliating licenses in the backend")
+    logger.debug("Reconciling licenses in the backend")
     await update_report()
     logger.debug("Backend licenses reconciliated")
 
