@@ -145,35 +145,19 @@ async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
     return filtered_licenses
 
 
-async def get_booking_sum_for_cluster(cluster_name: str) -> int:
+async def get_bookings_sum_per_cluster() -> dict:
     """
-    Get booking sum for bookings in the specified cluster.
-    """
-    response = await backend_client.get("/lm/api/v1/booking/all")
-    bookings = response.json()
-
-    booking_sum = 0
-
-    for booking in bookings:
-        if booking["cluster_name"] == cluster_name:
-            booking_sum += booking["booked"]
-
-    return booking_sum
-
-
-async def get_booking_sum_for_other_clusters(cluster_name: str) -> int:
-    """
-    Get booking sum for bookings in clusters other than the specified cluster.
+    Get booking sum for bookings in each cluster.
     """
     response = await backend_client.get("/lm/api/v1/booking/all")
     bookings = response.json()
 
-    booking_sum = 0
+    booking_sum = {}
 
     for booking in bookings:
-        if booking["cluster_name"] != cluster_name:
-            booking_sum += booking["booked"]
-
+        cluster_name = booking["cluster_name"]
+        booking_sum[cluster_name] = booking_sum.get(cluster_name, 0) + booking["booked"]
+    
     return booking_sum
 
 
@@ -227,9 +211,12 @@ async def reconcile():
         product_feature = license_data["product_feature"]
         product, feature = product_feature.split(".")
         server_used = license_data["license_used"]
+
         cluster_name = await get_cluster_name()
-        cluster_booking_sum = await get_booking_sum_for_cluster(cluster_name)
-        other_cluster_booking_sum = await get_booking_sum_for_other_clusters(cluster_name)
+
+        bookings_per_cluster = await get_bookings_sum_per_cluster()
+        cluster_booking_sum = bookings_per_cluster.get(cluster_name, 0)
+        other_cluster_booking_sum = sum([booking for cluster, booking in bookings_per_cluster.items() if cluster != cluster_name])
 
         # Get license configuration from backend
         config_id = await get_config_id_from_backend(product_feature)
