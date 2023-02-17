@@ -188,12 +188,12 @@ async def create_or_update_reservation(reservation_data):
         updated = await scontrol_update_reservation(reservation_data, "30:00")
         if not updated:
             deleted = await scontrol_delete_reservation()
-            if not deleted:
-                raise LicenseManagerReservationFailure("Could not update or delete reservation.")
+            LicenseManagerReservationFailure.require_condition(
+                deleted, "Could not update or delete reservation."
+            )
 
     created = await scontrol_create_reservation(reservation_data, "30:00")
-    if not created:
-        raise LicenseManagerReservationFailure("Could not create reservation.")
+    LicenseManagerReservationFailure.require_condition(created, "Could not create reservation.")
 
 
 async def reconcile():
