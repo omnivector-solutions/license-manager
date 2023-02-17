@@ -145,19 +145,19 @@ async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
     return filtered_licenses
 
 
-async def get_bookings_sum_per_cluster() -> dict:
+async def get_bookings_sum_per_cluster() -> Dict[str, int]:
     """
     Get booking sum for bookings in each cluster.
     """
     response = await backend_client.get("/lm/api/v1/booking/all")
     bookings = response.json()
 
-    booking_sum = {}
+    booking_sum: Dict[str, int] = {}
 
     for booking in bookings:
         cluster_name = booking["cluster_name"]
         booking_sum[cluster_name] = booking_sum.get(cluster_name, 0) + booking["booked"]
-    
+
     return booking_sum
 
 
@@ -216,7 +216,9 @@ async def reconcile():
 
         bookings_per_cluster = await get_bookings_sum_per_cluster()
         cluster_booking_sum = bookings_per_cluster.get(cluster_name, 0)
-        other_cluster_booking_sum = sum([booking for cluster, booking in bookings_per_cluster.items() if cluster != cluster_name])
+        other_cluster_booking_sum = sum(
+            [booking for cluster, booking in bookings_per_cluster.items() if cluster != cluster_name]
+        )
 
         # Get license configuration from backend
         config_id = await get_config_id_from_backend(product_feature)

@@ -343,7 +343,7 @@ async def test_reconcile__parse_old_feature_format(
         "cluster2": 17,
         "cluster3": 71,
     }
-    
+
     get_config_id_mock.return_value = 1
     respx_mock.get("/lm/api/v1/config/1").mock(
         return_value=Response(
