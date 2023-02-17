@@ -229,7 +229,7 @@ async def reconcile():
         # Use feature name to get total and limit from feature data in the license config
         try:
             # Get total from new feature format
-            total = config["features"][feature].get("total")
+            total = config["features"][feature].get("total", 0)
             LicenseManagerFeatureConfigurationIncorrect.require_condition(
                 total,
                 f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
@@ -246,7 +246,7 @@ async def reconcile():
             limit = total
 
         # Get license usage from the cluster
-        slurm_used = await get_tokens_for_license(product_feature + "@" + license_server_type, "Used")
+        slurm_used = await get_tokens_for_license(f"{product_feature}@{license_server_type}", "Used")
 
         """
         The reserved amount represents how many licenses are already in use:
