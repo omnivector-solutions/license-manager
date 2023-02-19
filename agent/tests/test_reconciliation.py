@@ -460,8 +460,11 @@ async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
             json=bookings,
         )
     )
-    assert await get_bookings_sum_per_cluster() == {
+    assert await get_bookings_sum_per_cluster("product.feature") == {
         "cluster1": 15,
         "cluster2": 17,
         "cluster3": 71,
+    }
+    assert await get_bookings_sum_per_cluster("product2.feature2") == {
+        "cluster4": 1,
     }
