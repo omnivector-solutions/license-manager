@@ -28,8 +28,14 @@ class LicenseManagerNonSupportedServerTypeError(Buzz):
 class LicenseManagerBadServerOutput(Buzz):
     """Exception for license server bad output."""
 
+
 class CommandFailedToExecute(Buzz):
     """Exception for failed execution of command."""
 
+
 class LicenseManagerFeatureConfigurationIncorrect(Buzz):
     """Exception for feature configuration incorrectly formatted."""
+
+
+class LicenseManagerReservationFailure(Buzz):
+    """Exception for failure during reservation management."""

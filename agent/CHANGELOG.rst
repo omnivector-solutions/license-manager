@@ -98,7 +98,7 @@ Unreleased
 
 2.2.0 -- 2022-02-02
 ------------------
-* Refactored tokenstat module
+* Refactored license_report module
 * Remove lmstat binary
 * Get license server type from backend configuration row
 * Fix rlmutil command path

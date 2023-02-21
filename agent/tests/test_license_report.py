@@ -3,7 +3,7 @@ from unittest import mock
 
 from pytest import fixture, mark
 
-from lm_agent import tokenstat
+from lm_agent import license_report
 from lm_agent.backend_utils import BackendConfigurationRow
 
 
@@ -42,7 +42,7 @@ from lm_agent.backend_utils import BackendConfigurationRow
 )
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_flexlm_get_report(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -62,7 +62,7 @@ async def test_flexlm_get_report(
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
@@ -112,7 +112,7 @@ async def test_flexlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_rlm_get_report(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -132,7 +132,7 @@ async def test_rlm_get_report(
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
@@ -173,7 +173,7 @@ async def test_rlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_lsdyna_get_report(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -193,7 +193,7 @@ async def test_lsdyna_get_report(
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
@@ -229,7 +229,7 @@ async def test_lsdyna_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_lmx_get_report(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -249,7 +249,7 @@ async def test_lmx_get_report(
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
@@ -287,7 +287,7 @@ async def test_lmx_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.olicense.OLicenseLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_olicense_get_report(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -307,13 +307,13 @@ async def test_olicense_get_report(
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_flexlm_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -325,13 +325,13 @@ async def test_flexlm_report_with_empty_backend(
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_flexlm
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == []
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_rlm_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -343,13 +343,13 @@ async def test_rlm_report_with_empty_backend(
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_rlm
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == []
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_lsdyna_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -361,13 +361,13 @@ async def test_lsdyna_report_with_empty_backend(
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_lsdyna
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == []
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_lmx_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -379,13 +379,13 @@ async def test_lmx_report_with_empty_backend(
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_lmx
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == []
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.tokenstat.get_config_from_backend")
+@mock.patch("lm_agent.license_report.get_config_from_backend")
 async def test_olicense_report_with_empty_backend(
     get_config_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -397,7 +397,7 @@ async def test_olicense_report_with_empty_backend(
     get_config_from_backend_mock.return_value = []
     show_lic_mock.return_value = scontrol_show_lic_output_olicense
 
-    reconcile_list = await tokenstat.report()
+    reconcile_list = await license_report.report()
     assert reconcile_list == []
 
 
@@ -423,6 +423,6 @@ def test_get_local_license_configurations():
     license_configurations = [configuration_super, configuration_polygonica]
     local_licenses = ["converge.converge_super"]
 
-    assert tokenstat.get_local_license_configurations(license_configurations, local_licenses) == [
+    assert license_report.get_local_license_configurations(license_configurations, local_licenses) == [
         configuration_super
     ]

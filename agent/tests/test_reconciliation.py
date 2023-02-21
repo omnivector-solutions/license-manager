@@ -14,6 +14,7 @@ from lm_agent.reconciliation import (
     clean_bookings,
     filter_cluster_update_licenses,
     get_all_grace_times,
+    get_bookings_sum_per_cluster,
     get_greatest_grace_time,
     reconcile,
     update_report,
@@ -180,78 +181,122 @@ async def test_reconcile_report_empty(report_mock: mock.AsyncMock):
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.reconciliation.report")
-@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
-async def test_reconcile(clean_booked_grace_time_mock, report_mock, respx_mock):
-    """
-    Check if reconcile does a patch to /license/reconcile and await for clean_booked_grace_time.
-    """
-    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
-        return_value=Response(
-            status_code=200,
-        )
-    )
-    respx_mock.get("/lm/api/v1/config/agent/all").mock(return_value=Response(status_code=200, json={}))
-    respx_mock.get("/lm/api/v1/config/?product_feature=product.feature").mock(
-        return_value=Response(status_code=200, json={})
-    )
-    respx_mock.get("/lm/api/v1/license/cluster_update").mock(
-        return_value=Response(
-            status_code=200,
-            json=[
-                {
-                    "product_feature": "product.feature",
-                    "bookings_sum": 100,
-                    "license_total": 1000,
-                    "license_used": 200,
-                },
-            ],
-        )
-    )
-    report_mock.return_value = [{"foo": "bar"}]
-    await reconcile()
-    clean_booked_grace_time_mock.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.create_or_update_reservation")
+@mock.patch("lm_agent.reconciliation.get_tokens_for_license")
 @mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
-@mock.patch("lm_agent.reconciliation.get_all_product_features_from_cluster")
-@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
+@mock.patch("lm_agent.reconciliation.get_cluster_name")
+@mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
+@mock.patch("lm_agent.reconciliation.update_report")
 @mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
-async def test_reconcile__raise_exception_incorrect_feature(
+async def test_reconcile(
     clean_booked_grace_time_mock,
-    report_mock,
-    get_licenses_from_cluster_mock,
+    update_report_mock,
+    filter_licenses_mock,
+    get_cluster_name_mock,
+    get_bookings_sum_mock,
     get_config_id_mock,
+    get_tokens_mock,
+    create_or_update_reservation_mock,
     respx_mock,
     cluster_update_payload,
-    invalid_configuration_format_for_agent,
+    configuration_row,
 ):
     """
-    Test that an exception is raised if the features doesn't have the total.
+    Check if reconcile updates the reservation with the correct value.
+    The reservation should block all licenses that are in use.
+
+    License: product.feature@flexlm
+    Total: 1000
+
+    Cluster: cluster1
+    Used in cluster: 23
+
+    Overview of the license:
+    ________________________________________________________________________________
+    |    200   |    15     |     17    |    71    |     100     ||       597       |
+    |   used   |   booked  |   booked  |  booked  |    limit    ||      free       |
+    | Lic serv | cluster 1 | cluster 2 | cluster3 | not to use  ||     to use      |
+    --------------------------------------------------------------------------------
+
+    Since we have 303 licenses in use (booked or license server) and 100 that should
+    not be used (past the limit), the amount of licenses available is 597.
+
+    This way, we need to block the remaing 403 licenses. But considering that Slurm
+    is already "blocking" 23 licenses that are in use in the cluster, the reservation
+    should block 380 licenses.
     """
-    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
-        return_value=Response(
-            status_code=200,
-            json={},
-        )
-    )
-    respx_mock.get("/lm/api/v1/config/agent/all").mock(
-        return_value=Response(
-            status_code=200,
-            json=invalid_configuration_format_for_agent,
-        )
-    )
     respx_mock.get("/lm/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=200,
             json=cluster_update_payload,
         )
     )
-    report_mock.return_value = [{"foo": "bar"}]
-    get_licenses_from_cluster_mock.return_value = ["product.feature"]
+    filter_licenses_mock.return_value = cluster_update_payload
+    get_cluster_name_mock.return_value = "cluster1"
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
     get_config_id_mock.return_value = 1
+    respx_mock.get("/lm/api/v1/config/1").mock(
+        return_value=Response(
+            status_code=200,
+            json=configuration_row,
+        )
+    )
+    get_tokens_mock.return_value = 23
+
+    await reconcile()
+    create_or_update_reservation_mock.assert_called_with("product.feature@flexlm:380")
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
+@mock.patch("lm_agent.reconciliation.get_cluster_name")
+@mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
+@mock.patch("lm_agent.reconciliation.update_report")
+@mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
+async def test_reconcile__raise_exception_incorrect_feature(
+    clean_booked_grace_time_mock,
+    update_report_mock,
+    filter_licenses_mock,
+    get_cluster_name_mock,
+    get_bookings_sum_mock,
+    get_config_id_mock,
+    respx_mock,
+    invalid_configuration_format,
+    cluster_update_payload,
+):
+    """
+    Test that an exception is raised if the features doesn't have the total.
+    """
+    respx_mock.get("/lm/api/v1/license/cluster_update").mock(
+        return_value=Response(
+            status_code=200,
+            json=cluster_update_payload,
+        )
+    )
+
+    filter_licenses_mock.return_value = cluster_update_payload
+
+    get_cluster_name_mock.return_value = "cluster1"
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
+
+    get_config_id_mock.return_value = 1
+    respx_mock.get("/lm/api/v1/config/1").mock(
+        return_value=Response(
+            status_code=200,
+            json=invalid_configuration_format,
+        )
+    )
 
     with raises(LicenseManagerFeatureConfigurationIncorrect):
         await reconcile()
@@ -259,43 +304,54 @@ async def test_reconcile__raise_exception_incorrect_feature(
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.reconciliation.create_or_update_reservation")
+@mock.patch("lm_agent.reconciliation.get_tokens_for_license")
 @mock.patch("lm_agent.reconciliation.get_config_id_from_backend")
-@mock.patch("lm_agent.reconciliation.get_all_product_features_from_cluster")
-@mock.patch("lm_agent.reconciliation.report")
+@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
+@mock.patch("lm_agent.reconciliation.get_cluster_name")
+@mock.patch("lm_agent.reconciliation.filter_cluster_update_licenses")
+@mock.patch("lm_agent.reconciliation.update_report")
 @mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
 async def test_reconcile__parse_old_feature_format(
     clean_booked_grace_time_mock,
-    report_mock,
-    get_licenses_from_cluster_mock,
+    update_report_mock,
+    filter_licenses_mock,
+    get_cluster_name_mock,
+    get_bookings_sum_mock,
     get_config_id_mock,
+    get_tokens_mock,
+    create_or_update_reservation_mock,
     respx_mock,
     cluster_update_payload,
-    old_configuration_format_for_agent,
+    old_configuration_format,
 ):
     """
     Test that the reconcile can parse a feature with the old format (without the dict with total/limit).
     """
-    respx_mock.patch("/lm/api/v1/license/reconcile").mock(
-        return_value=Response(
-            status_code=200,
-            json={},
-        )
-    )
-    respx_mock.get("/lm/api/v1/config/agent/all").mock(
-        return_value=Response(
-            status_code=200,
-            json=old_configuration_format_for_agent,
-        )
-    )
     respx_mock.get("/lm/api/v1/license/cluster_update").mock(
         return_value=Response(
             status_code=200,
             json=cluster_update_payload,
         )
     )
-    report_mock.return_value = [{"foo": "bar"}]
-    get_licenses_from_cluster_mock.return_value = ["product.feature"]
+
+    filter_licenses_mock.return_value = cluster_update_payload
+
+    get_cluster_name_mock.return_value = "cluster1"
+    get_bookings_sum_mock.return_value = {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
+
     get_config_id_mock.return_value = 1
+    respx_mock.get("/lm/api/v1/config/1").mock(
+        return_value=Response(
+            status_code=200,
+            json=old_configuration_format,
+        )
+    )
+    get_tokens_mock.return_value = 23
 
     await reconcile()
 
@@ -304,7 +360,7 @@ async def test_reconcile__parse_old_feature_format(
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.report")
 @mock.patch("lm_agent.reconciliation.clean_booked_grace_time")
-async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock, respx_mock):
+async def test_update_report__patch_failed(clean_booked_grace_time_mock, report_mock, respx_mock):
     """
     Check that when patch to /license/reconcile response status_code is not 200, should raise exception.
     """
@@ -315,8 +371,7 @@ async def test_reconcile_patch_failed(clean_booked_grace_time_mock, report_mock,
     )
     report_mock.return_value = [{"foo": "bar"}]
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await reconcile()
-        clean_booked_grace_time_mock.assert_awaited_once()
+        await update_report()
 
 
 @pytest.mark.asyncio
@@ -393,3 +448,23 @@ async def test_filter_cluster_update_licenses(get_product_feature_from_cluster_m
             "license_used": 10,
         },
     ]
+
+
+@mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
+    """Test that get_bookings_sum_per_clusters returns the correct sum of bookings for each clusters."""
+    respx_mock.get("/lm/api/v1/booking/all").mock(
+        return_value=Response(
+            status_code=200,
+            json=bookings,
+        )
+    )
+    assert await get_bookings_sum_per_cluster("product.feature") == {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
+    assert await get_bookings_sum_per_cluster("product2.feature2") == {
+        "cluster4": 1,
+    }
