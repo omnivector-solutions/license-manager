@@ -171,7 +171,12 @@ async def reconcile():
                     minimum_value = config.features[feature].get("total")
                     LicenseManagerFeatureConfigurationIncorrect.require_condition(
                         minimum_value,
-                        f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
+                        " ".join(
+                            [
+                                f"The configuration for {feature} is incorrect.",
+                                "Please include the total amount of licenses.",
+                            ]
+                        ),
                     )
                 except AttributeError:
                     # Fallback to get the total from the old feature format
