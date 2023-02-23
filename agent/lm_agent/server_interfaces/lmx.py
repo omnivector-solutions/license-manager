@@ -22,7 +22,14 @@ class LMXLicenseServer(LicenseServerInterface):
         host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
-            command_line = f"{settings.LMXENDUTIL_PATH} -licstat -host {host} -port {port}"
+            command_line = [
+                f"{settings.LMXENDUTIL_PATH}",
+                "-licstat",
+                "-host",
+                host,
+                "-port",
+                port,
+            ]
             commands_to_run.append(command_line)
         return commands_to_run
 
