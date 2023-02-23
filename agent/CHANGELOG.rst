@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+2.2.21 -- 2023-02-23
+--------------------
+* Fixed issue with command parameters in server interfaces
+
 2.2.20 -- 2023-02-07
 --------------------
 * Bumped version to keep in sync with backend
@@ -18,10 +22,6 @@ Unreleased
 2.2.18 -- 2023-01-26
 --------------------
 * Added fallback in reconciliation to parse old feature format for retroactive compatibility
-
-2.2.17.1 -- 2023-01-26
-----------------------
-* Added Slurm reservation module with CRUD operations for reservations
 
 2.2.17 -- 2023-01-24
 --------------------
