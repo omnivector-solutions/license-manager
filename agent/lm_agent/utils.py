@@ -1,13 +1,14 @@
 """Provide utilities to be used by interfaces."""
 import asyncio
 import shlex
+from typing import List
 
 from lm_agent.config import ENCODING, TOOL_TIMEOUT
 from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 
 
-async def run_command(*command_line_parts: str) -> str:
+async def run_command(command_line_parts: List[str]) -> str:
     """
     Run a command using a subprocess shell.
     Returns the output as string if the command succeeds.
