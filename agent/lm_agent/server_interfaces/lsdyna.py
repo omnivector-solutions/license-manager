@@ -22,7 +22,12 @@ class LSDynaLicenseServer(LicenseServerInterface):
         host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
-            command_line = f"{settings.LSDYNA_PATH} -s {port}@{host} -R"
+            command_line = [
+                f"{settings.LSDYNA_PATH}",
+                "-s",
+                f"{port}@{host}",
+                "-R",
+            ]
             commands_to_run.append(command_line)
         return commands_to_run
 
