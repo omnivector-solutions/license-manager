@@ -7,7 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
-2.2.21.1 -- 2023-02-23
+2.2.22 -- 2023-02-23
 --------------------
 * Fixed RLM command line parameters
 
