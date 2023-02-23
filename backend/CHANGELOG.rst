@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.2.21.1 -- 2023-02-23
+--------------------
+* Bumped version to keep in sync with agent
+
 2.2.21 -- 2023-02-23
 --------------------
 * Bumped version to keep in sync with agent
