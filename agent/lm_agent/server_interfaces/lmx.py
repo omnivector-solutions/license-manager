@@ -16,7 +16,7 @@ class LMXLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = lmx.parse
 
-    def get_commands_list(self):
+    def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
         host_ports = [(server.split(":")[1:]) for server in self.license_servers]
