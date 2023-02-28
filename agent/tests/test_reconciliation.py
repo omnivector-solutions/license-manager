@@ -12,6 +12,7 @@ from lm_agent.exceptions import (
 from lm_agent.reconciliation import (
     clean_booked_grace_time,
     clean_bookings,
+    create_or_update_reservation,
     filter_cluster_update_licenses,
     get_all_grace_times,
     get_bookings_sum_per_cluster,
@@ -468,3 +469,32 @@ async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
     assert await get_bookings_sum_per_cluster("product2.feature2") == {
         "cluster4": 1,
     }
+
+
+@mark.asyncio
+@mock.patch("lm_agent.reconciliation.scontrol_create_reservation")
+@mock.patch("lm_agent.reconciliation.scontrol_show_reservation")
+@mock.patch("lm_agent.reconciliation.scontrol_update_reservation")
+@mock.patch("lm_agent.reconciliation.scontrol_delete_reservation")
+async def test_create_or_update_reservation(delete_mock, update_mock, show_mock, create_mock):
+    """
+    Test that create_or_update_reservation:
+    - update the reservation if it exists
+    - delete the reservation if it can't update
+    - create the reservation if doesn't exist
+    """
+    # Update reservation if it exists
+    show_mock.return_value = "reservation_data"
+    await create_or_update_reservation("reservation_info")
+    update_mock.assert_called_once()
+
+    # Delete reservation if it can't update
+    show_mock.return_value = "reservation_data"
+    update_mock.return_value = False
+    await create_or_update_reservation("reservation_info")
+    delete_mock.assert_called()
+
+    # Create reservation if it doesn't exist
+    show_mock.return_value = False
+    await create_or_update_reservation("reservation_info")
+    create_mock.assert_called()
