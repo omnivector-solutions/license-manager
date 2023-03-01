@@ -21,7 +21,14 @@ def test_get_lsdyna_commands_list(lsdyna_server: LSDynaLicenseServer):
     Do the commands for invoking the license server have the correct data?
     """
     commands_list = lsdyna_server.get_commands_list()
-    assert shlex.join(commands_list[0]) == f"{settings.LSDYNA_PATH} -s 2345@127.0.0.1 -R"
+    assert commands_list == [
+        [
+            f"{settings.LSDYNA_PATH}",
+            "-s",
+            "2345@127.0.0.1",
+            "-R",
+        ]
+    ]
 
 
 @mark.asyncio

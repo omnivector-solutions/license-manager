@@ -21,7 +21,16 @@ def test_get_rlm_commands_list(rlm_server: RLMLicenseServer):
     Do the commands for invoking the license server have the correct data?
     """
     commands_list = rlm_server.get_commands_list()
-    assert shlex.join(commands_list[0]) == f"{settings.RLMUTIL_PATH} rlmstat -c 2345@127.0.0.1 -a -p"
+    assert commands_list == [
+        [
+            f"{settings.RLMUTIL_PATH}",
+            "rlmstat",
+            "-c",
+            "2345@127.0.0.1",
+            "-a",
+            "-p",
+        ]
+    ]
 
 
 @mark.asyncio

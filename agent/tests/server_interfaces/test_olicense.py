@@ -21,7 +21,13 @@ def test_get_olicense_commands_list(olicense_server: OLicenseLicenseServer):
     Do the commands for invoking the license server have the correct data?
     """
     commands_list = olicense_server.get_commands_list()
-    assert shlex.join(commands_list[0]) == f"{settings.OLIXTOOL_PATH} -sv 127.0.0.1:2345"
+    assert commands_list == [
+        [
+            f"{settings.OLIXTOOL_PATH}",
+            "-sv",
+            "127.0.0.1:2345",
+        ]
+    ]
 
 
 @mark.asyncio
