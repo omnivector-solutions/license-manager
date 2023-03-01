@@ -28,8 +28,8 @@ def test__write_token_to_cache__caches_a_token(mock_cache_dir):
     assert token_path.exists()
     assert token_path.read_text() == "dummy-token"
 
-    # Assert that the permissions for the file are read/write only for the current user
-    assert token_path.stat().st_mode & (stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) == 0o600
+    # Assert that the permissions for the file are read/write for the current user and its group
+    assert token_path.stat().st_mode & (stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) == 0o660
 
 
 def test__write_token_to_cache__warns_if_cache_dir_does_not_exist(caplog, mock_cache_dir):
