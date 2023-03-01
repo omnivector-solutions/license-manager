@@ -40,6 +40,7 @@ def _load_token_from_cache() -> typing.Union[str, None]:
         logger.warning("Cached token is expired. Will acquire a new one.")
         return None
 
+    logger.debug(f"Successfully loaded token from cache file {token_path}.")
     return token
 
 
@@ -54,9 +55,9 @@ def _write_token_to_cache(token: str):
 
     token_path = settings.CACHE_DIR / TOKEN_FILE_NAME
     try:
-        token_path.touch(mode=0o600, exist_ok=True)
+        token_path.touch(mode=0o660, exist_ok=True)
         token_path.write_text(token)
-        shutil.chown(token_path, "slurm", "slurm")
+        logger.debug(f"Successfully saved token to {token_path}")
     except Exception as err:
         logger.warning(f"Couldn't save token to {token_path}: {err}")
 
@@ -84,9 +85,10 @@ def acquire_token() -> str:
         )
         with LicenseManagerAuthTokenError.handle_errors("Malformed response payload from OIDC"):
             token = response.json()["access_token"]
+
+        logger.debug("Successfully acquired auth token from OIDC")
         _write_token_to_cache(token)
 
-    logger.debug("Successfully acquired auth token from OIDC")
     return token
 
 
