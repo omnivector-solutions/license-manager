@@ -17,7 +17,6 @@ jwt = {version = "^1.2.0", optional = true}
 SQLAlchemy-Utils = "^0.37.8"
 loguru = "^0.5.3"
 asyncpg = "^0.24.0"
-aws-psycopg2 = "^1.2.1"
 uvicorn = "^0.15.0"
 python-dotenv = "^0.19.0"
 armasec = "^0.11"
@@ -25,6 +24,7 @@ SQLAlchemy = "^1.4.29"
 databases = {extras = ["postgresql"], version = "^0.5.3"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
+pyscopg2 = "^66.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
