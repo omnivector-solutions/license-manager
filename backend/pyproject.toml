@@ -24,7 +24,7 @@ SQLAlchemy = "^1.4.29"
 databases = {extras = ["postgresql"], version = "^0.5.3"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
-pyscopg2 = "^66.0.2"
+psycopg2 = "^2.9.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
