@@ -31,7 +31,7 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
 
     logger.debug(f"#### Creating reservation for {licenses} with duration {duration} ####")
     try:
-        await run_command(*cmd)
+        await run_command(cmd)
     except CommandFailedToExecute:
         logger.error(f"#### Failed to create reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
@@ -55,7 +55,7 @@ async def scontrol_show_reservation() -> Union[str, bool]:
 
     logger.debug(f"#### Getting reservation {settings.RESERVATION_IDENTIFIER} ####")
     try:
-        reservation_output = await run_command(*cmd)
+        reservation_output = await run_command(cmd)
     except CommandFailedToExecute:
         logger.error(f"#### Failed to read reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
@@ -84,7 +84,7 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
 
     logger.debug(f"#### Updating reservation {settings.RESERVATION_IDENTIFIER} ####")
     try:
-        await run_command(*cmd)
+        await run_command(cmd)
     except CommandFailedToExecute:
         logger.error(f"#### Failed to update reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False
@@ -107,7 +107,7 @@ async def scontrol_delete_reservation() -> bool:
 
     logger.debug(f"#### Deleting reservation {settings.RESERVATION_IDENTIFIER} ####")
     try:
-        await run_command(*cmd)
+        await run_command(cmd)
     except CommandFailedToExecute:
         logger.error(f"#### Failed to delete reservation {settings.RESERVATION_IDENTIFIER} ####")
         return False

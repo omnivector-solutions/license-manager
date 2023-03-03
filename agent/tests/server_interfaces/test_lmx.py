@@ -1,4 +1,5 @@
 """Test the LS-Dyna license server interface."""
+import shlex
 from unittest import mock
 
 from pytest import fixture, mark, raises
@@ -20,7 +21,16 @@ def test_get_lmx_commands_list(lmx_server: LMXLicenseServer):
     Do the commands for invoking the license server have the correct data?
     """
     commands_list = lmx_server.get_commands_list()
-    assert commands_list == [f"{settings.LMXENDUTIL_PATH} -licstat -host 127.0.0.1 -port 2345"]
+    assert commands_list == [
+        [
+            f"{settings.LMXENDUTIL_PATH}",
+            "-licstat",
+            "-host",
+            "127.0.0.1",
+            "-port",
+            "2345",
+        ]
+    ]
 
 
 @mark.asyncio

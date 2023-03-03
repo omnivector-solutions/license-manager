@@ -15,13 +15,13 @@ class RLMLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = rlm.parse
 
-    def get_commands_list(self):
+    def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
         host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
-            command_line = f"{settings.RLMUTIL_PATH} rlmstat -c {port}@{host} -a -p"
+            command_line = [f"{settings.RLMUTIL_PATH}", "rlmstat", "-c", f"{port}@{host}", "-a", "-p"]
             commands_to_run.append(command_line)
         return commands_to_run
 

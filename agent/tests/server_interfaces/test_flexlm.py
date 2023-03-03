@@ -1,5 +1,6 @@
 """Test the FlexLM license server interface."""
 
+import shlex
 from unittest import mock
 
 from pytest import fixture, mark, raises
@@ -21,7 +22,15 @@ def test_get_flexlm_commands_list(flexlm_server: FlexLMLicenseServer):
     Do the commands for invoking the license server have the correct data?
     """
     commands_list = flexlm_server.get_commands_list()
-    assert commands_list == [f"{settings.LMUTIL_PATH} lmstat -c 2345@127.0.0.1 -f"]
+    assert commands_list == [
+        [
+            f"{settings.LMUTIL_PATH}",
+            "lmstat",
+            "-c",
+            "2345@127.0.0.1",
+            "-f",
+        ]
+    ]
 
 
 @mark.asyncio

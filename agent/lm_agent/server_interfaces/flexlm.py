@@ -15,13 +15,19 @@ class FlexLMLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = flexlm.parse
 
-    def get_commands_list(self):
+    def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
         host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
         for host, port in host_ports:
-            command_line = f"{settings.LMUTIL_PATH} lmstat -c {port}@{host} -f"
+            command_line = [
+                f"{settings.LMUTIL_PATH}",
+                "lmstat",
+                "-c",
+                f"{port}@{host}",
+                "-f",
+            ]
             commands_to_run.append(command_line)
         return commands_to_run
 
@@ -34,8 +40,8 @@ class FlexLMLicenseServer(LicenseServerInterface):
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
             (_, feature) = product_feature.split(".")
-            feature_cmd = f"{cmd} {feature}"
-            output = await run_command(feature_cmd)
+            cmd.append(feature)
+            output = await run_command(cmd)
 
             # try the next server if the previous didn't return the expected data
             if not output:
