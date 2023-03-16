@@ -189,13 +189,18 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#reconcile">
-     Reconcile
+    <a class="reference internal nav-link" href="#reconciliation">
+     Reconciliation
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#workload-manager-bindings">
-     Workload Manager Bindings
+    <a class="reference internal nav-link" href="#bookings">
+     Bookings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#grace-time">
+     Grace time
     </a>
    </li>
   </ul>
@@ -204,6 +209,23 @@
   <a class="reference internal nav-link" href="#license-manager-backend">
    License Manager Backend
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#configurations">
+     Configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#licenses">
+     Licenses
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Bookings
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -231,13 +253,18 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#reconcile">
-     Reconcile
+    <a class="reference internal nav-link" href="#reconciliation">
+     Reconciliation
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#workload-manager-bindings">
-     Workload Manager Bindings
+    <a class="reference internal nav-link" href="#bookings">
+     Bookings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#grace-time">
+     Grace time
     </a>
    </li>
   </ul>
@@ -246,6 +273,23 @@
   <a class="reference internal nav-link" href="#license-manager-backend">
    License Manager Backend
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#configurations">
+     Configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#licenses">
+     Licenses
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Bookings
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -258,18 +302,53 @@
                 
   <div class="section" id="license-manager-architecture">
 <h1>License Manager Architecture<a class="headerlink" href="#license-manager-architecture" title="Permalink to this headline">¶</a></h1>
-<p>The License Manager is based on a client/backend architecture. The backend consists of a Python HTTP API and a
+<p>The License Manager is based on a client/backend architecture. The backend consists of a RESTful API built with Python over a
 PostgreSQL database. The client consists of a timed reconcile job that runs on the control node in the cluster and
 a prolog integration to Slurm.</p>
 <div class="section" id="license-manager-agent">
 <h2>License Manager Agent<a class="headerlink" href="#license-manager-agent" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> is responsible for keeping the local cluster license totals
-in sync with the the 3rd party license server totals and also accounting for
-bookings tracked in the backend.</p>
-<p>Workload manager support:</p>
-<ul class="simple">
-<li><p>Slurm</p></li>
-</ul>
+in sync with the the 3rd party license server totals. It's also responsible for making booking requests
+to the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> when Slurm is configured to use the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code> script provided by <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>.</p>
+<div class="section" id="reconciliation">
+<h3>Reconciliation<a class="headerlink" href="#reconciliation" title="Permalink to this headline">¶</a></h3>
+<p>For each license tracked by License Manager, the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> will periodically poll the license server to get
+the usage information and store it in the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code>. The <code class="docutils literal notranslate"><span class="pre">stat-interval</span></code> is the period of time
+between each reconciliation and can be configured in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> configuration file.</p>
+<p>The information in the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> is used by the reconciliation process to update the license counters in Slurm.
+This is done by creating a reservation to represent the licenses used in the license server.</p>
+<p>This reservation is not meant to be consumed by users nor jobs, it's only a representation of the licenses in use.
+The reservation is created by the user configured in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> configuration file. The user must
+have a Slurm account in the cluster and have at least <code class="docutils literal notranslate"><span class="pre">operator</span></code> level of priviledge to be allowed to create the reservation.</p>
+</div>
+<div class="section" id="bookings">
+<h3>Bookings<a class="headerlink" href="#bookings" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> is also responsible for making booking requests to the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code>
+when Slurm is configured to use the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code> script provided by <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>.</p>
+<p>Each job submitted to Slurm will make a request to the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> to book the needed licenses prior
+to the allocation of the job. The booking ensures that the licenses are available for the job to use, taking into
+consideration the licenses booked for other jobs and the license usage in the license server.</p>
+<p>If the booking cannot be made, the job will be kept in the queue until there are enough licenses available to
+satisfy the booking request.</p>
+</div>
+<div class="section" id="grace-time">
+<h3>Grace time<a class="headerlink" href="#grace-time" title="Permalink to this headline">¶</a></h3>
+<p>Since a job can take some time to check out the license from the license server, each license has a <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code>
+period used to indicate when the booking can be deleted, since the job will have already checked out the license
+from the license server and doesn't need to hold the licenses in the cluster anymore.</p>
+<p>The booking is deleted once it reaches the <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code> period for the license or when the job finishes, whichever comes first.</p>
+</div>
+</div>
+<div class="section" id="license-manager-backend">
+<h2>License Manager Backend<a class="headerlink" href="#license-manager-backend" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> provides a RESTful API where licenses, bookings and license configurations are tracked.
+The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> uses this API to store the license usage information and to consult the booking requests.</p>
+<p>The backend is also responsible for verifying if the booking requests can be satisfied, accounting for bookings already
+made and the license usage in the license server.</p>
+<div class="section" id="configurations">
+<h3>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h3>
+<p>Each license tracked by License Manager has a configuration that defines the license type, the license server host
+addresses and the grace time period. The license type identifies the provider of the license server.</p>
 <p>License server support:</p>
 <ul class="simple">
 <li><p>FlexLM</p></li>
@@ -278,28 +357,18 @@ bookings tracked in the backend.</p>
 <li><p>LM-X</p></li>
 <li><p>OLicense</p></li>
 </ul>
-<div class="section" id="reconcile">
-<h3>Reconcile<a class="headerlink" href="#reconcile" title="Permalink to this headline">¶</a></h3>
-<p>The reconcile timed job collects license usage from the 3rd party license servers
-and updates the license-manager-backend on a periodic basis referred to as the <code class="docutils literal notranslate"><span class="pre">stat-interval</span></code>.</p>
 </div>
-<div class="section" id="workload-manager-bindings">
-<h3>Workload Manager Bindings<a class="headerlink" href="#workload-manager-bindings" title="Permalink to this headline">¶</a></h3>
-<p>When Slurm is configured to use the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code> provided by <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>, it will make a
-request to the license-manager-backend to book the needed licenses prior to the allocation of a job.
-The <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code> will exit with status <code class="docutils literal notranslate"><span class="pre">1</span></code> if the booking cannot be made and <code class="docutils literal notranslate"><span class="pre">0</span></code> if the booking succeeds.</p>
+<div class="section" id="licenses">
+<h3>Licenses<a class="headerlink" href="#licenses" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> stores the information polled from the license server for each license configured.
+The information stored includes: total, in use and the user that checked out the license.</p>
 </div>
+<div class="section" id="id1">
+<h3>Bookings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> stores the information about the booking requests made by Slurm when the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code>
+script is used. The information stored includes: the job id, the user that made the booking request, the number of licenses
+requested and the time the booking was made.</p>
 </div>
-<div class="section" id="license-manager-backend">
-<h2>License Manager Backend<a class="headerlink" href="#license-manager-backend" title="Permalink to this headline">¶</a></h2>
-<p>The license-manager-backend provides an HTTP interface to a PostgreSQL database where
-licenses, bookings and license configurations are tracked.</p>
-<p>Backend base API routes:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">/license</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/booking</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">/config</span></code></p></li>
-</ul>
 </div>
 </div>
 
@@ -332,7 +401,7 @@ licenses, bookings and license configurations are tracked.</p>
     
       By Omnivector Solutions <br/>
     
-        &copy; Copyright 2020 - 2022, Scania CV AB &amp; Omnivector Solutions, LLC.<br/>
+        &copy; Copyright 2020 - 2023, Scania CV AB &amp; Omnivector Solutions, LLC.<br/>
   </p>
 </footer>
 </main>
