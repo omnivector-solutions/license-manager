@@ -21,7 +21,7 @@ This is done by creating a reservation to represent the licenses used in the lic
 
 This reservation is not meant to be consumed by users nor jobs, it's only a representation of the licenses in use.
 The reservation is created by the user configured in the ``license-manager-agent`` configuration file. The user must
-have a Slurm account in the cluster and have at least ``operator`` level of priviledge to be allowed to create the reservation.
+have a user account in the Slurm cluster and have ``operator`` privilege level to manage reservations.
 
 Bookings
 ********
