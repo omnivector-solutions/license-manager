@@ -1,15 +1,8 @@
-from enum import Enum
 from typing import Optional
 
 from pydantic import BaseSettings, Field, HttpUrl
 
-
-class LogLevelEnum(str, Enum):
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
+from lm_backend.constants import LogLevelEnum
 
 
 class Settings(BaseSettings):

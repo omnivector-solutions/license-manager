@@ -6,6 +6,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
+from lm_backend.constants import LicenseServerType
+
 
 class ConfigurationRow(BaseModel):
     """
@@ -17,7 +19,7 @@ class ConfigurationRow(BaseModel):
     product: str
     features: str
     license_servers: List[str]
-    license_server_type: str
+    license_server_type: LicenseServerType
     grace_time: int
     client_id: str
 
@@ -35,7 +37,7 @@ class ConfigurationItem(BaseModel):
     product: str
     features: dict
     license_servers: List[str]
-    license_server_type: str
+    license_server_type: LicenseServerType
     grace_time: int
     client_id: str
 

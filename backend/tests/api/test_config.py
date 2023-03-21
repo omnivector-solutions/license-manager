@@ -4,8 +4,8 @@ from httpx import AsyncClient
 from pytest import fixture, mark
 
 from lm_backend import table_schemas
-from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
+from lm_backend.constants import LicenseServerType, Permissions
 from lm_backend.storage import database
 
 
@@ -366,7 +366,7 @@ async def test_add_configuration__success(
         "product": "testproduct1",
         "features": '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}',
         "license_servers": ["licenseserver100"],
-        "license_server_type": "servertype100",
+        "license_server_type": LicenseServerType.FLEXLM,
         "grace_time": "10000",
         "client_id": "cluster-staging",
     }
@@ -385,7 +385,7 @@ async def test_add_configuration__success(
         == '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}'
     )
     assert fetched.license_servers == ["licenseserver100"]
-    assert fetched.license_server_type == "servertype100"
+    assert fetched.license_server_type == LicenseServerType.FLEXLM
     assert fetched.grace_time == 10000
     assert fetched.client_id == "cluster-staging"
 
@@ -420,6 +420,30 @@ async def test_add_configuration__fail_on_bad_permission(
 
 @mark.asyncio
 @database.transaction(force_rollback=True)
+async def test_add_configuration__fail_on_invalid_license_server_type(
+    backend_client: AsyncClient,
+    inject_security_header,
+):
+    """
+    Test that adding a configuration row fails with an invalid license server type.
+    """
+    data = {
+        "name": "Product 1: Features 1, 2, 3",
+        "product": "testproduct1",
+        "features": '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}',
+        "license_servers": ["licenseserver100"],
+        "license_server_type": "not-a-valid-license-server-type",
+        "grace_time": "10000",
+        "client_id": "cluster-staging",
+    }
+
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/api/v1/config", json=data)
+    assert response.status_code == 422
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
 async def test_update_configuration__success(
     backend_client: AsyncClient,
     one_configuration_row,
@@ -435,13 +459,39 @@ async def test_update_configuration__success(
         "product": "updated_test_product",
         "features": '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}',
         "license_servers": ["licenseserver100"],
-        "license_server_type": "servertype100",
+        "license_server_type": LicenseServerType.FLEXLM,
         "grace_time": "10000",
         "client_id": "cluster-staging",
     }
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.put("/lm/api/v1/config/100", json=data)
     assert resp.status_code == 200
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_update_configuration__fail_with_invalid_license_server_type(
+    backend_client: AsyncClient,
+    one_configuration_row,
+    insert_objects,
+    inject_security_header,
+):
+    """
+    Test that updating a configuration row fails if you provide an invalid license configuration.
+    """
+    await insert_objects(one_configuration_row, table_schemas.config_table)
+    data = {
+        "id": "100",
+        "product": "updated_test_product",
+        "features": '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}',
+        "license_servers": ["licenseserver100"],
+        "license_server_type": "not-a-valid-license-server-type",
+        "grace_time": "10000",
+        "client_id": "cluster-staging",
+    }
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    resp = await backend_client.put("/lm/api/v1/config/100", json=data)
+    assert resp.status_code == 422
 
 
 @mark.asyncio
@@ -490,7 +540,7 @@ async def test_update_nonexistant_configuration(
         "product": "testproduct1",
         "features": '{"feature1": {"total": 1, "limit": 1}, "feature2": {"total": 2, "limit": 2}, "feature3": {"total": 3, "limit": 3}}',
         "license_servers": ["licenseserver100"],
-        "license_server_type": "servertype100",
+        "license_server_type": LicenseServerType.FLEXLM,
         "grace_time": "10000",
         "client_id": "cluster-staging",
     }
@@ -560,3 +610,15 @@ async def test_delete_nonexistant__configuration(
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
     resp = await backend_client.delete("/lm/api/v1/config/99999999")
     assert resp.status_code == 404
+
+
+@mark.asyncio
+@database.transaction(force_rollback=True)
+async def test_get_license_server_types(backend_client: AsyncClient):
+    """
+    Test fetching available license server types.
+    """
+    resp = await backend_client.get("/lm/api/v1/config/license_server_types")
+
+    assert resp.status_code == 200
+    assert sorted(resp.json()) == sorted(e.value for e in LicenseServerType)

@@ -4,9 +4,9 @@ from typing import Dict, List, Optional, Union
 from armasec import TokenPayload
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
-from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.constants import LicenseServerType, Permissions
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import config_searchable_fields, config_sortable_fields, config_table
@@ -74,6 +74,17 @@ async def get_all_configurations(
         ConfigurationItem(**item.dict(exclude={"features"}), features=literal_eval(item.features))
         for item in config_rows
     ]
+
+
+@router.get(
+    "/license_server_types",
+    response_model=List[LicenseServerType],
+)
+async def get_license_server_types():
+    """
+    Query database for all configurations.
+    """
+    return [e for e in LicenseServerType]
 
 
 @router.get(
@@ -152,7 +163,7 @@ async def update_configuration(
     product: Optional[str] = Body(None),
     features: Optional[str] = Body(None),
     license_servers: Optional[List[str]] = Body(None),
-    license_server_type: Optional[str] = Body(None),
+    license_server_type: Optional[LicenseServerType] = Body(None),
     grace_time: Optional[int] = Body(None),
     client_id: Optional[str] = Body(None),
 ):
