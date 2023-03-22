@@ -317,39 +317,40 @@ the usage information and store it in the <code class="docutils literal notransl
 between each reconciliation and can be configured in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> configuration file.</p>
 <p>The information in the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> is used by the reconciliation process to update the license counters in Slurm.
 This is done by creating a reservation to represent the licenses used in the license server.</p>
-<p>This reservation is not meant to be consumed by users nor jobs, it's only a representation of the licenses in use.
+<p>This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.
 The reservation is created by the user configured in the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> configuration file. The user must
-have a Slurm account in the cluster and have at least <code class="docutils literal notranslate"><span class="pre">operator</span></code> level of priviledge to be allowed to create the reservation.</p>
+have a user account in the Slurm cluster and have <code class="docutils literal notranslate"><span class="pre">operator</span></code> privilege level to manage reservations.</p>
 </div>
 <div class="section" id="bookings">
 <h3>Bookings<a class="headerlink" href="#bookings" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> is also responsible for making booking requests to the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code>
 when Slurm is configured to use the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code> script provided by <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code>.</p>
 <p>Each job submitted to Slurm will make a request to the <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> to book the needed licenses prior
-to the allocation of the job. The booking ensures that the licenses are available for the job to use, taking into
+to the allocation of the job. The booking ensures that the licenses are available for the job to use by taking into
 consideration the licenses booked for other jobs and the license usage in the license server.</p>
 <p>If the booking cannot be made, the job will be kept in the queue until there are enough licenses available to
 satisfy the booking request.</p>
 </div>
 <div class="section" id="grace-time">
 <h3>Grace time<a class="headerlink" href="#grace-time" title="Permalink to this headline">¶</a></h3>
-<p>Since a job can take some time to check out the license from the license server, each license has a <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code>
-period used to indicate when the booking can be deleted, since the job will have already checked out the license
-from the license server and doesn't need to hold the licenses in the cluster anymore.</p>
-<p>The booking is deleted once it reaches the <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code> period for the license or when the job finishes, whichever comes first.</p>
+<p>A job can take some time to check out the license from the license server after it is submitted to Slurm.
+Thrus, each license has a <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code> period that is used to indicate how long a booking will be retained.
+After the <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code> expires, the booking is deleted. This means that the license was checked out from the
+license server and doesn't need a booking anymore.</p>
+<p>A booking is deleted after the job finishes even if there is remaining <code class="docutils literal notranslate"><span class="pre">grace</span> <span class="pre">time</span></code>.</p>
 </div>
 </div>
 <div class="section" id="license-manager-backend">
 <h2>License Manager Backend<a class="headerlink" href="#license-manager-backend" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager-backend</span></code> provides a RESTful API where licenses, bookings and license configurations are tracked.
-The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> uses this API to store the license usage information and to consult the booking requests.</p>
-<p>The backend is also responsible for verifying if the booking requests can be satisfied, accounting for bookings already
+The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> uses this API to store the license usage information and to process the booking requests.</p>
+<p>The backend is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.</p>
 <div class="section" id="configurations">
 <h3>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h3>
 <p>Each license tracked by License Manager has a configuration that defines the license type, the license server host
 addresses and the grace time period. The license type identifies the provider of the license server.</p>
-<p>License server support:</p>
+<p>The following license server are supported:</p>
 <ul class="simple">
 <li><p>FlexLM</p></li>
 <li><p>RLM</p></li>
@@ -361,13 +362,12 @@ addresses and the grace time period. The license type identifies the provider of
 <div class="section" id="licenses">
 <h3>Licenses<a class="headerlink" href="#licenses" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> stores the information polled from the license server for each license configured.
-The information stored includes: total, in use and the user that checked out the license.</p>
+The information stored includes the total number of licenses available, how many licenses are in use and which user checked out the license.</p>
 </div>
 <div class="section" id="id1">
 <h3>Bookings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> stores the information about the booking requests made by Slurm when the <code class="docutils literal notranslate"><span class="pre">PrologSlurmctld</span></code>
-script is used. The information stored includes: the job id, the user that made the booking request, the number of licenses
-requested and the time the booking was made.</p>
+script is used. The information stored includes the job id, the user that made the booking request and the number of licenses being booked.</p>
 </div>
 </div>
 </div>
