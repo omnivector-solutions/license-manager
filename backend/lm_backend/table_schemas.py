@@ -15,6 +15,7 @@ license_servers_table = Table(
     Column("id", Integer, primary_key=True),
     Column("host", String, nullable=False),
     Column("port", Integer, CheckConstraint("port>=0"), nullable=False),
+    Column("type", String, nullable=False),
 )
 
 license_servers_searchable_fields = [
@@ -30,8 +31,8 @@ clusters_table = Table(
     "clusters",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
-    Column("client_id", String, nullable=False),
+    Column("name", String, nullable=False, unique=True),
+    Column("client_id", String, nullable=False, unique=True),
 )
 
 clusters_searchable_fields = [
@@ -64,11 +65,10 @@ configs_table = Table(
     "configs",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
+    Column("name", String, nullable=False, unique=True),
     Column("cluster_id", Integer, ForeignKey("clusters.id"), nullable=False),
     Column("grace_time", Integer, CheckConstraint("grace_time>=0"), nullable=False),
     Column("reserved", Integer, CheckConstraint("reserved>=0"), nullable=False),
-    Column("type", String, nullable=False),
 )
 
 configs_searchable_fields = [
@@ -90,7 +90,7 @@ products_table = Table(
     "products",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
+    Column("name", String, nullable=False, unique=True),
 )
 
 products_searchable_fields = [
@@ -105,7 +105,7 @@ features_table = Table(
     "features",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
+    Column("name", String, nullable=False, unique=True),
     Column("product_id", Integer, ForeignKey("products.id"), nullable=False),
     Column("config_id", Integer, ForeignKey("configs.id"), nullable=False),
 )
@@ -122,7 +122,7 @@ inventories_table = Table(
     "inventories",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("feature_id", Integer, ForeignKey("features.id"), nullable=False),
+    Column("feature_id", Integer, ForeignKey("features.id"), nullable=False, unique=True),
     Column("total", Integer, CheckConstraint("total>=0"), nullable=False),
     Column("used", Integer, CheckConstraint("used>=0"), nullable=False),
 )
