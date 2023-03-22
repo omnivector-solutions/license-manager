@@ -1,174 +1,110 @@
 """
-API request and response schemas
+API request and response schemas.
 """
-from datetime import datetime
 from typing import List, Optional
+from enum import Enum
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
-class ConfigurationRow(BaseModel):
+class LicenseServerType(str, Enum):
     """
-    A configuration row.
+    Describe the supported license server types that may be used for fetching licenses from license servers.
     """
 
+    FLEXLM = "flexlm"
+    RLM = "rlm"
+    LMX = "lmx"
+    LSDYNA = "lsdyna"
+    OLICENSE = "olicense"
+    
+
+class LicenseServer(BaseModel):
+    """
+    Represents the license servers in a feature configuration.
+    """
     id: Optional[int] = Field(None)
-    name: Optional[str] = Field(None)
-    product: str
-    features: str
-    license_servers: List[str]
-    license_server_type: str
-    grace_time: int
+    host: str
+    port: int
+    type: LicenseServerType
+
+    class Config:
+        orm_mode = True
+
+
+class Cluster(BaseModel):
+    """
+    Represents the clusters in a feature configuration.
+    """
+    id: Optional[int] = Field(None)
+    name: str
     client_id: str
 
     class Config:
         orm_mode = True
 
 
-class ConfigurationItem(BaseModel):
+class Job(BaseModel):
     """
-    A configuration parsed item.
+    Represents the jobs submitted in a cluster.
     """
+    slurm_id: int
+    cluster: Cluster
+    username: str
+    lead_host: str
 
+    class Config:
+        orm_mode = True
+
+
+class Product(BaseModel):
+    """
+    Represents a feature's product.
+    """
     id: Optional[int] = Field(None)
-    name: Optional[str] = Field(None)
-    product: str
-    features: dict
-    license_servers: List[str]
-    license_server_type: str
+    name: str
+ 
+    class Config:
+        orm_mode = True
+
+
+class Feature(BaseModel):
+    """
+    Represents the features in a feature configuration.
+    """
+    id: Optional[int] = Field(None)
+    name: str
+    product: Product
+
+    class Config:
+        orm_mode = True
+
+
+class Configuration(BaseModel):
+    """
+    Represents the configuration for a set of features.
+    """
+    id: Optional[int] = Field(None)
+    name: str
+    cluster: Cluster
+    license_servers: List[LicenseServer]
+    features = List[Feature]
     grace_time: int
-    client_id: str
 
     class Config:
         orm_mode = True
 
 
-PRODUCT_FEATURE_RX = r"^.+?\..+$"
-
-
-class BookingFeature(BaseModel):
+class Inventory(BaseModel):
     """
-    One booked count for a single product.feature in a booking
+    Represents the inventory of a feature.
     """
-
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    booked: int
-
-    class Config:
-        orm_mode = True
-
-
-class Booking(BaseModel):
-    """
-    A booking for a jobid with a list of the features it requests
-    """
-
-    job_id: str
-    features: List[BookingFeature]
-    lead_host: str
-    user_name: str
-    cluster_name: str
-
-    class Config:
-        orm_mode = True
-
-
-class BookingRow(BaseModel):
-    """
-    A flattened booking, suitable to be inserted into the database
-    """
-
     id: Optional[int] = Field(None)
-    job_id: str
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    booked: int
-    config_id: int
-    lead_host: str
-    user_name: str
-    cluster_name: str
-
-    class Config:
-        orm_mode = True
-
-
-class BookingRowDetail(BookingRow):
-    """
-    A booking row with more detail
-    """
-
-    created_at: Optional[datetime]
-    config_name: Optional[str]
-
-    class Config:
-        orm_mode = True
-
-
-class LicenseUseBase(BaseModel):
-    """
-    Used/Total counts for a product.feature license category
-    """
-
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    feature: Feature
+    total: int
     used: int
+    booked: int
+    available: int
 
-
-class LicenseUseReconcile(LicenseUseBase):
-    """
-    A reconcile [PATCH] Used/Total counts for a product.feature license category
-
-    For creating items through the reconcile mechanism
-    """
-
-    total: int
-
-
-class LicenseUseReconcileRequest(LicenseUseReconcile):
-    """
-    Used in the /reconcile request.
-    """
-
-    used_licenses: List
-
-
-class LicenseUse(LicenseUseBase):
-    """
-    Used/Available/Total counts for a product.feature license category
-
-    Returned by GET queries, including `available` for convenience
-    """
-
-    total: int
-
-    available: Optional[int]
-
-    @validator("available", always=True)
-    def validate_available(cls, value, values):
-        """
-        Set available as a function of the other fields
-        """
-        return values["total"] - values["used"]
-
-
-class LicenseUseWithBooking(LicenseUseBase):
-    """
-    Used/Available/Booked/Total counts for a product.feature license category.
-
-    Returned by GET queries, including `available` for convenience.
-    """
-
-    total: int
-    booked: Optional[int]
-    available: Optional[int]
-
-    @validator("available", always=True)
-    def validate_available(cls, value, values):
-        """
-        Set available as a function of the other fields
-        """
-        return values["total"] - (values["used"] + values["booked"])
-
-
-class LicenseUseBooking(LicenseUseBase):
-    """
-    A booking [PUT] object, specifying how many tokens are needed and no total
-    """
+    class Config:
+        orm_mode = True
