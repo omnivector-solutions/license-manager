@@ -80,10 +80,10 @@ configs_sortable_fields = [
 ]
 
 license_servers_configs = Table(
-    "license_servers_configs",
+    "license_servers_configs_mapping",
     metadata,
-    Column("license_server_id", Integer, ForeignKey("license_servers.id"), nullable=False),
-    Column("config_id", Integer, ForeignKey("configs.id"), nullable=False),
+    Column("license_server_id", Integer, ForeignKey("license_servers.id"), primary_key=True, nullable=False),
+    Column("config_id", Integer, ForeignKey("configs.id"), primary_key=True, nullable=False),
 )
 
 products_table = Table(
