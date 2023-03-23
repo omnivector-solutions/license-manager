@@ -38,11 +38,9 @@ satisfy the booking request.
 Grace time
 **********
 A job can take some time to check out the license from the license server after it is submitted to Slurm.
-Thrus, each license has a ``grace time`` period that is used to indicate how long a booking will be retained.
+Thus, each license has a ``grace time`` period that is used to indicate how long a booking will be retained.
 After the ``grace time`` expires, the booking is deleted. This means that the license was checked out from the
 license server and doesn't need a booking anymore.
-
-A booking is deleted after the job finishes even if there is remaining ``grace time``.
 
 License Manager Backend
 -----------------------
