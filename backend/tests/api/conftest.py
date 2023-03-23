@@ -2,6 +2,7 @@ from pytest import fixture
 
 from lm_backend.api_schemas import BookingRow, ConfigurationRow
 from lm_backend.api_schemas import LicenseUseReconcile as LUR
+from lm_backend.constants import LicenseServerType
 
 
 @fixture
@@ -16,7 +17,7 @@ def some_config_rows():
             product="hello",
             features='{"world": {"total": 100, "limit": 100}, "dolly": {"total": 80, "limit": 80}}',
             license_servers=["bla"],
-            license_server_type="test",
+            license_server_type=LicenseServerType.FLEXLM,
             grace_time=10,
             client_id="cluster-staging",
         ),
@@ -26,7 +27,7 @@ def some_config_rows():
             product="cool",
             features='{"beans": {"total": 11, "limit": 11}}',
             license_servers=["bla"],
-            license_server_type="test",
+            license_server_type=LicenseServerType.FLEXLM,
             grace_time=10,
             client_id="cluster-staging",
         ),
@@ -36,7 +37,7 @@ def some_config_rows():
             product="limited",
             features='{"license": {"total": 50, "limit": 40}}',
             license_servers=["bla"],
-            license_server_type="test",
+            license_server_type=LicenseServerType.FLEXLM,
             grace_time=10,
             client_id="cluster-staging",
         ),

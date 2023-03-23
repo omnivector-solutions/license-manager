@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.sql import join, select, update
 
-from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import (
     BookingRow,
     LicenseUse,
@@ -14,6 +13,7 @@ from lm_backend.api_schemas import (
     LicenseUseReconcileRequest,
     LicenseUseWithBooking,
 )
+from lm_backend.constants import Permissions
 from lm_backend.helpers import LicenseUseSortFieldChecker, LicenseUseWithBookingSortFieldChecker
 from lm_backend.security import guard
 from lm_backend.storage import database, search_clause

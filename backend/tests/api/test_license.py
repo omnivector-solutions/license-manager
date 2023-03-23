@@ -5,8 +5,8 @@ from httpx import AsyncClient
 from pytest import mark, raises
 
 from lm_backend.api import license
-from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import BookingRow, LicenseUseReconcile, LicenseUseReconcileRequest
+from lm_backend.constants import Permissions
 from lm_backend.storage import database
 from lm_backend.table_schemas import booking_table, config_table, license_table
 

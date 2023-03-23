@@ -7,8 +7,8 @@ from pytest import mark, raises
 
 from lm_backend import table_schemas
 from lm_backend.api import booking
-from lm_backend.api.permissions import Permissions
 from lm_backend.api_schemas import Booking, BookingFeature, BookingRow, ConfigurationRow, LicenseUseReconcile
+from lm_backend.constants import LicenseServerType, Permissions
 from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
 from lm_backend.storage import database
 
@@ -642,7 +642,7 @@ async def test_get_limit_for_booking_feature__without_limit_specified(insert_obj
                 product="notlimited",
                 features='{"license": {"total": 50}}',
                 license_servers=["bla"],
-                license_server_type="test",
+                license_server_type=LicenseServerType.FLEXLM,
                 grace_time=10,
                 client_id="cluster-staging",
             )
@@ -665,7 +665,7 @@ async def test_get_limit_for_booking_feature__fallback_to_old_format(insert_obje
                 product="old",
                 features='{"license": 50}',
                 license_servers=["bla"],
-                license_server_type="test",
+                license_server_type=LicenseServerType.FLEXLM,
                 grace_time=10,
                 client_id="cluster-staging",
             )
@@ -688,7 +688,7 @@ async def test_get_limit_for_booking_feature__raise_exception_incorrect_feature(
                 product="incorrect",
                 features='{"license": {"bla": 123}}',
                 license_servers=["bla"],
-                license_server_type="test",
+                license_server_type=LicenseServerType.FLEXLM,
                 grace_time=10,
                 client_id="cluster-staging",
             )
