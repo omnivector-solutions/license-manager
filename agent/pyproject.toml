@@ -10,7 +10,7 @@ documentation = "https://omnivector-solutions.github.io/license-manager/"
 packages = [{ include = "lm_agent" }]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.9"
+python = ">=3.8,<4.0"
 httpx = "^0.18.2"
 PyJWT = "^2.4.0"
 typer = "^0.3.2"
