@@ -1,13 +1,12 @@
 """CRUD operations for features."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema, FeatureSchema
-from lm_backend.models.feature import Feature
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureSchema, FeatureUpdateSchema
+from lm_backend.models.feature import Feature
 
 
 class FeatureCRUD:

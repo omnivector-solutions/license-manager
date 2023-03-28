@@ -1,17 +1,16 @@
 """CRUD operations for license servers."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from lm_backend.api.schemas.license_server import (
     LicenseServerCreateSchema,
-    LicenseServerUpdateSchema,
     LicenseServerSchema,
+    LicenseServerUpdateSchema,
 )
 from lm_backend.models.license_server import LicenseServer
-
-from fastapi import HTTPException
 
 
 class LicenseServerCRUD:
@@ -42,10 +41,12 @@ class LicenseServerCRUD:
         """
         async with db_session.begin():
             try:
-                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                query = await db_session.execute(
+                    select(LicenseServer).filter(LicenseServer.id == license_server_id)
+                )
                 db_license_server = query.scalars().one_or_none()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"License server could not be read: {e}")            
+                raise HTTPException(status_code=400, detail=f"License server could not be read: {e}")
 
         if db_license_server is None:
             raise HTTPException(status_code=404, detail="License server not found")
@@ -77,12 +78,14 @@ class LicenseServerCRUD:
         """
         async with db_session.begin():
             try:
-                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                query = await db_session.execute(
+                    select(LicenseServer).filter(LicenseServer.id == license_server_id)
+                )
                 db_license_server = query.scalar_one_or_none()
 
                 if db_license_server is None:
                     raise HTTPException(status_code=404, detail="License server not found")
-                
+
                 for field, value in license_server_update:
                     if value is not None:
                         setattr(db_license_server, field, value)
@@ -97,17 +100,18 @@ class LicenseServerCRUD:
         """
         async with db_session.begin():
             try:
-                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                query = await db_session.execute(
+                    select(LicenseServer).filter(LicenseServer.id == license_server_id)
+                )
                 db_license_server = query.scalar_one_or_none()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"License server could not be deleted: {e}")
-            
+
             if db_license_server is None:
                 raise HTTPException(status_code=404, detail="License server not found")
-                
+
             try:
                 await db_session.delete(db_license_server)
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"License server could not be deleted: {e}")
         await db_session.flush()
- 

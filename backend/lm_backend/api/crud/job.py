@@ -1,13 +1,12 @@
 """CRUD operations for jobs."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.job import JobCreateSchema, JobUpdateSchema, JobSchema
-from lm_backend.models.job import Job
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema
+from lm_backend.models.job import Job
 
 
 class JobCRUD:

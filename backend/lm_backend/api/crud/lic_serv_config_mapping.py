@@ -1,17 +1,16 @@
 """CRUD operations for license server config mapping."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from lm_backend.api.schemas.lic_serv_config_mapping import (
     LicServConfigMappingCreateSchema,
-    LicServConfigMappingUpdateSchema,
     LicServConfigMappingSchema,
+    LicServConfigMappingUpdateSchema,
 )
 from lm_backend.models.lic_serv_config_mapping import LicServConfigMapping
-
-from fastapi import HTTPException
 
 
 class LicServConfigMappingCRUD:

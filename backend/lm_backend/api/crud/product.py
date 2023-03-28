@@ -1,13 +1,12 @@
 """CRUD operations for products."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.product import ProductCreateSchema, ProductUpdateSchema, ProductSchema
-from lm_backend.models.product import Product
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.product import ProductCreateSchema, ProductSchema, ProductUpdateSchema
+from lm_backend.models.product import Product
 
 
 class ProductCRUD:

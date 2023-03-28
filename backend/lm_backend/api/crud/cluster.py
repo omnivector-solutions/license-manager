@@ -1,13 +1,12 @@
 """CRUD operations for clusters."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.cluster import ClusterCreateSchema, ClusterUpdateSchema, ClusterSchema
-from lm_backend.models.cluster import Cluster
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.cluster import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
+from lm_backend.models.cluster import Cluster
 
 
 class ClusterCRUD:
