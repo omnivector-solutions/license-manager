@@ -1,8 +1,8 @@
 """Schemas for license servers."""
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, validator
-from typing import Optional
 
 
 class LicenseServerType(str, Enum):
