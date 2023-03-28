@@ -106,3 +106,4 @@ class GenericCRUD:
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Obj could not be deleted: {e}")
         await db_session.flush()
+    

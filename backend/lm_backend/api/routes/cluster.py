@@ -4,9 +4,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.cluster import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
+#from lm_backend.api.schemas.cluster_configuration import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
 from lm_backend.crud import GenericCRUD
 from lm_backend.database import get_session
 from lm_backend.models.cluster import Cluster
+#from lm_backend.models.cluster_configuration import Cluster
 
 router = APIRouter()
 
