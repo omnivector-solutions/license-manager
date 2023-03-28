@@ -1,4 +1,6 @@
+"""API schemas for license server endpoints."""
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, validator
 
