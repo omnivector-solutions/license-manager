@@ -17,8 +17,5 @@ class Cluster(Base):
     name = Column(String, nullable=False, unique=True)
     client_id = Column(String, nullable=False, unique=True)
 
-    configs = relationship("Configuration", back_populates="cluster")
-    jobs = relationship("Job", back_populates="cluster")
-
     def __repr__(self):
         return f"Cluster(id={self.id}, name={self.name}, client_id={self.client_id})"
