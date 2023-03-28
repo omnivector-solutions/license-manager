@@ -16,7 +16,7 @@ from lm_backend.api_schemas import (
 from lm_backend.constants import Permissions
 from lm_backend.helpers import LicenseUseSortFieldChecker, LicenseUseWithBookingSortFieldChecker
 from lm_backend.security import guard
-from lm_backend.storage import database, search_clause
+from lm_backend.database import database, search_clause
 from lm_backend.table_schemas import booking_table, license_searchable_fields, license_table
 
 PRODUCT_FEATURE_RX = r"^.+?\..+$"
