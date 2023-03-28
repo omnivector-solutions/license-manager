@@ -1,34 +1,39 @@
 """
 Schemas for clusters.
 """
+from typing import Optional
+
 from pydantic import BaseModel
 
+from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 
-class Cluster(BaseModel):
+
+class ClusterCreateSchema(BaseCreateSchema):
     """
-    Represents the clusters in a feature configuration.
+    Clusters to be created in the database.
     """
 
-    class ClusterCreateSchema(BaseModel):
-        """
-        Represents the clusters in a feature configuration.
-        """
+    name: str
+    client_id: str
 
-        name: str
-        client_id: str
 
-    class ClusterUpdateSchema(BaseModel):
-        """
-        Represents the clusters in a feature configuration.
-        """
+class ClusterUpdateSchema(BaseUpdateSchema):
+    """
+    Cluster to be updated in the database.
+    """
 
-        name: str
-        client_id: str
+    name: Optional[str] = None
+    client_id: Optional[str] = None
 
-    class ClusterSchema(BaseModel):
-        id: int
-        name: str
-        client_id: str
+
+class ClusterSchema(BaseModel):
+    """
+    Cluster response from the database.
+    """
+
+    id: int
+    name: str
+    client_id: str
 
     class Config:
         orm_mode = True
