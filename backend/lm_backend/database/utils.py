@@ -1,33 +1,10 @@
-"""
-Persistent data storage for the API.
-"""
-
+"""Database utility functions."""
 import typing
 
 from fastapi.exceptions import HTTPException
-from sqlalchemy import Column, create_engine, or_
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, or_
 from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
 from starlette import status
-
-from lm_backend.config import settings
-from lm_backend.table_schemas import metadata
-
-engine = create_engine(settings.DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def create_all_tables():
-    metadata.create_all(engine)
-
-
-async def db_session():
-    """
-    Create async database session.
-    """
-    async with SessionLocal() as session:
-        async with session.begin():
-            yield session
 
 
 def render_sql(query) -> str:

@@ -19,9 +19,9 @@ from lm_backend.api_schemas import (
     LicenseUse,
 )
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
+from lm_backend.database.storage import database, search_clause, sort_clause
 from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
 from lm_backend.security import guard
-from lm_backend.storage import database, search_clause, sort_clause
 from lm_backend.table_schemas import (
     booking_searchable_fields,
     booking_sortable_fields,
