@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
+from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
+
 
 class LicenseServerType(str, Enum):
     """
@@ -17,7 +19,7 @@ class LicenseServerType(str, Enum):
     OLICENSE = "olicense"
 
 
-class LicenseServerCreateSchema(BaseModel):
+class LicenseServerCreateSchema(BaseCreateSchema):
     """
     License server to be created in the database.
     """
@@ -33,7 +35,7 @@ class LicenseServerCreateSchema(BaseModel):
         return v
 
 
-class LicenseServerUpdateSchema(BaseModel):
+class LicenseServerUpdateSchema(BaseUpdateSchema):
     """
     License server to be updated in the database.
     """
