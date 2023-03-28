@@ -1,14 +1,16 @@
 """
 Persistent data storage for the API.
 """
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from lm_backend.config import settings
 import typing
+
 from fastapi.exceptions import HTTPException
 from sqlalchemy import Column, or_
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
 from starlette import status
+
+from lm_backend.config import settings
 
 async_engine = create_async_engine(settings.DATABASE_URL, echo=True)
 AsyncSessionLocal = async_sessionmaker(bind=async_engine, expire_on_commit=False, class_=AsyncSession)
@@ -24,8 +26,7 @@ async def create_tables():
 async def get_session() -> AsyncSession:
     """Create a new async session for each request."""
     async with AsyncSessionLocal() as session:
-        async with session.begin():
-            yield session
+        yield session
 
 
 def render_sql(query) -> str:
