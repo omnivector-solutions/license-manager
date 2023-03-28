@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.sql import delete, join, select
 
 from lm_backend.api.config import get_config_id_for_product_features
-from lm_backend.api.permissions import Permissions
+from lm_backend.permissions import Permissions
 from lm_backend.api_schemas import (
     Booking,
     BookingRow,
@@ -19,7 +19,7 @@ from lm_backend.api_schemas import (
     LicenseUse,
 )
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
-from lm_backend.database.storage import database, search_clause, sort_clause
+from lm_backend.database import database, search_clause, sort_clause
 from lm_backend.exceptions import LicenseManagerFeatureConfigurationIncorrect
 from lm_backend.security import guard
 from lm_backend.table_schemas import (

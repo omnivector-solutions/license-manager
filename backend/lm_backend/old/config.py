@@ -4,11 +4,11 @@ from typing import Dict, List, Optional, Union
 from armasec import TokenPayload
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
-from lm_backend.api.permissions import Permissions
+from lm_backend.permissions import Permissions
 from lm_backend.api_schemas import ConfigurationItem, ConfigurationRow
 from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.security import guard
-from lm_backend.storage import database, search_clause, sort_clause
+from lm_backend.database import database, search_clause, sort_clause
 from lm_backend.table_schemas import config_searchable_fields, config_sortable_fields, config_table
 
 router = APIRouter()
