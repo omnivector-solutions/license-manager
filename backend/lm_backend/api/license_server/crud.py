@@ -27,7 +27,10 @@ class LicenseServerCRUD:
         return LicenseServerResponse.from_orm(new_license_server)
 
     async def read(self, license_server_id: int) -> Optional[LicenseServerResponse]:
-        """Return a license server with the given id."""
+        """
+        Read a license server with the given id.
+        Returns the license server or None if it does not exist.
+        """
         query = await self.async_session.execute(
             select(LicenseServer).filter(LicenseServer.id == license_server_id)
         )
@@ -39,13 +42,19 @@ class LicenseServerCRUD:
         return LicenseServerResponse.from_orm(license_server)
 
     async def read_all(self) -> List[LicenseServerResponse]:
-        """Return all license servers."""
+        """
+        Read all license servers.
+        Returns a list of license servers.
+        """
         query = await self.async_session.execute(select(LicenseServer))
         license_servers = query.scalars().all()
         return [LicenseServerResponse.from_orm(license_server) for license_server in license_servers]
 
     async def update(self, license_server_id: int, host: str, port: int, type: str) -> LicenseServerResponse:
-        """Update a license server in the database."""
+        """
+        Update a license server in the database.
+        Returns the updated license server.
+        """
         query = update(LicenseServer).where(LicenseServer.id == license_server_id)
         if host:
             query = query.values(host=host)
@@ -69,50 +78,4 @@ class LicenseServerCRUD:
             await self.async_session.flush()
         except Exception:
             return False
-        return False
-
-
-# async def read(
-#     async_session: async_sessionmaker[AsyncSession], license_server_id: int
-# ) -> LicenseServerResponse:
-#     """Return a license server with the given id."""
-#     async with async_session() as session:
-#         async with session.begin():
-#             query = LicenseServerTable.filter(LicenseServerTable.id == license_server_id)
-#             license_server = await session.execute(query)
-#             return LicenseServerResponse.from_orm(license_server)
-
-
-# async def read_all(async_session: async_sessionmaker[AsyncSession]) -> List[LicenseServerResponse]:
-#     """Return all license servers."""
-#     async with async_session() as session:
-#         async with session.begin():
-#             query = LicenseServerTable.all()
-#             license_servers = await session.execute(query)
-#             return [LicenseServerResponse.from_orm(license_server) for license_server in license_servers]
-
-
-# async def update(
-#     async_session: async_sessionmaker[AsyncSession],
-#     license_server_id: int,
-#     license_server_request: LicenseServerUpdateRequest,
-# ) -> LicenseServerResponse:
-#     """Update a license server in the database."""
-#     async with async_session() as session:
-#         async with session.begin():
-#             query = LicenseServerTable.filter(LicenseServerTable.id == license_server_id)
-#             license_server = await session.execute(query)
-#             license_server.update(license_server_request)
-#             return LicenseServerResponse.from_orm(license_server)
-
-
-# async def delete(
-#     async_session: async_sessionmaker[AsyncSession], license_server_id: int
-# ) -> LicenseServerResponse:
-#     """Delete a license server from the database."""
-#     async with async_session() as session:
-#         async with session.begin():
-#             query = LicenseServerTable.filter(LicenseServerTable.id == license_server_id)
-#             license_server = await session.execute(query)
-#             session.delete(license_server)
-#             return LicenseServerResponse.from_orm(license_server)
+        return True

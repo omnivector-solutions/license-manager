@@ -69,7 +69,8 @@ async def delete_license_server(
     if not license_server:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="License server not found")
     try:
-        license_server_crud.delete(license_server_id=license_server_id)
-        return status.HTTP_204_NO_CONTENT
+        deleted = license_server_crud.delete(license_server_id=license_server_id)
+        if deleted:
+            return status.HTTP_204_NO_CONTENT
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
