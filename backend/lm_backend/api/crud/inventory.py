@@ -1,13 +1,12 @@
 """CRUD operations for inventories."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.inventory import InventoryCreateSchema, InventoryUpdateSchema, InventorySchema
-from lm_backend.models.inventory import Inventory
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.inventory import InventoryCreateSchema, InventorySchema, InventoryUpdateSchema
+from lm_backend.models.inventory import Inventory
 
 
 class InventoryCRUD:

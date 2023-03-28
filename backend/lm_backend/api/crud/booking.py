@@ -1,13 +1,12 @@
 """CRUD operations for bookings."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema, BookingSchema
-from lm_backend.models.booking import Booking
-
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from lm_backend.api.schemas.booking import BookingCreateSchema, BookingSchema, BookingUpdateSchema
+from lm_backend.models.booking import Booking
 
 
 class BookingCRUD:

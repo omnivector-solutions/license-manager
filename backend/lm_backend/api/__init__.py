@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from lm_backend.api.routes.license_server import router as router_license_server
 
 api = APIRouter()

@@ -1,17 +1,16 @@
 """CRUD operations for configurations."""
 from typing import List, Optional
 
-from sqlalchemy.future import select
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from lm_backend.api.schemas.configuration import (
     ConfigurationCreateSchema,
-    ConfigurationUpdateSchema,
     ConfigurationSchema,
+    ConfigurationUpdateSchema,
 )
 from lm_backend.models.configuration import Configuration
-
-from fastapi import HTTPException
 
 
 class ConfigurationCRUD:
