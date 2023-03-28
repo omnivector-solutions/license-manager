@@ -8,6 +8,7 @@ class FeatureCreateSchema(BaseModel):
     """
     Represents the features in a feature configuration.
     """
+
     name: str
     product_id: int
 
@@ -16,6 +17,7 @@ class FeatureUpdateSchema(BaseModel):
     """
     Represents the features in a feature configuration.
     """
+
     name: str
     product_id: int
 

@@ -8,6 +8,7 @@ class ConfigurationCreateSchema(BaseModel):
     """
     Represents the configuration for a set of features.
     """
+
     name: str
     cluster_id: int
     grace_time: int
