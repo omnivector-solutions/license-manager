@@ -28,11 +28,11 @@ class LicenseServerCRUD:
         """
         new_license_server = LicenseServer(**license_server.dict())
         try:
-            await db_session.add(new_license_server)
+            async with db_session.begin():
+                db_session.add(new_license_server)
             await db_session.commit()
         except Exception as e:
-            print(e)
-            raise HTTPException(status_code=400, detail="License server could not be created")
+            raise HTTPException(status_code=400, detail=f"License server could not be created: {e}")
         return LicenseServerSchema.from_orm(new_license_server)
 
     async def read(self, db_session: AsyncSession, license_server_id: int) -> Optional[LicenseServerSchema]:
@@ -40,21 +40,29 @@ class LicenseServerCRUD:
         Read a license server with the given id.
         Returns the license server or None if it does not exist.
         """
-        query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
-        db_license_server = query.scalars().one_or_none()
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                db_license_server = query.scalars().one_or_none()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"License server could not be read: {e}")            
 
         if db_license_server is None:
             raise HTTPException(status_code=404, detail="License server not found")
 
-        return LicenseServerSchema.from_orm(db_license_server.scalar_one_or_none())
+        return LicenseServerSchema.from_orm(db_license_server)
 
     async def read_all(self, db_session: AsyncSession) -> List[LicenseServerSchema]:
         """
         Read all license servers.
         Returns a list of license servers.
         """
-        query = await db_session.execute(select(LicenseServer))
-        db_license_servers = query.scalars().all()
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(LicenseServer))
+                db_license_servers = query.scalars().all()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"License servers could not be read: {e}")
         return [LicenseServerSchema.from_orm(db_license_server) for db_license_server in db_license_servers]
 
     async def update(
@@ -67,30 +75,39 @@ class LicenseServerCRUD:
         Update a license server in the database.
         Returns the updated license server.
         """
-        query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
-        db_license_server = query.scalar_one_or_none()
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                db_license_server = query.scalar_one_or_none()
 
-        if db_license_server is None:
-            raise HTTPException(status_code=404, detail="License server not found")
-
-        for field, value in license_server_update:
-            setattr(db_license_server, field, value)
-
-        await db_session.commit()
-        await db_session.refresh(db_license_server)
+                if db_license_server is None:
+                    raise HTTPException(status_code=404, detail="License server not found")
+                
+                for field, value in license_server_update:
+                    if value is not None:
+                        setattr(db_license_server, field, value)
+                await db_session.flush()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"License server could not be updated: {e}")
         return LicenseServerSchema.from_orm(db_license_server)
 
     async def delete(self, db_session: AsyncSession, license_server_id: int) -> bool:
         """
         Delete a license server from the database.
         """
-        query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
-        db_license_server = query.scalars().one_or_none()
-
-        if db_license_server is None:
-            raise HTTPException(status_code=404, detail="License server not found")
-        try:
-            db_session.delete(db_license_server)
-            await db_session.flush()
-        except Exception:
-            raise HTTPException(status_code=400, detail="License server could not be deleted")
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(LicenseServer).filter(LicenseServer.id == license_server_id))
+                db_license_server = query.scalar_one_or_none()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"License server could not be deleted: {e}")
+            
+            if db_license_server is None:
+                raise HTTPException(status_code=404, detail="License server not found")
+                
+            try:
+                await db_session.delete(db_license_server)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"License server could not be deleted: {e}")
+        await db_session.flush()
+ 
