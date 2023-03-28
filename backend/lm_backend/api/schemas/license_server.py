@@ -2,6 +2,7 @@
 from enum import Enum
 
 from pydantic import BaseModel, validator
+from typing import Optional
 
 
 class LicenseServerType(str, Enum):
@@ -37,9 +38,9 @@ class LicenseServerUpdateSchema(BaseModel):
     License server to be updated in the database.
     """
 
-    host: str = None
-    port: str = None
-    type: LicenseServerType = None
+    host: Optional[str] = None
+    port: Optional[int] = None
+    type: Optional[LicenseServerType] = None
 
     @validator("port")
     def port_must_be_positive(cls, v):
