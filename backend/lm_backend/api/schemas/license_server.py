@@ -1,6 +1,5 @@
-"""API schemas for license server endpoints."""
+"""Schemas for license servers."""
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, validator
 
@@ -17,19 +16,11 @@ class LicenseServerType(str, Enum):
     OLICENSE = "olicense"
 
 
-class LicenseServerBase(BaseModel):
-    """
-    Base class for license server models.
-    """
-    host: str
-    port: int
-    type: LicenseServerType
-
-
-class LicenseServerCreate(LicenseServerBase):
+class LicenseServerCreateSchema(BaseModel):
     """
     License server to be created in the database.
     """
+
     host: str
     port: int
     type: LicenseServerType
@@ -41,13 +32,14 @@ class LicenseServerCreate(LicenseServerBase):
         return v
 
 
-class LicenseServerUpdate(LicenseServerBase):
+class LicenseServerUpdateSchema(BaseModel):
     """
     License server to be updated in the database.
     """
-    host: str
-    port: int
-    type: LicenseServerType
+
+    host: str = None
+    port: str = None
+    type: LicenseServerType = None
 
     @validator("port")
     def port_must_be_positive(cls, v):
@@ -55,17 +47,8 @@ class LicenseServerUpdate(LicenseServerBase):
             raise ValueError("Port must be positive")
         return v
 
-class LicenseServerDatabase(LicenseServerBase):
-    """
-    Represents a license servers in the database.
-    """
-    id: int
 
-    class Config:
-        orm_mode = True
-
-
-class LicenseServerResponse(BaseModel):
+class LicenseServerSchema(BaseModel):
     """
     License server response from the database.
     """
