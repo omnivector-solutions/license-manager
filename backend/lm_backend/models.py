@@ -19,14 +19,14 @@ from sqlalchemy.sql.sqltypes import DateTime
 from lm_backend.database import Base
 
 
-class LicServConfigMapping(Base):
-    """
-    Represents the many-to-many relationship between license servers and configs.
-    """
+# class LicServConfigMapping(Base):
+#     """
+#     Represents the many-to-many relationship between license servers and configs.
+#     """
 
-    __tablename__ = "license_servers_configs_mapping"
-    license_server_id = Column(Integer, ForeignKey("license_servers.id"), primary_key=True, nullable=False)
-    config_id = Column(Integer, ForeignKey("configs.id"), primary_key=True, nullable=False)
+#     __tablename__ = "license_servers_configs_mapping"
+#     license_server_id = Column(Integer, ForeignKey("license_servers.id"), primary_key=True, nullable=False)
+#     config_id = Column(Integer, ForeignKey("configs.id"), primary_key=True, nullable=False)
 
 
 class LicenseServer(Base):
@@ -36,11 +36,12 @@ class LicenseServer(Base):
 
     __tablename__ = "license_servers"
     id = Column(Integer, primary_key=True)
+    config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
     host = Column(String, nullable=False)
     port = Column(Integer, CheckConstraint("port>0"), nullable=False)
     type = Column(String, nullable=False)
 
-    configurations = relationship("Configuration", secondary="license_servers_configs_mapping", back_populates="license_servers")
+    configurations = relationship("Configuration", back_populates="license_servers")
 
     def __repr__(self):
         return f"LicenseServer(id={self.id}, host={self.host}, port={self.port}, type={self.type})"
@@ -75,7 +76,8 @@ class Configuration(Base):
     reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
     cluster = relationship("Cluster", back_populates="configurations", lazy="selectin")
-    license_servers = relationship("LicenseServer", secondary="license_servers_configs_mapping", back_populates="configurations")
+    license_servers = relationship("LicenseServer", back_populates="configurations")
+    features = relationship("Feature", back_populates="configurations")
 
     def __repr__(self):
         return f"Config(id={self.id}, name={self.name}, cluster_id={self.cluster_id}, grace_time={self.grace_time}, reserved={self.reserved})"
@@ -109,6 +111,8 @@ class Feature(Base):
 
     product = relationship("Product", back_populates="features")
     inventory = relationship("Inventory", back_populates="feature", uselist=False)
+    bookings = relationship("Booking", back_populates="feature")
+    configurations = relationship("Configuration", back_populates="features")
 
     def __repr__(self):
         return f"Feature(id={self.id}, name={self.name}, product_id={self.product_id}, config_id={self.config_id})"
@@ -138,13 +142,12 @@ class Job(Base):
 
     __tablename__ = "jobs"
     id = Column(Integer, primary_key=True)
-    slurm_id = Column(Integer, nullable=False)
+    slurm_job_id = Column(Integer, nullable=False)
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     username = Column(String, nullable=False)
     lead_host = Column(String, nullable=False)
 
     bookings = relationship("Booking", back_populates="job")
-    cluster = relationship("Cluster", back_populates="jobs")
 
     def __repr__(self):
         return f"Job(slurm_id={self.slurm_id}, cluster_id={self.cluster_id}, username={self.username}, lead_host={self.lead_host})"
@@ -157,12 +160,14 @@ class Booking(Base):
 
     __tablename__ = "bookings"
     id = Column(Integer, primary_key=True)
-    job_id = Column(Integer, ForeignKey("jobs.slurm_id"), nullable=False)
+    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=False)
     feature_id = Column(Integer, ForeignKey("features.id"), nullable=False)
     quantity = Column(Integer, CheckConstraint("quantity>=0"), nullable=False)
     created_at = Column(DateTime, default=func.now())
 
     job = relationship("Job", back_populates="bookings")
+    feature = relationship("Feature", back_populates="bookings")
 
     def __repr__(self):
         return f"Booking(id={self.id}, job_id={self.job_id}, feature_id={self.feature_id}, quantity={self.quantity}, created_at={self.created_at}, config_id={self.config_id})"
+
