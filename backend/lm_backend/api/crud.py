@@ -5,8 +5,9 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import relationship
+#from sqlalchemy.orm import expression
 
-from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
+from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.database import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -113,4 +114,29 @@ class GenericCRUD:
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Obj could not be deleted: {e}")
         await db_session.flush()
+
+    # async def query(self, db_session: AsyncSession, query_to_execute: expression) -> List[ModelType]:
+    #     """
+    #     Query the database for objects.
+    #     Returns a list of objects.
+    #     """
+    #     async with db_session.begin():
+    #         try:
+    #             query = await db_session.execute(query_to_execute)
+    #             db_objs = query.scalars().all()
+    #         except Exception as e:
+    #             raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
+    #     return [db_obj for db_obj in db_objs]
     
+async def run_query(db_session: AsyncSession, query_to_execute) -> List[ModelType]:
+    """
+    Query the database for objects.
+    Returns a list of objects.
+    """
+    async with db_session.begin():
+        try:
+            query = db_session.execute(query_to_execute)
+            db_objs = query.scalars().all()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
+        return [db_obj for db_obj in db_objs]

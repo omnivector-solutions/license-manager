@@ -14,17 +14,15 @@ class LicenseServerCRUD(GenericCRUD):
     async def read_all(self, db_session: AsyncSession):
         async with db_session.begin():
             result = await db_session.execute(
-                select(self.model).options(
-                    joinedload(self.model.configurations),
-                ).order_by(self.model.config_id))
+                select(self.model).order_by(
+                    self.model.config_id)
+            )
             return result.scalars().all()
 
     async def read(self, db_session: AsyncSession, id: int):
         async with db_session.begin():
             result = await db_session.execute(
-                select(self.model).options(
-                    joinedload(self.model.configurations),
-                ).where(self.model.id == id)
+                select(self.model).where(self.model.id == id)
             )
             license_server = result.scalars().first()
             if not license_server:

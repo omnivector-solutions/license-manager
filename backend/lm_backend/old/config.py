@@ -9,6 +9,8 @@ from lm_backend.compat import INTEGRITY_CHECK_EXCEPTIONS
 from lm_backend.constants import LicenseServerType, Permissions
 from lm_backend.security import guard
 from lm_backend.database import database, search_clause, sort_clause
+from lm_backend.permissions import Permissions
+from lm_backend.security import guard
 from lm_backend.table_schemas import config_searchable_fields, config_sortable_fields, config_table
 
 router = APIRouter()
