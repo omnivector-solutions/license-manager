@@ -25,7 +25,8 @@ from fastapi import HTTPException
 router = APIRouter()
 
 
-crud_license_server = LicenseServerCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
+#crud_license_server = LicenseServerCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
+crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
 
 
 @router.post(

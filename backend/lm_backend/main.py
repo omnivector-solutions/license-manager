@@ -92,3 +92,13 @@ def begin_logging():
         databases_logger.setLevel(level_sql)
 
         logger.info(f"Database logging configured 📝 Level: {settings.LOG_LEVEL_SQL}")
+
+
+@app.on_event("startup")
+async def create_tables():
+    """
+    Create all tables in the database.
+    """
+    from lm_backend.database import create_tables
+
+    #await create_tables()
