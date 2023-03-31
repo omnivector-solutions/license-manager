@@ -5,10 +5,12 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import relationship
-#from sqlalchemy.orm import expression
 
 from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.database import Base
+
+# from sqlalchemy.orm import expression
+
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
@@ -41,7 +43,9 @@ class GenericCRUD:
         async with db_session.begin():
             try:
                 if options is not None:
-                    query = await db_session.execute(select(self.model).options(options).filter(self.model.id == id))
+                    query = await db_session.execute(
+                        select(self.model).options(options).filter(self.model.id == id)
+                    )
                 else:
                     query = await db_session.execute(select(self.model).filter(self.model.id == id))
                 db_obj = query.scalars().one_or_none()
@@ -127,7 +131,8 @@ class GenericCRUD:
     #         except Exception as e:
     #             raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
     #     return [db_obj for db_obj in db_objs]
-    
+
+
 async def run_query(db_session: AsyncSession, query_to_execute) -> List[ModelType]:
     """
     Query the database for objects.

@@ -18,12 +18,30 @@ Schemas:
         - ConfigurationUpdateSchema
         - ConfigurationSchema
     - Product:
-
-
+        - ProductCreateSchema
+        - ProductUpdateSchema
+        - ProductSchema
+    - Feature:
+        - FeatureCreateSchema
+        - FeatureUpdateSchema
+        - FeatureSchema
+    - Inventory:
+        - InventoryCreateSchema
+        - InventoryUpdateSchema
+        - InventorySchema
+    - Job:
+        - JobCreateSchema
+        - JobUpdateSchema
+        - JobSchema
+    - Booking:
+        - BookingCreateSchema
+        - BookingUpdateSchema
+        - BookingSchema
 """
-from pydantic import BaseModel, validator
 from enum import Enum
-from typing import Optional, List
+from typing import List, Optional
+
+from pydantic import BaseModel, validator
 
 
 class BaseCreateSchema(BaseModel):
@@ -167,6 +185,41 @@ class Product(BaseModel):
         orm_mode = True
 
 
+class BookingCreateSchema(BaseModel):
+    """
+    Represents the booking of a feature.
+    """
+
+    job_id: int
+    feature_id: int
+    quantity: int
+
+
+class BookingUpdateSchema(BaseModel):
+    """
+    Represents the booking of a feature.
+    """
+
+    job_id: int
+    feature_id: int
+    quantity: int
+
+
+class BookingSchema(BaseModel):
+    """
+    Represents the booking of a feature.
+    """
+
+    id: int
+    job_id: int
+    feature_id: int
+    feature_name: str
+    quantity: int
+
+    class Config:
+        orm_mode = True
+
+
 class FeatureCreateSchema(BaseCreateSchema):
     """
     Represents the features in a feature configuration.
@@ -194,10 +247,11 @@ class FeatureSchema(BaseModel):
 
     id: int
     name: str
-    product: Product
+    product_id: int
+    product_name: str
     config_id: int
-
     inventory: InventorySchema = None
+    bookings: List[BookingSchema] = []
 
     class Config:
         orm_mode = True
@@ -245,7 +299,7 @@ class ClusterCreateSchema(BaseCreateSchema):
 
     name: str
     client_id: str
-    
+
     class Config:
         orm_mode = True
 
@@ -268,40 +322,6 @@ class ClusterSchema(BaseModel):
     name: str
     client_id: str
     configurations: List[ConfigurationSchema] = None
-
-    class Config:
-        orm_mode = True
-
-
-class BookingCreateSchema(BaseModel):
-    """
-    Represents the booking of a feature.
-    """
-
-    job_id: int
-    feature_id: int
-    quantity: int
-
-
-class BookingUpdateSchema(BaseModel):
-    """
-    Represents the booking of a feature.
-    """
-
-    job_id: int
-    feature: int
-    quantity: int
-
-
-class BookingSchema(BaseModel):
-    """
-    Represents the booking of a feature.
-    """
-
-    id: int
-    job_id: int
-    feature: FeatureSchema
-    quantity: int
 
     class Config:
         orm_mode = True

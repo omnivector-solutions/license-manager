@@ -18,7 +18,6 @@ from sqlalchemy.sql.sqltypes import DateTime
 
 from lm_backend.database import Base
 
-
 # class LicServConfigMapping(Base):
 #     """
 #     Represents the many-to-many relationship between license servers and configs.
@@ -170,4 +169,3 @@ class Booking(Base):
 
     def __repr__(self):
         return f"Booking(id={self.id}, job_id={self.job_id}, feature_id={self.feature_id}, quantity={self.quantity}, created_at={self.created_at}, config_id={self.config_id})"
-

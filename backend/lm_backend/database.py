@@ -2,13 +2,12 @@
 Persistent data storage for the API.
 """
 import typing
+from asyncio import current_task
 
 from fastapi.exceptions import HTTPException
-from asyncio import current_task
 from sqlalchemy import Column, or_
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine, async_scoped_session
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
 from starlette import status
 

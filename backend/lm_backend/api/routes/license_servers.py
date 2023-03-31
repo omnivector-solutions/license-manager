@@ -1,31 +1,16 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_backend.api.schemas import (
-    LicenseServerCreateSchema,
-    LicenseServerSchema,
-    LicenseServerUpdateSchema,
-)
-from lm_backend.api.schemas import (
-    ConfigurationCreateSchema,
-    ConfigurationSchema,
-    ConfigurationUpdateSchema,
-)
-from lm_backend.api.crud import GenericCRUD
-from lm_backend.api.license_servers.crud import LicenseServerCRUD
+from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.models import LicenseServer
+from lm_backend.api.schemas import LicenseServerCreateSchema, LicenseServerSchema, LicenseServerUpdateSchema
 from lm_backend.database import get_session
-from lm_backend.models import LicenseServer, Configuration
-
-from sqlalchemy.orm import selectinload, joinedload
-from sqlalchemy import select
-from fastapi import HTTPException
 
 router = APIRouter()
 
 
-#crud_license_server = LicenseServerCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
 crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
 
 

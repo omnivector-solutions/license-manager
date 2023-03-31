@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from lm_backend.api.clusters.routes import router as router_cluster
-from lm_backend.api.license_servers.routes import router as router_license_server
-from lm_backend.api.routes.configuration import router as router_configuration
+from lm_backend.api.routes.clusters import router as router_cluster
+from lm_backend.api.routes.configurations import router as router_configuration
+from lm_backend.api.routes.license_servers import router as router_license_server
 
 api = APIRouter()
 api.include_router(router_license_server, prefix="/license_servers", tags=["License Server"])
