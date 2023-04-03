@@ -129,8 +129,8 @@ class InventoryCreateSchema(BaseCreateSchema):
     feature_id: int
     total: int
     used: int
-    booked: int
-    available: int
+    #booked: int
+    #available: int
 
 
 class InventoryUpdateSchema(BaseUpdateSchema):
@@ -141,8 +141,8 @@ class InventoryUpdateSchema(BaseUpdateSchema):
     feature_id: int
     total: int
     used: int
-    booked: int
-    available: int
+    #booked: int
+    #available: int
 
 
 class InventorySchema(BaseModel):
@@ -154,8 +154,8 @@ class InventorySchema(BaseModel):
     feature_id: int
     total: int
     used: int
-    booked: int
-    available: int
+    #booked: int
+    #available: int
 
     class Config:
         orm_mode = True
@@ -173,7 +173,7 @@ class ProductUpdateSchema(BaseUpdateSchema):
     name: str
 
 
-class Product(BaseModel):
+class ProductSchema(BaseModel):
     """
     Represents a feature's product.
     """
@@ -213,7 +213,6 @@ class BookingSchema(BaseModel):
     id: int
     job_id: int
     feature_id: int
-    feature_name: str
     quantity: int
 
     class Config:
@@ -248,7 +247,6 @@ class FeatureSchema(BaseModel):
     id: int
     name: str
     product_id: int
-    product_name: str
     config_id: int
     inventory: InventorySchema = None
     bookings: List[BookingSchema] = []
@@ -332,7 +330,7 @@ class JobCreateSchema(BaseCreateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_id: int
+    slurm_job_id: int
     cluster_id: int
     username: str
     lead_host: str
@@ -343,18 +341,19 @@ class JobUpdateSchema(BaseUpdateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_id: int
+    slurm_job_id: int
     cluster_id: int
     username: str
     lead_host: str
 
 
-class Job(BaseModel):
+class JobSchema(BaseModel):
     """
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_id: int
+    id: int
+    slurm_job_id: int
     cluster_id: int
     username: str
     lead_host: str
