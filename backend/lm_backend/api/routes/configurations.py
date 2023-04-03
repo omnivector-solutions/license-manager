@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -28,7 +28,9 @@ async def create_configuration(
 
 
 @router.get("/", response_model=List[ConfigurationSchema], status_code=status.HTTP_200_OK)
-async def read_all_configurations(search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)):
+async def read_all_configurations(
+    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+):
     """Return all configurations with the associated license servers and features."""
     return await crud.read_all(db_session=db_session, search=search)
 

@@ -1,15 +1,11 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import Feature
-from lm_backend.api.schemas import (
-    FeatureCreateSchema,
-    FeatureSchema,
-    FeatureUpdateSchema,
-)
+from lm_backend.api.schemas import FeatureCreateSchema, FeatureSchema, FeatureUpdateSchema
 from lm_backend.database import get_session
 
 router = APIRouter()
@@ -32,7 +28,9 @@ async def create_feature(
 
 
 @router.get("/", response_model=List[FeatureSchema], status_code=status.HTTP_200_OK)
-async def read_all_features(search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)):
+async def read_all_features(
+    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+):
     """Return all features with associated bookings and inventory."""
     return await crud_feature.read_all(db_session=db_session, search=search)
 

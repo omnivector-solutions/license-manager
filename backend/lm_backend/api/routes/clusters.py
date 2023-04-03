@@ -2,9 +2,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from lm_backend.api.cruds.cluster import ClusterCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import Cluster
 from lm_backend.api.schemas import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
@@ -59,7 +57,9 @@ async def update_cluster(
 
 @router.delete("/{cluster_id}", status_code=status.HTTP_200_OK)
 async def delete_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Delete a cluster from the database. This will also delete all configurations associated with the cluster."""
-
+    """
+    Delete a cluster from the database.
+    This will also delete all configurations associated with the cluster.
+    """
     await crud_cluster.delete(db_session=db_session, id=cluster_id)
     return {"message": "Cluster deleted successfully"}

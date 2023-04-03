@@ -2,16 +2,11 @@
 from typing import List, Optional, TypeVar
 
 from fastapi import HTTPException
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import relationship
 
 from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base, render_sql, search_clause
-
-# from sqlalchemy.orm import expression
-
+from lm_backend.database import Base, search_clause
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
