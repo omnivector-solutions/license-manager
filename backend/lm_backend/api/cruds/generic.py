@@ -33,6 +33,8 @@ class GenericCRUD:
             await db_session.commit()
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Object could not be created: {e}")
+        
+        await db_session.refresh(db_obj)
         return db_obj
 
     async def read(self, db_session: AsyncSession, id: int, options=None) -> Optional[ModelType]:
@@ -83,20 +85,21 @@ class GenericCRUD:
         Update an object in the database.
         Returns the updated object.
         """
-        async with db_session.begin():
-            try:
-                query = await db_session.execute(select(self.model).filter(self.model.id == id))
-                db_obj = query.scalar_one_or_none()
+        try:
+            query = await db_session.execute(select(self.model).filter(self.model.id == id))
+            db_obj = query.scalar_one_or_none()
 
-                if db_obj is None:
-                    raise HTTPException(status_code=404, detail="Object not found")
+            if db_obj is None:
+                raise HTTPException(status_code=404, detail="Object not found")
 
-                for field, value in obj:
-                    if value is not None:
-                        setattr(db_obj, field, value)
-                await db_session.flush()
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
+            for field, value in obj:
+                if value is not None:
+                    setattr(db_obj, field, value)
+            await db_session.flush()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
+        
+        await db_session.refresh(db_obj)
         return db_obj
 
     async def delete(self, db_session: AsyncSession, id: int) -> bool:
@@ -116,32 +119,5 @@ class GenericCRUD:
             try:
                 await db_session.delete(db_obj)
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Obj could not be deleted: {e}")
+                raise HTTPException(status_code=400, detail=f"Object could not be deleted: {e}")
         await db_session.flush()
-
-    # async def query(self, db_session: AsyncSession, query_to_execute: expression) -> List[ModelType]:
-    #     """
-    #     Query the database for objects.
-    #     Returns a list of objects.
-    #     """
-    #     async with db_session.begin():
-    #         try:
-    #             query = await db_session.execute(query_to_execute)
-    #             db_objs = query.scalars().all()
-    #         except Exception as e:
-    #             raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
-    #     return [db_obj for db_obj in db_objs]
-
-
-async def run_query(db_session: AsyncSession, query_to_execute) -> List[ModelType]:
-    """
-    Query the database for objects.
-    Returns a list of objects.
-    """
-    async with db_session.begin():
-        try:
-            query = db_session.execute(query_to_execute)
-            db_objs = query.scalars().all()
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
-        return [db_obj for db_obj in db_objs]
