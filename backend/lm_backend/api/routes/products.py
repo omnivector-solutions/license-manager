@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -28,9 +28,9 @@ async def create_product(
 
 
 @router.get("/", response_model=List[ProductSchema], status_code=status.HTTP_200_OK)
-async def read_all_products(db_session: AsyncSession = Depends(get_session)):
+async def read_all_products(search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)):
     """Return all products with associated features."""
-    return await crud_product.read_all(db_session=db_session)
+    return await crud_product.read_all(db_session=db_session, search=search)
 
 
 @router.get("/{product_id}", response_model=ProductSchema, status_code=status.HTTP_200_OK)

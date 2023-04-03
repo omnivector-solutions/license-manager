@@ -1,12 +1,12 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import LicenseServer
 from lm_backend.api.schemas import LicenseServerCreateSchema, LicenseServerSchema, LicenseServerUpdateSchema
-from lm_backend.database import get_session
+from lm_backend.database import get_session, search_clause
 
 router = APIRouter()
 
@@ -28,8 +28,12 @@ async def create_license_server(
 
 
 @router.get("/", response_model=List[LicenseServerSchema], status_code=status.HTTP_200_OK)
-async def read_all_license_servers(db_session: AsyncSession = Depends(get_session)):
+async def read_all_license_servers(
+    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+):
     """Return all license servers."""
+    if search is not None:
+        return await crud_license_server.read_all(db_session=db_session, search=search)
     return await crud_license_server.read_all(db_session=db_session)
 
 

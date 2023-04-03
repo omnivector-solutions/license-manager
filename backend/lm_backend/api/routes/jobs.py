@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -28,9 +28,9 @@ async def create_job(
 
 
 @router.get("/", response_model=List[JobSchema], status_code=status.HTTP_200_OK)
-async def read_all_jobs(db_session: AsyncSession = Depends(get_session)):
+async def read_all_jobs(search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)):
     """Return all jobs."""
-    return await crud_job.read_all(db_session=db_session)
+    return await crud_job.read_all(db_session=db_session, search=search)
 
 
 @router.get("/{job_id}", response_model=JobSchema, status_code=status.HTTP_200_OK)
@@ -44,9 +44,3 @@ async def delete_job(job_id: int, db_session: AsyncSession = Depends(get_session
     """Delete a job from the database and associated bookings."""
     await crud_job.delete(db_session=db_session, id=job_id)
     return {"message": "Job deleted successfully"}
-
-
-@router.get("/cluster/{cluster_id}", response_model=List[JobSchema], status_code=status.HTTP_200_OK)
-async def read_jobs_by_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Return all jobs from a cluster."""
-    return await crud_job.read_by_cluster(db_session=db_session, cluster_id=cluster_id)
