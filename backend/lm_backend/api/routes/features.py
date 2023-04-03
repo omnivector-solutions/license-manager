@@ -64,31 +64,3 @@ async def delete_feature(feature_id: int, db_session: AsyncSession = Depends(get
     """Delete a feature from the database."""
     await crud_feature.delete(db_session=db_session, id=feature_id)
     return {"message": "Feature deleted successfully"}
-
-
-@router.get("/cluster/{cluster_id}", response_model=List[FeatureSchema], status_code=status.HTTP_200_OK)
-async def read_features_in_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Return all features from a cluster."""
-    return await crud_feature.read_by_cluster(db_session=db_session, cluster_id=cluster_id)
-
-
-@router.post("{feature_id}/inventory", status_code=status.HTTP_200_OK)
-async def add_inventory_to_feature(
-    feature_id: int,
-    inventory: InventoryCreateSchema,
-    db_session: AsyncSession = Depends(get_session),
-):
-    """Add inventory to a feature."""
-    return await crud_feature.add_inventory(db_session=db_session, feature_id=feature_id, inventory=inventory)
-
-
-@router.put("{feature_id}/inventory", status_code=status.HTTP_200_OK)
-async def update_inventory_in_feature(
-    feature_id: int,
-    inventory: InventoryUpdateSchema,
-    db_session: AsyncSession = Depends(get_session),
-):
-    """Update inventory in a feature."""
-    return await crud_feature.update_inventory(
-        db_session=db_session, feature_id=feature_id, inventory=inventory
-    )
