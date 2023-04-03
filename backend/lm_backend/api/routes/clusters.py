@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -30,9 +30,11 @@ async def create_cluster(
 
 
 @router.get("/", response_model=List[ClusterSchema], status_code=status.HTTP_200_OK)
-async def read_all_clusters(db_session: AsyncSession = Depends(get_session)):
+async def read_all_clusters(
+    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+):
     """Return all clusters with the associated configurations."""
-    return await crud_cluster.read_all(db_session=db_session)
+    return await crud_cluster.read_all(db_session=db_session, search=search)
 
 
 @router.get("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)

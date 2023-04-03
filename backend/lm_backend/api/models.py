@@ -33,6 +33,8 @@ class LicenseServer(Base):
 
     configurations = relationship("Configuration", back_populates="license_servers", lazy="selectin")
 
+    searchable_fields = [type, host]
+
     def __repr__(self):
         return f"LicenseServer(id={self.id}, host={self.host}, port={self.port}, type={self.type})"
 
@@ -48,6 +50,8 @@ class Cluster(Base):
     client_id = Column(String, nullable=False, unique=True)
 
     configurations = relationship("Configuration", back_populates="cluster", lazy="selectin")
+
+    searchable_fields = [name, client_id]
 
     def __repr__(self):
         return f"Cluster(id={self.id}, name={self.name}, client_id={self.client_id})"
@@ -69,6 +73,8 @@ class Configuration(Base):
     license_servers = relationship("LicenseServer", back_populates="configurations", lazy="selectin")
     features = relationship("Feature", back_populates="configurations", lazy="selectin")
 
+    searchable_fields = [name]
+
     def __repr__(self):
         return f"Config(id={self.id}, name={self.name}, cluster_id={self.cluster_id}, grace_time={self.grace_time}, reserved={self.reserved})"
 
@@ -83,6 +89,8 @@ class Product(Base):
     name = Column(String, nullable=False, unique=True)
 
     features = relationship("Feature", back_populates="product", lazy="selectin")
+
+    searchable_fields = [name]
 
     def __repr__(self):
         return f"Product(id={self.id}, name={self.name})"
@@ -103,6 +111,8 @@ class Feature(Base):
     inventory = relationship("Inventory", back_populates="feature", uselist=False, lazy="selectin")
     bookings = relationship("Booking", back_populates="feature", lazy="selectin")
     configurations = relationship("Configuration", back_populates="features", lazy="selectin")
+
+    searchable_fields = [name]
 
     def __repr__(self):
         return f"Feature(id={self.id}, name={self.name}, product_id={self.product_id}, config_id={self.config_id})"
@@ -138,6 +148,8 @@ class Job(Base):
     lead_host = Column(String, nullable=False)
 
     bookings = relationship("Booking", back_populates="job", lazy="selectin", cascade="all, delete-orphan")
+
+    searchable_fields = [username, lead_host]
 
     def __repr__(self):
         return f"Job(id={self.id}, slurm_job_id={self.slurm_job_id}, cluster_id={self.cluster_id}, username={self.username}, lead_host={self.lead_host})"

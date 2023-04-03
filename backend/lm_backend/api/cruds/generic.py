@@ -2,12 +2,13 @@
 from typing import List, Optional, TypeVar
 
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import relationship
 
 from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base
+from lm_backend.database import Base, render_sql, search_clause
 
 # from sqlalchemy.orm import expression
 
@@ -33,23 +34,18 @@ class GenericCRUD:
             await db_session.commit()
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Object could not be created: {e}")
-        
+
         await db_session.refresh(db_obj)
         return db_obj
 
-    async def read(self, db_session: AsyncSession, id: int, options=None) -> Optional[ModelType]:
+    async def read(self, db_session: AsyncSession, id: int) -> Optional[ModelType]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
         """
         async with db_session.begin():
             try:
-                if options is not None:
-                    query = await db_session.execute(
-                        select(self.model).options(options).filter(self.model.id == id)
-                    )
-                else:
-                    query = await db_session.execute(select(self.model).filter(self.model.id == id))
+                query = await db_session.execute(select(self.model).filter(self.model.id == id))
                 db_obj = query.scalars().one_or_none()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Object could not be read: {e}")
@@ -59,15 +55,17 @@ class GenericCRUD:
 
         return db_obj
 
-    async def read_all(self, db_session: AsyncSession, options=None) -> List[ModelType]:
+    async def read_all(self, db_session: AsyncSession, search: str = None) -> List[ModelType]:
         """
         Read all objects.
         Returns a list of objects.
         """
         async with db_session.begin():
             try:
-                if options is not None:
-                    query = await db_session.execute(select(self.model).options(options))
+                if search is not None:
+                    query = await db_session.execute(
+                        select(self.model).where(search_clause(search, self.model.searchable_fields))
+                    )
                 else:
                     query = await db_session.execute(select(self.model))
                 db_objs = query.scalars().all()
@@ -98,7 +96,7 @@ class GenericCRUD:
             await db_session.flush()
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
-        
+
         await db_session.refresh(db_obj)
         return db_obj
 
