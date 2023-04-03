@@ -13,7 +13,6 @@ from lm_backend.database import get_session
 router = APIRouter()
 
 
-# crud_cluster = ClusterCRUD(Cluster, ClusterCreateSchema, ClusterUpdateSchema)
 crud_cluster = GenericCRUD(Cluster, ClusterCreateSchema, ClusterUpdateSchema)
 
 
@@ -33,15 +32,13 @@ async def create_cluster(
 @router.get("/", response_model=List[ClusterSchema], status_code=status.HTTP_200_OK)
 async def read_all_clusters(db_session: AsyncSession = Depends(get_session)):
     """Return all clusters with the associated configurations."""
-    return await crud_cluster.read_all(db_session=db_session, options=selectinload(Cluster.configurations))
+    return await crud_cluster.read_all(db_session=db_session)
 
 
 @router.get("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
 async def read_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
     """Return a cluster with the associated configurations with the given id."""
-    return await crud_cluster.read(
-        db_session=db_session, id=cluster_id, options=selectinload(Cluster.configurations)
-    )
+    return await crud_cluster.read(db_session=db_session, id=cluster_id)
 
 
 @router.put("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
