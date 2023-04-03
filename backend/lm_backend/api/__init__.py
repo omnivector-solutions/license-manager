@@ -1,14 +1,13 @@
 from fastapi import APIRouter
 
+from lm_backend.api.routes.bookings import router as router_bookings
 from lm_backend.api.routes.clusters import router as router_clusters
 from lm_backend.api.routes.configurations import router as router_configurations
+from lm_backend.api.routes.features import router as router_features
+from lm_backend.api.routes.inventories import router as router_inventories
+from lm_backend.api.routes.jobs import router as router_jobs
 from lm_backend.api.routes.license_servers import router as router_license_servers
 from lm_backend.api.routes.products import router as router_products
-from lm_backend.api.routes.features import router as router_features
-from lm_backend.api.routes.jobs import router as router_jobs
-from lm_backend.api.routes.bookings import router as router_bookings
-from lm_backend.api.routes.inventories import router as router_inventories
-
 
 api = APIRouter()
 api.include_router(router_license_servers, prefix="/license_servers", tags=["License Server"])

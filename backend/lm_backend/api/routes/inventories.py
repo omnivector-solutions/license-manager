@@ -1,17 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import Inventory
-from lm_backend.api.schemas import (
-    InventoryCreateSchema,
-    InventorySchema,
-    InventoryUpdateSchema,
-    InventoryCreateSchema,
-    InventoryUpdateSchema,
-)
+from lm_backend.api.schemas import InventoryCreateSchema, InventorySchema, InventoryUpdateSchema
 from lm_backend.database import get_session
 
 router = APIRouter()

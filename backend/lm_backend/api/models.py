@@ -76,7 +76,13 @@ class Configuration(Base):
     searchable_fields = [name]
 
     def __repr__(self):
-        return f"Config(id={self.id}, name={self.name}, cluster_id={self.cluster_id}, grace_time={self.grace_time}, reserved={self.reserved})"
+        return (
+            f"Config(id={self.id}, "
+            f"name={self.name}, "
+            f"cluster_id={self.cluster_id}, "
+            f"grace_time={self.grace_time}, "
+            f"reserved={self.reserved})"
+        )
 
 
 class Product(Base):
@@ -115,7 +121,12 @@ class Feature(Base):
     searchable_fields = [name]
 
     def __repr__(self):
-        return f"Feature(id={self.id}, name={self.name}, product_id={self.product_id}, config_id={self.config_id})"
+        return (
+            f"Feature(id={self.id}, "
+            f"name={self.name}, "
+            f"product_id={self.product_id}, "
+            f"config_id={self.config_id})"
+        )
 
 
 class Inventory(Base):
@@ -152,7 +163,13 @@ class Job(Base):
     searchable_fields = [username, lead_host]
 
     def __repr__(self):
-        return f"Job(id={self.id}, slurm_job_id={self.slurm_job_id}, cluster_id={self.cluster_id}, username={self.username}, lead_host={self.lead_host})"
+        return (
+            f"Job(id={self.id}, "
+            f"slurm_job_id={self.slurm_job_id}, "
+            f"cluster_id={self.cluster_id}, "
+            f"username={self.username}, "
+            f"lead_host={self.lead_host})"
+        )
 
 
 class Booking(Base):
@@ -171,4 +188,11 @@ class Booking(Base):
     feature = relationship("Feature", back_populates="bookings", lazy="selectin")
 
     def __repr__(self):
-        return f"Booking(id={self.id}, job_id={self.job_id}, feature_id={self.feature_id}, quantity={self.quantity}, created_at={self.created_at}, config_id={self.config_id})"
+        return (
+            f"Booking(id={self.id}, "
+            f"job_id={self.job_id}, "
+            f"feature_id={self.feature_id}, "
+            f"quantity={self.quantity}, "
+            f"created_at={self.created_at}, "
+            f"config_id={self.config_id})"
+        )
