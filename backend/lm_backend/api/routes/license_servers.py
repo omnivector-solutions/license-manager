@@ -29,12 +29,15 @@ async def create_license_server(
 
 @router.get("/", response_model=List[LicenseServerSchema], status_code=status.HTTP_200_OK)
 async def read_all_license_servers(
-    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+    db_session: AsyncSession = Depends(get_session),
 ):
     """Return all license servers."""
-    if search is not None:
-        return await crud_license_server.read_all(db_session=db_session, search=search)
-    return await crud_license_server.read_all(db_session=db_session)
+    return await crud_license_server.read_all(
+        db_session=db_session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
+    )
 
 
 @router.get("/{license_server_id}", response_model=LicenseServerSchema, status_code=status.HTTP_200_OK)

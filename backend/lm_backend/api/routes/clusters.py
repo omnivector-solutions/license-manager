@@ -29,10 +29,15 @@ async def create_cluster(
 
 @router.get("/", response_model=List[ClusterSchema], status_code=status.HTTP_200_OK)
 async def read_all_clusters(
-    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+    db_session: AsyncSession = Depends(get_session),
 ):
     """Return all clusters with the associated configurations."""
-    return await crud_cluster.read_all(db_session=db_session, search=search)
+    return await crud_cluster.read_all(
+        db_session=db_session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
+    )
 
 
 @router.get("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)

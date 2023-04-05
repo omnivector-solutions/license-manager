@@ -29,10 +29,18 @@ async def create_configuration(
 
 @router.get("/", response_model=List[ConfigurationSchema], status_code=status.HTTP_200_OK)
 async def read_all_configurations(
-    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+    db_session: AsyncSession = Depends(get_session),
 ):
     """Return all configurations with the associated license servers and features."""
-    return await crud.read_all(db_session=db_session, search=search)
+    return await crud.read_all(
+        db_session=db_session,
+        search=search,
+        sort_field=sort_field,
+        sort_ascending=sort_ascending,
+    )
 
 
 @router.get("/{configuration_id}", response_model=ConfigurationSchema, status_code=status.HTTP_200_OK)
@@ -57,6 +65,9 @@ async def update_configuration(
 
 @router.delete("/{configuration_id}", status_code=status.HTTP_200_OK)
 async def delete_configuration(configuration_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Delete a configuration from the database."""
+    """
+    Delete a configuration from the database.
+    This will also delete the features and license servers associated.
+    """
     await crud.delete(db_session=db_session, id=configuration_id)
     return {"message": "Configuration deleted successfully"}
