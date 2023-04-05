@@ -51,3 +51,42 @@ async def delete_job(job_id: int, db_session: AsyncSession = Depends(get_session
     """Delete a job from the database and associated bookings."""
     await crud_job.delete(db_session=db_session, id=job_id)
     return {"message": "Job deleted successfully"}
+
+
+@router.delete("/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}", status_code=status.HTTP_200_OK)
+async def delete_job_by_slurm_id(
+    slurm_job_id: str, cluster_id: int, db_session: AsyncSession = Depends(get_session)
+):
+    """
+    Delete a job from the database and associated bookings.
+    Uses the slurm_job_id and the cluster_id to filter the job.
+
+    Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
+    """
+    jobs = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+
+    for job in jobs:
+        if job.cluster_id == cluster_id:
+            await crud_job.delete(db_session=db_session, id=job.id)
+            return {"message": "Job deleted successfully"}
+
+    raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
+
+
+@router.get("/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}", status_code=status.HTTP_200_OK)
+async def read_job_by_slurm_id(
+    slurm_job_id: str, cluster_id: int, db_session: AsyncSession = Depends(get_session)
+):
+    """
+    Read a job from the database and associated bookings.
+    Uses the slurm_job_id and the cluster_id to filter the job.
+
+    Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
+    """
+    jobs = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+
+    for job in jobs:
+        if job.cluster_id == cluster_id:
+            return job
+
+    raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
