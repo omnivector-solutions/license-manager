@@ -1,12 +1,14 @@
 """Generic CRUD class for SQLAlchemy models."""
-from typing import List, Optional, TypeVar
+from typing import List, Optional, TypeVar, Union
 
 from fastapi import HTTPException
+from sqlalchemy import Column
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.sql.expression import UnaryExpression
 
 from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base, search_clause
+from lm_backend.database import Base, search_clause, sort_clause
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
@@ -31,6 +33,7 @@ class GenericCRUD:
             raise HTTPException(status_code=400, detail=f"Object could not be created: {e}")
 
         await db_session.refresh(db_obj)
+        await db_session.close()
         return db_obj
 
     async def read(self, db_session: AsyncSession, id: int) -> Optional[ModelType]:
@@ -50,19 +53,25 @@ class GenericCRUD:
 
         return db_obj
 
-    async def read_all(self, db_session: AsyncSession, search: str = None) -> List[ModelType]:
+    async def read_all(
+        self,
+        db_session: AsyncSession,
+        search: str = None,
+        sort_field: Union[Column, UnaryExpression] = None,
+        sort_ascending: bool = True,
+    ) -> List[ModelType]:
         """
         Read all objects.
         Returns a list of objects.
         """
         async with db_session.begin():
             try:
+                stmt = select(self.model)
                 if search is not None:
-                    query = await db_session.execute(
-                        select(self.model).where(search_clause(search, self.model.searchable_fields))
-                    )
-                else:
-                    query = await db_session.execute(select(self.model))
+                    stmt = stmt.where(search_clause(search, self.model.searchable_fields))
+                if sort_field is not None:
+                    stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
+                query = await db_session.execute(stmt)
                 db_objs = query.scalars().all()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")

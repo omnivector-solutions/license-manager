@@ -9,7 +9,6 @@ Tables:
     - inventory
     - jobs
     - bookings
-    - license_servers_configs_mapping
 """
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.orm import relationship
@@ -34,6 +33,7 @@ class LicenseServer(Base):
     configurations = relationship("Configuration", back_populates="license_servers", lazy="selectin")
 
     searchable_fields = [type, host]
+    sortable_fields = [config_id, type, host]
 
     def __repr__(self):
         return f"LicenseServer(id={self.id}, host={self.host}, port={self.port}, type={self.type})"
@@ -49,9 +49,12 @@ class Cluster(Base):
     name = Column(String, nullable=False, unique=True)
     client_id = Column(String, nullable=False, unique=True)
 
-    configurations = relationship("Configuration", back_populates="cluster", lazy="selectin")
+    configurations = relationship(
+        "Configuration", back_populates="cluster", lazy="selectin", cascade="all, delete-orphan"
+    )
 
     searchable_fields = [name, client_id]
+    sortable_fields = [name, client_id]
 
     def __repr__(self):
         return f"Cluster(id={self.id}, name={self.name}, client_id={self.client_id})"
@@ -70,10 +73,15 @@ class Configuration(Base):
     reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
     cluster = relationship("Cluster", back_populates="configurations", lazy="selectin")
-    license_servers = relationship("LicenseServer", back_populates="configurations", lazy="selectin")
-    features = relationship("Feature", back_populates="configurations", lazy="selectin")
+    license_servers = relationship(
+        "LicenseServer", back_populates="configurations", lazy="selectin", cascade="all, delete-orphan"
+    )
+    features = relationship(
+        "Feature", back_populates="configurations", lazy="selectin", cascade="all, delete-orphan"
+    )
 
     searchable_fields = [name]
+    sortable_fields = [name, cluster_id]
 
     def __repr__(self):
         return (
@@ -94,9 +102,12 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True)
 
-    features = relationship("Feature", back_populates="product", lazy="selectin")
+    features = relationship(
+        "Feature", back_populates="product", lazy="selectin", cascade="all, delete-orphan"
+    )
 
     searchable_fields = [name]
+    sortable_fields = [name]
 
     def __repr__(self):
         return f"Product(id={self.id}, name={self.name})"
@@ -114,11 +125,16 @@ class Feature(Base):
     config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
 
     product = relationship("Product", back_populates="features", lazy="selectin")
-    inventory = relationship("Inventory", back_populates="feature", uselist=False, lazy="selectin")
-    bookings = relationship("Booking", back_populates="feature", lazy="selectin")
+    inventory = relationship(
+        "Inventory", back_populates="feature", uselist=False, lazy="selectin", cascade="all, delete-orphan"
+    )
+    bookings = relationship(
+        "Booking", back_populates="feature", lazy="selectin", cascade="all, delete-orphan"
+    )
     configurations = relationship("Configuration", back_populates="features", lazy="selectin")
 
     searchable_fields = [name]
+    sortable_fields = [name, product_id, config_id]
 
     def __repr__(self):
         return (
@@ -153,14 +169,15 @@ class Job(Base):
 
     __tablename__ = "jobs"
     id = Column(Integer, primary_key=True)
-    slurm_job_id = Column(Integer, nullable=False)
+    slurm_job_id = Column(String, nullable=False)
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     username = Column(String, nullable=False)
     lead_host = Column(String, nullable=False)
 
     bookings = relationship("Booking", back_populates="job", lazy="selectin", cascade="all, delete-orphan")
 
-    searchable_fields = [username, lead_host]
+    searchable_fields = [slurm_job_id, username, lead_host]
+    sortable_fields = [slurm_job_id, cluster_id, username, lead_host]
 
     def __repr__(self):
         return (
@@ -186,6 +203,8 @@ class Booking(Base):
 
     job = relationship("Job", back_populates="bookings", lazy="selectin")
     feature = relationship("Feature", back_populates="bookings", lazy="selectin")
+
+    sortable_fields = [job_id, feature_id]
 
     def __repr__(self):
         return (

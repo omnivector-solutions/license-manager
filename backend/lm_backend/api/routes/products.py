@@ -29,10 +29,15 @@ async def create_product(
 
 @router.get("/", response_model=List[ProductSchema], status_code=status.HTTP_200_OK)
 async def read_all_products(
-    search: Optional[str] = Query(None), db_session: AsyncSession = Depends(get_session)
+    search: Optional[str] = Query(None),
+    sort_field: Optional[str] = Query(None),
+    sort_ascending: bool = Query(True),
+    db_session: AsyncSession = Depends(get_session),
 ):
     """Return all products with associated features."""
-    return await crud_product.read_all(db_session=db_session, search=search)
+    return await crud_product.read_all(
+        db_session=db_session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
+    )
 
 
 @router.get("/{product_id}", response_model=ProductSchema, status_code=status.HTTP_200_OK)
@@ -57,6 +62,6 @@ async def update_product(
 
 @router.delete("/{product_id}", status_code=status.HTTP_200_OK)
 async def delete_product(product_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Delete a product from the database."""
+    """Delete a product from the database and associated features."""
     await crud_product.delete(db_session=db_session, id=product_id)
     return {"message": "Product deleted successfully"}
