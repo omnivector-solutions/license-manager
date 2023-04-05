@@ -10,11 +10,11 @@ from lm_backend.api.routes.license_servers import router as router_license_serve
 from lm_backend.api.routes.products import router as router_products
 
 api = APIRouter()
-api.include_router(router_license_servers, prefix="/license_servers", tags=["License Server"])
 api.include_router(router_clusters, prefix="/clusters", tags=["Cluster"])
 api.include_router(router_configurations, prefix="/configurations", tags=["Configuration"])
+api.include_router(router_license_servers, prefix="/license_servers", tags=["License Server"])
 api.include_router(router_products, prefix="/products", tags=["Product"])
 api.include_router(router_features, prefix="/features", tags=["Feature"])
+api.include_router(router_inventories, prefix="/inventories", tags=["Inventory"])
 api.include_router(router_jobs, prefix="/jobs", tags=["Job"])
 api.include_router(router_bookings, prefix="/bookings", tags=["Booking"])
-api.include_router(router_inventories, prefix="/inventories", tags=["Inventory"])
