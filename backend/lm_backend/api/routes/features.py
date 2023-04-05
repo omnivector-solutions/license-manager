@@ -4,14 +4,23 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
-from lm_backend.api.models import Feature
-from lm_backend.api.schemas import FeatureCreateSchema, FeatureSchema, FeatureUpdateSchema
+from lm_backend.api.models import Feature, Inventory
+from lm_backend.api.routes.inventories import create_inventory
+from lm_backend.api.schemas import (
+    FeatureCreateSchema,
+    FeatureSchema,
+    FeatureUpdateSchema,
+    InventoryCreateSchema,
+    InventorySchema,
+    InventoryUpdateSchema,
+)
 from lm_backend.database import get_session
 
 router = APIRouter()
 
 
 crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_inventory = GenericCRUD(Inventory, InventoryCreateSchema, InventoryUpdateSchema)
 
 
 @router.post(
@@ -23,8 +32,11 @@ async def create_feature(
     feature: FeatureCreateSchema,
     db_session: AsyncSession = Depends(get_session),
 ):
-    """Create a new feature."""
-    return await crud_feature.create(db_session=db_session, obj=feature)
+    """Create a new feature and its inventory."""
+    feature = await crud_feature.create(db_session=db_session, obj=feature)
+    inventory = InventoryCreateSchema(feature_id=feature.id, total=0, used=0)
+    await crud_inventory.create(db_session=db_session, obj=inventory)
+    return await crud_feature.read(db_session=db_session, id=feature.id)
 
 
 @router.get("/", response_model=List[FeatureSchema], status_code=status.HTTP_200_OK)
@@ -65,6 +77,9 @@ async def update_feature(
 
 @router.delete("/{feature_id}", status_code=status.HTTP_200_OK)
 async def delete_feature(feature_id: int, db_session: AsyncSession = Depends(get_session)):
-    """Delete a feature from the database."""
+    """
+    Delete a feature from the database.
+    This will also delete the inventory.
+    """
     await crud_feature.delete(db_session=db_session, id=feature_id)
     return {"message": "Feature deleted successfully"}
