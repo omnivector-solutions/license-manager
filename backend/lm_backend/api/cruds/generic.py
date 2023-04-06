@@ -36,7 +36,9 @@ class GenericCRUD:
         await db_session.close()
         return db_obj
 
-    async def filter(self, db_session: AsyncSession, filter_field: Column, filter_term: str) -> Optional[ModelType]:
+    async def filter(
+        self, db_session: AsyncSession, filter_field: Column, filter_term: str
+    ) -> Optional[ModelType]:
         """
         Filter an object using a filter field and filter term.
         Returns the object or raise an exception if it does not exist.
