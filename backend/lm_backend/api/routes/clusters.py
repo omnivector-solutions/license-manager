@@ -7,6 +7,8 @@ from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import Cluster
 from lm_backend.api.schemas import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
 from lm_backend.database import get_session
+from lm_backend.permissions import Permissions
+from lm_backend.security import guard
 
 router = APIRouter()
 
@@ -18,6 +20,7 @@ crud_cluster = GenericCRUD(Cluster, ClusterCreateSchema, ClusterUpdateSchema)
     "/",
     response_model=ClusterSchema,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_EDIT))],
 )
 async def create_cluster(
     cluster: ClusterCreateSchema,
@@ -27,7 +30,12 @@ async def create_cluster(
     return await crud_cluster.create(db_session=db_session, obj=cluster)
 
 
-@router.get("/", response_model=List[ClusterSchema], status_code=status.HTTP_200_OK)
+@router.get(
+    "/",
+    response_model=List[ClusterSchema],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_VIEW))],
+)
 async def read_all_clusters(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
@@ -40,7 +48,12 @@ async def read_all_clusters(
     )
 
 
-@router.get("/by_client_id/{client_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/by_client_id/{client_id}",
+    response_model=ClusterSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_VIEW))],
+)
 async def read_cluster_by_client_id(
     client_id: Optional[str] = Query(None),
     db_session: AsyncSession = Depends(get_session),
@@ -51,13 +64,23 @@ async def read_cluster_by_client_id(
     )
 
 
-@router.get("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{cluster_id}",
+    response_model=ClusterSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_VIEW))],
+)
 async def read_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
     """Return a cluster with the associated configurations with the given id."""
     return await crud_cluster.read(db_session=db_session, id=cluster_id)
 
 
-@router.put("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{cluster_id}",
+    response_model=ClusterSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_EDIT))],
+)
 async def update_cluster(
     cluster_id: int,
     cluster_update: ClusterUpdateSchema,
@@ -71,7 +94,11 @@ async def update_cluster(
     )
 
 
-@router.delete("/{cluster_id}", status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{cluster_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_EDIT))],
+)
 async def delete_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
     """
     Delete a cluster from the database.
