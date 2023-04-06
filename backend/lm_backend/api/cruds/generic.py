@@ -36,6 +36,23 @@ class GenericCRUD:
         await db_session.close()
         return db_obj
 
+    async def filter(self, db_session: AsyncSession, filter_field: Column, filter_term: str) -> Optional[ModelType]:
+        """
+        Filter an object using a filter field and filter term.
+        Returns the object or raise an exception if it does not exist.
+        """
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(self.model).filter(filter_field == filter_term))
+                db_obj = query.scalars().one_or_none()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Object could not be read: {e}")
+
+        if db_obj is None:
+            raise HTTPException(status_code=404, detail="Object not found")
+
+        return db_obj
+
     async def read(self, db_session: AsyncSession, id: int) -> Optional[ModelType]:
         """
         Read an object from the database with the given id.
