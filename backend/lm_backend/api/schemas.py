@@ -129,8 +129,8 @@ class InventoryCreateSchema(BaseCreateSchema):
     feature_id: int
     total: int
     used: int
-    #booked: int
-    #available: int
+    # booked: int
+    # available: int
 
 
 class InventoryUpdateSchema(BaseUpdateSchema):
@@ -141,8 +141,8 @@ class InventoryUpdateSchema(BaseUpdateSchema):
     feature_id: int
     total: int
     used: int
-    #booked: int
-    #available: int
+    # booked: int
+    # available: int
 
 
 class InventorySchema(BaseModel):
@@ -154,32 +154,8 @@ class InventorySchema(BaseModel):
     feature_id: int
     total: int
     used: int
-    #booked: int
-    #available: int
-
-    class Config:
-        orm_mode = True
-
-
-class ProductCreateSchema(BaseCreateSchema):
-    """
-    Represents a feature's product.
-    """
-
-    name: str
-
-
-class ProductUpdateSchema(BaseUpdateSchema):
-    name: str
-
-
-class ProductSchema(BaseModel):
-    """
-    Represents a feature's product.
-    """
-
-    id: int
-    name: str
+    # booked: int
+    # available: int
 
     class Config:
         orm_mode = True
@@ -253,6 +229,35 @@ class FeatureSchema(BaseModel):
     reserved: int
     inventory: InventorySchema = None
     bookings: List[BookingSchema] = []
+
+    class Config:
+        orm_mode = True
+
+
+class ProductCreateSchema(BaseCreateSchema):
+    """
+    Represents a feature's product.
+    """
+
+    name: str
+
+
+class ProductUpdateSchema(BaseUpdateSchema):
+    """
+    Represents a feature's product.
+    """
+
+    name: str
+
+
+class ProductSchema(BaseModel):
+    """
+    Represents a feature's product.
+    """
+
+    id: int
+    name: str
+    features: List[FeatureSchema] = []
 
     class Config:
         orm_mode = True
@@ -333,7 +338,7 @@ class JobCreateSchema(BaseCreateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id: int
+    slurm_job_id: str
     cluster_id: int
     username: str
     lead_host: str
@@ -344,7 +349,7 @@ class JobUpdateSchema(BaseUpdateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id: int
+    slurm_job_id: str
     cluster_id: int
     username: str
     lead_host: str
@@ -356,7 +361,7 @@ class JobSchema(BaseModel):
     """
 
     id: int
-    slurm_job_id: int
+    slurm_job_id: str
     cluster_id: int
     username: str
     lead_host: str
