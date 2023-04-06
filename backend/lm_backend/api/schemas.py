@@ -227,6 +227,7 @@ class FeatureCreateSchema(BaseCreateSchema):
     name: str
     product_id: int
     config_id: int
+    reserved: int
 
 
 class FeatureUpdateSchema(BaseUpdateSchema):
@@ -237,6 +238,7 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     name: str
     product_id: int
     config_id: int
+    reserved: int
 
 
 class FeatureSchema(BaseModel):
@@ -248,6 +250,7 @@ class FeatureSchema(BaseModel):
     name: str
     product_id: int
     config_id: int
+    reserved: int
     inventory: InventorySchema = None
     bookings: List[BookingSchema] = []
 

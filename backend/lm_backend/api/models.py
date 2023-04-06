@@ -70,7 +70,6 @@ class Configuration(Base):
     name = Column(String, nullable=False, unique=True)
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     grace_time = Column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
-    reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
     cluster = relationship("Cluster", back_populates="configurations", lazy="selectin")
     license_servers = relationship(
@@ -88,8 +87,7 @@ class Configuration(Base):
             f"Config(id={self.id}, "
             f"name={self.name}, "
             f"cluster_id={self.cluster_id}, "
-            f"grace_time={self.grace_time}, "
-            f"reserved={self.reserved})"
+            f"grace_time={self.grace_time}"
         )
 
 
@@ -123,6 +121,7 @@ class Feature(Base):
     name = Column(String, nullable=False, unique=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
+    reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
     product = relationship("Product", back_populates="features", lazy="selectin")
     inventory = relationship(
@@ -141,7 +140,8 @@ class Feature(Base):
             f"Feature(id={self.id}, "
             f"name={self.name}, "
             f"product_id={self.product_id}, "
-            f"config_id={self.config_id})"
+            f"config_id={self.config_id}), "
+            f"reserved={self.reserved}"
         )
 
 
