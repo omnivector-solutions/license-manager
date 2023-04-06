@@ -40,6 +40,17 @@ async def read_all_clusters(
     )
 
 
+@router.get("/by_client_id/{client_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
+async def read_cluster_by_client_id(
+    client_id: Optional[str] = Query(None),
+    db_session: AsyncSession = Depends(get_session),
+):
+    """Return all clusters with the associated configurations."""
+    return await crud_cluster.filter(
+        db_session=db_session, filter_field=Cluster.client_id, filter_term=client_id
+    )
+
+
 @router.get("/{cluster_id}", response_model=ClusterSchema, status_code=status.HTTP_200_OK)
 async def read_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
     """Return a cluster with the associated configurations with the given id."""
