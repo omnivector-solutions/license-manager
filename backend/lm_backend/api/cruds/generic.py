@@ -106,21 +106,22 @@ class GenericCRUD:
         Update an object in the database.
         Returns the updated object.
         """
-        try:
-            query = await db_session.execute(select(self.model).filter(self.model.id == id))
-            db_obj = query.scalar_one_or_none()
+        async with db_session.begin():
+            try:
+                query = await db_session.execute(select(self.model).filter(self.model.id == id))
+                db_obj = query.scalar_one_or_none()
 
-            if db_obj is None:
-                raise HTTPException(status_code=404, detail="Object not found")
+                if db_obj is None:
+                    raise HTTPException(status_code=404, detail="Object not found")
 
-            for field, value in obj:
-                if value is not None:
-                    setattr(db_obj, field, value)
-            await db_session.flush()
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
+                for field, value in obj:
+                    if value is not None:
+                        setattr(db_obj, field, value)
+                await db_session.flush()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
 
-        await db_session.refresh(db_obj)
+            await db_session.refresh(db_obj)
         return db_obj
 
     async def delete(self, db_session: AsyncSession, id: int) -> bool:
