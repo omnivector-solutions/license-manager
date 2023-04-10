@@ -137,10 +137,9 @@ class InventoryUpdateSchema(BaseUpdateSchema):
     """
     Represents the inventory of a feature.
     """
-
-    feature_id: int
-    total: int
-    used: int
+    feature_id: Optional[int] = None
+    total: Optional[int] = None
+    used: Optional[int] = None
     # booked: int
     # available: int
 
@@ -176,9 +175,9 @@ class BookingUpdateSchema(BaseModel):
     Represents the booking of a feature.
     """
 
-    job_id: int
-    feature_id: int
-    quantity: int
+    job_id: Optional[int] = None
+    feature_id: Optional[int] = None
+    quantity: Optional[int] = None
 
 
 class BookingSchema(BaseModel):
@@ -211,10 +210,10 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     Represents the features in a feature configuration.
     """
 
-    name: str
-    product_id: int
-    config_id: int
-    reserved: int
+    name: Optional[str] = None
+    product_id: Optional[int] = None
+    config_id: Optional[int] = None
+    reserved: Optional[int] = None
 
 
 class FeatureSchema(BaseModel):
@@ -247,7 +246,7 @@ class ProductUpdateSchema(BaseUpdateSchema):
     Represents a feature's product.
     """
 
-    name: str
+    name: Optional[str] = None
 
 
 class ProductSchema(BaseModel):
@@ -275,10 +274,10 @@ class ConfigurationCreateSchema(BaseCreateSchema):
 
 
 class ConfigurationUpdateSchema(BaseUpdateSchema):
-    name: str
-    cluster_id: int
-    grace_time: int
-    reserved: int
+    name: Optional[str] = None
+    cluster_id: Optional[int] = None
+    grace_time: Optional[int] = None
+    reserved: Optional[int] = None
 
 
 class ConfigurationSchema(BaseModel):
@@ -349,10 +348,10 @@ class JobUpdateSchema(BaseUpdateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id: str
-    cluster_id: int
-    username: str
-    lead_host: str
+    slurm_job_id: Optional[str]
+    cluster_id: Optional[int]
+    username: Optional[str]
+    lead_host: Optional[str]
 
 
 class JobSchema(BaseModel):
