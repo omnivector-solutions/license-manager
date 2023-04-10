@@ -212,6 +212,5 @@ class Booking(Base):
             f"job_id={self.job_id}, "
             f"feature_id={self.feature_id}, "
             f"quantity={self.quantity}, "
-            f"created_at={self.created_at}, "
-            f"config_id={self.config_id})"
+            f"created_at={self.created_at}"
         )
