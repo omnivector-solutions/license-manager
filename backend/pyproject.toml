@@ -23,7 +23,6 @@ armasec = "^0.11"
 SQLAlchemy = {extras = ["asyncio"], version = "^2.0.7"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
-psycopg2 = "^2.9.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
