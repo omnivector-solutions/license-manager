@@ -13,7 +13,7 @@ from starlette import status
 
 from lm_backend.config import settings
 
-async_engine = create_async_engine(settings.DATABASE_URL, echo=True)
+async_engine = create_async_engine(settings.DATABASE_URL)
 async_session_factory = async_sessionmaker(bind=async_engine, expire_on_commit=False, class_=AsyncSession)
 
 AsyncScopedSession = async_scoped_session(async_session_factory, scopefunc=current_task)
