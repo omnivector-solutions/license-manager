@@ -129,19 +129,16 @@ class InventoryCreateSchema(BaseCreateSchema):
     feature_id: int
     total: int
     used: int
-    # booked: int
-    # available: int
 
 
 class InventoryUpdateSchema(BaseUpdateSchema):
     """
     Represents the inventory of a feature.
     """
+
     feature_id: Optional[int] = None
     total: Optional[int] = None
     used: Optional[int] = None
-    # booked: int
-    # available: int
 
 
 class InventorySchema(BaseModel):
@@ -153,8 +150,6 @@ class InventorySchema(BaseModel):
     feature_id: int
     total: int
     used: int
-    # booked: int
-    # available: int
 
     class Config:
         orm_mode = True
