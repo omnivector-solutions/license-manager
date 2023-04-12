@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.cruds.booking import BookingCRUD
 from lm_backend.api.models import Booking
 from lm_backend.api.schemas import BookingCreateSchema, BookingSchema, BookingUpdateSchema
 from lm_backend.database import get_session
@@ -13,7 +13,7 @@ from lm_backend.security import guard
 router = APIRouter()
 
 
-crud_booking = GenericCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
+crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
 
 
 @router.post(
