@@ -88,7 +88,4 @@ def begin_logging():
         engine_logger = logging.getLogger("sqlalchemy.engine")
         engine_logger.setLevel(level_sql)
 
-        databases_logger = logging.getLogger("databases")
-        databases_logger.setLevel(level_sql)
-
         logger.info(f"Database logging configured 📝 Level: {settings.LOG_LEVEL_SQL}")
