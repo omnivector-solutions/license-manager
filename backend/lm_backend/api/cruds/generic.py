@@ -2,12 +2,12 @@
 from typing import List, Optional, TypeVar, Union
 
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy import Column, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import UnaryExpression
 
-from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema, BookingCreateSchema, BookingSchema
-from lm_backend.api.models import Booking, Feature
+from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.database import Base, search_clause, sort_clause
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -30,7 +30,8 @@ class GenericCRUD:
                 db_session.add(db_obj)
             await db_session.commit()
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Object could not be created: {e}")
+            logger.error(e)
+            raise HTTPException(status_code=400, detail="Object could not be created.")
 
         await db_session.refresh(db_obj)
         await db_session.close()
@@ -48,10 +49,11 @@ class GenericCRUD:
                 query = await db_session.execute(select(self.model).filter(filter_field == filter_term))
                 db_obj = query.scalars().one_or_none()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be read: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Object could not be read.")
 
         if db_obj is None:
-            raise HTTPException(status_code=404, detail="Object not found")
+            raise HTTPException(status_code=404, detail="Object not found.")
 
         return db_obj
 
@@ -65,10 +67,11 @@ class GenericCRUD:
                 query = await db_session.execute(select(self.model).filter(self.model.id == id))
                 db_obj = query.scalars().one_or_none()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be read: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Object could not be read.")
 
         if db_obj is None:
-            raise HTTPException(status_code=404, detail="Object not found")
+            raise HTTPException(status_code=404, detail="Object not found.")
 
         return db_obj
 
@@ -93,7 +96,8 @@ class GenericCRUD:
                 query = await db_session.execute(stmt)
                 db_objs = query.scalars().all()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Objects could not be read: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Objects could not be read.")
         return [db_obj for db_obj in db_objs]
 
     async def update(
@@ -112,14 +116,15 @@ class GenericCRUD:
                 db_obj = query.scalar_one_or_none()
 
                 if db_obj is None:
-                    raise HTTPException(status_code=404, detail="Object not found")
+                    raise HTTPException(status_code=404, detail="Object not found.")
 
                 for field, value in obj:
                     if value is not None:
                         setattr(db_obj, field, value)
                 await db_session.flush()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be updated: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Object could not be updated.")
 
             await db_session.refresh(db_obj)
         return db_obj
@@ -133,58 +138,15 @@ class GenericCRUD:
                 query = await db_session.execute(select(self.model).filter(self.model.id == id))
                 db_obj = query.scalar_one_or_none()
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be deleted: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Object could not be deleted.")
 
             if db_obj is None:
-                raise HTTPException(status_code=404, detail="Object not found")
+                raise HTTPException(status_code=404, detail="Object not found.")
 
             try:
                 await db_session.delete(db_obj)
             except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be deleted: {e}")
+                logger.error(e)
+                raise HTTPException(status_code=400, detail="Object could not be deleted.")
         await db_session.flush()
-
-
-class BookingCRUD(GenericCRUD):
-    def __init__(self, model: ModelType, create_schema: CreateSchemaType, update_schema: UpdateSchemaType):
-        super().__init__(model, create_schema, update_schema)
-
-    async def create(self, db_session: AsyncSession, obj=BookingCreateSchema) -> ModelType:
-        """
-        Checks if a booking can be made before creating a new object in the database.
-        The booking can be made if:
-            the sum of all bookings for the feature + feature in use + quantity being booked <= feature total.
-        """
-
-        async with db_session.begin():
-            try:
-                query = await db_session.execute(
-                    select(Feature).filter(Feature.id == obj.feature_id)
-                )
-                feature = query.scalars().one()
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be read: {e}")
-
-            if feature is None:
-                raise HTTPException(status_code=404, detail="Feature booked doesn't exist")
-
-            # validation to ensure the booking can be created
-            booked = sum([booking.quantity for booking in feature.bookings])
-            used = feature.inventory.used
-            total = feature.inventory.total
-
-            can_insert = booked + used + obj.quantity <= total
-
-            if not can_insert:
-                await db_session.close()
-                raise HTTPException(status_code=400, detail="There aren't enough tokens free for the feature")
-
-            db_obj = Booking(**obj.dict())
-            try:
-                db_session.add(db_obj)
-                await db_session.commit()
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Object could not be created: {e}")
-        await db_session.refresh(db_obj)
-        await db_session.close()
-        return db_obj
