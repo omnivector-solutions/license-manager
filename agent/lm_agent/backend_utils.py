@@ -114,9 +114,6 @@ class AsyncBackendClient(httpx.AsyncClient):
         return request
 
 
-backend_client = AsyncBackendClient()
-
-
 class SyncBackendClient(httpx.Client):
     """
     Extends the synchronous httpx.Client class with automatic token acquisition for requests.
@@ -140,7 +137,8 @@ class SyncBackendClient(httpx.Client):
 
 async def check_backend_health():
     """Hit the API's health-check endpoint to make sure the API is available."""
-    resp = await backend_client.get("/lm/health")
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get("/lm/health")
     if resp.status_code != 204:
         logger.error("license-manager-backend health-check failed.")
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
@@ -189,10 +187,11 @@ async def get_bookings_from_backend(
 ) -> typing.List[BackendBookingRow]:
     bookings: typing.List = []
     try:
-        if cluster_name:
-            resp = await backend_client.get(f"/lm/api/v1/booking/all?cluster_name={cluster_name}")
-        else:
-            resp = await backend_client.get("/lm/api/v1/booking/all")
+       async with AsyncBackendClient() as backend_client:
+            if cluster_name:
+                resp = await backend_client.get(f"/lm/api/v1/booking/all?cluster_name={cluster_name}")
+            else:
+                resp = await backend_client.get("/lm/api/v1/booking/all")
     except httpx.ConnectError as e:
         logger.error(f"Connection failed to backend: {e}")
         return bookings
@@ -207,7 +206,8 @@ async def get_bookings_from_backend(
 async def get_config_id_from_backend(product_feature: str) -> int:
     """Given the product_feature return return the config id."""
     path = "/lm/api/v1/config/"
-    resp = await backend_client.get(path, params={"product_feature": product_feature})
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get(path, params={"product_feature": product_feature})
     return resp.json()
 
 
@@ -216,7 +216,8 @@ async def get_config_from_backend() -> typing.List[BackendConfigurationRow]:
     path = "/lm/api/v1/config/agent/all"
 
     try:
-        resp = await backend_client.get(path)
+        async with AsyncBackendClient() as backend_client:
+            resp = await backend_client.get(path)
     except httpx.ConnectError as e:
         logger.error(f"Connection failed to backend: {backend_client.base_url}{path}: {e}")
         return []

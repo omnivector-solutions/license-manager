@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from lm_agent.backend_utils import backend_client
+from lm_agent.backend_utils import AsyncBackendClient
 from lm_agent.config import PRODUCT_FEATURE_RX
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import (
@@ -123,16 +123,17 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     logger.debug(f"features: {features}")
     logger.debug(f"lbr: {lbr}")
 
-    resp = await backend_client.put(
-        "/lm/api/v1/booking/book",
-        json={
-            "job_id": lbr.job_id,
-            "features": features,
-            "user_name": lbr.user_name,
-            "lead_host": lbr.lead_host,
-            "cluster_name": lbr.cluster_name,
-        },
-    )
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.put(
+            "/lm/api/v1/booking/book",
+            json={
+                "job_id": lbr.job_id,
+                "features": features,
+                "user_name": lbr.user_name,
+                "lead_host": lbr.lead_host,
+                "cluster_name": lbr.cluster_name,
+            },
+        )
 
     if resp.status_code == 200:
         logger.debug("##### Booking completed successfully #####")
@@ -143,7 +144,8 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
 async def reconcile():
     """Force a reconciliation."""
-    resp = await backend_client.get("/lm/api/v1/license/reconcile")
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get("/lm/api/v1/license/reconcile")
 
     if resp.status_code == 200:
         logger.debug("##### Reconcile completed successfully #####")

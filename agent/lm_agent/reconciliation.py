@@ -7,7 +7,7 @@ from typing import Dict, List
 
 from httpx import ConnectError
 
-from lm_agent.backend_utils import backend_client, get_bookings_from_backend, get_config_id_from_backend
+from lm_agent.backend_utils import AsyncBackendClient, get_bookings_from_backend, get_config_id_from_backend
 from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
@@ -37,7 +37,8 @@ async def remove_booked_for_job_id(job_id: str):
     """
     Send DELETE to /lm/api/v1/booking/book/{job_id}.
     """
-    response = await backend_client.delete(f"/lm/api/v1/booking/book/{job_id}")
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.delete(f"/lm/api/v1/booking/book/{job_id}")
     if response.status_code != 200:
         logger.error(f"{job_id} could not be deleted.")
         logger.debug(f"response from delete: {response.__dict__}")
@@ -47,7 +48,8 @@ async def get_all_grace_times() -> Dict[int, int]:
     """
     Send GET to /lm/api/v1/config/all.
     """
-    response = await backend_client.get("/lm/api/v1/config/all")
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get("/lm/api/v1/config/all")
     configs = response.json()
     grace_times = {config["id"]: config["grace_time"] for config in configs}
     return grace_times
@@ -57,7 +59,8 @@ async def get_booked_for_job_id(job_id: str) -> Dict:
     """
     Return the booking row for the given job_id.
     """
-    response = await backend_client.get(f"/lm/api/v1/booking/job/{job_id}")
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get(f"/lm/api/v1/booking/job/{job_id}")
     return response.json()
 
 
@@ -149,7 +152,8 @@ async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[str, int]:
     """
     Get booking sum for a license's bookings in each cluster.
     """
-    response = await backend_client.get("/lm/api/v1/booking/all")
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get("/lm/api/v1/booking/all")
     bookings = response.json()
 
     booking_sum: Dict[str, int] = {}
@@ -196,7 +200,8 @@ async def reconcile():
 
     # Fetch from backend the licenses usage information
     logger.debug("Fetching licenses usage information from backend")
-    response = await backend_client.get("/lm/api/v1/license/cluster_update")
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get("/lm/api/v1/license/cluster_update")
     licenses_usage_info = response.json()
     logger.debug("Licenses usage information fetched from backend")
 
@@ -223,7 +228,8 @@ async def reconcile():
 
         # Get license configuration from backend
         config_id = await get_config_id_from_backend(product_feature)
-        config = await backend_client.get(f"/lm/api/v1/config/{config_id}")
+        async with AsyncBackendClient() as backend_client:
+            config = await backend_client.get(f"/lm/api/v1/config/{config_id}")
         config = config.json()
 
         license_server_type = config["license_server_type"]
@@ -286,11 +292,11 @@ async def update_report():
             "correctly and the right hosts/ports are configured in settings"
         )
         raise LicenseManagerEmptyReportError("Got an empty response from the license server")
-    client = backend_client
     try:
-        r = await client.patch(RECONCILE_URL_PATH, json=rep)
+        async with AsyncBackendClient() as backend_client:
+            r = await backend_client.patch(RECONCILE_URL_PATH, json=rep)
     except ConnectError as e:
-        logger.error(f"{client.base_url}{RECONCILE_URL_PATH}: {e}")
+        logger.error(f"{backend_client.base_url}{RECONCILE_URL_PATH}: {e}")
         raise LicenseManagerBackendConnectionError("Failed to connect to the backend")
 
     if r.status_code != 200:
