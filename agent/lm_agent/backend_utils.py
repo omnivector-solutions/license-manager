@@ -2,13 +2,13 @@
 Provide utilities that communicate with the backend.
 """
 import getpass
-import typing
+from typing import Dict, List, Optional, Union
 
 import httpx
 import jwt
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
-from lm_agent.config import settings
+from lm_agent.config import PRODUCT_FEATURE_RX, settings
 from lm_agent.exceptions import LicenseManagerAuthTokenError, LicenseManagerBackendConnectionError
 from lm_agent.logs import logger
 
@@ -16,7 +16,7 @@ USER_NAME = getpass.getuser()
 TOKEN_FILE_NAME = f"{USER_NAME}.token"
 
 
-def _load_token_from_cache() -> typing.Union[str, None]:
+def _load_token_from_cache() -> Union[str, None]:
     """
     Looks for and returns a token from a cache file (if it exists).
 
@@ -101,7 +101,7 @@ class AsyncBackendClient(httpx.AsyncClient):
     This client should be used for most agent actions.
     """
 
-    _token: typing.Optional[str]
+    _token: Optional[str]
 
     def __init__(self):
         self._token = None
@@ -122,7 +122,7 @@ class SyncBackendClient(httpx.Client):
     This client should be used only for the CLI tools.
     """
 
-    _token: typing.Optional[str]
+    _token: Optional[str]
 
     def __init__(self):
         self._token = None
@@ -154,10 +154,10 @@ class BackendConfigurationRow(BaseModel):
     class Config:
         extra = "ignore"
 
-    id: typing.Optional[int] = None
+    id: Optional[int] = None
     product: str
     features: dict
-    license_servers: typing.List[str]
+    license_servers: List[str]
     license_server_type: str
     grace_time: int
     client_id: str
@@ -182,12 +182,34 @@ class BackendBookingRow(BaseModel):
     cluster_name: str
 
 
+class LicenseBooking(BaseModel):
+    """
+    Structure to represent a license booking.
+    """
+
+    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    tokens: int
+    license_server_type: Union[None, str]
+
+
+class LicenseBookingRequest(BaseModel):
+    """
+    Structure to represent a list of license bookings.
+    """
+
+    job_id: int
+    bookings: Union[List, List[LicenseBooking]]
+    user_name: str
+    lead_host: str
+    cluster_name: str
+
+
 async def get_bookings_from_backend(
-    cluster_name: typing.Optional[str] = None,
-) -> typing.List[BackendBookingRow]:
-    bookings: typing.List = []
+    cluster_name: Optional[str] = None,
+) -> List[BackendBookingRow]:
+    bookings: List = []
     try:
-       async with AsyncBackendClient() as backend_client:
+        async with AsyncBackendClient() as backend_client:
             if cluster_name:
                 resp = await backend_client.get(f"/lm/api/v1/booking/all?cluster_name={cluster_name}")
             else:
@@ -211,7 +233,7 @@ async def get_config_id_from_backend(product_feature: str) -> int:
     return resp.json()
 
 
-async def get_config_from_backend() -> typing.List[BackendConfigurationRow]:
+async def get_config_from_backend() -> List[BackendConfigurationRow]:
     """Get all config rows from the backend."""
     path = "/lm/api/v1/config/agent/all"
 
@@ -229,3 +251,88 @@ async def get_config_from_backend() -> typing.List[BackendConfigurationRow]:
         except ValidationError as err:
             logger.error(f"Could not validate config entry at row {i}: {str(err)}")
     return configs
+
+
+async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
+    """Book the feature tokens."""
+
+    features = [
+        {
+            "product_feature": license_booking.product_feature,
+            "booked": license_booking.tokens,
+        }
+        for license_booking in lbr.bookings
+    ]
+
+    logger.debug(f"features: {features}")
+    logger.debug(f"lbr: {lbr}")
+
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.put(
+            "/lm/api/v1/booking/book",
+            json={
+                "job_id": lbr.job_id,
+                "features": features,
+                "user_name": lbr.user_name,
+                "lead_host": lbr.lead_host,
+                "cluster_name": lbr.cluster_name,
+            },
+        )
+
+    if resp.status_code == 200:
+        logger.debug("##### Booking completed successfully #####")
+        return True
+    logger.debug(f"##### Booking failed: {str(resp.content)} #####")
+    return False
+
+
+async def remove_booking_for_job_id(job_id: str) -> bool:
+    """Remove token bookings used by job."""
+
+    # Remove the booking for the job.
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.delete(f"lm/api/v1/booking/book/{job_id}")
+    # Return True if the request to delete the booking was successful.
+    if resp.status_code == 200:
+        return True
+    logger.error(f"{job_id} could not be deleted.")
+    logger.debug(f"response from delete: {resp.__dict__}")
+    return False
+
+
+async def get_all_grace_times() -> Dict[int, int]:
+    """
+    Send GET to /lm/api/v1/config/all.
+    """
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get("/lm/api/v1/config/all")
+    configs = response.json()
+    grace_times = {config["id"]: config["grace_time"] for config in configs}
+    return grace_times
+
+
+async def get_booking_for_job_id(job_id: str) -> Dict:
+    """
+    Return the booking row for the given job_id.
+    """
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get(f"/lm/api/v1/booking/job/{job_id}")
+    return response.json()
+
+
+async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[str, int]:
+    """
+    Get booking sum for a license's bookings in each cluster.
+    """
+    async with AsyncBackendClient() as backend_client:
+        response = await backend_client.get("/lm/api/v1/booking/all")
+    bookings = response.json()
+
+    booking_sum: Dict[str, int] = {}
+
+    for booking in bookings:
+        cluster_name = booking["cluster_name"]
+        if booking["product_feature"] == product_feature:
+            booking_sum[cluster_name] = booking_sum.get(cluster_name, 0) + booking["booked"]
+
+    return booking_sum

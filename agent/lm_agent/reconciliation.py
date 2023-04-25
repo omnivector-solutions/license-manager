@@ -7,7 +7,15 @@ from typing import Dict, List
 
 from httpx import ConnectError
 
-from lm_agent.backend_utils import AsyncBackendClient, get_bookings_from_backend, get_config_id_from_backend
+from lm_agent.backend_utils import (
+    AsyncBackendClient,
+    get_all_grace_times,
+    get_booking_for_job_id,
+    get_bookings_from_backend,
+    get_bookings_sum_per_cluster,
+    get_config_id_from_backend,
+    remove_booking_for_job_id,
+)
 from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
@@ -31,37 +39,6 @@ from lm_agent.workload_managers.slurm.reservations import (
 )
 
 RECONCILE_URL_PATH = "/lm/api/v1/license/reconcile"
-
-
-async def remove_booked_for_job_id(job_id: str):
-    """
-    Send DELETE to /lm/api/v1/booking/book/{job_id}.
-    """
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.delete(f"/lm/api/v1/booking/book/{job_id}")
-    if response.status_code != 200:
-        logger.error(f"{job_id} could not be deleted.")
-        logger.debug(f"response from delete: {response.__dict__}")
-
-
-async def get_all_grace_times() -> Dict[int, int]:
-    """
-    Send GET to /lm/api/v1/config/all.
-    """
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.get("/lm/api/v1/config/all")
-    configs = response.json()
-    grace_times = {config["id"]: config["grace_time"] for config in configs}
-    return grace_times
-
-
-async def get_booked_for_job_id(job_id: str) -> Dict:
-    """
-    Return the booking row for the given job_id.
-    """
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.get(f"/lm/api/v1/booking/job/{job_id}")
-    return response.json()
 
 
 def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_rows: List) -> int:
@@ -103,7 +80,7 @@ async def clean_booked_grace_time():
     get_booked_call = []
     for job in squeue_running_jobs:
         job_id = job["job_id"]
-        get_booked_call.append(get_booked_for_job_id(job_id))
+        get_booked_call.append(get_booking_for_job_id(job_id))
 
     booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call)
 
@@ -114,7 +91,7 @@ async def clean_booked_grace_time():
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             logger.debug(f"GRACE_TIME: {greatest_grace_time}, {job_id}")
-            await remove_booked_for_job_id(job_id)
+            await remove_booking_for_job_id(job_id)
     await clean_bookings(squeue_result, cluster_name)
 
 
@@ -129,7 +106,7 @@ async def clean_bookings(squeue_result, cluster_name):
     logger.debug("CLEAN_BOOKINGS: after building lists")
     for job_id in cluster_bookings:
         if job_id in jobs_not_running or job_id not in all_jobs_squeue:
-            delete_booking_call.append(remove_booked_for_job_id(job_id))
+            delete_booking_call.append(remove_booking_for_job_id(job_id))
     logger.debug(f"CLEAN_BOOKINGS: {cluster_bookings}, {jobs_not_running}, {all_jobs_squeue}")
     if not delete_booking_call:
         logger.debug("CLEAN_BOOKINGS: no need to clean")
@@ -146,24 +123,6 @@ async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
         if license["product_feature"] in local_licenses:
             filtered_licenses.append(license)
     return filtered_licenses
-
-
-async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[str, int]:
-    """
-    Get booking sum for a license's bookings in each cluster.
-    """
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.get("/lm/api/v1/booking/all")
-    bookings = response.json()
-
-    booking_sum: Dict[str, int] = {}
-
-    for booking in bookings:
-        cluster_name = booking["cluster_name"]
-        if booking["product_feature"] == product_feature:
-            booking_sum[cluster_name] = booking_sum.get(cluster_name, 0) + booking["booked"]
-
-    return booking_sum
 
 
 async def create_or_update_reservation(reservation_data):
