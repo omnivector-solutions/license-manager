@@ -62,11 +62,11 @@ def test_get_greatest_grace_time(booking_rows_json):
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_booking_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_booked_grace_time(
     remove_booked_for_job_id_mock,
-    get_booked_for_job_id_mock,
+    get_booking_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -74,7 +74,7 @@ async def test_clean_booked_grace_time(
     """
     Test for when the running time is greater than the grace_time, then delete the booking.
     """
-    get_booked_for_job_id_mock.return_value = booking_rows_json
+    get_booking_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 100, 2: 30, 3: 10}
     await clean_booked_grace_time()
@@ -85,11 +85,11 @@ async def test_clean_booked_grace_time(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_booking_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_booked_grace_time_dont_delete(
     remove_booked_for_job_id_mock,
-    get_booked_for_job_id_mock,
+    get_booking_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -97,7 +97,7 @@ async def test_clean_booked_grace_time_dont_delete(
     """
     Test for when the running time is smaller than the grace_time, then don't delete the booking.
     """
-    get_booked_for_job_id_mock.return_value = booking_rows_json
+    get_booking_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 1000, 2: 3000, 3: 1000}
     await clean_booked_grace_time()
@@ -108,33 +108,33 @@ async def test_clean_booked_grace_time_dont_delete(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_booking_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_booked_grace_time_dont_delete_if_grace_time_invalid(
-    remove_booked_for_job_id_mock,
-    get_booked_for_job_id_mock,
+    remove_booking_for_job_id_mock,
+    get_booking_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
 ):
     """
     Test for when the remove_booked_for_job_id raises an exception.
     """
-    get_booked_for_job_id_mock.return_value = []
+    get_booking_for_job_id_mock.return_value = []
     return_formatted_squeue_out_mock.return_value = "1|5:00|RUNNING"
     get_all_grace_times_mock.return_value = {1: 100, 2: 100, 3: 100}
     await clean_booked_grace_time()
-    remove_booked_for_job_id_mock.assert_not_awaited()
+    remove_booking_for_job_id_mock.assert_not_awaited()
     get_all_grace_times_mock.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_all_grace_times")
-@mock.patch("lm_agent.reconciliation.get_booked_for_job_id")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_booking_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     remove_booked_for_job_id_mock,
-    get_booked_for_job_id_mock,
+    get_booking_for_job_id_mock,
     get_all_grace_times_mock,
     return_formatted_squeue_out_mock,
     booking_rows_json,
@@ -142,31 +142,12 @@ async def test_clean_booked_grace_time_dont_delete_if_no_jobs(
     """
     Test for when there are no jobs running, don't delete.
     """
-    get_booked_for_job_id_mock.return_value = booking_rows_json
+    get_booking_for_job_id_mock.return_value = booking_rows_json
     return_formatted_squeue_out_mock.return_value = ""
     get_all_grace_times_mock.return_value = {1: 10, 2: 10}
     await clean_booked_grace_time()
     remove_booked_for_job_id_mock.assert_not_awaited()
     get_all_grace_times_mock.assert_not_awaited()
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test_get_all_grace_times(respx_mock):
-    """
-    Check the return value for the get_all_grace_times.
-    """
-    respx_mock.get("/lm/api/v1/config/all").mock(
-        return_value=Response(
-            status_code=200,
-            json=[
-                {"id": 1, "grace_time": 100},
-                {"id": 2, "grace_time": 300},
-            ],
-        )
-    )
-    grace_times = await get_all_grace_times()
-    assert grace_times == {1: 100, 2: 300}
 
 
 @pytest.mark.asyncio
@@ -377,7 +358,7 @@ async def test_update_report__patch_failed(clean_booked_grace_time_mock, report_
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.get_bookings_from_backend")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_bookings(remove_booked_for_job_id_mock, get_bookings_from_backend_mock):
     squeue_parsed = [
         {"job_id": 1, "state": "RUNNING"},
@@ -396,7 +377,7 @@ async def test_clean_bookings(remove_booked_for_job_id_mock, get_bookings_from_b
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.get_bookings_from_backend")
-@mock.patch("lm_agent.reconciliation.remove_booked_for_job_id")
+@mock.patch("lm_agent.reconciliation.remove_booking_for_job_id")
 async def test_clean_bookings_not_in_squeue(remove_booked_for_job_id_mock, get_bookings_from_backend_mock):
     squeue_parsed = [{"job_id": 1, "state": "RUNNING"}]
     booking_mock_1 = mock.Mock()
@@ -449,26 +430,6 @@ async def test_filter_cluster_update_licenses(get_product_feature_from_cluster_m
             "license_used": 10,
         },
     ]
-
-
-@mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
-    """Test that get_bookings_sum_per_clusters returns the correct sum of bookings for each clusters."""
-    respx_mock.get("/lm/api/v1/booking/all").mock(
-        return_value=Response(
-            status_code=200,
-            json=bookings,
-        )
-    )
-    assert await get_bookings_sum_per_cluster("product.feature") == {
-        "cluster1": 15,
-        "cluster2": 17,
-        "cluster3": 71,
-    }
-    assert await get_bookings_sum_per_cluster("product2.feature2") == {
-        "cluster4": 1,
-    }
 
 
 @mark.asyncio

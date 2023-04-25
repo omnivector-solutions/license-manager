@@ -2,6 +2,7 @@ import stat
 from datetime import datetime, timezone
 
 import jwt
+import pytest
 import respx
 from httpx import ConnectError, Response
 from pytest import mark, raises
@@ -12,6 +13,8 @@ from lm_agent.backend_utils import (
     _write_token_to_cache,
     acquire_token,
     check_backend_health,
+    get_all_grace_times,
+    get_bookings_sum_per_cluster,
     get_config_from_backend,
 )
 from lm_agent.config import settings
@@ -244,3 +247,42 @@ async def test_get_config_from_backend__returns_empty_list_on_connect_error(
     configs = await get_config_from_backend()
     assert configs == []
     assert "Connection failed to backend" in caplog.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test_get_all_grace_times(respx_mock):
+    """
+    Check the return value for the get_all_grace_times.
+    """
+    respx_mock.get("/lm/api/v1/config/all").mock(
+        return_value=Response(
+            status_code=200,
+            json=[
+                {"id": 1, "grace_time": 100},
+                {"id": 2, "grace_time": 300},
+            ],
+        )
+    )
+    grace_times = await get_all_grace_times()
+    assert grace_times == {1: 100, 2: 300}
+
+
+@mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
+    """Test that get_bookings_sum_per_clusters returns the correct sum of bookings for each clusters."""
+    respx_mock.get("/lm/api/v1/booking/all").mock(
+        return_value=Response(
+            status_code=200,
+            json=bookings,
+        )
+    )
+    assert await get_bookings_sum_per_cluster("product.feature") == {
+        "cluster1": 15,
+        "cluster2": 17,
+        "cluster3": 71,
+    }
+    assert await get_bookings_sum_per_cluster("product2.feature2") == {
+        "cluster4": 1,
+    }

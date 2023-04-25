@@ -12,7 +12,7 @@ from lm_agent.workload_managers.slurm.slurmctld_epilog import epilog
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.update_report")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog._remove_booking_for_job")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.remove_booking_for_job_id")
 async def test_epilog(
     remove_booking_for_job_mock,
     get_required_licenses_for_job_mock,
@@ -43,7 +43,7 @@ async def test_epilog(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.update_report")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog._remove_booking_for_job")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_epilog.remove_booking_for_job_id")
 async def test_epilog_without_triggering_reconcile(
     remove_booking_for_job_mock,
     get_required_licenses_for_job_mock,
