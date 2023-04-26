@@ -5,10 +5,7 @@ import shlex
 import subprocess
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field
-
-from lm_agent.backend_utils import backend_client
-from lm_agent.config import PRODUCT_FEATURE_RX
+from lm_agent.backend_utils import LicenseBooking
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import (
     CMD_TIMEOUT,
@@ -34,28 +31,6 @@ class ScontrolRetrievalFailure(Exception):
         stderr=asyncio.subprocess.STDOUT,
     )
     """
-
-
-class LicenseBooking(BaseModel):
-    """
-    Structure to represent a license booking.
-    """
-
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
-    tokens: int
-    license_server_type: Union[None, str]
-
-
-class LicenseBookingRequest(BaseModel):
-    """
-    Structure to represent a list of license bookings.
-    """
-
-    job_id: int
-    bookings: Union[List, List[LicenseBooking]]
-    user_name: str
-    lead_host: str
-    cluster_name: str
 
 
 def _match_requested_license(requested_license: str) -> Union[dict, None]:
@@ -107,49 +82,6 @@ def get_required_licenses_for_job(job_licenses: str) -> List:
         required_licenses.append(license_booking)
 
     return required_licenses
-
-
-async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
-    """Book the feature tokens."""
-
-    features = [
-        {
-            "product_feature": license_booking.product_feature,
-            "booked": license_booking.tokens,
-        }
-        for license_booking in lbr.bookings
-    ]
-
-    logger.debug(f"features: {features}")
-    logger.debug(f"lbr: {lbr}")
-
-    resp = await backend_client.put(
-        "/lm/api/v1/booking/book",
-        json={
-            "job_id": lbr.job_id,
-            "features": features,
-            "user_name": lbr.user_name,
-            "lead_host": lbr.lead_host,
-            "cluster_name": lbr.cluster_name,
-        },
-    )
-
-    if resp.status_code == 200:
-        logger.debug("##### Booking completed successfully #####")
-        return True
-    logger.debug(f"##### Booking failed: {str(resp.content)} #####")
-    return False
-
-
-async def reconcile():
-    """Force a reconciliation."""
-    resp = await backend_client.get("/lm/api/v1/license/reconcile")
-
-    if resp.status_code == 200:
-        logger.debug("##### Reconcile completed successfully #####")
-        return True
-    logger.debug(f"##### Reconcile failed {resp.status_code} #####")
-    return False
 
 
 async def get_tokens_for_license(

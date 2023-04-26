@@ -13,15 +13,11 @@ if the exit status is anything other then 0, e.g. 1.
 import asyncio
 import sys
 
-from lm_agent.backend_utils import get_config_from_backend
+from lm_agent.backend_utils import LicenseBookingRequest, get_config_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_report
-from lm_agent.workload_managers.slurm.cmd_utils import (
-    LicenseBookingRequest,
-    get_required_licenses_for_job,
-    make_booking_request,
-)
+from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 

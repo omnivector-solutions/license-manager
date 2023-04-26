@@ -5,23 +5,12 @@ The EpilogSlurmctld executable.
 import asyncio
 import sys
 
-from lm_agent.backend_utils import backend_client
+from lm_agent.backend_utils import remove_booking_for_job_id
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_report
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
-
-
-async def _remove_booking_for_job(job_id: str) -> bool:
-    """Remove token bookings used by job."""
-
-    # Remove the booking for the job.
-    resp = await backend_client.delete(f"lm/api/v1/booking/book/{job_id}")
-    # Return True if the request to delete the booking was successful.
-    if resp.status_code == 200:
-        return True
-    return False
 
 
 async def epilog():
@@ -52,7 +41,7 @@ async def epilog():
 
     if len(required_licenses) > 0:
         # Attempt to remove the booking and log the result.
-        booking_removed = await _remove_booking_for_job(job_id)
+        booking_removed = await remove_booking_for_job_id(job_id)
         if booking_removed:
             logger.debug(f"Booking for job id: {job_id} successfully deleted.")
         else:
