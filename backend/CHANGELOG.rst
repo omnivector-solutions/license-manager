@@ -6,6 +6,8 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added endpoint to query available license server types
+* Added validators to check license server types in create/update for configs
 
 2.3.0 -- 2023-03-06
 --------------------
