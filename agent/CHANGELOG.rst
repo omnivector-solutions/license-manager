@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+2.3.1 -- 2023-04-28
+-------------------
 * Fixed unclosed async client warning message
 
 2.3.0 -- 2023-03-06

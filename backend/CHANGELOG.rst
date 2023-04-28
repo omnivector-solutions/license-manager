@@ -6,8 +6,12 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+2.3.1 -- 2023-04-28
+-------------------
 * Added endpoint to query available license server types
 * Added validators to check license server types in create/update for configs
+* Updated Dockerfile to use Poetry 1.4.0
 
 2.3.0 -- 2023-03-06
 --------------------
@@ -23,7 +27,7 @@ Unreleased
 
 2.2.20 -- 2023-02-07
 --------------------
-* Fix issue with async lock by using an async loop to start uvicorn
+* Fixed issue with async lock by using an async loop to start uvicorn
 
 2.2.19 -- 2023-02-01
 --------------------

@@ -7,6 +7,10 @@ This file keeps track of all notable changes to License Manager CLI.
 Unreleased
 ----------
 
+2.3.1 -- 2023-04-28
+-------------------
+* Bumped to keep in sync with backend and agent
+
 2.3.0 -- 2023-03-06
 --------------------
 * Bumped version to keep in sync with agent
