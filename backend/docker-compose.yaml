@@ -30,3 +30,44 @@ services:
     ports:
       - "7000:8000"
     command: uvicorn lm_backend.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  unittest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      POSTGRES_DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+    command: poetry run pytest
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./tests:/app/tests
+
+  migration:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      POSTGRES_DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
+    command: >
+      sh -c  "/usr/local/bin/pip install alembic==1.8.1 psycopg2==2.9.5 && alembic -c alembic/alembic.ini upgrade head"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+
+  pgsql:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: omnivector
+      POSTGRES_PASSWORD: rats
+      POSTGRES_DB: ratsdb
+    ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
