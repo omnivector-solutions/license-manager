@@ -28,14 +28,6 @@ def upgrade():
         sa.UniqueConstraint("name"),
     )
     op.create_table(
-        "license_servers",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("host", sa.String(), nullable=False),
-        sa.Column("port", sa.Integer(), nullable=False),
-        sa.Column("type", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_table(
         "products",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
@@ -48,7 +40,6 @@ def upgrade():
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("cluster_id", sa.Integer(), nullable=False),
         sa.Column("grace_time", sa.Integer(), nullable=False),
-        sa.Column("reserved", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["cluster_id"],
             ["clusters.id"],
@@ -57,16 +48,18 @@ def upgrade():
         sa.UniqueConstraint("name"),
     )
     op.create_table(
-        "jobs",
-        sa.Column("slurm_id", sa.Integer(), autoincrement=False, nullable=False),
-        sa.Column("cluster_id", sa.Integer(), nullable=False),
-        sa.Column("username", sa.String(), nullable=False),
-        sa.Column("lead_host", sa.String(), nullable=False),
+        "license_servers",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("config_id", sa.Integer(), nullable=False),
+        sa.Column("host", sa.String(), nullable=False),
+        sa.Column("port", sa.Integer(), nullable=False),
+        sa.Column("type", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["cluster_id"],
-            ["clusters.id"],
+            ["config_id"],
+            ["configs.id"],
         ),
-        sa.PrimaryKeyConstraint("slurm_id"),
+        sa.PrimaryKeyConstraint("id"),
+
     )
     op.create_table(
         "features",
@@ -74,6 +67,7 @@ def upgrade():
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("product_id", sa.Integer(), nullable=False),
         sa.Column("config_id", sa.Integer(), nullable=False),
+        sa.Column("reserved", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["config_id"],
             ["configs.id"],
@@ -84,42 +78,6 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
-    )
-    op.create_table(
-        "license_servers_configs_mapping",
-        sa.Column("license_server_id", sa.Integer(), nullable=False),
-        sa.Column("config_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["config_id"],
-            ["configs.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["license_server_id"],
-            ["license_servers.id"],
-        ),
-        sa.PrimaryKeyConstraint("license_server_id", "config_id"),
-    )
-    op.create_table(
-        "bookings",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("job_id", sa.Integer(), nullable=False),
-        sa.Column("feature_id", sa.Integer(), nullable=False),
-        sa.Column("quantity", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("config_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["config_id"],
-            ["configs.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["feature_id"],
-            ["features.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["job_id"],
-            ["jobs.slurm_id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "inventories",
@@ -133,6 +91,36 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("feature_id"),
+    )
+    op.create_table(
+        "jobs",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("slurm_job_id", sa.String(), nullable=False),
+        sa.Column("cluster_id", sa.Integer(), nullable=False),
+        sa.Column("username", sa.String(), nullable=False),
+        sa.Column("lead_host", sa.String(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["cluster_id"],
+            ["clusters.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_table(
+        "bookings",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("job_id", sa.Integer(), nullable=False),
+        sa.Column("feature_id", sa.Integer(), nullable=False),
+        sa.Column("quantity", sa.Integer(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["feature_id"],
+            ["features.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["job_id"],
+            ["jobs.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.drop_table("license")
     op.drop_table("booking")
@@ -196,13 +184,12 @@ def downgrade():
         sa.PrimaryKeyConstraint("id", name="license_pkey"),
         sa.UniqueConstraint("product_feature", name="license_product_feature_key"),
     )
-    op.drop_table("inventories")
     op.drop_table("bookings")
-    op.drop_table("license_servers_configs_mapping")
-    op.drop_table("features")
     op.drop_table("jobs")
-    op.drop_table("configs")
+    op.drop_table("inventories")
+    op.drop_table("features")
     op.drop_table("products")
     op.drop_table("license_servers")
-    op.drop_table("clusters")
+    op.drop_table("configs")
+    op.drop_table("clußsters")
     # ### end Alembic commands ###
