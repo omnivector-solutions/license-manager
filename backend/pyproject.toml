@@ -48,14 +48,6 @@ sqlalchemy-stubs = "^0.4"
 minversion = "6.0"
 addopts = "--random-order --cov=lm_backend --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
-env = [
-    "DATABASE_URL = sqlite:///sqlite-testing.db",
-    "LOG_LEVEL_SQL = ERROR",
-
-    # This setting must align with the rs256_domain fixture from armasec's pytest extension
-    "ARMASEC_DOMAIN = armasec.dev",
-    "ARMASEC_DEBUG = True",
-]
 
 [tool.black]
 line-length = 110

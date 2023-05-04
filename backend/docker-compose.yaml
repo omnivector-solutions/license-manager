@@ -36,7 +36,11 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      POSTGRES_DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+      DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
+      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
+      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
+      LOG_LEVEL: ${LOG_LEVEL}
     command: poetry run pytest
     depends_on:
       pgsql:
@@ -51,7 +55,11 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      POSTGRES_DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
+      DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
+      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
+      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
+      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
+      LOG_LEVEL: ${LOG_LEVEL}
     command: >
       sh -c  "/usr/local/bin/pip install alembic==1.8.1 psycopg2==2.9.5 && alembic -c alembic/alembic.ini upgrade head"
     depends_on:
