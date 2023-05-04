@@ -11,26 +11,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
 from starlette import status
 
-from lm_backend.config import settings
-
-async_engine = create_async_engine(settings.DATABASE_URL)
-async_session_factory = async_sessionmaker(bind=async_engine, expire_on_commit=False, class_=AsyncSession)
-
-AsyncScopedSession = async_scoped_session(async_session_factory, scopefunc=current_task)
-
 Base = declarative_base()
-
-
-async def create_tables():
-    """Create all tables in the database."""
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
-async def get_session() -> AsyncSession:
-    """Create a new async session for each request."""
-    async with AsyncScopedSession() as session:
-        yield session
 
 
 def render_sql(query) -> str:
