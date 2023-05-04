@@ -191,5 +191,5 @@ def downgrade():
     op.drop_table("products")
     op.drop_table("license_servers")
     op.drop_table("configs")
-    op.drop_table("clußsters")
+    op.drop_table("clusters")
     # ### end Alembic commands ###
