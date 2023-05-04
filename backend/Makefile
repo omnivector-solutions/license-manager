@@ -10,8 +10,9 @@ install:
 	poetry install
 
 .PHONY: test
-test: install
-	poetry run pytest
+test: 
+	docker-compose build unittest
+	docker-compose run --rm unittest
 
 .PHONY: mypy
 mypy: install
