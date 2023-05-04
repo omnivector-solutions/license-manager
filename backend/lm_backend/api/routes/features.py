@@ -12,9 +12,9 @@ from lm_backend.api.schemas import (
     InventoryCreateSchema,
     InventoryUpdateSchema,
 )
-from lm_backend.database import get_session
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
+from lm_backend.session import get_session
 
 router = APIRouter()
 

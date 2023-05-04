@@ -7,8 +7,9 @@ from sqlalchemy import Column, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import UnaryExpression
 
+from lm_backend.api.models import Base
 from lm_backend.api.schemas import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base, search_clause, sort_clause
+from lm_backend.database import search_clause, sort_clause
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
