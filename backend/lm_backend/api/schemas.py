@@ -265,14 +265,12 @@ class ConfigurationCreateSchema(BaseCreateSchema):
     name: str
     cluster_id: int
     grace_time: int
-    reserved: int
 
 
 class ConfigurationUpdateSchema(BaseUpdateSchema):
     name: Optional[str] = None
     cluster_id: Optional[int] = None
     grace_time: Optional[int] = None
-    reserved: Optional[int] = None
 
 
 class ConfigurationSchema(BaseModel):
@@ -286,7 +284,6 @@ class ConfigurationSchema(BaseModel):
     features: List[FeatureSchema] = []
     license_servers: List[LicenseServerSchema] = []
     grace_time: int
-    reserved: int
 
     class Config:
         orm_mode = True
