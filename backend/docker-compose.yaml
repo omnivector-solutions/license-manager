@@ -34,7 +34,7 @@ services:
   unittest:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile-ci
     environment:
       DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
@@ -53,15 +53,14 @@ services:
   migration:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile-ci
     environment:
       DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
       ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
       ARMASEC_DEBUG: ${ARMASEC_DEBUG}
       LOG_LEVEL: ${LOG_LEVEL}
-    command: >
-      sh -c  "/usr/local/bin/pip install alembic==1.8.1 psycopg2==2.9.5 && alembic -c alembic/alembic.ini upgrade head"
+    command: "poetry run alembic -c alembic/alembic.ini upgrade head"
     depends_on:
       pgsql:
         condition: service_healthy
