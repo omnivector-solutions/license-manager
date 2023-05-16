@@ -29,7 +29,6 @@ class GenericCRUD:
         try:
             async with db_session.begin():
                 db_session.add(db_obj)
-            await db_session.commit()
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail="Object could not be created.")
