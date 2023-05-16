@@ -129,7 +129,7 @@ class GenericCRUD:
             await db_session.refresh(db_obj)
         return db_obj
 
-    async def delete(self, db_session: AsyncSession, id: int) -> bool:
+    async def delete(self, db_session: AsyncSession, id: int):
         """
         Delete an object from the database.
         """
