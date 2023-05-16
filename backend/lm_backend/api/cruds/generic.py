@@ -17,6 +17,8 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseUpdateSchema)
 
 
 class GenericCRUD:
+    """Generic CRUD module to interface with database, to be utilized by all models."""
+
     def __init__(self, model: ModelType, create_schema: CreateSchemaType, update_schema: UpdateSchemaType):
         """Initializes the CRUD class with the model to be used."""
         self.model = model

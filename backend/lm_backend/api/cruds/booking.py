@@ -10,16 +10,19 @@ from lm_backend.api.schemas import BookingCreateSchema
 
 
 class BookingCRUD(GenericCRUD):
-    def __init__(self, model: ModelType, create_schema: CreateSchemaType, update_schema: UpdateSchemaType):
-        super().__init__(model, create_schema, update_schema)
+    """Booking CRUD module to overload create method, preventing the overbooking issue."""
 
     async def create(self, db_session: AsyncSession, obj=BookingCreateSchema) -> ModelType:
-        """Create a new booking.
+        """
+        Create a new booking.
 
         Use a somewhat complex logic to check if a booking can be made and insert it in one query. In this
         case, implement the `INSERT columns FROM select_query WHERE EXISTS (SELECT subquery)` SQL paradigm
         using SQLAlchemy query API. A  booking will only be created if there are enough licenses available
         to make the booking.
+
+        To determine if a booking can be made, we check if the amount of licenses already booked, the licenses
+        in use, the licenses reserved and the amount requested, are smaller or equal the license total.
         """
 
         # CTE used to provide the request values to the insert/select query.
