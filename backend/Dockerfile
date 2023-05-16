@@ -12,7 +12,7 @@ RUN curl -sSL https://install.python-poetry.org | \
 
 COPY ./pyproject.toml ./poetry.lock* /app/
 
-RUN poetry install --no-root
+RUN poetry install --no-root --no-dev
 
 COPY ./alembic /app/alembic
 COPY ./lm_backend /app/lm_backend
