@@ -33,7 +33,7 @@ class GenericCRUD:
                 db_session.add(db_obj)
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Object could not be created.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be created.")
 
         await db_session.refresh(db_obj)
         await db_session.close()
@@ -52,10 +52,10 @@ class GenericCRUD:
                 db_obj = query.scalars().one_or_none()
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be read.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
 
         if db_obj is None:
-            raise HTTPException(status_code=404, detail="Object not found.")
+            raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
         return db_obj
 
@@ -70,10 +70,10 @@ class GenericCRUD:
                 db_obj = query.scalars().one_or_none()
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be read.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
 
         if db_obj is None:
-            raise HTTPException(status_code=404, detail="Object not found.")
+            raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
         return db_obj
 
@@ -99,7 +99,7 @@ class GenericCRUD:
                 db_objs = query.scalars().all()
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Objects could not be read.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
         return [db_obj for db_obj in db_objs]
 
     async def update(
@@ -118,7 +118,7 @@ class GenericCRUD:
                 db_obj = query.scalar_one_or_none()
 
                 if db_obj is None:
-                    raise HTTPException(status_code=404, detail="Object not found.")
+                    raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
                 for field, value in obj:
                     if value is not None:
@@ -126,7 +126,7 @@ class GenericCRUD:
                 await db_session.flush()
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be updated.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
 
             await db_session.refresh(db_obj)
         return db_obj
@@ -141,14 +141,16 @@ class GenericCRUD:
                 db_obj = query.scalar_one_or_none()
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be deleted.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
 
             if db_obj is None:
-                raise HTTPException(status_code=404, detail="Object not found.")
+                raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
             try:
                 await db_session.delete(db_obj)
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be deleted.")
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
         await db_session.flush()
+
+        return {"message": f"{self.model.__name__} deleted successfully."}
