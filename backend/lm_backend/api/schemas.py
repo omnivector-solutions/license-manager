@@ -40,7 +40,7 @@ Schemas:
 """
 from typing import List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, PositiveInt
 
 from lm_backend.api.constants import LicenseServerType
 
@@ -68,14 +68,8 @@ class LicenseServerCreateSchema(BaseCreateSchema):
 
     config_id: int
     host: str
-    port: int
+    port: PositiveInt
     type: LicenseServerType
-
-    @validator("port")
-    def port_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError("Port must be positive")
-        return v
 
 
 class LicenseServerUpdateSchema(BaseUpdateSchema):
@@ -85,14 +79,8 @@ class LicenseServerUpdateSchema(BaseUpdateSchema):
 
     config_id: Optional[int] = None
     host: Optional[str] = None
-    port: Optional[int] = None
+    port: Optional[PositiveInt] = None
     type: Optional[LicenseServerType] = None
-
-    @validator("port")
-    def port_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError("Port must be positive")
-        return v
 
 
 class LicenseServerSchema(BaseModel):
@@ -103,7 +91,7 @@ class LicenseServerSchema(BaseModel):
     id: int
     config_id: int
     host: str
-    port: int
+    port: PositiveInt
     type: LicenseServerType
 
     class Config:
