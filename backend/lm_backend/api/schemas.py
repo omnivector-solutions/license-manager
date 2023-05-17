@@ -42,7 +42,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
-from lm_backend.constants import LicenseServerType
+from lm_backend.api.constants import LicenseServerType
 
 
 class BaseCreateSchema(BaseModel):
