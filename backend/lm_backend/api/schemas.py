@@ -38,10 +38,11 @@ Schemas:
         - BookingUpdateSchema
         - BookingSchema
 """
-from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, validator
+
+from lm_backend.constants import LicenseServerType
 
 
 class BaseCreateSchema(BaseModel):
@@ -58,18 +59,6 @@ class BaseUpdateSchema(BaseModel):
     """
 
     pass
-
-
-class LicenseServerType(str, Enum):
-    """
-    Describe the supported license server types that may be used for fetching licenses from license servers.
-    """
-
-    FLEXLM = "flexlm"
-    RLM = "rlm"
-    LMX = "lmx"
-    LSDYNA = "lsdyna"
-    OLICENSE = "olicense"
 
 
 class LicenseServerCreateSchema(BaseCreateSchema):
