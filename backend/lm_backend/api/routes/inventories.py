@@ -78,5 +78,4 @@ async def update_inventory(
 )
 async def delete_inventory(inventory_id: int, db_session: AsyncSession = Depends(get_session)):
     """Delete an inventory from the database."""
-    await crud_inventory.delete(db_session=db_session, id=inventory_id)
-    return {"message": "Inventory deleted successfully"}
+    return await crud_inventory.delete(db_session=db_session, id=inventory_id)

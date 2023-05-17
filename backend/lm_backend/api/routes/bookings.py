@@ -67,5 +67,4 @@ async def read_booking(booking_id: int, db_session: AsyncSession = Depends(get_s
 )
 async def delete_booking(booking_id: int, db_session: AsyncSession = Depends(get_session)):
     """Delete a booking from the database."""
-    await crud_booking.delete(db_session=db_session, id=booking_id)
-    return {"message": "Booking deleted successfully"}
+    return await crud_booking.delete(db_session=db_session, id=booking_id)

@@ -99,7 +99,7 @@ async def update_feature(
 async def delete_feature(feature_id: int, db_session: AsyncSession = Depends(get_session)):
     """
     Delete a feature from the database.
+
     This will also delete the inventory.
     """
-    await crud_feature.delete(db_session=db_session, id=feature_id)
-    return {"message": "Feature deleted successfully"}
+    return await crud_feature.delete(db_session=db_session, id=feature_id)

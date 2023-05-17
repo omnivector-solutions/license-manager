@@ -85,5 +85,4 @@ async def update_product(
 )
 async def delete_product(product_id: int, db_session: AsyncSession = Depends(get_session)):
     """Delete a product from the database and associated features."""
-    await crud_product.delete(db_session=db_session, id=product_id)
-    return {"message": "Product deleted successfully"}
+    return await crud_product.delete(db_session=db_session, id=product_id)

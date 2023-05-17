@@ -89,7 +89,7 @@ async def update_configuration(
 async def delete_configuration(configuration_id: int, db_session: AsyncSession = Depends(get_session)):
     """
     Delete a configuration from the database.
+
     This will also delete the features and license servers associated.
     """
-    await crud.delete(db_session=db_session, id=configuration_id)
-    return {"message": "Configuration deleted successfully"}
+    return await crud.delete(db_session=db_session, id=configuration_id)

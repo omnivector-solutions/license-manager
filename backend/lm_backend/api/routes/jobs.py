@@ -80,6 +80,7 @@ async def delete_job_by_slurm_id(
 ):
     """
     Delete a job from the database and associated bookings.
+
     Uses the slurm_job_id and the cluster_id to filter the job.
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
@@ -88,8 +89,7 @@ async def delete_job_by_slurm_id(
 
     for job in jobs:
         if job.cluster_id == cluster_id:
-            await crud_job.delete(db_session=db_session, id=job.id)
-            return {"message": "Job deleted successfully"}
+            return await crud_job.delete(db_session=db_session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
 
@@ -104,6 +104,7 @@ async def read_job_by_slurm_id(
 ):
     """
     Read a job from the database and associated bookings.
+
     Uses the slurm_job_id and the cluster_id to filter the job.
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.

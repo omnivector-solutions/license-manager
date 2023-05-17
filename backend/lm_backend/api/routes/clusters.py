@@ -102,7 +102,7 @@ async def update_cluster(
 async def delete_cluster(cluster_id: int, db_session: AsyncSession = Depends(get_session)):
     """
     Delete a cluster from the database.
+
     This will also delete all configurations associated with the cluster.
     """
-    await crud_cluster.delete(db_session=db_session, id=cluster_id)
-    return {"message": "Cluster deleted successfully"}
+    return await crud_cluster.delete(db_session=db_session, id=cluster_id)

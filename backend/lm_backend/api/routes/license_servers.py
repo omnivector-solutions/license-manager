@@ -85,5 +85,5 @@ async def update_license_server(
 )
 async def delete_license_server(license_server_id: int, db_session: AsyncSession = Depends(get_session)):
     """Delete a license server from the database."""
-    await crud_license_server.delete(db_session=db_session, id=license_server_id)
-    return {"message": "License server deleted successfully"}
+    return await crud_license_server.delete(db_session=db_session, id=license_server_id)
+
