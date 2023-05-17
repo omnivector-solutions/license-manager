@@ -162,21 +162,6 @@ async def create_features(insert_objects, create_one_configuration, create_one_p
     ]
 
     inserted_features = await insert_objects(features_to_add, Feature)
-
-    # inventories_to_add = [
-    #     {
-    #         "feature_id": inserted_features[0].id,
-    #         "total": 1000,
-    #         "used": 250,
-    #     },
-    #     {
-    #         "feature_id": inserted_features[1].id,
-    #         "total": 1000,
-    #         "used": 250,
-    #     },
-    # ]
-
-    # await insert_objects(inventories_to_add, Inventory)
     return inserted_features
 
 
@@ -195,14 +180,6 @@ async def create_one_feature(insert_objects, create_one_configuration, create_on
     ]
 
     inserted_feature = await insert_objects(feature_to_add, Feature)
-
-    # inventory_to_add = [{
-    #     "feature_id": inserted_feature[0].id,
-    #     "total": 1000,
-    #     "used": 250,
-    # }]
-
-    # await insert_objects(inventory_to_add, Inventory)
     return inserted_feature
 
 
