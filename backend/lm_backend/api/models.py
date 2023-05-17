@@ -87,7 +87,7 @@ class Configuration(Base):
             f"Config(id={self.id}, "
             f"name={self.name}, "
             f"cluster_id={self.cluster_id}, "
-            f"grace_time={self.grace_time}"
+            f"grace_time={self.grace_time})"
         )
 
 
@@ -140,8 +140,8 @@ class Feature(Base):
             f"Feature(id={self.id}, "
             f"name={self.name}, "
             f"product_id={self.product_id}, "
-            f"config_id={self.config_id}), "
-            f"reserved={self.reserved}"
+            f"config_id={self.config_id}, "
+            f"reserved={self.reserved})"
         )
 
 
@@ -212,5 +212,5 @@ class Booking(Base):
             f"job_id={self.job_id}, "
             f"feature_id={self.feature_id}, "
             f"quantity={self.quantity}, "
-            f"created_at={self.created_at}"
+            f"created_at={self.created_at})"
         )
