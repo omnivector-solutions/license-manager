@@ -17,9 +17,6 @@ async def test_add_license_server__success(
     create_one_configuration,
     clean_up_database,
 ):
-    """
-    Test adding a Configuration.
-    """
     configuration_id = create_one_configuration[0].id
 
     data = {

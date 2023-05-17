@@ -14,9 +14,6 @@ async def test_add_inventory__success(
     create_one_feature,
     clean_up_database,
 ):
-    """
-    Test adding an Inventory.
-    """
     feature_id = create_one_feature[0].id
 
     data = {

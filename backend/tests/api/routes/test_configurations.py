@@ -14,9 +14,6 @@ async def test_add_configuration__success(
     create_one_cluster,
     clean_up_database,
 ):
-    """
-    Test adding a Configuration.
-    """
     cluster_id = create_one_cluster[0].id
 
     data = {

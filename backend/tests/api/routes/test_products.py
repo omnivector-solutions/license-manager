@@ -16,9 +16,6 @@ async def test_add_product__success(
     read_object,
     clean_up_database,
 ):
-    """
-    Test adding a Product.
-    """
     data = {
         "name": "Abaqus",
     }

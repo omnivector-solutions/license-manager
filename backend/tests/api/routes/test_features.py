@@ -15,9 +15,6 @@ async def test_add_feature__success(
     create_one_product,
     clean_up_database,
 ):
-    """
-    Test adding a Feature.
-    """
     configuration_id = create_one_configuration[0].id
     product_id = create_one_product[0].id
 

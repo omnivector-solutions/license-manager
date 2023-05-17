@@ -13,9 +13,6 @@ async def test_add_cluster__success(
     read_object,
     clean_up_database,
 ):
-    """
-    Test adding a Cluster.
-    """
     data = {
         "name": "Dummy Cluster",
         "client_id": "dummy",

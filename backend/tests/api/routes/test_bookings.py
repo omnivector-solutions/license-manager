@@ -15,9 +15,6 @@ async def test_add_booking__success(
     create_one_inventory,
     clean_up_database,
 ):
-    """
-    Test adding a Booking.
-    """
     job_id = create_one_job[0].id
     feature_id = create_one_inventory[0].feature_id
 
@@ -51,9 +48,6 @@ async def test_add_booking__fail_with_overbooking(
     create_one_inventory,
     clean_up_database,
 ):
-    """
-    Test adding a Booking when the license is already in use.
-    """
     job_id = create_one_job[0].id
     feature_id = create_one_inventory[0].feature_id
 

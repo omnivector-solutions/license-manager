@@ -16,9 +16,6 @@ async def test_add_job__success(
     create_one_cluster,
     clean_up_database,
 ):
-    """
-    Test adding a Job.
-    """
     cluster_id = create_one_cluster[0].id
 
     data = {
