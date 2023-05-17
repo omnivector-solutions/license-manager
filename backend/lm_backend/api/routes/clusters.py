@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
-from lm_backend.api.models import Cluster
+from lm_backend.api.models.cluster import Cluster
 from lm_backend.api.schemas import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard

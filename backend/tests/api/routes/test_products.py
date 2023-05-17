@@ -4,8 +4,7 @@ from httpx import AsyncClient
 from pytest import mark
 from sqlalchemy import select
 
-from lm_backend.api.models import Product
-from lm_backend.api.schemas import ProductSchema
+from lm_backend.api.models.product import Product
 from lm_backend.permissions import Permissions
 
 

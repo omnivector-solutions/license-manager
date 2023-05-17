@@ -12,7 +12,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from lm_backend.api import models
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.cluster import Cluster
+from lm_backend.api.models.configuration import Configuration
+from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
+from lm_backend.api.models.job import Job
+from lm_backend.api.models.license_server import LicenseServer
+from lm_backend.api.models.product import Product
 from lm_backend.session import AsyncScopedSession
 
 
@@ -167,14 +174,14 @@ async def clean_up_database(get_session: typing.AsyncGenerator[AsyncSession, Non
     """Clean up the database after test run."""
     yield
     async with get_session() as sess:
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Booking.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Job.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Inventory.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Feature.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Product.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.LicenseServer.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Configuration.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {models.Cluster.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Booking.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Job.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Inventory.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Feature.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Product.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {LicenseServer.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Configuration.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Cluster.__tablename__};"""))
         await sess.commit()
 
 

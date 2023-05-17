@@ -2,7 +2,7 @@ from httpx import AsyncClient
 from pytest import fixture, mark
 from sqlalchemy import select
 
-from lm_backend.api.models import Inventory
+from lm_backend.api.models.inventory import Inventory
 from lm_backend.permissions import Permissions
 
 

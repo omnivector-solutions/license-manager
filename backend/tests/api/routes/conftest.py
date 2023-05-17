@@ -1,15 +1,13 @@
 from pytest import fixture
 
-from lm_backend.api.models import (
-    Booking,
-    Cluster,
-    Configuration,
-    Feature,
-    Inventory,
-    Job,
-    LicenseServer,
-    Product,
-)
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.cluster import Cluster
+from lm_backend.api.models.configuration import Configuration
+from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
+from lm_backend.api.models.job import Job
+from lm_backend.api.models.license_server import LicenseServer
+from lm_backend.api.models.product import Product
 
 
 @fixture

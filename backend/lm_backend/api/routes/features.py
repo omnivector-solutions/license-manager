@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
-from lm_backend.api.models import Feature, Inventory
+from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
 from lm_backend.api.schemas import (
     FeatureCreateSchema,
     FeatureSchema,

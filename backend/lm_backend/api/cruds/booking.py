@@ -4,8 +4,10 @@ from loguru import logger
 from sqlalchemy import and_, func, insert, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_backend.api.cruds.generic import CreateSchemaType, GenericCRUD, ModelType, UpdateSchemaType
-from lm_backend.api.models import Booking, Feature, Inventory
+from lm_backend.api.cruds.generic import GenericCRUD, ModelType
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
 from lm_backend.api.schemas import BookingCreateSchema
 
 

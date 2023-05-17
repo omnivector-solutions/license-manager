@@ -2,7 +2,8 @@ from httpx import AsyncClient
 from pytest import fixture, mark
 from sqlalchemy import select
 
-from lm_backend.api.models import Booking, Cluster
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.cluster import Cluster
 from lm_backend.permissions import Permissions
 
 

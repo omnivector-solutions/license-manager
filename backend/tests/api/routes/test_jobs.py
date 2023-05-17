@@ -4,7 +4,8 @@ from httpx import AsyncClient
 from pytest import fixture, mark
 from sqlalchemy import select
 
-from lm_backend.api.models import Cluster, Job
+from lm_backend.api.models.cluster import Cluster
+from lm_backend.api.models.job import Job
 from lm_backend.permissions import Permissions
 
 
