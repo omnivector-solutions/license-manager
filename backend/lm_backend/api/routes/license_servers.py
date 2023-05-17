@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models import LicenseServer
 from lm_backend.api.schemas import LicenseServerCreateSchema, LicenseServerSchema, LicenseServerUpdateSchema
+from lm_backend.api.constants import LicenseServerType
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session
@@ -87,3 +88,13 @@ async def delete_license_server(license_server_id: int, db_session: AsyncSession
     """Delete a license server from the database."""
     return await crud_license_server.delete(db_session=db_session, id=license_server_id)
 
+
+@router.get(
+    "/types/",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.LICENSE_SERVER_VIEW))],
+    response_model=List[LicenseServerType],
+)
+async def get_license_server_types():
+    """Return a list of the available license server types."""
+    return LicenseServerType
