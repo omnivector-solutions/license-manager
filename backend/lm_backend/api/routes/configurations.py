@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
-from lm_backend.api.schemas import ConfigurationCreateSchema, ConfigurationSchema, ConfigurationUpdateSchema
+from lm_backend.api.schemas.configuration import ConfigurationCreateSchema, ConfigurationSchema, ConfigurationUpdateSchema
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session

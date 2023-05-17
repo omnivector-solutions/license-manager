@@ -1,13 +1,8 @@
-from typing import List
-
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 from sqlalchemy import select
 
-from lm_backend.api.models.cluster import Cluster
-from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.license_server import LicenseServer
-from lm_backend.api.schemas import ConfigurationSchema, FeatureSchema, InventorySchema, LicenseServerSchema
 from lm_backend.permissions import Permissions
 
 

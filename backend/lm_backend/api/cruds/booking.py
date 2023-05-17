@@ -8,7 +8,7 @@ from lm_backend.api.cruds.generic import GenericCRUD, ModelType
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.inventory import Inventory
-from lm_backend.api.schemas import BookingCreateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema
 
 
 class BookingCRUD(GenericCRUD):
