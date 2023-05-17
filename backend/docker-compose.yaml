@@ -15,7 +15,7 @@ services:
   license-manager:
     build:
       context: .
-      dockerfile: ./Dockerfile-dev
+      dockerfile: ./Dockerfile
     depends_on:
       postgres-back:
         condition: service_healthy
