@@ -115,19 +115,23 @@ class GenericCRUD:
             try:
                 query = await db_session.execute(select(self.model).filter(self.model.id == id))
                 db_obj = query.scalar_one_or_none()
-
-                if db_obj is None:
-                    raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
-
-                for field, value in obj:
-                    if value is not None:
-                        setattr(db_obj, field, value)
-                await db_session.flush()
             except Exception as e:
                 logger.error(e)
                 raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
 
-            await db_session.refresh(db_obj)
+            if db_obj is None:
+                raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
+
+            try:
+                for field, value in obj:
+                    if value is not None:
+                        setattr(db_obj, field, value)
+                await db_session.flush()
+                await db_session.refresh(db_obj)
+            except Exception as e:
+                logger.error(e)
+                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
+
         return db_obj
 
     async def delete(self, db_session: AsyncSession, id: int):
@@ -147,9 +151,9 @@ class GenericCRUD:
 
             try:
                 await db_session.delete(db_obj)
+                await db_session.flush()
             except Exception as e:
                 logger.error(e)
                 raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
-        await db_session.flush()
 
         return {"message": f"{self.model.__name__} deleted successfully."}
