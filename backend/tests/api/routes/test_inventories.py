@@ -151,6 +151,25 @@ async def test_update_inventory__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_inventory__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_inventory,
+    clean_up_database,
+):
+    new_inventory = {
+        "bla": "bla",
+    }
+
+    id = create_one_inventory[0].id
+
+    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_inventory__success(
     backend_client: AsyncClient,
     inject_security_header,

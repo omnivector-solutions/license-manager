@@ -190,6 +190,26 @@ async def test_update_configuration__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_configuration__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    clean_up_database,
+):
+    new_configuration = {
+        "bla": "bla",
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,

@@ -166,6 +166,23 @@ async def test_update_product__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_product__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_product,
+    clean_up_database,
+):
+    new_product = {"bla": "bla"}
+
+    id = create_one_product[0].id
+
+    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    response = await backend_client.put(f"/lm/products/{id}", json=new_product)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_product__success(
     backend_client: AsyncClient,
     inject_security_header,

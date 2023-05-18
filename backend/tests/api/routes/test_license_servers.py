@@ -190,6 +190,24 @@ async def test_update_license_server__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_license_server__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_license_server,
+    read_object,
+    clean_up_database,
+):
+    new_license_server = {"bla": "bla"}
+
+    id = create_one_license_server[0].id
+
+    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    response = await backend_client.put(f"/lm/license_servers/{id}", json=new_license_server)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_license_server__success(
     backend_client: AsyncClient,
     inject_security_header,

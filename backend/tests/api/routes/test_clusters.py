@@ -216,6 +216,23 @@ async def test_update_cluster__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_cluster__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_cluster,
+    clean_up_database,
+):
+    new_cluster = {"bla": "bla"}
+
+    id = create_one_cluster[0].id
+
+    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    response = await backend_client.put(f"/lm/clusters/{id}", json=new_cluster)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_cluster__success(
     backend_client: AsyncClient,
     inject_security_header,

@@ -185,6 +185,23 @@ async def test_update_feature__fail_with_bad_parameter(
 
 
 @mark.asyncio
+async def test_update_feature__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    clean_up_database,
+):
+    new_feature = {"bla": "bla"}
+
+    id = create_one_feature[0].id
+
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_feature__success(
     backend_client: AsyncClient,
     inject_security_header,
