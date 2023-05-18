@@ -122,10 +122,16 @@ class GenericCRUD:
             if db_obj is None:
                 raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
+            if all(value is None for _, value in obj):
+                raise HTTPException(
+                    status_code=400, detail=f"Please provide a valid field to update {self.model.__name__}."
+                )
+
+            for field, value in obj:
+                if hasattr(db_obj, field) and value is not None:
+                    setattr(db_obj, field, value)
+
             try:
-                for field, value in obj:
-                    if value is not None:
-                        setattr(db_obj, field, value)
                 await db_session.flush()
                 await db_session.refresh(db_obj)
             except Exception as e:
