@@ -1,4 +1,3 @@
-
 """Cluster schemas for the License Manager API."""
 from typing import List, Optional
 

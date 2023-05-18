@@ -4,8 +4,8 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.inventory import InventorySchema
 from lm_backend.api.schemas.booking import BookingSchema
+from lm_backend.api.schemas.inventory import InventorySchema
 
 
 class FeatureCreateSchema(BaseCreateSchema):
