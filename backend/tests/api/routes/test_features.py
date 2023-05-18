@@ -3,6 +3,7 @@ from pytest import mark
 from sqlalchemy import select
 
 from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
 from lm_backend.permissions import Permissions
 
 
@@ -25,12 +26,17 @@ async def test_add_feature__success(
     assert response.status_code == 201
 
     stmt = select(Feature).where(Feature.name == data["name"])
-    fetched = await read_object(stmt)
+    feature_fetched = await read_object(stmt)
 
-    assert fetched.name == data["name"]
-    assert fetched.config_id == configuration_id
-    assert fetched.product_id == product_id
-    assert fetched.reserved == data["reserved"]
+    assert feature_fetched.name == data["name"]
+    assert feature_fetched.config_id == configuration_id
+    assert feature_fetched.product_id == product_id
+    assert feature_fetched.reserved == data["reserved"]
+
+    stmt = select(Inventory).where(Inventory.feature_id == feature_fetched.id)
+    inventory_fetched = await read_object(stmt)
+
+    assert inventory_fetched.feature_id == feature_fetched.id
 
 
 @mark.asyncio
@@ -109,6 +115,28 @@ async def test_get_feature__success(
     assert response_feature["reserved"] == create_one_feature[0].reserved
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_feature__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    response = await backend_client.get(f"/lm/features/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_update_feature__success(
     backend_client: AsyncClient,
@@ -132,6 +160,30 @@ async def test_update_feature__success(
     assert fetch_feature.name == new_feature["name"]
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_feature__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    clean_up_database,
+    id,
+):
+    new_feature = {"name": "abaqus_2"}
+
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_feature__success(
     backend_client: AsyncClient,
@@ -150,3 +202,25 @@ async def test_delete_feature__success(
     fetch_feature = await read_object(stmt)
 
     assert fetch_feature is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_feature__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.delete(f"/lm/features/{id}")
+
+    assert response.status_code == 404

@@ -1,5 +1,5 @@
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 from sqlalchemy import select
 
 from lm_backend.api.models.inventory import Inventory
@@ -77,6 +77,79 @@ async def test_get_inventory__success(
     assert response_inventory["used"] == create_one_inventory[0].used
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_inventory__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_inventory,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.INVENTORY_VIEW)
+    response = await backend_client.get(f"/lm/inventories/{id}")
+
+    assert response.status_code == 404
+
+
+@mark.asyncio
+async def test_update_inventory__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_inventory,
+    read_object,
+    clean_up_database,
+):
+    new_inventory = {
+        "total": 9000,
+    }
+
+    id = create_one_inventory[0].id
+
+    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
+
+    assert response.status_code == 200
+
+    stmt = select(Inventory).where(Inventory.id == id)
+    fetch_inventory = await read_object(stmt)
+
+    assert fetch_inventory.total == new_inventory["total"]
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_inventory__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_inventory,
+    clean_up_database,
+    id,
+):
+    new_inventory = {
+        "total": 9000,
+    }
+
+    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_inventory__success(
     backend_client: AsyncClient,
@@ -95,3 +168,25 @@ async def test_delete_inventory__success(
     fetch_inventory = await read_object(stmt)
 
     assert fetch_inventory is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_inventory__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_inventory,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    response = await backend_client.delete(f"/lm/inventories/{id}")
+
+    assert response.status_code == 404

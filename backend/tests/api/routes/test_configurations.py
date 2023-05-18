@@ -99,7 +99,6 @@ async def test_get_all_configurations__with_sort(
 async def test_get_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,
-    insert_objects,
     create_one_configuration,
     clean_up_database,
 ):
@@ -116,11 +115,32 @@ async def test_get_configuration__success(
     assert response_configuration["grace_time"] == create_one_configuration[0].grace_time
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_configuration__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    response = await backend_client.get(f"/lm/configurations/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_update_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,
-    insert_objects,
     create_one_configuration,
     read_object,
     clean_up_database,
@@ -142,11 +162,37 @@ async def test_update_configuration__success(
     assert fetch_configuration.name == new_configuration["name"]
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_configuration__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    clean_up_database,
+    id,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+    }
+
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,
-    insert_objects,
     create_one_configuration,
     read_object,
     clean_up_database,
@@ -161,3 +207,25 @@ async def test_delete_configuration__success(
     fetch_configuration = await read_object(stmt)
 
     assert fetch_configuration is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_configuration__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    response = await backend_client.delete(f"/lm/configurations/{id}")
+
+    assert response.status_code == 404

@@ -1,5 +1,3 @@
-from typing import List
-
 from httpx import AsyncClient
 from pytest import mark
 from sqlalchemy import select
@@ -96,6 +94,28 @@ async def test_get_product__success(
     assert response_product["name"] == create_one_product[0].name
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_product__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_product,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    response = await backend_client.get(f"/lm/products/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_update_product__success(
     backend_client: AsyncClient,
@@ -119,6 +139,30 @@ async def test_update_product__success(
     fetch_product = await read_object(stmt)
 
     assert fetch_product.name == new_product["name"]
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_product__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_product,
+    clean_up_database,
+    id,
+):
+    new_product = {"name": "Other Abaqus"}
+
+    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    response = await backend_client.put(f"/lm/products/{id}", json=new_product)
+
+    assert response.status_code == 404
 
 
 @mark.asyncio

@@ -104,6 +104,28 @@ async def test_get_cluster__success(
     assert response_cluster["client_id"] == create_one_cluster[0].client_id
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_cluster__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_cluster,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    response = await backend_client.get(f"/lm/clusters/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_get_cluster_by_client_id__success(
     backend_client: AsyncClient,
@@ -121,6 +143,28 @@ async def test_get_cluster_by_client_id__success(
     response_cluster = response.json()
     assert response_cluster["name"] == create_one_cluster[0].name
     assert response_cluster["client_id"] == create_one_cluster[0].client_id
+
+
+@mark.parametrize(
+    "client_id",
+    [
+        "invalid_id_123",
+        "non_existent_id",
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_cluster_by_client_id__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_cluster,
+    clean_up_database,
+    client_id,
+):
+    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    response = await backend_client.get(f"/lm/clusters/by_client_id/{client_id}")
+
+    assert response.status_code == 404
 
 
 @mark.asyncio
@@ -147,6 +191,30 @@ async def test_update_cluster__success(
     assert fetch_cluster.client_id == new_cluster["client_id"]
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_cluster__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_cluster,
+    clean_up_database,
+    id,
+):
+    new_cluster = {"name": "New Dummy Cluster", "client_id": "new-dummy"}
+
+    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    response = await backend_client.put(f"/lm/clusters/{id}", json=new_cluster)
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_cluster__success(
     backend_client: AsyncClient,
@@ -165,3 +233,25 @@ async def test_delete_cluster__success(
     fetch_cluster = await read_object(stmt)
 
     assert fetch_cluster is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_cluster__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_cluster,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    response = await backend_client.delete(f"/lm/clusters/{id}")
+
+    assert response.status_code == 404

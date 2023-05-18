@@ -1,10 +1,7 @@
-from typing import List
-
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 from sqlalchemy import select
 
-from lm_backend.api.models.cluster import Cluster
 from lm_backend.api.models.job import Job
 from lm_backend.permissions import Permissions
 
@@ -128,6 +125,28 @@ async def test_get_job__success(
     assert response_job["lead_host"] == create_one_job[0].lead_host
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_job__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_job,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.JOB_VIEW)
+    response = await backend_client.get(f"/lm/jobs/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_job__success(
     backend_client: AsyncClient,
@@ -146,6 +165,28 @@ async def test_delete_job__success(
     fetch_job = await read_object(stmt)
 
     assert fetch_job is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_job__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_job,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.JOB_EDIT)
+    response = await backend_client.delete(f"/lm/jobs/{id}")
+
+    assert response.status_code == 404
 
 
 @mark.asyncio
@@ -169,12 +210,34 @@ async def test_delete_job_by_slurm_id__success(
     assert fetch_job is None
 
 
+@mark.parametrize(
+    "slurm_job_id, cluster_id",
+    [
+        ("12345", 0),
+        ("not-a-job-id", -1),
+        ("non-existant-job-id", 999999999),
+    ],
+)
+@mark.asyncio
+async def test_delete_job_by_slurm_id__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_job,
+    clean_up_database,
+    slurm_job_id,
+    cluster_id,
+):
+    inject_security_header("owner1", Permissions.JOB_EDIT)
+    response = await backend_client.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_read_job_by_slurm_id__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    read_object,
     clean_up_database,
 ):
     slurm_job_id = create_one_job[0].slurm_job_id
@@ -190,3 +253,26 @@ async def test_read_job_by_slurm_id__success(
     assert response_job["cluster_id"] == create_one_job[0].cluster_id
     assert response_job["username"] == create_one_job[0].username
     assert response_job["lead_host"] == create_one_job[0].lead_host
+
+
+@mark.parametrize(
+    "slurm_job_id, cluster_id",
+    [
+        ("12345", 0),
+        ("not-a-job-id", -1),
+        ("non-existant-job-id", 999999999),
+    ],
+)
+@mark.asyncio
+async def test_read_job_by_slurm_id__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_job,
+    clean_up_database,
+    slurm_job_id,
+    cluster_id,
+):
+    inject_security_header("owner1", Permissions.JOB_VIEW)
+    response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
+
+    assert response.status_code == 404

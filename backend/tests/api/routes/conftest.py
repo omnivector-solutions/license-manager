@@ -149,7 +149,7 @@ async def create_features(insert_objects, create_one_configuration, create_one_p
             "name": "abaqus",
             "product_id": product_id,
             "config_id": configuration_id,
-            "reserved": 0,
+            "reserved": 100,
         },
         {
             "name": "converge_super",
@@ -173,7 +173,7 @@ async def create_one_feature(insert_objects, create_one_configuration, create_on
             "name": "abaqus",
             "product_id": product_id,
             "config_id": configuration_id,
-            "reserved": 0,
+            "reserved": 100,
         },
     ]
 

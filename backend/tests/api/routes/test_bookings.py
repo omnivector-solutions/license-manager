@@ -1,9 +1,8 @@
 from httpx import AsyncClient
-from pytest import fixture, mark
+from pytest import mark
 from sqlalchemy import select
 
 from lm_backend.api.models.booking import Booking
-from lm_backend.api.models.cluster import Cluster
 from lm_backend.permissions import Permissions
 
 
@@ -44,7 +43,6 @@ async def test_add_booking__success(
 async def test_add_booking__fail_with_overbooking(
     backend_client: AsyncClient,
     inject_security_header,
-    read_object,
     create_one_job,
     create_one_inventory,
     clean_up_database,
@@ -56,6 +54,29 @@ async def test_add_booking__fail_with_overbooking(
         "job_id": job_id,
         "feature_id": feature_id,
         "quantity": 1500,
+    }
+
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    response = await backend_client.post("/lm/bookings", json=data)
+
+    assert response.status_code == 409
+
+
+@mark.asyncio
+async def test_add_booking__fail_with_overbooking_when_reserved(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_job,
+    create_one_inventory,
+    clean_up_database,
+):
+    job_id = create_one_job[0].id
+    feature_id = create_one_inventory[0].feature_id
+
+    data = {
+        "job_id": job_id,
+        "feature_id": feature_id,
+        "quantity": 750,
     }
 
     inject_security_header("owner1", Permissions.BOOKING_EDIT)
@@ -129,6 +150,28 @@ async def test_get_booking__success(
     assert response_booking["quantity"] == create_one_booking[0].quantity
 
 
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_get_booking__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_booking,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    response = await backend_client.get(f"/lm/bookings/{id}")
+
+    assert response.status_code == 404
+
+
 @mark.asyncio
 async def test_delete_booking__success(
     backend_client: AsyncClient,
@@ -147,3 +190,26 @@ async def test_delete_booking__success(
     fetch_booking = await read_object(stmt)
 
     assert fetch_booking is None
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_delete_booking__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_booking,
+    read_object,
+    clean_up_database,
+    id,
+):
+    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    response = await backend_client.delete(f"/lm/bookings/{id}")
+
+    assert response.status_code == 404
