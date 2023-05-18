@@ -1,7 +1,7 @@
 """Booking CRUD class for SQLAlchemy models."""
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import and_, func, insert, literal, select
+from sqlalchemy import func, insert, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD, ModelType
@@ -36,16 +36,17 @@ class BookingCRUD(GenericCRUD):
 
         # Subquery to determine if there are enough licenses to be booked
         exists_subquery = (
-            select(Feature.id, Feature.reserved)
+            select(Feature.id)
             .select_from(Feature)
-            .join(Booking, and_(Feature.id == Booking.feature_id, Booking.feature_id == obj.feature_id))
+            .join(Booking, Feature.id == Booking.feature_id, isouter=True)
             .join(Inventory, Feature.id == Inventory.feature_id)
+            .where(Feature.id == obj.feature_id)
             .group_by(Feature.id)
             .having(
-                func.sum(Booking.quantity)
+                func.sum(func.coalesce(Booking.quantity, 0))
                 + func.max(Inventory.used)
-                + obj.quantity
                 + func.max(Feature.reserved)
+                + obj.quantity
                 <= func.max(Inventory.total)
             )
         ).exists()
