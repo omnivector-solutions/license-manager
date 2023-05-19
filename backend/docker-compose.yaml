@@ -37,11 +37,11 @@ services:
       dockerfile: ./Dockerfile-ci
     environment:
       DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
-      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
-      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
-      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
-      LOG_LEVEL: ${LOG_LEVEL}
-    command: poetry run pytest
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      ARMASEC_DEBUG: true
+      LOG_LEVEL: DEBUG
+    command: poetry run pytest -s
     depends_on:
       pgsql:
         condition: service_healthy
@@ -56,11 +56,11 @@ services:
       dockerfile: ./Dockerfile-ci
     environment:
       DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
-      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
-      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
-      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
-      LOG_LEVEL: ${LOG_LEVEL}
-    command: "poetry run alembic -c alembic/alembic.ini upgrade head"
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      ARMASEC_DEBUG: true
+      LOG_LEVEL: DEBUG
+    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
     depends_on:
       pgsql:
         condition: service_healthy

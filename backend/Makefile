@@ -10,7 +10,8 @@ install:
 	poetry install
 
 .PHONY: test
-test: 
+test:
+	docker-compose build migration
 	docker-compose build unittest
 	docker-compose run --rm unittest
 

@@ -6,10 +6,10 @@ Create Date: 2023-03-22 15:57:24.239833
 """
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "594b52f2c088"
+down_revision = None
 branch_labels = None
 depends_on = None
 

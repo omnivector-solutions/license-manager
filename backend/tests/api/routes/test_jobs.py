@@ -243,7 +243,7 @@ async def test_read_job_by_slurm_id__success(
     slurm_job_id = create_one_job[0].slurm_job_id
     cluster_id = create_one_job[0].cluster_id
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
 
     assert response.status_code == 200
