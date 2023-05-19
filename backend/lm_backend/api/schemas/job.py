@@ -40,7 +40,7 @@ class JobSchema(BaseModel):
     username: str
     lead_host: str
 
-    bookings: List[BookingSchema] = None
+    bookings: Optional[List[BookingSchema]] = None
 
     class Config:
         orm_mode = True

@@ -1,11 +1,10 @@
 """Generic CRUD class for SQLAlchemy models."""
-from typing import List, Optional, TypeVar, Union
+from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import Column, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.expression import UnaryExpression
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.database import Base, search_clause, sort_clause
@@ -18,7 +17,12 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseUpdateSchema)
 class GenericCRUD:
     """Generic CRUD module to interface with database, to be utilized by all models."""
 
-    def __init__(self, model: ModelType, create_schema: CreateSchemaType, update_schema: UpdateSchemaType):
+    def __init__(
+        self,
+        model: Type[ModelType],
+        create_schema: Type[CreateSchemaType],
+        update_schema: Type[UpdateSchemaType],
+    ):
         """Initializes the CRUD class with the model to be used."""
         self.model = model
         self.create_schema = create_schema
@@ -58,7 +62,7 @@ class GenericCRUD:
 
         return db_obj
 
-    async def read(self, db_session: AsyncSession, id: int) -> Optional[ModelType]:
+    async def read(self, db_session: AsyncSession, id: Union[Column[int], int]) -> Optional[ModelType]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -80,7 +84,7 @@ class GenericCRUD:
         self,
         db_session: AsyncSession,
         search: str = None,
-        sort_field: Union[Column, UnaryExpression] = None,
+        sort_field: Optional[str] = None,
         sort_ascending: bool = True,
     ) -> List[ModelType]:
         """
@@ -140,7 +144,7 @@ class GenericCRUD:
 
         return db_obj
 
-    async def delete(self, db_session: AsyncSession, id: int):
+    async def delete(self, db_session: AsyncSession, id: Union[Column[int], int]):
         """
         Delete an object from the database.
         """

@@ -36,7 +36,7 @@ class ClusterSchema(BaseModel):
     id: int
     name: str
     client_id: str
-    configurations: List[ConfigurationSchema] = None
+    configurations: Optional[List[ConfigurationSchema]] = None
 
     class Config:
         orm_mode = True

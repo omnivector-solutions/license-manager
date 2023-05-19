@@ -3,10 +3,14 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_backend.constants import LicenseServerType
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.license_server import LicenseServer
-from lm_backend.api.schemas.license_server import LicenseServerCreateSchema, LicenseServerSchema, LicenseServerUpdateSchema
+from lm_backend.api.schemas.license_server import (
+    LicenseServerCreateSchema,
+    LicenseServerSchema,
+    LicenseServerUpdateSchema,
+)
+from lm_backend.constants import LicenseServerType
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session

@@ -6,7 +6,7 @@ import typing
 from fastapi.exceptions import HTTPException
 from sqlalchemy import Column, or_
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
+from sqlalchemy.sql.expression import ColumnElement, UnaryExpression
 from starlette import status
 
 Base = declarative_base()
@@ -22,7 +22,7 @@ def render_sql(query) -> str:
 def search_clause(
     search_terms: str,
     searchable_fields: typing.List[Column],
-) -> BooleanClauseList:
+) -> ColumnElement[bool]:
     """
     Create search clause across searchable fields with search terms.
     """

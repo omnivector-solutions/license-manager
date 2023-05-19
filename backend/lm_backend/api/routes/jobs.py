@@ -85,7 +85,7 @@ async def delete_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
 
     for job in jobs:
         if job.cluster_id == cluster_id:
@@ -109,7 +109,7 @@ async def read_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
 
     for job in jobs:
         if job.cluster_id == cluster_id:

@@ -6,15 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.inventory import Inventory
-from lm_backend.api.schemas.feature import (
-    FeatureCreateSchema,
-    FeatureSchema,
-    FeatureUpdateSchema,
-)
-from lm_backend.api.schemas.inventory import (
-    InventoryCreateSchema,
-    InventoryUpdateSchema,
-)
+from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureSchema, FeatureUpdateSchema
+from lm_backend.api.schemas.inventory import InventoryCreateSchema, InventoryUpdateSchema
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session
@@ -37,10 +30,10 @@ async def create_feature(
     db_session: AsyncSession = Depends(get_session),
 ):
     """Create a new feature and its inventory."""
-    feature = await crud_feature.create(db_session=db_session, obj=feature)
-    inventory = InventoryCreateSchema(feature_id=feature.id, total=0, used=0)
+    feature_created: Feature = await crud_feature.create(db_session=db_session, obj=feature)
+    inventory = InventoryCreateSchema(feature_id=feature_created.id, total=0, used=0)
     await crud_inventory.create(db_session=db_session, obj=inventory)
-    return await crud_feature.read(db_session=db_session, id=feature.id)
+    return await crud_feature.read(db_session=db_session, id=feature_created.id)
 
 
 @router.get(

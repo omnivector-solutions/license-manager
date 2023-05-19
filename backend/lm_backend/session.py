@@ -2,6 +2,7 @@
 Session module to access the database.
 """
 from asyncio import current_task
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
 
@@ -13,7 +14,7 @@ async_session_factory = async_sessionmaker(bind=async_engine, expire_on_commit=F
 AsyncScopedSession = async_scoped_session(async_session_factory, scopefunc=current_task)
 
 
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator:
     """Create a new async session for each request."""
     async with AsyncScopedSession() as session:
         yield session

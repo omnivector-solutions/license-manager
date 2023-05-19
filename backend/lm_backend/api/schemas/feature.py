@@ -40,8 +40,8 @@ class FeatureSchema(BaseModel):
     product_id: int
     config_id: int
     reserved: int
-    inventory: InventorySchema = None
-    bookings: List[BookingSchema] = []
+    inventory: Optional[InventorySchema] = None
+    bookings: Optional[List[BookingSchema]] = []
 
     class Config:
         orm_mode = True

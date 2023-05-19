@@ -55,7 +55,7 @@ async def read_all_clusters(
     dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_VIEW))],
 )
 async def read_cluster_by_client_id(
-    client_id: Optional[str] = Query(None),
+    client_id: str = Query(None),
     db_session: AsyncSession = Depends(get_session),
 ):
     """Return all clusters with the associated configurations."""
