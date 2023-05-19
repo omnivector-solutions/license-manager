@@ -1,7 +1,6 @@
 """Implement new data struture schema
 
 Revision ID: 594b52f2c088
-Revises: 5308f26e8b60
 Create Date: 2023-03-22 15:57:24.239833
 
 """
@@ -11,7 +10,6 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "594b52f2c088"
-down_revision = "5308f26e8b60"
 branch_labels = None
 depends_on = None
 
@@ -121,10 +119,6 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.drop_table("license")
-    op.drop_table("booking")
-    op.drop_index("ix_config_client_id", table_name="config")
-    op.drop_table("config")
 
 
 def downgrade():
