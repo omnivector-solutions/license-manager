@@ -42,7 +42,6 @@ asgi-lifespan = "^1.0.1"
 black = "^22.3"
 alembic = "^1.6.5"
 mypy = "^0.910"
-sqlalchemy-stubs = "^0.4"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
