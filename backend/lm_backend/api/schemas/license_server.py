@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
 
-from lm_backend.api.constants import LicenseServerType
+from lm_backend.constants import LicenseServerType
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 
 
