@@ -1,65 +1,188 @@
+import asyncio
 import contextlib
 import dataclasses
 import datetime
-import os
-import re
 import typing
 
 import sqlalchemy
-from asgi_lifespan import LifespanManager
+import sqlalchemy.orm
 from httpx import AsyncClient
-from pydantic import BaseModel
 from pytest import fixture
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from lm_backend.config import settings
-from lm_backend.main import app as backend_app
-from lm_backend.storage import database
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.cluster import Cluster
+from lm_backend.api.models.configuration import Configuration
+from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.inventory import Inventory
+from lm_backend.api.models.job import Job
+from lm_backend.api.models.license_server import LicenseServer
+from lm_backend.api.models.product import Product
+from lm_backend.session import AsyncScopedSession
 
 
-@fixture(scope="session", autouse=True)
-def enforce_testing_database():
-    match = re.match(r"sqlite:///(.*-testing\.db)", settings.DATABASE_URL)
-    if not match:
-        raise Exception(f"URL for database is invalid for testing: {settings.DATABASE_URL}")
-    testing_db_file = match.group(1)
-    yield
-    os.remove(testing_db_file)
-
-
-@fixture(autouse=True)
-async def enforce_empty_database():
+@fixture(scope="session")
+def event_loop():
     """
-    Make sure our database is empty at the end of each test
-    """
-    yield
+    Create an instance of the default event loop for each test case.
 
-    count = await database.fetch_all("SELECT COUNT(*) FROM license")
-    assert count[0][0] == 0
+    This fixture is used to run each test in a different async loop. Running all
+    in the same loop causes errors with SQLAlchemy. See the following two issues:
+
+    1. https://github.com/tiangolo/fastapi/issues/5692
+    2. https://github.com/encode/starlette/issues/1315
+
+    [Reference](https://tonybaloney.github.io/posts/async-test-patterns-for-pytest-and-unittest.html)
+    """
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @fixture
-def insert_objects():
+async def test_app():
+    """
+    A test app to be used by the test backend_client.
+    """
+
+    from lm_backend.main import app as test_app
+
+    yield test_app
+
+
+@fixture
+async def backend_client(test_app):
+    """
+    A client that can issue fake requests against fastapi endpoint functions in the backend
+    """
+
+    async with AsyncClient(app=test_app, base_url="http://test") as ac:
+        yield ac
+
+
+@fixture
+def get_session() -> typing.Callable[[None], typing.AsyncGenerator[AsyncSession, None]]:
+    """A fixture to return the async session used to run SQL queries against a database."""
+
+    @contextlib.asynccontextmanager
+    async def _get_session() -> typing.AsyncGenerator[AsyncSession, None]:
+        """Get the async session to execute queries against the database."""
+        async with AsyncScopedSession() as session:
+            async with session.begin():
+                try:
+                    yield session
+                except Exception as err:
+                    await session.rollback()
+                    raise err
+                finally:
+                    await session.close()
+
+    return _get_session
+
+
+@fixture
+def insert_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
     """
     A fixture that provides a helper method that perform a database insertion for the
     objects passed as the argument, into the specified table
     """
 
-    async def _helper(objects: typing.List[BaseModel], table: sqlalchemy.Table):
-        ModelType = type(objects[0])
-        await database.execute_many(
-            query=table.insert(),
-            values=[obj.dict(exclude_unset=True) for obj in objects],
-        )
-        fetched = await database.fetch_all(table.select())
-        return [ModelType.parse_obj(o) for o in fetched]
+    async def _helper(
+        objects: typing.List[sqlalchemy.Table],
+        table: sqlalchemy.Table,
+        subquery_relation: InstrumentedAttribute = None,
+    ):
+        db_objects = [table(**obj) for obj in objects]
+        async with get_session() as sess:
+            for obj in db_objects:
+                sess.add(obj)
+            await sess.commit()
+        async with get_session() as sess:
+            query = sqlalchemy.select(table)
+            if subquery_relation is not None:
+                query = query.options(sqlalchemy.orm.subqueryload(subquery_relation))
+            fetched = (await sess.execute(query)).scalars().all()
+        return [obj for obj in fetched]
+
+    return _helper
+
+
+@fixture
+async def update_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
+    """
+    A fixture that provides a helper method that perform a database update
+    for the object passed as the argument, into the specified table
+    """
+
+    async def _helper(
+        object: typing.List[sqlalchemy.Table],
+        id: int,
+        table: sqlalchemy.Table,
+        subquery_relation: InstrumentedAttribute = None,
+    ):
+        async with get_session() as sess:
+            query = await sess.execute(select(table).filter(table.id == id))
+            db_obj = query.scalar_one_or_none()
+
+            for field, value in object:
+                if value is not None:
+                    setattr(db_obj, field, value)
+            await sess.flush()
+        await sess.refresh(db_obj)
+        return db_obj
+
+    return _helper
+
+
+@fixture
+def read_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
+    """
+    A fixture that provides a helper method that perform a database
+    read all operation using the specified statement.
+    """
+
+    async def _helper(
+        stmt,
+    ):
+        async with get_session() as sess:
+            fetched = (await sess.execute(stmt)).scalars().all()
+        return [obj for obj in fetched]
+
+    return _helper
+
+
+@fixture
+def read_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
+    """
+    A fixture that provides a helper method that perform a database
+    read operation using the specified statement.
+    """
+
+    async def _helper(
+        stmt,
+    ):
+        async with get_session() as sess:
+            return (await sess.execute(stmt)).scalars().one_or_none()
 
     return _helper
 
 
 @fixture(autouse=True)
-async def startup_event_force():
-    async with LifespanManager(backend_app):
-        yield
+async def clean_up_database(get_session: typing.AsyncGenerator[AsyncSession, None]) -> None:
+    """Clean up the database after test run."""
+    yield
+    async with get_session() as sess:
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Booking.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Job.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Inventory.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Feature.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Product.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {LicenseServer.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Configuration.__tablename__};"""))
+        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Cluster.__tablename__};"""))
+        await sess.commit()
 
 
 @fixture(autouse=True)
@@ -99,16 +222,6 @@ async def inject_client_id_in_security_header(backend_client, build_rs256_token)
         backend_client.headers.update({"Authorization": f"Bearer {token}"})
 
     return _helper
-
-
-@fixture
-async def backend_client():
-    """
-    A client that can issue fake requests against fastapi endpoint functions in the backend
-    """
-
-    async with AsyncClient(app=backend_app, base_url="http://test") as ac:
-        yield ac
 
 
 @fixture

@@ -13,8 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
-from lm_backend import __version__, storage
-from lm_backend.api import api_v1
+from lm_backend import __version__
+from lm_backend.api import api
 from lm_backend.config import settings
 
 subapp = FastAPI(
@@ -40,7 +40,7 @@ subapp.add_middleware(
     allow_headers=["*"],
 )
 
-subapp.include_router(api_v1, prefix="/api/v1")
+subapp.include_router(api)
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -88,25 +88,4 @@ def begin_logging():
         engine_logger = logging.getLogger("sqlalchemy.engine")
         engine_logger.setLevel(level_sql)
 
-        databases_logger = logging.getLogger("databases")
-        databases_logger.setLevel(level_sql)
-
         logger.info(f"Database logging configured 📝 Level: {settings.LOG_LEVEL_SQL}")
-
-
-@app.on_event("startup")
-async def init_database():
-    """
-    Connect the database; create it if necessary
-    """
-    storage.create_all_tables()
-    await storage.database.connect()
-    logger.info("Database configured 💽")
-
-
-@app.on_event("shutdown")
-async def disconnect_database():
-    """
-    Disconnect the database
-    """
-    await storage.database.disconnect()

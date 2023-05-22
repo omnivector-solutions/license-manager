@@ -15,7 +15,7 @@ services:
   license-manager:
     build:
       context: .
-      dockerfile: ./Dockerfile-dev
+      dockerfile: ./Dockerfile
     depends_on:
       postgres-back:
         condition: service_healthy
@@ -30,3 +30,49 @@ services:
     ports:
       - "7000:8000"
     command: uvicorn lm_backend.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  unittest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-ci
+    environment:
+      DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      LOG_LEVEL: DEBUG
+    command: poetry run pytest -s
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./tests:/app/tests
+
+  migration:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-ci
+    environment:
+      DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      LOG_LEVEL: DEBUG
+    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+
+  pgsql:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: omnivector
+      POSTGRES_PASSWORD: rats
+      POSTGRES_DB: ratsdb
+    ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

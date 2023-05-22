@@ -1,37 +1,28 @@
 """
-Persistent data storage for the backend
+Persistent data storage for the API.
 """
 import typing
 
-import databases
-import sqlalchemy
 from fastapi.exceptions import HTTPException
 from sqlalchemy import Column, or_
-from sqlalchemy.sql.expression import BooleanClauseList, UnaryExpression
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql.expression import ColumnElement, UnaryExpression
 from starlette import status
 
-from lm_backend.config import settings
-from lm_backend.table_schemas import metadata
-
-database = databases.Database(settings.DATABASE_URL)
-
-
-def create_all_tables():
-    engine = sqlalchemy.create_engine(settings.DATABASE_URL)
-    metadata.create_all(engine)
+Base = declarative_base()
 
 
 def render_sql(query) -> str:
     """
     Render a sqlalchemy query into a string for debugging.
     """
-    return query.compile(dialect=database._backend._dialect, compile_kwargs={"literal_binds": True})
+    return query.compile(compile_kwargs={"literal_binds": True})
 
 
 def search_clause(
     search_terms: str,
     searchable_fields: typing.List[Column],
-) -> BooleanClauseList:
+) -> ColumnElement[bool]:
     """
     Create search clause across searchable fields with search terms.
     """

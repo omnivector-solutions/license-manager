@@ -6,6 +6,17 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Refactored API to use a normalized database.
+* New endpoints available:
+
+  - /clusters
+  - /license_servers
+  - /configurations
+  - /products
+  - /features
+  - /inventories
+  - /jobs
+  - /bookings
 
 2.3.1 -- 2023-04-28
 -------------------

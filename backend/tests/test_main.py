@@ -54,19 +54,3 @@ def test_begin_logging():
 
         assert sqlalchemy_engine_mock.called_once_with(logging.WARNING)
         assert databases_mock.called_once_with(logging.WARNING)
-
-
-@mark.asyncio
-async def test_database_events(backend_client):
-    """
-    Do I connect, create tables, and disconnect the db?
-    """
-    p_create_all_tables = patch("lm_backend.storage.create_all_tables", autospec=True)
-    p_connect = patch("lm_backend.storage.database.connect", autospec=True)
-    p_disconnect = patch("lm_backend.storage.database.disconnect", autospec=True)
-    with p_create_all_tables as m_create_all_tables, p_connect as m_connect, p_disconnect as m_disconnect:
-        await main.init_database()
-        m_create_all_tables.assert_called_once_with()
-        m_connect.assert_called_once_with()
-        await main.disconnect_database()
-        m_disconnect.assert_called_once_with()

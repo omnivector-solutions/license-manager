@@ -1,10 +1,20 @@
 from fastapi import APIRouter
 
-from lm_backend.api.booking import router as router_booking
-from lm_backend.api.config import router as router_config
-from lm_backend.api.license import router as router_license
+from lm_backend.api.routes.bookings import router as router_bookings
+from lm_backend.api.routes.clusters import router as router_clusters
+from lm_backend.api.routes.configurations import router as router_configurations
+from lm_backend.api.routes.features import router as router_features
+from lm_backend.api.routes.inventories import router as router_inventories
+from lm_backend.api.routes.jobs import router as router_jobs
+from lm_backend.api.routes.license_servers import router as router_license_servers
+from lm_backend.api.routes.products import router as router_products
 
-api_v1 = APIRouter()
-api_v1.include_router(router_license, prefix="/license", tags=["License"])
-api_v1.include_router(router_booking, prefix="/booking", tags=["Booking"])
-api_v1.include_router(router_config, prefix="/config", tags=["Config"])
+api = APIRouter()
+api.include_router(router_clusters, prefix="/clusters", tags=["Cluster"])
+api.include_router(router_configurations, prefix="/configurations", tags=["Configuration"])
+api.include_router(router_license_servers, prefix="/license_servers", tags=["License Server"])
+api.include_router(router_products, prefix="/products", tags=["Product"])
+api.include_router(router_features, prefix="/features", tags=["Feature"])
+api.include_router(router_inventories, prefix="/inventories", tags=["Inventory"])
+api.include_router(router_jobs, prefix="/jobs", tags=["Job"])
+api.include_router(router_bookings, prefix="/bookings", tags=["Booking"])
