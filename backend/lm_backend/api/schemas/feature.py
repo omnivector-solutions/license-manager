@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.booking import BookingSchema
 from lm_backend.api.schemas.inventory import InventorySchema
+from lm_backend.api.schemas.product import ProductSchema
 
 
 class FeatureCreateSchema(BaseCreateSchema):
@@ -37,11 +38,10 @@ class FeatureSchema(BaseModel):
 
     id: int
     name: str
-    product_id: int
+    product: ProductSchema
     config_id: int
     reserved: int
     inventory: Optional[InventorySchema] = None
-    bookings: Optional[List[BookingSchema]] = []
 
     class Config:
         orm_mode = True

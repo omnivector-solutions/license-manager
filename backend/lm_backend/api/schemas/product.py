@@ -4,7 +4,6 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.feature import FeatureSchema
 
 
 class ProductCreateSchema(BaseCreateSchema):
@@ -30,7 +29,6 @@ class ProductSchema(BaseModel):
 
     id: int
     name: str
-    features: List[FeatureSchema] = []
 
     class Config:
         orm_mode = True
