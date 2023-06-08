@@ -19,6 +19,8 @@ class Cluster(Base):
         "Configuration", back_populates="cluster", lazy="selectin", cascade="all, delete-orphan"
     )
 
+    jobs = relationship("Job", lazy="selectin")
+
     searchable_fields = [name, client_id]
     sortable_fields = [name, client_id]
 

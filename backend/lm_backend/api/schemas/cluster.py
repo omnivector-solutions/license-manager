@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.configuration import ConfigurationSchema
+from lm_backend.api.schemas.job import JobSchema
 
 
 class ClusterCreateSchema(BaseCreateSchema):
@@ -37,6 +38,7 @@ class ClusterSchema(BaseModel):
     name: str
     client_id: str
     configurations: Optional[List[ConfigurationSchema]] = None
+    jobs: Optional[List[JobSchema]] = None
 
     class Config:
         orm_mode = True
