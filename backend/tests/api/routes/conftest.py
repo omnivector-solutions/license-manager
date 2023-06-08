@@ -47,11 +47,13 @@ async def create_configurations(insert_objects, create_one_cluster):
             "name": "Abaqus",
             "cluster_id": cluster_id,
             "grace_time": 60,
+            "type": "flexlm",
         },
         {
             "name": "Converge",
             "cluster_id": cluster_id,
             "grace_time": 60,
+            "type": "rlm",
         },
     ]
     inserted_configurations = await insert_objects(configurations_to_add, Configuration)
@@ -67,6 +69,7 @@ async def create_one_configuration(insert_objects, create_one_cluster):
             "name": "Abaqus",
             "cluster_id": cluster_id,
             "grace_time": 60,
+            "type": "flexlm",
         },
     ]
 
@@ -83,13 +86,11 @@ async def create_license_servers(insert_objects, create_one_configuration):
             "config_id": configuration_id,
             "host": "licserv0001.com",
             "port": 1234,
-            "type": "flexlm",
         },
         {
             "config_id": configuration_id,
             "host": "licserv0002.com",
             "port": 2345,
-            "type": "rlm",
         },
     ]
 
@@ -106,7 +107,6 @@ async def create_one_license_server(insert_objects, create_one_configuration):
             "config_id": configuration_id,
             "host": "licserv0001.com",
             "port": 1234,
-            "type": "flexlm",
         },
     ]
 
