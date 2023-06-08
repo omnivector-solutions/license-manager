@@ -96,6 +96,7 @@ async def delete_job_by_slurm_id(
 
 @router.get(
     "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
+    response_model=JobSchema,
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(guard.lockdown(Permissions.JOB_VIEW))],
 )
