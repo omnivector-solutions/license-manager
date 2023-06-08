@@ -13,7 +13,7 @@ if the exit status is anything other then 0, e.g. 1.
 import asyncio
 import sys
 
-from lm_agent.backend_utils import LicenseBookingRequest, get_config_from_backend, make_booking_request
+from lm_agent.backend_utils import LicenseBookingRequest, get_configs_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_report
@@ -30,7 +30,6 @@ async def prolog():
     job_id = job_context.get("job_id", "")
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
-    cluster_name = job_context.get("cluster_name")
     job_licenses = job_context.get("job_licenses")
 
     logger.info(f"Prolog started for job id: {job_id}")
@@ -52,13 +51,13 @@ async def prolog():
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
-            entries = await get_config_from_backend()
+            entries = await get_configs_from_backend()
         except Exception as e:
             logger.error(f"Failed to call get_config_from_backend with {e}")
             sys.exit(1)
         for entry in entries:
             for feature in entry.features:
-                tracked_licenses.append(f"{entry.product}.{feature}")
+                tracked_licenses.append(f"{feature.product.name}.{feature.name}")
     logger.debug(f"Tracked licenses: {tracked_licenses}")
 
     # Create a tracked LicenseBookingRequest for licenses that we actually
@@ -66,10 +65,9 @@ async def prolog():
     # availability for.
     tracked_license_booking_request = LicenseBookingRequest(
         job_id=job_id,
-        bookings=[],
         user_name=user_name,
         lead_host=lead_host,
-        cluster_name=cluster_name,
+        bookings=[],
     )
     for booking in required_licenses:
         if booking.product_feature in tracked_licenses:
