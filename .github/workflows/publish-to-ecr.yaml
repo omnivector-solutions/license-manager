@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: 3.8
 
-      - uses: Gr1N/setup-poetry@v7
+      - uses: Gr1N/setup-poetry@v8
 
       - id: poetry-package-version
         name: Get version of project from poetry
