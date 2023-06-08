@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from armasec import TokenPayload
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -49,16 +50,23 @@ async def read_all_clusters(
 
 
 @router.get(
-    "/by_client_id/{client_id}",
+    "/by_client_id/",
     response_model=ClusterSchema,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.CLUSTER_VIEW))],
 )
 async def read_cluster_by_client_id(
-    client_id: str = Query(None),
+    token_payload: TokenPayload = Depends(guard.lockdown(Permissions.CONFIG_VIEW)),
     db_session: AsyncSession = Depends(get_session),
 ):
-    """Return all clusters with the associated configurations."""
+    """Return a the cluster with the specified client_id with the associated configurations."""
+    client_id = token_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
     return await crud_cluster.filter(
         db_session=db_session, filter_field=Cluster.client_id, filter_term=client_id
     )
