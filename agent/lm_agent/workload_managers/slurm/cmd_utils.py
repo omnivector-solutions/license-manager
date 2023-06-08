@@ -71,13 +71,12 @@ def get_required_licenses_for_job(job_licenses: str) -> List:
         if not matched_license_items:
             continue
         product_feature = matched_license_items["product_feature"]
-        license_server_type = matched_license_items["server_type"]
-        tokens = matched_license_items["tokens"]
+        booked = matched_license_items["tokens"]
+
         # Create the license booking
         license_booking = LicenseBooking(
             product_feature=product_feature,
-            tokens=tokens,
-            license_server_type=license_server_type,
+            booked=booked,
         )
         required_licenses.append(license_booking)
 
