@@ -9,13 +9,14 @@ from httpx import ConnectError
 
 from lm_agent.backend_utils import (
     AsyncBackendClient,
-    get_all_grace_times,
-    get_booking_for_job_id,
-    get_bookings_from_backend,
+    get_bookings_for_job_id,
     get_bookings_sum_per_cluster,
     get_config_id_from_backend,
-    remove_booking_for_job_id,
+    get_grace_times,
+    get_jobs_from_backend,
+    remove_job_by_slurm_job_id,
 )
+from lm_agent.backend_utils.models import BookingSchema
 from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
@@ -40,20 +41,14 @@ from lm_agent.workload_managers.slurm.reservations import (
 
 RECONCILE_URL_PATH = "/lm/api/v1/license/reconcile"
 
-
-def get_greatest_grace_time(job_id: str, grace_times: Dict[int, int], booking_rows: List) -> int:
+def get_greatest_grace_time_for_job(grace_times: Dict[int, int], job_bookings: List[BookingSchema]) -> int:
     """
-    Find the greatest grace_time for the given job_id.
+    Find the greatest grace_time for each feature booked by the given job_id.
     """
     greatest_grace_time = -1
-    for book in booking_rows:
-        if not book:
-            continue
-        for inner_book in book:
-            if str(inner_book["job_id"]) != str(job_id):
-                continue
-            config_id_for_grace_times = inner_book["config_id"]
-            greatest_grace_time = max(greatest_grace_time, grace_times[config_id_for_grace_times])
+    for booking in job_bookings:
+        feature_id = booking.feature_id
+        greatest_grace_time = max(greatest_grace_time, grace_times[feature_id])
     return greatest_grace_time
 
 
@@ -61,57 +56,63 @@ def get_running_jobs(squeue_result: List) -> List:
     return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
-async def clean_booked_grace_time():
+async def clean_jobs_by_grace_time():
     """
-    Clean the booked licenses if the job's running time is greater than the grace_time.
+    Clean the jobs which running time is greater than the grace_time.
     """
     logger.debug("GRACE_TIME START")
+
     formatted_squeue_output = return_formatted_squeue_out()
-    cluster_name = await get_cluster_name()
     if not formatted_squeue_output:
         logger.debug("GRACE_TIME no squeue")
-        await clean_bookings(None, cluster_name)
+        await clean_jobs(None)
         logger.debug("GRACE_TIME cleaned bookings that are not in the queue")
         return
+
     squeue_result = squeue_parser(formatted_squeue_output)
     squeue_running_jobs = get_running_jobs(squeue_result)
 
-    grace_times = await get_all_grace_times()
-    get_booked_call = []
-    for job in squeue_running_jobs:
-        job_id = job["job_id"]
-        get_booked_call.append(get_booking_for_job_id(job_id))
+    get_bookings_call = [get_bookings_for_job_id(job["job_id"]) for job in squeue_running_jobs]
+    results = await asyncio.gather(*get_bookings_call)
+    bookings_for_running_jobs = {job["job_id"]: result for job, result in zip(squeue_running_jobs, results)}
 
-    booking_rows_for_running_jobs = await asyncio.gather(*get_booked_call)
+    grace_times = await get_grace_times()
 
-    # get the greatest grace_time for each job
+    # get the grace_time for each job
     for job in squeue_running_jobs:
-        job_id = job["job_id"]
-        greatest_grace_time = get_greatest_grace_time(job_id, grace_times, booking_rows_for_running_jobs)
+        slurm_job_id = job["job_id"]
+        greatest_grace_time = get_greatest_grace_time_for_job(grace_times, bookings_for_running_jobs)
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
-            logger.debug(f"GRACE_TIME: {greatest_grace_time}, {job_id}")
-            await remove_booking_for_job_id(job_id)
-    await clean_bookings(squeue_result, cluster_name)
+            logger.debug(f"GRACE_TIME: {greatest_grace_time}, {slurm_job_id}")
+            await remove_job_by_slurm_job_id(slurm_job_id)
+
+    await clean_jobs(squeue_result)
 
 
-async def clean_bookings(squeue_result, cluster_name):
-    logger.debug("CLEAN_BOOKINGS: start")
-    cluster_bookings = [str(booking.job_id) for booking in await get_bookings_from_backend(cluster_name)]
+async def clean_jobs(squeue_result):
+    """Clean the jobs that aren't running along with its bookings."""
+    logger.debug("CLEAN_JOBS: start")
+
+    cluster_jobs = [job.slurm_job_id for job in await get_jobs_from_backend()]
     if squeue_result is None:
         squeue_result = []
+
     jobs_not_running = [str(job["job_id"]) for job in squeue_result if job["state"] != "RUNNING"]
     all_jobs_squeue = [str(job["job_id"]) for job in squeue_result]
-    delete_booking_call = []
-    logger.debug("CLEAN_BOOKINGS: after building lists")
-    for job_id in cluster_bookings:
-        if job_id in jobs_not_running or job_id not in all_jobs_squeue:
-            delete_booking_call.append(remove_booking_for_job_id(job_id))
-    logger.debug(f"CLEAN_BOOKINGS: {cluster_bookings}, {jobs_not_running}, {all_jobs_squeue}")
-    if not delete_booking_call:
-        logger.debug("CLEAN_BOOKINGS: no need to clean")
+    logger.debug("CLEAN_JOBS: after building lists")
+
+    delete_job_call = []
+
+    for slurm_job_id in cluster_jobs:
+        if slurm_job_id in jobs_not_running or slurm_job_id not in all_jobs_squeue:
+            delete_job_call.append(remove_job_by_slurm_job_id(slurm_job_id))
+
+    if not delete_job_call:
+        logger.debug("CLEAN_JOBS: no need to clean")
         return
-    await asyncio.gather(*delete_booking_call)
+
+    await asyncio.gather(*delete_job_call)
 
 
 async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
@@ -148,9 +149,9 @@ async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
     logger.debug("Starting reconciliation")
     # Delete bookings for jobs that reached the grace time
-    logger.debug("Cleaning bookings by grace time")
-    await clean_booked_grace_time()
-    logger.debug("Bookings cleaned by grace time")
+    logger.debug("Cleaning jobs by grace time")
+    await clean_jobs_by_grace_time()
+    logger.debug("Jobs cleaned by grace time")
 
     # Generate report and update the backend
     logger.debug("Reconciling licenses in the backend")
