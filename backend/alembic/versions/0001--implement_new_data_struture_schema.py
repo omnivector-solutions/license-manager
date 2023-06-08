@@ -37,6 +37,7 @@ def upgrade():
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("cluster_id", sa.Integer(), nullable=False),
         sa.Column("grace_time", sa.Integer(), nullable=False),
+        sa.Column("type", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
             ["cluster_id"],
             ["clusters.id"],
@@ -50,7 +51,6 @@ def upgrade():
         sa.Column("config_id", sa.Integer(), nullable=False),
         sa.Column("host", sa.String(), nullable=False),
         sa.Column("port", sa.Integer(), nullable=False),
-        sa.Column("type", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
             ["config_id"],
             ["configs.id"],

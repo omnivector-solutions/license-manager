@@ -4,7 +4,6 @@ from typing import Optional
 from pydantic import BaseModel, PositiveInt
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.constants import LicenseServerType
 
 
 class LicenseServerCreateSchema(BaseCreateSchema):
@@ -15,7 +14,6 @@ class LicenseServerCreateSchema(BaseCreateSchema):
     config_id: int
     host: str
     port: PositiveInt
-    type: LicenseServerType
 
 
 class LicenseServerUpdateSchema(BaseUpdateSchema):
@@ -26,7 +24,6 @@ class LicenseServerUpdateSchema(BaseUpdateSchema):
     config_id: Optional[int] = None
     host: Optional[str] = None
     port: Optional[PositiveInt] = None
-    type: Optional[LicenseServerType] = None
 
 
 class LicenseServerSchema(BaseModel):
@@ -38,7 +35,6 @@ class LicenseServerSchema(BaseModel):
     config_id: int
     host: str
     port: PositiveInt
-    type: LicenseServerType
 
     class Config:
         orm_mode = True

@@ -16,6 +16,7 @@ class Configuration(Base):
     name = Column(String, nullable=False, unique=True)
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     grace_time = Column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
+    type = Column(String, nullable=False)
 
     cluster = relationship("Cluster", back_populates="configurations", lazy="selectin")
     license_servers = relationship(
@@ -33,5 +34,6 @@ class Configuration(Base):
             f"Config(id={self.id}, "
             f"name={self.name}, "
             f"cluster_id={self.cluster_id}, "
-            f"grace_time={self.grace_time})"
+            f"grace_time={self.grace_time}), "
+            f"type={self.type}), "
         )
