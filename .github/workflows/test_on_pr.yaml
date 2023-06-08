@@ -13,6 +13,6 @@ jobs:
         with:
           python-version: '3.8'
           architecture: 'x64'
-      - uses: Gr1N/setup-poetry@v7
+      - uses: Gr1N/setup-poetry@v8
       - name: "run full suite of tests"
         run: make qa
