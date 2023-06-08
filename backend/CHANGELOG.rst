@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+2.3.2 -- 2023-06-05
+-------------------
+* Bumped version to keep in sync with agent
+
 2.3.1 -- 2023-04-28
 -------------------
 * Added endpoint to query available license server types
