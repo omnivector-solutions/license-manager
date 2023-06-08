@@ -1,6 +1,7 @@
 """OLicense license server interface."""
 import typing
 
+from lm_agent.backend_utils.models import LicenseServerSchema
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import olicense
@@ -11,7 +12,7 @@ from lm_agent.utils import run_command
 class OLicenseLicenseServer(LicenseServerInterface):
     """Extract license information from OLicense license server."""
 
-    def __init__(self, license_servers: typing.List[str]):
+    def __init__(self, license_servers: typing.List[LicenseServerSchema]):
         """Initialize the license server instance with the license server host and parser."""
         self.license_servers = license_servers
         self.parser = olicense.parse
@@ -19,13 +20,12 @@ class OLicenseLicenseServer(LicenseServerInterface):
     def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
-        for host, port in host_ports:
+        for license_server in self.license_servers:
             command_line = [
                 f"{settings.OLIXTOOL_PATH}",
                 "-sv",
-                f"{host}:{port}",
+                f"{license_server.host}:{license_server.port}",
             ]
             commands_to_run.append(command_line)
         return commands_to_run
@@ -65,7 +65,6 @@ class OLicenseLicenseServer(LicenseServerInterface):
             product_feature=product_feature,
             used=current_feature_item["used"],
             total=current_feature_item["total"],
-            used_licenses=current_feature_item["uses"],
         )
 
         return report_item

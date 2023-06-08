@@ -1,6 +1,5 @@
 """Module for license server interface abstract base class."""
 import abc
-import typing
 
 from pydantic import BaseModel, Field
 
@@ -51,4 +50,3 @@ class LicenseReportItem(BaseModel):
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
     total: int
-    used_licenses: typing.List

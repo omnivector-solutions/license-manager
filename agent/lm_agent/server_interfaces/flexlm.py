@@ -1,6 +1,7 @@
 """FlexLM license server interface."""
 import typing
 
+from lm_agent.backend_utils.models import LicenseServerSchema
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import flexlm
@@ -11,21 +12,20 @@ from lm_agent.utils import run_command
 class FlexLMLicenseServer(LicenseServerInterface):
     """Extract license information from FlexLM license server."""
 
-    def __init__(self, license_servers: typing.List[str]):
+    def __init__(self, license_servers: typing.List[LicenseServerSchema]):
         self.license_servers = license_servers
         self.parser = flexlm.parse
 
     def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
-        for host, port in host_ports:
+        for license_server in self.license_servers:
             command_line = [
                 f"{settings.LMUTIL_PATH}",
                 "lmstat",
                 "-c",
-                f"{port}@{host}",
+                f"{license_server.port}@{license_server.host}",
                 "-f",
             ]
             commands_to_run.append(command_line)
@@ -61,7 +61,6 @@ class FlexLMLicenseServer(LicenseServerInterface):
             [
                 parsed_output.get("total", {}).get("used") is None,
                 parsed_output.get("total", {}).get("total") is None,
-                parsed_output.get("uses") is None,
             ]
         ):
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
@@ -70,7 +69,6 @@ class FlexLMLicenseServer(LicenseServerInterface):
             product_feature=product_feature,
             used=parsed_output["total"]["used"],
             total=parsed_output["total"]["total"],
-            used_licenses=parsed_output["uses"],
         )
 
         return report_item
