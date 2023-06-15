@@ -5,29 +5,27 @@ Reconciliation functionality live here.
 import asyncio
 from typing import Dict, List
 
-from httpx import ConnectError
-
 from lm_agent.backend_utils import (
-    AsyncBackendClient,
     get_bookings_for_job_id,
     get_bookings_sum_per_cluster,
-    get_config_id_from_backend,
+    get_cluster_from_backend,
+    get_configs_from_backend,
     get_grace_times,
+    get_inventory_ids,
     get_jobs_from_backend,
+    make_inventory_update,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.backend_utils.models import BookingSchema
 from lm_agent.exceptions import (
-    LicenseManagerBackendConnectionError,
     LicenseManagerEmptyReportError,
-    LicenseManagerFeatureConfigurationIncorrect,
     LicenseManagerReservationFailure,
 )
 from lm_agent.license_report import report
 from lm_agent.logs import logger
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_product_features_from_cluster,
-    get_cluster_name,
     get_tokens_for_license,
     return_formatted_squeue_out,
     squeue_parser,
@@ -39,7 +37,6 @@ from lm_agent.workload_managers.slurm.reservations import (
     scontrol_update_reservation,
 )
 
-RECONCILE_URL_PATH = "/lm/api/v1/license/reconcile"
 
 def get_greatest_grace_time_for_job(grace_times: Dict[int, int], job_bookings: List[BookingSchema]) -> int:
     """
@@ -243,24 +240,22 @@ async def reconcile():
     logger.debug("Reconciliation done")
 
 
-async def update_report():
-    logger.info("Beginning forced reconciliation process")
-    rep = await report()
-    if not rep:
+async def update_inventories() -> List[LicenseReportItem]:
+    """Send the inventory data collected from the cluster to the backend."""
+    license_report = await report()
+
+    if not license_report:
         logger.error(
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )
         raise LicenseManagerEmptyReportError("Got an empty response from the license server")
-    try:
-        async with AsyncBackendClient() as backend_client:
-            r = await backend_client.patch(RECONCILE_URL_PATH, json=rep)
-    except ConnectError as e:
-        logger.error(f"{backend_client.base_url}{RECONCILE_URL_PATH}: {e}")
-        raise LicenseManagerBackendConnectionError("Failed to connect to the backend")
 
-    if r.status_code != 200:
-        logger.error(f"{r.url}: {r.status_code}!: {r.text}")
-        raise LicenseManagerBackendConnectionError(f"Unexpected status code from report: {r.status_code}")
+    cluster_data = await get_cluster_from_backend()
+    inventory_ids = get_inventory_ids(cluster_data)
 
-    logger.info(f"Forced reconciliation succeeded. backend updated: {len(rep)} feature(s)")
+    for license in license_report:
+        inventory_id = inventory_ids[license.product_feature]
+        await make_inventory_update(inventory_id, license.used, license.total)
+
+    return license_report
