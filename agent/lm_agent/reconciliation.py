@@ -152,62 +152,34 @@ async def reconcile():
 
     # Generate report and update the backend
     logger.debug("Reconciling licenses in the backend")
-    await update_report()
+    license_usage_info = await update_inventories()
     logger.debug("Backend licenses reconciliated")
 
-    # Fetch from backend the licenses usage information
-    logger.debug("Fetching licenses usage information from backend")
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.get("/lm/api/v1/license/cluster_update")
-    licenses_usage_info = response.json()
-    logger.debug("Licenses usage information fetched from backend")
-
-    # Filter the licenses to update
-    licenses_to_update = await filter_cluster_update_licenses(licenses_usage_info)
-    logger.debug(f"Licenses to update: {licenses_to_update}")
+    cluster_data = get_cluster_from_backend()
 
     reservation_data = []
 
     # Calculate how many licenses should be reserved for each license
-    for license_data in licenses_to_update:
-        # Get license usage from backend
-        product_feature = license_data["product_feature"]
-        product, feature = product_feature.split(".")
-        server_used = license_data["license_used"]
+    for license_data in license_usage_info:
+        # Get license usage from license report
+        product_feature = license_data.product_feature
+        server_used = license_data.used
+        total = license_data.total
 
-        cluster_name = await get_cluster_name()
-
+        # Get booking information from backend
         bookings_per_cluster = await get_bookings_sum_per_cluster(product_feature)
-        cluster_booking_sum = bookings_per_cluster.get(cluster_name, 0)
+        cluster_booking_sum = bookings_per_cluster.get(cluster_data.id, 0)
         other_cluster_booking_sum = sum(
-            [booking for cluster, booking in bookings_per_cluster.items() if cluster != cluster_name]
+            [booking for cluster_id, booking in bookings_per_cluster.items() if cluster_id != cluster_data.id]
         )
 
-        # Get license configuration from backend
-        config_id = await get_config_id_from_backend(product_feature)
-        async with AsyncBackendClient() as backend_client:
-            config = await backend_client.get(f"/lm/api/v1/config/{config_id}")
-        config = config.json()
-
-        license_server_type = config["license_server_type"]
-        # Use feature name to get total and limit from feature data in the license config
-        try:
-            # Get total from new feature format
-            total = config["features"][feature].get("total", 0)
-            LicenseManagerFeatureConfigurationIncorrect.require_condition(
-                total,
-                f"The configuration for {feature} is incorrect. Please include the total amount of licenses.",
-            )
-        except AttributeError:
-            # Fallback to get the total from the old feature format
-            total = config["features"][feature]
-
-        try:
-            # Get limit from new feature format. If not specified, use the total as the limit
-            limit = config["features"][feature].get("limit", total)
-        except AttributeError:
-            # Fallback to use the total as the limit for the old feature format
-            limit = total
+        # Get license server type and reserved from the configuration in the backend
+        configurations = get_configs_from_backend()
+        for configuration in configurations:
+            for feature in configuration.features:
+                if f"{feature.product.name}.{feature.name}" == product_feature:
+                    license_server_type = configuration.type
+                    reserved = configuration.reserved
 
         # Get license usage from the cluster
         slurm_used = await get_tokens_for_license(f"{product_feature}@{license_server_type}", "Used")
@@ -215,23 +187,23 @@ async def reconcile():
         """
         The reserved amount represents how many licenses are already in use:
         Either in the license server or booked for a job (bookings from other cluster as well).
-        If the license has a limit, the amount of licenses past the limit should be reserved too.
+        If the license has a reserved value, it should be reserved too.
 
         The reservation is not meant to be used by any user, it's a way to block usage of licenses
         """
 
-        reserved = (
-            server_used - (slurm_used - cluster_booking_sum) + other_cluster_booking_sum + (total - limit)
+        reservation_amount = (
+            server_used - (slurm_used - cluster_booking_sum) + other_cluster_booking_sum + reserved
         )
 
-        if reserved < 0:
-            reserved = 0
+        if reservation_amount < 0:
+            reservation_amount = 0
 
-        if reserved > total:
-            reserved = total
+        if reservation_amount > total:
+            reservation_amount = total
 
-        if reserved:
-            reservation_data.append(f"{product_feature}@{license_server_type}:{reserved}")
+        if reservation_amount:
+            reservation_data.append(f"{product_feature}@{license_server_type}:{reservation_amount}")
 
     # Create the reservation or update the existing one
     logger.debug(f"Reservation data: {reservation_data}")
