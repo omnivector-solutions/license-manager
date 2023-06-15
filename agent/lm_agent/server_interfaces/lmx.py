@@ -26,9 +26,9 @@ class LMXLicenseServer(LicenseServerInterface):
                 f"{settings.LMXENDUTIL_PATH}",
                 "-licstat",
                 "-host",
-                license_server.host,
+                f"{license_server.host}",
                 "-port",
-                license_server.port,
+                f"{license_server.port}",
             ]
             commands_to_run.append(command_line)
         return commands_to_run

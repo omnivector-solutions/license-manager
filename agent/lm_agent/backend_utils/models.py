@@ -49,17 +49,6 @@ class InventorySchema(BaseModel):
     used: int
 
 
-class BookingSchema(BaseModel):
-    """
-    Represents the booking of a feature.
-    """
-
-    id: int
-    job_id: int
-    feature_id: int
-    quantity: int
-
-
 class FeatureSchema(BaseModel):
     """
     Represents the features in a feature configuration.
@@ -87,6 +76,17 @@ class ConfigurationSchema(BaseModel):
     type: LicenseServerType
 
 
+class BookingSchema(BaseModel):
+    """
+    Represents the booking of a feature.
+    """
+
+    id: int
+    job_id: int
+    feature_id: int
+    quantity: int
+
+
 class JobSchema(BaseModel):
     """
     Represents the jobs submitted in a cluster.
@@ -99,17 +99,6 @@ class JobSchema(BaseModel):
     lead_host: str
 
     bookings: Optional[List[BookingSchema]] = None
-
-
-class BookingSchema(BaseModel):
-    """
-    Represents the booking of a feature.
-    """
-
-    id: int
-    job_id: int
-    feature_id: int
-    quantity: int
 
 
 class ClusterSchema(BaseModel):

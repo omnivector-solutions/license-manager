@@ -5,7 +5,8 @@ Reconciliation functionality live here.
 import asyncio
 from typing import Dict, List
 
-from lm_agent.backend_utils import (
+from lm_agent.backend_utils.models import BookingSchema
+from lm_agent.backend_utils.utils import (
     get_bookings_for_job_id,
     get_bookings_sum_per_cluster,
     get_cluster_from_backend,
@@ -16,14 +17,9 @@ from lm_agent.backend_utils import (
     make_inventory_update,
     remove_job_by_slurm_job_id,
 )
-from lm_agent.backend_utils.models import BookingSchema
-from lm_agent.exceptions import (
-    LicenseManagerEmptyReportError,
-    LicenseManagerReservationFailure,
-)
+from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerReservationFailure
 from lm_agent.license_report import report
 from lm_agent.logs import logger
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_product_features_from_cluster,
     get_tokens_for_license,
@@ -78,7 +74,9 @@ async def clean_jobs_by_grace_time():
     # get the grace_time for each job
     for job in squeue_running_jobs:
         slurm_job_id = job["job_id"]
-        greatest_grace_time = get_greatest_grace_time_for_job(grace_times, bookings_for_running_jobs)
+        greatest_grace_time = get_greatest_grace_time_for_job(
+            grace_times, bookings_for_running_jobs[slurm_job_id]
+        )
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             logger.debug(f"GRACE_TIME: {greatest_grace_time}, {slurm_job_id}")
@@ -212,7 +210,7 @@ async def reconcile():
     logger.debug("Reconciliation done")
 
 
-async def update_inventories() -> List[LicenseReportItem]:
+async def update_inventories() -> List[dict]:
     """Send the inventory data collected from the cluster to the backend."""
     license_report = await report()
 
@@ -227,7 +225,7 @@ async def update_inventories() -> List[LicenseReportItem]:
     inventory_ids = get_inventory_ids(cluster_data)
 
     for license in license_report:
-        inventory_id = inventory_ids[license.product_feature]
-        await make_inventory_update(inventory_id, license.used, license.total)
+        inventory_id = inventory_ids[license["product_feature"]]
+        await make_inventory_update(inventory_id, license["used"], license["total"])
 
     return license_report

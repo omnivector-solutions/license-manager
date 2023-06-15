@@ -8,13 +8,7 @@ import httpx
 import jwt
 from pydantic import ValidationError
 
-from lm_agent.backend_utils.models import (
-    BookingSchema,
-    ClusterSchema,
-    ConfigurationSchema,
-    JobSchema,
-    LicenseBookingRequest,
-)
+from lm_agent.backend_utils.models import ClusterSchema, ConfigurationSchema, JobSchema, LicenseBookingRequest
 from lm_agent.config import settings
 from lm_agent.exceptions import (
     LicenseManagerAuthTokenError,
@@ -136,31 +130,27 @@ async def check_backend_health():
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 
 
-async def get_bookings_from_backend() -> List[BookingSchema]:
-    """
-    Get all bookings for the cluster from the backend.
-    """
-    cluster_data = get_cluster_from_backend()
-    return cluster_data.bookings
-
-
-async def get_jobs_from_backend() -> List[JobSchema]:
+async def get_jobs_from_backend() -> Optional[List[JobSchema]]:
     """
     Get all jobs for the cluster with its bookings from the backend.
     """
-    cluster_data = get_cluster_from_backend()
-    return cluster_data.jobs
+    cluster_data = await get_cluster_from_backend()
+    if cluster_data:
+        return cluster_data.jobs
+    return []
 
 
-async def get_configs_from_backend() -> List[ConfigurationSchema]:
+async def get_configs_from_backend() -> Optional[List[ConfigurationSchema]]:
     """
     Get all config rows from the backend.
     """
-    cluster_data = get_cluster_from_backend()
-    return cluster_data.configurations
+    cluster_data = await get_cluster_from_backend()
+    if cluster_data:
+        return cluster_data.configurations
+    return []
 
 
-async def get_all_jobs_from_backend() -> List[JobSchema]:
+async def get_all_jobs_from_backend() -> Optional[List[JobSchema]]:
     """
     Get all jobs for all clusters with its bookings from the backend.
     """
@@ -186,7 +176,7 @@ async def get_all_jobs_from_backend() -> List[JobSchema]:
     return jobs
 
 
-async def get_all_clusters_from_backend() -> ClusterSchema:
+async def get_all_clusters_from_backend() -> Optional[List[ClusterSchema]]:
     """
     Get all clusters from the backend.
     """
@@ -370,7 +360,7 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
     return bookings
 
 
-async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[str, int]:
+async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[int, int]:
     """
     Get booking sum for a license's bookings in each cluster.
     """

@@ -5,10 +5,10 @@ The EpilogSlurmctld executable.
 import asyncio
 import sys
 
-from lm_agent.backend_utils import remove_booking_for_job_id
+from lm_agent.backend_utils.utils import remove_job_by_slurm_job_id
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
-from lm_agent.reconciliation import update_report
+from lm_agent.reconciliation import update_inventories
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
 
@@ -24,7 +24,7 @@ async def epilog():
     if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
         # Force a reconciliation before we attempt to remove bookings.
         try:
-            await update_report()
+            await update_inventories()
         except Exception as e:
             logger.error(f"Failed to call reconcile with {e}")
             sys.exit(1)
@@ -41,7 +41,7 @@ async def epilog():
 
     if len(required_licenses) > 0:
         # Attempt to remove the booking and log the result.
-        booking_removed = await remove_booking_for_job_id(job_id)
+        booking_removed = await remove_job_by_slurm_job_id(job_id)
         if booking_removed:
             logger.debug(f"Booking for job id: {job_id} successfully deleted.")
         else:
