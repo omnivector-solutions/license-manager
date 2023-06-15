@@ -126,7 +126,9 @@ class AsyncBackendClient(httpx.AsyncClient):
 
 
 async def check_backend_health():
-    """Hit the API's health-check endpoint to make sure the API is available."""
+    """
+    Hit the API's health-check endpoint to make sure the API is available.
+    """
     async with AsyncBackendClient() as backend_client:
         resp = await backend_client.get("/lm/health")
     if resp.status_code != 204:
@@ -135,20 +137,89 @@ async def check_backend_health():
 
 
 async def get_bookings_from_backend() -> List[BookingSchema]:
+    """
+    Get all bookings for the cluster from the backend.
+    """
     cluster_data = get_cluster_from_backend()
     return cluster_data.bookings
 
 
 async def get_jobs_from_backend() -> List[JobSchema]:
+    """
+    Get all jobs for the cluster with its bookings from the backend.
+    """
     cluster_data = get_cluster_from_backend()
     return cluster_data.jobs
 
 
-async def get_cluster_from_backend() -> ClusterSchema:
-    """Get cluster data from the backend."""
+async def get_configs_from_backend() -> List[ConfigurationSchema]:
+    """
+    Get all config rows from the backend.
+    """
+    cluster_data = get_cluster_from_backend()
+    return cluster_data.configurations
+
+
+async def get_all_jobs_from_backend() -> List[JobSchema]:
+    """
+    Get all jobs for all clusters with its bookings from the backend.
+    """
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get("lm/jobs")
+        LicenseManagerBackendConnectionError.require_condition(
+            resp.status_code == 200, "Failed to read jobs from the backend"
+        )
+
+    parsed_resp: List = resp.json()
+
+    jobs = []
+
+    for job in parsed_resp:
+        try:
+            parsed_job = JobSchema.parse_obj(job)
+        except ValidationError as err:
+            logger.error(f"Could not validate job data: {str(err)}")
+            raise LicenseManagerParseError("Could not parse job data returned from the backend")
+
+        jobs.append(parsed_job)
+
+    return jobs
+
+
+async def get_all_clusters_from_backend() -> ClusterSchema:
+    """
+    Get all clusters from the backend.
+    """
     try:
         async with AsyncBackendClient() as backend_client:
-            resp = await backend_client.get("/lm/api/v1/clusters/by_client_id/")
+            resp = await backend_client.get("/lm/clusters")
+    except httpx.ConnectError as err:
+        logger.error(f"Connection failed to backend: {str(err)}")
+        raise LicenseManagerBackendConnectionError("Could not get cluster data from the backend")
+
+    parsed_resp: List = resp.json()
+
+    clusters = []
+
+    for cluster in parsed_resp:
+        try:
+            parsed_cluster = ClusterSchema.parse_obj(cluster)
+        except ValidationError as err:
+            logger.error(f"Could not validate cluster data: {str(err)}")
+            raise LicenseManagerParseError("Could not parse cluster data returned from the backend")
+
+        clusters.append(parsed_cluster)
+
+    return clusters
+
+
+async def get_cluster_from_backend() -> ClusterSchema:
+    """
+    Get cluster data from the backend.
+    """
+    try:
+        async with AsyncBackendClient() as backend_client:
+            resp = await backend_client.get("/lm/clusters/by_client_id/")
     except httpx.ConnectError as err:
         logger.error(f"Connection failed to backend: {str(err)}")
         raise LicenseManagerBackendConnectionError("Could not get cluster data from the backend")
@@ -159,19 +230,15 @@ async def get_cluster_from_backend() -> ClusterSchema:
         cluster_data = ClusterSchema.parse_obj(parsed_resp)
     except ValidationError as err:
         logger.error(f"Could not validate cluster data: {str(err)}")
-        raise LicenseManagerParseError("Could not parse configuration data returned from the backend")
+        raise LicenseManagerParseError("Could not parse cluster data returned from the backend")
 
     return cluster_data
 
 
-async def get_configs_from_backend() -> List[ConfigurationSchema]:
-    """Get all config rows from the backend."""
-    cluster_data = get_cluster_from_backend()
-    return cluster_data.configurations
-
-
 def get_feature_ids(cluster_data) -> Dict[str, int]:
-    """Get the feature_id for each feature in the cluster."""
+    """
+    Get the feature_id for each product_feature in the cluster.
+    """
     features_id = {
         f"{feature.product.name}.{feature.name}": feature.id
         for configuration in cluster_data.configurations
@@ -181,8 +248,23 @@ def get_feature_ids(cluster_data) -> Dict[str, int]:
     return features_id
 
 
+def get_inventory_ids(cluster_data) -> Dict[str, int]:
+    """
+    Get the inventory_id for each product_feature in the cluster.
+    """
+    inventories_id = {
+        f"{feature.product.name}.{feature.name}": feature.inventory.id
+        for configuration in cluster_data.configurations
+        for feature in configuration.features
+    }
+
+    return inventories_id
+
+
 def get_grace_times(cluster_data) -> Dict[int, int]:
-    """Get the grace time for each feature_id in the cluster."""
+    """
+    Get the grace time for each feature_id in the cluster.
+    """
     grace_times = {
         feature.id: configuration.grace_time
         for configuration in cluster_data.configurations
@@ -192,9 +274,29 @@ def get_grace_times(cluster_data) -> Dict[int, int]:
     return grace_times
 
 
+async def make_inventory_update(inventory_id: int, total: int, used: int) -> bool:
+    """
+    Update the inventory for a feature with its current counters.
+    """
+    async with AsyncBackendClient() as backend_client:
+        inventory_response = await backend_client.put(
+            f"/lm/inventories/{inventory_id}",
+            json={
+                "total": total,
+                "used": used,
+            },
+        )
+        LicenseManagerBackendConnectionError.require_condition(
+            inventory_response.status_code == 201, f"Failed to update inventory: {inventory_response.text}"
+        )
+    return True
+
+
 async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
-    """Book the feature tokens."""
-    cluster_data = get_cluster_from_backend()
+    """
+    Create a job and its bookings on the backend for each license booked.
+    """
+    cluster_data = await get_cluster_from_backend()
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.post(
@@ -237,7 +339,7 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str) -> bool:
     """
     Remove the job with its bookings for the given slurm_job_id in the cluster.
     """
-    cluster_data = get_cluster_from_backend()
+    cluster_data = await get_cluster_from_backend()
 
     async with AsyncBackendClient() as backend_client:
         resp = await backend_client.delete(
@@ -257,7 +359,7 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
     """
     Return the job with its bookings for the given job_id in the cluster.
     """
-    cluster_data = get_cluster_from_backend()
+    cluster_data = await get_cluster_from_backend()
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.get(
@@ -272,15 +374,20 @@ async def get_bookings_sum_per_cluster(product_feature: str) -> Dict[str, int]:
     """
     Get booking sum for a license's bookings in each cluster.
     """
-    async with AsyncBackendClient() as backend_client:
-        response = await backend_client.get("/lm/bookings")
-    bookings = response.json()
+    # get all clusters data
+    clusters = await get_all_clusters_from_backend()
 
-    booking_sum: Dict[str, int] = {}
+    booking_sum: Dict[int, int] = {}
 
-    for booking in bookings:
-        cluster_name = booking["cluster_id"]
-        if booking["product_feature"] == product_feature:
-            booking_sum[cluster_name] = booking_sum.get(cluster_name, 0) + booking["booked"]
+    # get feature_ids in each cluster
+    for cluster in clusters:
+        cluster_feature_ids = get_feature_ids(cluster)
+        feature_id = cluster_feature_ids.get(product_feature)
+
+        if feature_id is not None:
+            for job in cluster.jobs:
+                for booking in job.bookings:
+                    if booking.feature_id == feature_id:
+                        booking_sum[cluster.id] = booking_sum.get(cluster.id, 0) + booking.quantity
 
     return booking_sum
