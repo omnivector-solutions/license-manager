@@ -47,8 +47,8 @@ async def prolog():
         sys.exit(0)
 
     tracked_licenses = list()
-    # Create a list of tracked licenses in the form <product>.<feature>
 
+    # Create a list of tracked licenses in the form <product>.<feature>
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
@@ -56,6 +56,7 @@ async def prolog():
         except Exception as e:
             logger.error(f"Failed to call get_config_from_backend with {e}")
             sys.exit(1)
+
         for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{feature.product.name}.{feature.name}")
@@ -65,7 +66,7 @@ async def prolog():
     # track. These tracked licenses are what we will check feature token
     # availability for.
     tracked_license_booking_request = LicenseBookingRequest(
-        job_id=job_id,
+        slurm_job_id=job_id,
         user_name=user_name,
         lead_host=lead_host,
         bookings=[],
