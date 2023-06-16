@@ -153,16 +153,16 @@ async def reconcile():
     license_usage_info = await update_inventories()
     logger.debug("Backend licenses reconciliated")
 
-    cluster_data = get_cluster_from_backend()
+    cluster_data = await get_cluster_from_backend()
 
     reservation_data = []
 
     # Calculate how many licenses should be reserved for each license
     for license_data in license_usage_info:
         # Get license usage from license report
-        product_feature = license_data.product_feature
-        server_used = license_data.used
-        total = license_data.total
+        product_feature = license_data["product_feature"]
+        server_used = license_data["used"]
+        total = license_data["total"]
 
         # Get booking information from backend
         bookings_per_cluster = await get_bookings_sum_per_cluster(product_feature)
@@ -172,12 +172,12 @@ async def reconcile():
         )
 
         # Get license server type and reserved from the configuration in the backend
-        configurations = get_configs_from_backend()
+        configurations = await get_configs_from_backend()
         for configuration in configurations:
             for feature in configuration.features:
                 if f"{feature.product.name}.{feature.name}" == product_feature:
                     license_server_type = configuration.type
-                    reserved = configuration.reserved
+                    reserved = feature.reserved
 
         # Get license usage from the cluster
         slurm_used = await get_tokens_for_license(f"{product_feature}@{license_server_type}", "Used")
