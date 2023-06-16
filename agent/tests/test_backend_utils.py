@@ -262,7 +262,7 @@ async def test__get_configs_from_backend(clusters, respx_mock):
                     name="abaqus",
                     product=ProductSchema(id=1, name="abaqus"),
                     config_id=1,
-                    reserved=25,
+                    reserved=100,
                     inventory=InventorySchema(id=1, feature_id=2, total=123, used=12),
                 )
             ],
@@ -662,7 +662,7 @@ async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__get_bookings_for_job_id__success(mock_get_cluster, parsed_clusters, respx_mock):
+async def test__get_bookings_for_job_id__success(mock_get_cluster, clusters, parsed_clusters, respx_mock):
     """
     Test that get_bookings_for_job_id returns the bookings for a given job ID.
     """
@@ -670,7 +670,7 @@ async def test__get_bookings_for_job_id__success(mock_get_cluster, parsed_cluste
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    bookings_data = [{"id": 1, "feature_id": 1, "quantity": 5}, {"id": 2, "feature_id": 2, "quantity": 10}]
+    bookings_data = clusters[0]["jobs"][0]["bookings"]
 
     respx_mock.get(f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
         return_value=Response(

@@ -8,7 +8,13 @@ import httpx
 import jwt
 from pydantic import ValidationError
 
-from lm_agent.backend_utils.models import ClusterSchema, ConfigurationSchema, JobSchema, LicenseBookingRequest
+from lm_agent.backend_utils.models import (
+    BookingSchema,
+    ClusterSchema,
+    ConfigurationSchema,
+    JobSchema,
+    LicenseBookingRequest,
+)
 from lm_agent.config import settings
 from lm_agent.exceptions import (
     LicenseManagerAuthTokenError,
@@ -199,7 +205,7 @@ async def get_cluster_from_backend() -> ClusterSchema:
     return cluster_data
 
 
-def get_feature_ids(cluster_data) -> Dict[str, int]:
+def get_feature_ids(cluster_data: ClusterSchema) -> Dict[str, int]:
     """
     Get the feature_id for each product_feature in the cluster.
     """
@@ -212,7 +218,7 @@ def get_feature_ids(cluster_data) -> Dict[str, int]:
     return features_id
 
 
-def get_inventory_ids(cluster_data) -> Dict[str, int]:
+def get_inventory_ids(cluster_data: ClusterSchema) -> Dict[str, int]:
     """
     Get the inventory_id for each product_feature in the cluster.
     """
@@ -225,7 +231,7 @@ def get_inventory_ids(cluster_data) -> Dict[str, int]:
     return inventories_id
 
 
-def get_grace_times(cluster_data) -> Dict[int, int]:
+def get_grace_times(cluster_data: ClusterSchema) -> Dict[int, int]:
     """
     Get the grace time for each feature_id in the cluster.
     """
@@ -332,8 +338,19 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
             job_response.status_code == 200, f"Failed to get job: {job_response.text}"
         )
 
-        with LicenseManagerParseError.handle_errors("Malformed response payload from jobs"):
-            bookings = job_response.json()["bookings"]
+        with LicenseManagerParseError.handle_errors(""):
+            parsed_resp: List = job_response.json()["bookings"]
+
+    bookings = []
+
+    for booking in parsed_resp:
+        try:
+            parsed_booking = BookingSchema.parse_obj(booking)
+        except ValidationError as err:
+            logger.error(f"Could not validate booking data: {str(err)}")
+            raise LicenseManagerParseError("Could not parse booking data returned from the backend")
+
+        bookings.append(parsed_booking)
 
     return bookings
 
