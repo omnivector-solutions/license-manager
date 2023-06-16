@@ -74,7 +74,7 @@ def clusters():
                             "name": "abaqus",
                             "product": {"id": 1, "name": "abaqus"},
                             "config_id": 1,
-                            "reserved": 25,
+                            "reserved": 100,
                             "inventory": {"id": 1, "feature_id": 2, "total": 123, "used": 12},
                         }
                     ],
@@ -199,7 +199,7 @@ def parsed_clusters():
                             name="abaqus",
                             product=ProductSchema(id=1, name="abaqus"),
                             config_id=1,
-                            reserved=25,
+                            reserved=100,
                             inventory=InventorySchema(id=1, feature_id=2, total=123, used=12),
                         )
                     ],

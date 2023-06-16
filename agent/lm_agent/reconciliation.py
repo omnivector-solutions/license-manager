@@ -5,7 +5,7 @@ Reconciliation functionality live here.
 import asyncio
 from typing import Dict, List
 
-from lm_agent.backend_utils.models import BookingSchema
+from lm_agent.backend_utils.models import BookingSchema, ClusterSchema
 from lm_agent.backend_utils.utils import (
     get_bookings_for_job_id,
     get_bookings_sum_per_cluster,
@@ -49,7 +49,7 @@ def get_running_jobs(squeue_result: List) -> List:
     return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
-async def clean_jobs_by_grace_time():
+async def clean_jobs_by_grace_time(cluster_data: ClusterSchema):
     """
     Clean the jobs which running time is greater than the grace_time.
     """
@@ -69,7 +69,7 @@ async def clean_jobs_by_grace_time():
     results = await asyncio.gather(*get_bookings_call)
     bookings_for_running_jobs = {job["job_id"]: result for job, result in zip(squeue_running_jobs, results)}
 
-    grace_times = await get_grace_times()
+    grace_times = get_grace_times(cluster_data)
 
     # get the grace_time for each job
     for job in squeue_running_jobs:
@@ -110,17 +110,6 @@ async def clean_jobs(squeue_result):
     await asyncio.gather(*delete_job_call)
 
 
-async def filter_cluster_update_licenses(licenses_to_update: List) -> List:
-    """Get the licenses in the cluster to filter the cluster update response."""
-    local_licenses = await get_all_product_features_from_cluster()
-
-    filtered_licenses = []
-    for license in licenses_to_update:
-        if license["product_feature"] in local_licenses:
-            filtered_licenses.append(license)
-    return filtered_licenses
-
-
 async def create_or_update_reservation(reservation_data):
     """
     Create the reservation if it doesn't exist, otherwise update it.
@@ -143,17 +132,20 @@ async def create_or_update_reservation(reservation_data):
 async def reconcile():
     """Generate the report and reconcile the license feature token usage."""
     logger.debug("Starting reconciliation")
+
+    # Get cluster data
+    cluster_data = await get_cluster_from_backend()
+    configurations = await get_configs_from_backend()
+
     # Delete bookings for jobs that reached the grace time
     logger.debug("Cleaning jobs by grace time")
-    await clean_jobs_by_grace_time()
+    await clean_jobs_by_grace_time(cluster_data)
     logger.debug("Jobs cleaned by grace time")
 
     # Generate report and update the backend
     logger.debug("Reconciling licenses in the backend")
     license_usage_info = await update_inventories()
     logger.debug("Backend licenses reconciliated")
-
-    cluster_data = await get_cluster_from_backend()
 
     reservation_data = []
 
@@ -172,7 +164,6 @@ async def reconcile():
         )
 
         # Get license server type and reserved from the configuration in the backend
-        configurations = await get_configs_from_backend()
         for configuration in configurations:
             for feature in configuration.features:
                 if f"{feature.product.name}.{feature.name}" == product_feature:
@@ -206,7 +197,6 @@ async def reconcile():
     # Create the reservation or update the existing one
     logger.debug(f"Reservation data: {reservation_data}")
     await create_or_update_reservation(",".join(reservation_data))
-
     logger.debug("Reconciliation done")
 
 
