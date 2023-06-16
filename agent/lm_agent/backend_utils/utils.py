@@ -187,12 +187,11 @@ async def get_cluster_from_backend() -> ClusterSchema:
     """
     Get cluster data from the backend.
     """
-    try:
-        async with AsyncBackendClient() as backend_client:
-            resp = await backend_client.get("/lm/clusters/by_client_id")
-    except httpx.ConnectError as err:
-        logger.error(f"Connection failed to backend: {str(err)}")
-        raise LicenseManagerBackendConnectionError("Could not get cluster data from the backend")
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get("/lm/clusters/by_client_id")
+        LicenseManagerBackendConnectionError.require_condition(
+            resp.status_code == 200, f"Could not get cluster data from the backend: {resp.text}"
+        )
 
     parsed_resp: dict = resp.json()
 
@@ -323,7 +322,7 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str) -> bool:
     return True
 
 
-async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
+async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
     """
     Return the job with its bookings for the given job_id in the cluster.
     """
