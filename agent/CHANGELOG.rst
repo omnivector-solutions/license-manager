@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Refactored agent to use new API
 
 2.3.1 -- 2023-04-28
 -------------------
