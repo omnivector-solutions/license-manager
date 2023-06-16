@@ -74,7 +74,6 @@ def upgrade():
             ["products.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name"),
     )
     op.create_table(
         "inventories",
