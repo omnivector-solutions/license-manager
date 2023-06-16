@@ -99,7 +99,7 @@ async def get_tokens_for_license(
         for line in scontrol_output.split("\n"):
             if matched:
                 return line
-            if len(re.findall(rf"({product_feature_server})", line)) > 0:
+            if re.fullmatch(rf"LicenseName={product_feature_server}", line) is not None:
                 matched = True
         return None
 
