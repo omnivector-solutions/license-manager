@@ -150,42 +150,16 @@ async def get_configs_from_backend() -> Optional[List[ConfigurationSchema]]:
     return []
 
 
-async def get_all_jobs_from_backend() -> Optional[List[JobSchema]]:
-    """
-    Get all jobs for all clusters with its bookings from the backend.
-    """
-    async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.get("lm/jobs")
-        LicenseManagerBackendConnectionError.require_condition(
-            resp.status_code == 200, "Failed to read jobs from the backend"
-        )
-
-    parsed_resp: List = resp.json()
-
-    jobs = []
-
-    for job in parsed_resp:
-        try:
-            parsed_job = JobSchema.parse_obj(job)
-        except ValidationError as err:
-            logger.error(f"Could not validate job data: {str(err)}")
-            raise LicenseManagerParseError("Could not parse job data returned from the backend")
-
-        jobs.append(parsed_job)
-
-    return jobs
-
-
 async def get_all_clusters_from_backend() -> Optional[List[ClusterSchema]]:
     """
     Get all clusters from the backend.
     """
-    try:
-        async with AsyncBackendClient() as backend_client:
-            resp = await backend_client.get("/lm/clusters")
-    except httpx.ConnectError as err:
-        logger.error(f"Connection failed to backend: {str(err)}")
-        raise LicenseManagerBackendConnectionError("Could not get cluster data from the backend")
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.get("/lm/clusters")
+
+        LicenseManagerBackendConnectionError.require_condition(
+            resp.status_code == 200, f"Could not get cluster data from the backend: {resp.text}"
+        )
 
     parsed_resp: List = resp.json()
 
@@ -209,7 +183,7 @@ async def get_cluster_from_backend() -> ClusterSchema:
     """
     try:
         async with AsyncBackendClient() as backend_client:
-            resp = await backend_client.get("/lm/clusters/by_client_id/")
+            resp = await backend_client.get("/lm/clusters/by_client_id")
     except httpx.ConnectError as err:
         logger.error(f"Connection failed to backend: {str(err)}")
         raise LicenseManagerBackendConnectionError("Could not get cluster data from the backend")
@@ -277,7 +251,7 @@ async def make_inventory_update(inventory_id: int, total: int, used: int) -> boo
             },
         )
         LicenseManagerBackendConnectionError.require_condition(
-            inventory_response.status_code == 201, f"Failed to update inventory: {inventory_response.text}"
+            inventory_response.status_code == 200, f"Failed to update inventory: {inventory_response.text}"
         )
     return True
 
@@ -299,7 +273,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
             },
         )
         LicenseManagerBackendConnectionError.require_condition(
-            job_response.status_code == 200, f"Failed to create job: {job_response.text}"
+            job_response.status_code == 201, f"Failed to create job: {job_response.text}"
         )
 
     with LicenseManagerParseError.handle_errors("Could not get job_id from created job"):
@@ -316,10 +290,9 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
                     "quantity": booking.quantity,
                 },
             )
-
-        if booking_response.status_code != 201:
-            logger.error(f"##### Booking failed: {str(booking_response.content)} #####")
-            return False
+            LicenseManagerBackendConnectionError.require_condition(
+                booking_response.status_code == 201, f"Failed to create booking: {booking_response.text}"
+            )
 
     logger.debug("##### Booking completed successfully #####")
     return True
@@ -336,13 +309,12 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str) -> bool:
             f"lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{cluster_data.id}"
         )
 
-    # Return True if the request to delete the job with the bookings was successful.
-    if resp.status_code == 200:
-        return True
+        LicenseManagerBackendConnectionError.require_condition(
+            resp.status_code == 200, f"Failed to remove job: {resp.text}"
+        )
 
-    logger.error(f"{slurm_job_id} could not be deleted.")
-    logger.debug(f"response from delete: {resp.__dict__}")
-    return False
+    logger.debug("##### Job removed successfully #####")
+    return True
 
 
 async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
@@ -355,7 +327,13 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> Dict:
         job_response = await backend_client.get(
             f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{cluster_data.id}"
         )
-        bookings = job_response.json()["bookings"]
+
+        LicenseManagerBackendConnectionError.require_condition(
+            job_response.status_code == 200, f"Failed to get job: {job_response.text}"
+        )
+
+        with LicenseManagerParseError.handle_errors("Malformed response payload from jobs"):
+            bookings = job_response.json()["bookings"]
 
     return bookings
 
