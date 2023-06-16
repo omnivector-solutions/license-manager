@@ -21,7 +21,6 @@ from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerRe
 from lm_agent.license_report import report
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.cmd_utils import (
-    get_all_product_features_from_cluster,
     get_tokens_for_license,
     return_formatted_squeue_out,
     squeue_parser,

@@ -20,7 +20,6 @@ from lm_agent.backend_utils.models import (
     LicenseServerType,
     ProductSchema,
 )
-# from lm_agent.backend_utils.models import BackendConfigurationRow
 from lm_agent.config import settings
 
 MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
