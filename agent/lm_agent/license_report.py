@@ -29,7 +29,7 @@ def get_local_license_configurations(
         for feature in entry.features:
             feature_name = feature.name
             product_name = feature.product.name
-            if f"{feature_name}.{product_name}" in local_licenses:
+            if f"{product_name}.{feature_name}" in local_licenses:
                 filtered_entries.append(entry)
                 break
     return filtered_entries

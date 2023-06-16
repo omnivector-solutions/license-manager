@@ -309,73 +309,123 @@ def parsed_clusters():
 
 
 @fixture
-def bookings():
-    """Bookings returned by /booking/all endpoint."""
-    return [
-        {
-            "id": 1,
-            "job_id": 123,
-            "product_feature": "product.feature",
-            "booked": 15,
-            "config_id": 1,
-            "lead_host": "host1",
-            "user_name": "user1",
-            "cluster_name": "cluster1",
-        },
-        {
-            "id": 2,
-            "job_id": 123,
-            "product_feature": "product.feature",
-            "booked": 17,
-            "config_id": 1,
-            "lead_host": "host1",
-            "user_name": "user1",
-            "cluster_name": "cluster2",
-        },
-        {
-            "id": 3,
-            "job_id": 123,
-            "product_feature": "product.feature",
-            "booked": 4,
-            "config_id": 1,
-            "lead_host": "host1",
-            "user_name": "user1",
-            "cluster_name": "cluster3",
-        },
-        {
-            "id": 4,
-            "job_id": 123,
-            "product_feature": "product.feature",
-            "booked": 67,
-            "config_id": 1,
-            "lead_host": "host1",
-            "user_name": "user1",
-            "cluster_name": "cluster3",
-        },
-        {
-            "id": 4,
-            "job_id": 123,
-            "product_feature": "product2.feature2",
-            "booked": 1,
-            "config_id": 2,
-            "lead_host": "host1",
-            "user_name": "user1",
-            "cluster_name": "cluster4",
-        },
-    ]
+def one_configuration_row_flexlm():
+    return ConfigurationSchema(
+        id=1,
+        name="Test Feature",
+        cluster_id=1,
+        features=[
+            FeatureSchema(
+                id=1,
+                name="testfeature",
+                product=ProductSchema(id=1, name="testproduct"),
+                config_id=1,
+                reserved=100,
+                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.FLEXLM,
+    )
 
 
 @fixture
-def cluster_update_payload():
-    """A response returned by /license/cluster_update endpoint."""
-    return [
-        {
-            "product_feature": "product.feature",
-            "bookings_sum": 100,
-            "license_total": 1000,
-            "license_used": 200,
-        },
-    ]
+def one_configuration_row_rlm():
+    return ConfigurationSchema(
+        id=1,
+        name="Converge",
+        cluster_id=1,
+        features=[
+            FeatureSchema(
+                id=1,
+                name="converge_super",
+                product=ProductSchema(id=1, name="converge"),
+                config_id=1,
+                reserved=100,
+                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.RLM,
+    )
+
+
+@fixture
+def one_configuration_row_lsdyna():
+    return ConfigurationSchema(
+        id=1,
+        name="MPPDYNA",
+        cluster_id=1,
+        features=[
+            FeatureSchema(
+                id=1,
+                name="mppdyna",
+                product=ProductSchema(id=1, name="mppdyna"),
+                config_id=1,
+                reserved=100,
+                inventory=InventorySchema(id=1, feature_id=2, total=500, used=440),
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.LSDYNA,
+    )
+
+
+@fixture
+def one_configuration_row_lmx():
+    return ConfigurationSchema(
+        id=1,
+        name="HyperWorks",
+        cluster_id=1,
+        features=[
+            FeatureSchema(
+                id=1,
+                name="hyperworks",
+                product=ProductSchema(id=1, name="hyperworks"),
+                config_id=1,
+                reserved=100,
+                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.LMX,
+    )
+
+
+@fixture
+def one_configuration_row_olicense():
+    return ConfigurationSchema(
+        id=1,
+        name="FTire Adams",
+        cluster_id=1,
+        features=[
+            FeatureSchema(
+                id=1,
+                name="ftire_adams",
+                product=ProductSchema(id=1, name="cosin"),
+                config_id=1,
+                reserved=100,
+                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.OLICENSE,
+    )
 
 
 @fixture

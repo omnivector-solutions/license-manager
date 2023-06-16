@@ -4,7 +4,6 @@ from unittest import mock
 
 from pytest import fixture, mark, raises
 
-from lm_agent.backend_utils import BackendConfigurationRow
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
@@ -12,7 +11,7 @@ from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 
 
 @fixture
-def lsdyna_server(one_configuration_row_lsdyna: BackendConfigurationRow) -> LSDynaLicenseServer:
+def lsdyna_server(one_configuration_row_lsdyna) -> LSDynaLicenseServer:
     return LSDynaLicenseServer(one_configuration_row_lsdyna.license_servers)
 
 
