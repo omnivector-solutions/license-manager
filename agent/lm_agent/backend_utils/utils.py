@@ -299,7 +299,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
             },
         )
         LicenseManagerBackendConnectionError.require_condition(
-            job_response.status_code == 201, f"Failed to create job: {job_response.text}"
+            job_response.status_code == 200, f"Failed to create job: {job_response.text}"
         )
 
     with LicenseManagerParseError.handle_errors("Could not get job_id from created job"):
