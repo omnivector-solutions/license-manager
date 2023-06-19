@@ -1,10 +1,9 @@
 """Feature schemas for the License Manager API."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.booking import BookingSchema
 from lm_backend.api.schemas.inventory import InventorySchema
 from lm_backend.api.schemas.product import ProductSchema
 

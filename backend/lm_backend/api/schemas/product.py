@@ -1,5 +1,5 @@
 """Product schemas for the License Manager API."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
