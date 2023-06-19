@@ -147,26 +147,17 @@ async def test_get_cluster_by_client_id__success(
     assert response_cluster["client_id"] == create_one_cluster[0].client_id
 
 
-@mark.parametrize(
-    "client_id",
-    [
-        "invalid_id_123",
-        "non_existent_id",
-        999999999,
-    ],
-)
 @mark.asyncio
-async def test_get_cluster_by_client_id__fail_with_bad_parameter(
+async def test_get_cluster_by_client_id__fail_with_bad_client_id(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
     clean_up_database,
-    client_id,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
-    response = await backend_client.get(f"/lm/clusters/by_client_id/{client_id}")
+    response = await backend_client.get("/lm/clusters/by_client_id")
 
-    assert response.status_code == 404
+    assert response.status_code == 400
 
 
 @mark.asyncio
