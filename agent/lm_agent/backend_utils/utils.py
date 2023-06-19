@@ -295,9 +295,9 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
                     "quantity": booking.quantity,
                 },
             )
-            LicenseManagerBackendConnectionError.require_condition(
-                booking_response.status_code == 201, f"Failed to create booking: {booking_response.text}"
-            )
+            if booking_response.status_code != 201:
+                logger.error(f"Failed to create booking: {booking_response.text}")
+                return False
 
     logger.debug("##### Booking completed successfully #####")
     return True

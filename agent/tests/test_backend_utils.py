@@ -577,7 +577,7 @@ async def test__make_booking_request_job__raises_exception_on_job_failure(
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__make_booking_request_job__raises_exception_on_booking_failure(
+async def test__make_booking_request_job__returns_false_on_booking_failure(
     mock_get_cluster, parsed_clusters, respx_mock
 ):
     """
@@ -604,13 +604,12 @@ async def test__make_booking_request_job__raises_exception_on_booking_failure(
     )
     respx_mock.post("/lm/bookings").mock(
         return_value=Response(
-            status_code=500,
-            json={"message": "Internal Server Error"},
+            status_code=409,
+            json={"message": "Not enough licenses"},
         )
     )
 
-    with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_booking_request(lbr)
+    assert not await make_booking_request(lbr)
 
 
 @pytest.mark.asyncio
