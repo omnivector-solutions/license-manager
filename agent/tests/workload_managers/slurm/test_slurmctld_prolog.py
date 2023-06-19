@@ -10,13 +10,11 @@ from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as main
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.sys")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 async def test_main_error_in_get_required_licenses_for_job(
     get_required_licenses_for_job_mock,
     get_job_context_mock,
-    sys_mock,
 ):
     get_job_context_mock.return_value = {
         "job_id": "1",
@@ -33,7 +31,6 @@ async def test_main_error_in_get_required_licenses_for_job(
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.sys")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
@@ -41,7 +38,6 @@ async def test_main_error_in_get_config_from_backend(
     get_configs_from_backend_mock,
     get_required_licenses_for_job_mock,
     get_job_context_mock,
-    sys_mock,
 ):
     get_job_context_mock.return_value = {
         "job_id": "1",

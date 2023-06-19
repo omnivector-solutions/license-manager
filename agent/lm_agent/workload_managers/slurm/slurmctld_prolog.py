@@ -37,7 +37,6 @@ async def prolog():
 
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)
-        logger.debug(f"Required licenses: {required_licenses}")
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
@@ -45,6 +44,8 @@ async def prolog():
     if not required_licenses:
         logger.debug("No licenses required, exiting!")
         sys.exit(0)
+
+    logger.debug(f"Required licenses: {required_licenses}")
 
     tracked_licenses = list()
 
