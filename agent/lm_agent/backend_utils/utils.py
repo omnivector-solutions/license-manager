@@ -146,7 +146,7 @@ async def get_jobs_from_backend() -> Optional[List[JobSchema]]:
     return []
 
 
-async def get_configs_from_backend() -> Optional[List[ConfigurationSchema]]:
+async def get_configs_from_backend() -> List[ConfigurationSchema]:
     """
     Get all config rows from the backend.
     """
@@ -156,7 +156,7 @@ async def get_configs_from_backend() -> Optional[List[ConfigurationSchema]]:
     return []
 
 
-async def get_all_clusters_from_backend() -> Optional[List[ClusterSchema]]:
+async def get_all_clusters_from_backend() -> List[ClusterSchema]:
     """
     Get all clusters from the backend.
     """

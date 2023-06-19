@@ -59,7 +59,7 @@ class FeatureSchema(BaseModel):
     product: ProductSchema
     config_id: int
     reserved: int
-    inventory: Optional[InventorySchema] = None
+    inventory: InventorySchema
 
 
 class ConfigurationSchema(BaseModel):
@@ -98,7 +98,7 @@ class JobSchema(BaseModel):
     username: str
     lead_host: str
 
-    bookings: Optional[List[BookingSchema]] = None
+    bookings: List[BookingSchema] = []
 
 
 class ClusterSchema(BaseModel):
@@ -109,8 +109,8 @@ class ClusterSchema(BaseModel):
     id: int
     name: str
     client_id: str
-    configurations: Optional[List[ConfigurationSchema]] = None
-    jobs: Optional[List[JobSchema]] = None
+    configurations: List[ConfigurationSchema] = []
+    jobs: List[JobSchema] = []
 
 
 class LicenseBooking(BaseModel):
@@ -130,4 +130,4 @@ class LicenseBookingRequest(BaseModel):
     slurm_job_id: int
     user_name: str
     lead_host: str
-    bookings: Union[List, List[LicenseBooking]]
+    bookings: List[LicenseBooking] = []
