@@ -12,7 +12,7 @@ from lm_agent.backend_utils.utils import (
     get_cluster_from_backend,
     get_configs_from_backend,
     get_grace_times,
-    get_inventory_ids,
+    get_feature_ids,
     get_jobs_from_backend,
     make_inventory_update,
     remove_job_by_slurm_job_id,
@@ -211,10 +211,10 @@ async def update_inventories() -> List[dict]:
         raise LicenseManagerEmptyReportError("Got an empty response from the license server")
 
     cluster_data = await get_cluster_from_backend()
-    inventory_ids = get_inventory_ids(cluster_data)
+    feature_ids = get_feature_ids(cluster_data)
 
     for license in license_report:
-        inventory_id = inventory_ids[license["product_feature"]]
-        await make_inventory_update(inventory_id, license["used"], license["total"])
+        feature_id = feature_ids[license["product_feature"]]
+        await make_inventory_update(feature_id, license["used"], license["total"])
 
     return license_report

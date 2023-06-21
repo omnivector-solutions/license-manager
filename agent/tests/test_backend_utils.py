@@ -33,7 +33,6 @@ from lm_agent.backend_utils.utils import (
     get_configs_from_backend,
     get_feature_ids,
     get_grace_times,
-    get_inventory_ids,
     get_jobs_from_backend,
     make_booking_request,
     make_inventory_update,
@@ -394,34 +393,6 @@ def test__get_feature_ids(cluster_data, index, expected_feature_ids, request):
 
 
 @pytest.mark.parametrize(
-    "cluster_data, index, expected_inventory_ids",
-    [
-        (
-            "parsed_clusters",
-            0,
-            {
-                "abaqus.abaqus": 1,
-                "converge.converge_super": 2,
-            },
-        ),
-        (
-            "parsed_clusters",
-            1,
-            {
-                "Product 3.Feature 3": 6,
-                "Product 4.Feature 4": 9,
-            },
-        ),
-    ],
-)
-def test__get_inventory_ids(cluster_data, index, expected_inventory_ids, request):
-    """Test that get_inventory_ids generates a dict with the id for each inventory."""
-    cluster_data = request.getfixturevalue(cluster_data)
-    inventory_ids = get_inventory_ids(cluster_data[index])
-    assert inventory_ids == expected_inventory_ids
-
-
-@pytest.mark.parametrize(
     "cluster_data, index, expected_grace_times",
     [
         (
@@ -480,13 +451,13 @@ async def test__make_inventory_update__success(respx_mock):
     """
     Test that make_inventory_update updates the inventory for a feature correctly.
     """
-    inventory_id = 1
+    feature_id = 1
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/inventories/{inventory_id}").mock(return_value=Response(status_code=200))
+    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=200))
 
-    result = await make_inventory_update(inventory_id, total, used)
+    result = await make_inventory_update(feature_id, total, used)
     assert result is True
 
 
@@ -496,14 +467,14 @@ async def test__make_inventory_update__raises_exception_on_non_two_hundred(respx
     """
     Test that make_inventory_update handles a failed inventory update correctly.
     """
-    inventory_id = 1
+    feature_id = 1
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/inventories/{inventory_id}").mock(return_value=Response(status_code=500))
+    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=500))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_inventory_update(inventory_id, total, used)
+        await make_inventory_update(feature_id, total, used)
 
 
 @pytest.mark.asyncio

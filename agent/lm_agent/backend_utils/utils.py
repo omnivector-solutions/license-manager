@@ -217,19 +217,6 @@ def get_feature_ids(cluster_data: ClusterSchema) -> Dict[str, int]:
     return features_id
 
 
-def get_inventory_ids(cluster_data: ClusterSchema) -> Dict[str, int]:
-    """
-    Get the inventory_id for each product_feature in the cluster.
-    """
-    inventories_id = {
-        f"{feature.product.name}.{feature.name}": feature.inventory.id
-        for configuration in cluster_data.configurations
-        for feature in configuration.features
-    }
-
-    return inventories_id
-
-
 def get_grace_times(cluster_data: ClusterSchema) -> Dict[int, int]:
     """
     Get the grace time for each feature_id in the cluster.
@@ -243,13 +230,13 @@ def get_grace_times(cluster_data: ClusterSchema) -> Dict[int, int]:
     return grace_times
 
 
-async def make_inventory_update(inventory_id: int, total: int, used: int) -> bool:
+async def make_inventory_update(feature_id: int, total: int, used: int) -> bool:
     """
     Update the inventory for a feature with its current counters.
     """
     async with AsyncBackendClient() as backend_client:
         inventory_response = await backend_client.put(
-            f"/lm/inventories/{inventory_id}",
+            f"/lm/features/{feature_id}/update_inventory",
             json={
                 "total": total,
                 "used": used,
