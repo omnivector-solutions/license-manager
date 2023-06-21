@@ -8,10 +8,10 @@ jobs:
     name: "Tests"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
           architecture: 'x64'
       - uses: Gr1N/setup-poetry@v8
       - name: "run full suite of tests"
