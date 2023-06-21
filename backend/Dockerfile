@@ -1,4 +1,4 @@
-FROM ubuntu as builder
+FROM ubuntu AS builder
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
@@ -16,7 +16,7 @@ COPY ./lm_backend /app/lm_backend
 RUN pip3 install .
 
 
-FROM ubuntu
+FROM ubuntu AS runner
 WORKDIR /app/
 
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpq.so.5.14 /usr/lib/x86_64-linux-gnu/libpq.so
