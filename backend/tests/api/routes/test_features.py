@@ -202,6 +202,75 @@ async def test_update_feature__fail_with_bad_data(
 
 
 @mark.asyncio
+async def test_update_inventory__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    create_one_inventory,
+    read_object,
+    clean_up_database,
+):
+    new_inventory = {"total": 9999, "used": 9}
+
+    feature_id = create_one_feature[0].id
+
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
+
+    assert response.status_code == 200
+
+    stmt = select(Feature).where(Feature.id == feature_id)
+    fetch_feature = await read_object(stmt)
+
+    assert fetch_feature.inventory.total == new_inventory["total"]
+    assert fetch_feature.inventory.used == new_inventory["used"]
+
+
+@mark.parametrize(
+    "id",
+    [
+        0,
+        -1,
+        999999999,
+    ],
+)
+@mark.asyncio
+async def test_update_inventory__fail_with_bad_parameter(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    create_one_inventory,
+    read_object,
+    clean_up_database,
+    id,
+):
+    new_inventory = {"total": 9999, "used": 9}
+
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.put(f"/lm/features/{id}/update_inventory", json=new_inventory)
+
+    assert response.status_code == 404
+
+
+@mark.asyncio
+async def test_update_inventory__fail_with_bad_data(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    create_one_inventory,
+    clean_up_database,
+):
+    new_inventory = {"bla": "bla"}
+
+    feature_id = create_one_feature[0].id
+
+    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_feature__success(
     backend_client: AsyncClient,
     inject_security_header,
