@@ -102,12 +102,12 @@ async def update_inventory(
     inventory = await crud_inventory.filter(
         db_session=db_session, filter_field=Inventory.feature_id, filter_term=feature_id
     )
-
-    await crud_inventory.update(
-        db_session=db_session,
-        id=inventory.id,
-        obj=inventory_update,
-    )
+    if inventory:
+        await crud_inventory.update(
+            db_session=db_session,
+            id=inventory.id,
+            obj=inventory_update,
+        )
 
     return await crud_feature.read(db_session=db_session, id=feature_id)
 

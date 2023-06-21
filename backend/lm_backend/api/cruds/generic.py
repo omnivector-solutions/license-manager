@@ -43,7 +43,7 @@ class GenericCRUD:
         return db_obj
 
     async def filter(
-        self, db_session: AsyncSession, filter_field: Column, filter_term: str
+        self, db_session: AsyncSession, filter_field: Column, filter_term: Union[str, int]
     ) -> Optional[ModelType]:
         """
         Filter an object using a filter field and filter term.
@@ -108,7 +108,7 @@ class GenericCRUD:
     async def update(
         self,
         db_session: AsyncSession,
-        id: int,
+        id: Union[Column[int], int],
         obj: UpdateSchemaType,
     ) -> Optional[ModelType]:
         """
