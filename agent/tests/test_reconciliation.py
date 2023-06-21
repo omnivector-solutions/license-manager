@@ -251,22 +251,22 @@ async def test__update_inventories__report_empty(report_mock):
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.report")
-@mock.patch("lm_agent.reconciliation.get_inventory_ids")
+@mock.patch("lm_agent.reconciliation.get_feature_ids")
 @mock.patch("lm_agent.reconciliation.get_cluster_from_backend")
 async def test__update_inventories__put_failed(
-    get_cluster_from_backend_mock, get_inventory_ids_mock, report_mock, respx_mock, parsed_clusters
+    get_cluster_from_backend_mock, get_feature_ids_mock, report_mock, respx_mock, parsed_clusters
 ):
     """
-    Check that when put /inventories status_code is not 200, should raise exception.
+    Check that when put /features/update_inventorys status_code is not 200, should raise exception.
     """
     get_cluster_from_backend_mock.return_value = parsed_clusters[0]
-    get_inventory_ids_mock.return_value = {
+    get_feature_ids_mock.return_value = {
         "abaqus.abaqus": 1,
         "converge.converge_super": 2,
     }
     report_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
 
-    respx_mock.put("/lm/inventories/1").mock(return_value=Response(status_code=400))
+    respx_mock.put("/lm/features/1/update_inventory").mock(return_value=Response(status_code=400))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
         await update_inventories()

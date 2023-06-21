@@ -503,46 +503,8 @@ async def test__make_booking_request__success(mock_get_cluster, parsed_clusters,
         )
     )
 
-    respx_mock.post("/lm/bookings").mock(
-        side_effect=[
-            Response(status_code=201),
-            Response(status_code=201),
-        ]
-    )
-
     result = await make_booking_request(lbr)
     assert result is True
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__make_booking_request_job__raises_exception_on_job_failure(
-    mock_get_cluster, parsed_clusters, respx_mock
-):
-    """
-    Test that make_booking_request handles the failure case when job creation fails.
-    """
-    lbr = LicenseBookingRequest(
-        slurm_job_id="12345",
-        user_name="test_user",
-        lead_host="test_host",
-        bookings=[
-            LicenseBooking(product_feature="abaqus.abaqus", quantity=5),
-        ],
-    )
-
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.post("/lm/jobs").mock(
-        return_value=Response(
-            status_code=500,
-            json={"message": "Internal Server Error"},
-        )
-    )
-
-    with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_booking_request(lbr)
 
 
 @pytest.mark.asyncio
@@ -566,14 +528,6 @@ async def test__make_booking_request_job__returns_false_on_booking_failure(
     mock_get_cluster.return_value = parsed_clusters[0]
 
     respx_mock.post("/lm/jobs").mock(
-        return_value=Response(
-            status_code=201,
-            json={
-                "id": 1,
-            },
-        )
-    )
-    respx_mock.post("/lm/bookings").mock(
         return_value=Response(
             status_code=409,
             json={"message": "Not enough licenses"},

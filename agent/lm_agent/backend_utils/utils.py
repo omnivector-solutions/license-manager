@@ -253,6 +253,16 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     Create a job and its bookings on the backend for each license booked.
     """
     cluster_data = await get_cluster_from_backend()
+    features_id = get_feature_ids(cluster_data)
+
+    bookings = []
+
+    for booking in lbr.bookings:
+        parsed_booking = {
+            "feature_id": features_id[booking.product_feature],
+            "quantity": booking.quantity,
+        }
+        bookings.append(parsed_booking)
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.post(
@@ -262,29 +272,12 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
                 "cluster_id": cluster_data.id,
                 "user_name": lbr.user_name,
                 "lead_host": lbr.lead_host,
+                "bookings": bookings,
             },
         )
-        LicenseManagerBackendConnectionError.require_condition(
-            job_response.status_code == 201, f"Failed to create job: {job_response.text}"
-        )
-
-    with LicenseManagerParseError.handle_errors("Could not get job_id from created job"):
-        job_id = job_response.json()["id"]
-
-    features_id = get_feature_ids(cluster_data)
-    for booking in lbr.bookings:
-        async with AsyncBackendClient() as backend_client:
-            booking_response = await backend_client.post(
-                "/lm/bookings",
-                json={
-                    "job_id": job_id,
-                    "feature_id": features_id[booking.product_feature],
-                    "quantity": booking.quantity,
-                },
-            )
-            if booking_response.status_code != 201:
-                logger.error(f"Failed to create booking: {booking_response.text}")
-                return False
+        if job_response.status_code != 201:
+            logger.error(f"Failed to create booking: {job_response.text}")
+            return False
 
     logger.debug("##### Booking completed successfully #####")
     return True
