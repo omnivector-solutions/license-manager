@@ -19,11 +19,9 @@ RUN pip3 install .
 FROM ubuntu AS runner
 WORKDIR /app/
 
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libpq.so.5.14 /usr/lib/x86_64-linux-gnu/libpq.so
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /usr/bin/python3.11 /usr/bin/
 COPY --from=builder /usr/lib/python3.11 /usr/lib/python3.11
-COPY --from=builder /lib/x86_64-linux-gnu/libexpat.so.1.8.7 /usr/lib/x86_64-linux-gnu/libexpat.so.1
 
 COPY ./lm_backend /app/lm_backend
 COPY ./alembic /app/alembic

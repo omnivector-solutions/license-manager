@@ -83,7 +83,7 @@ class GenericCRUD:
     async def read_all(
         self,
         db_session: AsyncSession,
-        search: str = None,
+        search: Optional[str] = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
     ) -> List[ModelType]:

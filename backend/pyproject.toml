@@ -23,7 +23,7 @@ armasec = "^0.11"
 SQLAlchemy = {extras = ["asyncio"], version = "^2.0.7"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
-psycopg2 = "^2.9.5"
+psycopg2-binary = "^2.9.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
@@ -41,7 +41,7 @@ ipython = "^8.10.0"
 asgi-lifespan = "^1.0.1"
 black = "^22.3"
 alembic = "^1.6.5"
-mypy = "^0.910"
+mypy = "1.4.0"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -57,6 +57,11 @@ line_length = 110
 src_paths = ["lm_backend", "tests"]
 multi_line_output = 3
 include_trailing_comma = true
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
 
 [[tool.mypy.overrides]]
 module = [

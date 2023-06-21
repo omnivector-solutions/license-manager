@@ -7,12 +7,12 @@ PACKAGE_NAME:=lm_backend
 
 .PHONY: install
 install:
-	poetry install
+	poetry install --all-extras
 
 .PHONY: test
 test:
-	docker-compose build migration
-	docker-compose build unittest
+	docker-compose --verbose build migration
+	docker-compose --verbose build unittest
 	docker-compose run --rm unittest
 
 .PHONY: mypy
