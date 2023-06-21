@@ -13,7 +13,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY ./README.rst ./pyproject.toml ./poetry.lock* /app/
 COPY ./lm_backend /app/lm_backend
 
-RUN pip3 install . && pip3 install alembic
+RUN pip3 install .[dev]
 
 
 FROM ubuntu AS runner
