@@ -21,6 +21,17 @@ class JobCreateSchema(BaseCreateSchema):
     cluster_id: int
     username: str
     lead_host: str
+
+
+class JobWithBookingCreateSchema(BaseCreateSchema):
+    """
+    Represents the jobs submitted in a cluster with its bookings.
+    """
+
+    slurm_job_id: str
+    cluster_id: int
+    username: str
+    lead_host: str
     bookings: List[JobBookingCreateSchema] = []
 
 

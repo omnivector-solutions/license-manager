@@ -8,7 +8,7 @@ from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.job import Job
 from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
-from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema
+from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session
@@ -27,11 +27,13 @@ crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
     dependencies=[Depends(guard.lockdown(Permissions.JOB_EDIT))],
 )
 async def create_job(
-    job: JobCreateSchema,
+    job: JobWithBookingCreateSchema,
     db_session: AsyncSession = Depends(get_session),
 ):
     """Create a new job."""
-    job_created: Job = await crud_job.create(db_session=db_session, obj=job)
+    job_created: Job = await crud_job.create(
+        db_session=db_session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
+    )
 
     if job.bookings:
         for booking in job.bookings:
@@ -40,7 +42,11 @@ async def create_job(
                 "feature_id": booking.feature_id,
                 "quantity": booking.quantity,
             }
-            await crud_booking.create(db_session=db_session, obj=obj)
+            try:
+                await crud_booking.create(db_session=db_session, obj=BookingCreateSchema(**obj))
+            except HTTPException:
+                await crud_job.delete(db_session=db_session, id=job_created.id)
+                raise
 
     return await crud_job.read(db_session=db_session, id=job_created.id)
 
