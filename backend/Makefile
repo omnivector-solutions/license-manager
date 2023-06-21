@@ -11,8 +11,8 @@ install:
 
 .PHONY: test
 test:
-	docker-compose --verbose build migration
-	docker-compose --verbose build unittest
+	docker-compose buil migration
+	docker-compose build unittest
 	docker-compose run --rm unittest
 
 .PHONY: mypy
