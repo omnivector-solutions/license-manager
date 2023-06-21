@@ -25,7 +25,7 @@ toml = "^0.10.2"
 py-buzz = "^3.2.1"
 psycopg2-binary = "^2.9.6"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^6.2.4"
 pytest-asyncio = "^0.15.1"
 pytest-cov = "^2.12.1"
