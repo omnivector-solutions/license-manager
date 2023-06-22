@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Union
 
 import httpx
 import jwt
-from pydantic import ValidationError
 
 from lm_agent.backend_utils.models import (
     BookingSchema,
@@ -21,7 +20,7 @@ from lm_agent.exceptions import (
     LicenseManagerBackendConnectionError,
     LicenseManagerParseError,
 )
-from lm_agent.logs import logger
+from lm_agent.logs import log_error, logger
 
 USER_NAME = getpass.getuser()
 TOKEN_FILE_NAME = f"{USER_NAME}.token"
@@ -168,12 +167,10 @@ async def get_all_clusters_from_backend() -> List[ClusterSchema]:
     clusters = []
 
     for cluster in parsed_resp:
-        try:
+        with LicenseManagerParseError.handle_errors(
+            "Could not parse cluster data returned from the backend", do_except=log_error
+        ):
             parsed_cluster = ClusterSchema.parse_obj(cluster)
-        except ValidationError as err:
-            logger.error(f"Could not validate cluster data: {str(err)}")
-            raise LicenseManagerParseError("Could not parse cluster data returned from the backend")
-
         clusters.append(parsed_cluster)
 
     return clusters
@@ -191,11 +188,10 @@ async def get_cluster_from_backend() -> ClusterSchema:
 
     parsed_resp: dict = resp.json()
 
-    try:
+    with LicenseManagerParseError.handle_errors(
+        "Could not parse cluster data returned from the backend", do_except=log_error
+    ):
         cluster_data = ClusterSchema.parse_obj(parsed_resp)
-    except ValidationError as err:
-        logger.error(f"Could not validate cluster data: {str(err)}")
-        raise LicenseManagerParseError("Could not parse cluster data returned from the backend")
 
     return cluster_data
 
@@ -317,12 +313,10 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
     bookings = []
 
     for booking in parsed_resp:
-        try:
+        with LicenseManagerParseError.handle_errors(
+            "Could not parse booking data returned from the backend", do_except=log_error
+        ):
             parsed_booking = BookingSchema.parse_obj(booking)
-        except ValidationError as err:
-            logger.error(f"Could not validate booking data: {str(err)}")
-            raise LicenseManagerParseError("Could not parse booking data returned from the backend")
-
         bookings.append(parsed_booking)
 
     return bookings
