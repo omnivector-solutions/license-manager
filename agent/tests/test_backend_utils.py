@@ -457,8 +457,10 @@ async def test__make_inventory_update__success(respx_mock):
 
     respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=200))
 
-    result = await make_inventory_update(feature_id, total, used)
-    assert result is True
+    try:
+        await make_inventory_update(feature_id, total, used)
+    except Exception as e:
+        assert False, f"Exception was raised: {e}"
 
 
 @pytest.mark.asyncio
@@ -555,8 +557,10 @@ async def test__remove_job_by_slurm_job_id__success(mock_get_cluster, parsed_clu
         )
     )
 
-    result = await remove_job_by_slurm_job_id(slurm_job_id)
-    assert result is True
+    try:
+        await remove_job_by_slurm_job_id(slurm_job_id)
+    except Exception as e:
+        assert False, f"Exception was raised: {e}"
 
 
 @pytest.mark.asyncio

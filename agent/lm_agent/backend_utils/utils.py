@@ -226,7 +226,7 @@ def get_grace_times(cluster_data: ClusterSchema) -> Dict[int, int]:
     return grace_times
 
 
-async def make_inventory_update(feature_id: int, total: int, used: int) -> bool:
+async def make_inventory_update(feature_id: int, total: int, used: int):
     """
     Update the inventory for a feature with its current counters.
     """
@@ -241,7 +241,6 @@ async def make_inventory_update(feature_id: int, total: int, used: int) -> bool:
         LicenseManagerBackendConnectionError.require_condition(
             inventory_response.status_code == 200, f"Failed to update inventory: {inventory_response.text}"
         )
-    return True
 
 
 async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
@@ -279,7 +278,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     return True
 
 
-async def remove_job_by_slurm_job_id(slurm_job_id: str) -> bool:
+async def remove_job_by_slurm_job_id(slurm_job_id: str):
     """
     Remove the job with its bookings for the given slurm_job_id in the cluster.
     """
@@ -295,7 +294,6 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str) -> bool:
         )
 
     logger.debug("##### Job removed successfully #####")
-    return True
 
 
 async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
