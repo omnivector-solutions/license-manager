@@ -37,11 +37,12 @@ def get_greatest_grace_time_for_job(grace_times: Dict[int, int], job_bookings: L
     """
     Find the greatest grace_time among the features booked by the given job_id.
     """
-    greatest_grace_time = -1
-    for booking in job_bookings:
-        feature_id = booking.feature_id
-        greatest_grace_time = max(greatest_grace_time, grace_times[feature_id])
-    return greatest_grace_time
+    greatest_booking_feature = max(
+        job_bookings, default=None, key=lambda job_booking: grace_times[job_booking.feature_id]
+    )
+    if not greatest_booking_feature:
+        return -1
+    return grace_times[greatest_booking_feature.feature_id]
 
 
 def get_running_jobs(squeue_result: List) -> List:
