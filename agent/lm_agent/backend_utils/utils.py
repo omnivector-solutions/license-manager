@@ -132,7 +132,7 @@ async def check_backend_health():
     async with AsyncBackendClient() as backend_client:
         resp = await backend_client.get("/lm/health")
     if resp.status_code != 204:
-        logger.error("license-manager-backend health-check failed.")
+        logger.error(f"Backend health-check request failed with status code: {resp.status_code}")
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 
 
