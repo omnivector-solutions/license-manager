@@ -1,21 +1,9 @@
-from enum import Enum
 from typing import List
 
 from pydantic import BaseModel, Field, PositiveInt
 
+from lm_agent.backend_utils.constants import LicenseServerType
 from lm_agent.config import PRODUCT_FEATURE_RX
-
-
-class LicenseServerType(str, Enum):
-    """
-    Describe the supported license server types that may be used for fetching licenses from license servers.
-    """
-
-    FLEXLM = "flexlm"
-    RLM = "rlm"
-    LMX = "lmx"
-    LSDYNA = "lsdyna"
-    OLICENSE = "olicense"
 
 
 class LicenseServerSchema(BaseModel):
