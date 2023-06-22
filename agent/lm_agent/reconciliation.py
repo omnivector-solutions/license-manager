@@ -50,7 +50,7 @@ def get_running_jobs(squeue_result: List) -> List:
 
 async def clean_jobs_by_grace_time(cluster_data: ClusterSchema):
     """
-    Clean the jobs which running time is greater than the grace_time.
+    Clean the jobs where running time is greater than the grace_time.
     """
     logger.debug("GRACE_TIME START")
 
