@@ -136,14 +136,12 @@ async def check_backend_health():
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 
 
-async def get_jobs_from_backend() -> Optional[List[JobSchema]]:
+async def get_jobs_from_backend() -> List[JobSchema]:
     """
     Get all jobs for the cluster with its bookings from the backend.
     """
     cluster_data = await get_cluster_from_backend()
-    if cluster_data:
-        return cluster_data.jobs
-    return []
+    return cluster_data.jobs
 
 
 async def get_configs_from_backend() -> List[ConfigurationSchema]:
@@ -151,9 +149,7 @@ async def get_configs_from_backend() -> List[ConfigurationSchema]:
     Get all config rows from the backend.
     """
     cluster_data = await get_cluster_from_backend()
-    if cluster_data:
-        return cluster_data.configurations
-    return []
+    return cluster_data.configurations
 
 
 async def get_all_clusters_from_backend() -> List[ClusterSchema]:
