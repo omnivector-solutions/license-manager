@@ -35,7 +35,7 @@ from lm_agent.workload_managers.slurm.reservations import (
 
 def get_greatest_grace_time_for_job(grace_times: Dict[int, int], job_bookings: List[BookingSchema]) -> int:
     """
-    Find the greatest grace_time for each feature booked by the given job_id.
+    Find the greatest grace_time among the features booked by the given job_id.
     """
     greatest_grace_time = -1
     for booking in job_bookings:
