@@ -36,17 +36,17 @@ async def create_job(
     )
 
     if job.bookings:
-        for booking in job.bookings:
-            obj = {
-                "job_id": job_created.id,
-                "feature_id": booking.feature_id,
-                "quantity": booking.quantity,
-            }
-            try:
+        try:
+            for booking in job.bookings:
+                obj = {
+                    "job_id": job_created.id,
+                    "feature_id": booking.feature_id,
+                    "quantity": booking.quantity,
+                }
                 await crud_booking.create(db_session=db_session, obj=BookingCreateSchema(**obj))
-            except HTTPException:
-                await crud_job.delete(db_session=db_session, id=job_created.id)
-                raise
+        except HTTPException:
+            await crud_job.delete(db_session=db_session, id=job_created.id)
+            raise
 
     return await crud_job.read(db_session=db_session, id=job_created.id)
 
