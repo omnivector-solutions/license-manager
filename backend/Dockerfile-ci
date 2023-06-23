@@ -10,10 +10,10 @@ RUN apt update \
 RUN python3.11 -m venv /opt/venv --system-site-packages
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY ./README.rst ./test-requirements.txt /app/
+COPY ./README.rst ./test-requirements.txt ./requirements.txt /app/
 COPY ./lm_backend /app/lm_backend
 
-RUN pip3 install -r test-requirements.txt
+RUN pip3 install -r test-requirements.txt -r requirements.txt
 
 
 FROM ubuntu AS runner
