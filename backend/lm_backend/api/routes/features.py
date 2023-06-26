@@ -87,6 +87,31 @@ async def update_feature(
     )
 
 
+@router.put(
+    "/{feature_id}/update_inventory",
+    response_model=FeatureSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(guard.lockdown(Permissions.FEATURE_EDIT))],
+)
+async def update_inventory(
+    feature_id: int,
+    inventory_update: InventoryUpdateSchema,
+    db_session: AsyncSession = Depends(get_session),
+):
+    """Update the inventory of a feature in the database."""
+    inventory = await crud_inventory.filter(
+        db_session=db_session, filter_field=Inventory.feature_id, filter_term=feature_id
+    )
+    if inventory:
+        await crud_inventory.update(
+            db_session=db_session,
+            id=inventory.id,
+            obj=inventory_update,
+        )
+
+    return await crud_feature.read(db_session=db_session, id=feature_id)
+
+
 @router.delete(
     "/{feature_id}",
     status_code=status.HTTP_200_OK,

@@ -13,6 +13,10 @@ class LicenseManagerBackendConnectionError(Buzz):
     """Exception for backend connection issues."""
 
 
+class LicenseManagerParseError(Buzz):
+    """Exception for error during parsing of backend data."""
+
+
 class LicenseManagerBackendVersionError(Buzz):
     """Exception for backend/agent version mismatches."""
 

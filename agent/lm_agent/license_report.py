@@ -4,7 +4,8 @@ Invoke license stat tools to build a view of license token counts.
 import asyncio
 import typing
 
-from lm_agent.backend_utils import BackendConfigurationRow, get_config_from_backend
+from lm_agent.backend_utils.models import ConfigurationSchema
+from lm_agent.backend_utils.utils import get_configs_from_backend
 from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
@@ -17,16 +18,18 @@ from lm_agent.workload_managers.slurm.cmd_utils import get_all_product_features_
 
 
 def get_local_license_configurations(
-    license_configurations: typing.List[BackendConfigurationRow], local_licenses: typing.List[str]
-) -> typing.List[BackendConfigurationRow]:
+    license_configurations: typing.List[ConfigurationSchema], local_licenses: typing.List[str]
+) -> typing.List[ConfigurationSchema]:
     """
     Return the license configurations from the backend that are configured on the cluster.
     """
     filtered_entries = []
 
     for entry in license_configurations:
-        for feature in entry.features.keys():
-            if f"{entry.product}.{feature}" in local_licenses:
+        for feature in entry.features:
+            feature_name = feature.name
+            product_name = feature.product.name
+            if f"{product_name}.{feature_name}" in local_licenses:
                 filtered_entries.append(entry)
                 break
     return filtered_entries
@@ -48,7 +51,9 @@ async def report() -> typing.List[dict]:
     get_report_awaitables = []
     product_features_awaited = []
 
-    license_configurations = await get_config_from_backend()
+    # Get cluster configuration
+    license_configurations = await get_configs_from_backend()
+
     local_licenses = await get_all_product_features_from_cluster()
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
 
@@ -70,14 +75,14 @@ async def report() -> typing.List[dict]:
 
     for entry in filtered_entries:
         product_features_to_check = []
-        for feature in entry.features.keys():
-            product_feature = f"{entry.product}.{feature}"
+        for feature in entry.features:
+            product_feature = f"{feature.product.name}.{feature.name}"
             product_features_to_check.append(product_feature)
 
         logger.debug("### Features to check: ")
         logger.debug(product_features_to_check)
 
-        server_type = server_type_map.get(entry.license_server_type)
+        server_type = server_type_map.get(entry.type)
 
         if server_type is None:
             raise LicenseManagerNonSupportedServerTypeError("License server type not supported.")

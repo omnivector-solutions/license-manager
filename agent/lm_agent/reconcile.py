@@ -5,7 +5,7 @@ import typing
 
 import sentry_sdk
 
-from lm_agent.backend_utils import check_backend_health
+from lm_agent.backend_utils.utils import check_backend_health
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import reconcile

@@ -7,6 +7,11 @@ from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.booking import BookingSchema
 
 
+class JobBookingCreateSchema(BaseCreateSchema):
+    feature_id: int
+    quantity: int
+
+
 class JobCreateSchema(BaseCreateSchema):
     """
     Represents the jobs submitted in a cluster.
@@ -16,6 +21,18 @@ class JobCreateSchema(BaseCreateSchema):
     cluster_id: int
     username: str
     lead_host: str
+
+
+class JobWithBookingCreateSchema(BaseCreateSchema):
+    """
+    Represents the jobs submitted in a cluster with its bookings.
+    """
+
+    slurm_job_id: str
+    cluster_id: int
+    username: str
+    lead_host: str
+    bookings: List[JobBookingCreateSchema] = []
 
 
 class JobUpdateSchema(BaseUpdateSchema):

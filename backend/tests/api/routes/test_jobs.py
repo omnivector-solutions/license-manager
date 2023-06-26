@@ -37,6 +37,73 @@ async def test_add_job__success(
 
 
 @mark.asyncio
+async def test_add_job__with_bookings(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_cluster,
+    create_one_feature,
+    create_one_inventory,
+    clean_up_database,
+):
+    cluster_id = create_one_cluster[0].id
+    feature_id = create_one_feature[0].id
+
+    data = {
+        "slurm_job_id": "123",
+        "cluster_id": cluster_id,
+        "username": "user",
+        "lead_host": "test-host",
+        "bookings": [{"feature_id": feature_id, "quantity": 50}],
+    }
+
+    inject_security_header("owner1", Permissions.JOB_EDIT)
+    response = await backend_client.post("/lm/jobs", json=data)
+    assert response.status_code == 201
+
+    stmt = select(Job).where(Job.slurm_job_id == data["slurm_job_id"])
+    fetched = await read_object(stmt)
+
+    assert fetched.slurm_job_id == data["slurm_job_id"]
+    assert fetched.cluster_id == data["cluster_id"]
+    assert fetched.username == data["username"]
+    assert fetched.lead_host == data["lead_host"]
+    assert fetched.bookings[0].feature_id == data["bookings"][0]["feature_id"]
+    assert fetched.bookings[0].quantity == data["bookings"][0]["quantity"]
+
+
+@mark.asyncio
+async def test_add_job__with_bookings__fail_with_overbooking(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_cluster,
+    create_one_feature,
+    create_one_inventory,
+    clean_up_database,
+):
+    cluster_id = create_one_cluster[0].id
+    feature_id = create_one_feature[0].id
+
+    data = {
+        "slurm_job_id": "123",
+        "cluster_id": cluster_id,
+        "username": "user",
+        "lead_host": "test-host",
+        "bookings": [{"feature_id": feature_id, "quantity": 9999}],
+    }
+
+    inject_security_header("owner1", Permissions.JOB_EDIT)
+    response = await backend_client.post("/lm/jobs", json=data)
+    assert response.status_code == 409
+
+    stmt = select(Job).where(Job.slurm_job_id == data["slurm_job_id"])
+    fetched = await read_object(stmt)
+
+    assert fetched is None
+
+
+@mark.asyncio
 async def test_get_all_jobs__success(
     backend_client: AsyncClient,
     inject_security_header,

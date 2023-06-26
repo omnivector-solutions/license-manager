@@ -3,9 +3,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lm_backend.api.cruds.booking import BookingCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.job import Job
-from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
+from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
 from lm_backend.permissions import Permissions
 from lm_backend.security import guard
 from lm_backend.session import get_session
@@ -14,6 +17,7 @@ router = APIRouter()
 
 
 crud_job = GenericCRUD(Job, JobCreateSchema, JobUpdateSchema)
+crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
 
 
 @router.post(
@@ -23,11 +27,28 @@ crud_job = GenericCRUD(Job, JobCreateSchema, JobUpdateSchema)
     dependencies=[Depends(guard.lockdown(Permissions.JOB_EDIT))],
 )
 async def create_job(
-    job: JobCreateSchema,
+    job: JobWithBookingCreateSchema,
     db_session: AsyncSession = Depends(get_session),
 ):
     """Create a new job."""
-    return await crud_job.create(db_session=db_session, obj=job)
+    job_created: Job = await crud_job.create(
+        db_session=db_session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
+    )
+
+    if job.bookings:
+        try:
+            for booking in job.bookings:
+                obj = {
+                    "job_id": job_created.id,
+                    "feature_id": booking.feature_id,
+                    "quantity": booking.quantity,
+                }
+                await crud_booking.create(db_session=db_session, obj=BookingCreateSchema(**obj))
+        except HTTPException:
+            await crud_job.delete(db_session=db_session, id=job_created.id)
+            raise
+
+    return await crud_job.read(db_session=db_session, id=job_created.id)
 
 
 @router.get(
@@ -96,6 +117,7 @@ async def delete_job_by_slurm_id(
 
 @router.get(
     "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
+    response_model=JobSchema,
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(guard.lockdown(Permissions.JOB_VIEW))],
 )

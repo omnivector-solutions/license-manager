@@ -1,24 +1,45 @@
 import stat
 from datetime import datetime, timezone
+from unittest import mock
 
 import jwt
 import pytest
 import respx
-from httpx import ConnectError, Response
+from httpx import Response
 from pytest import mark, raises
 
-from lm_agent.backend_utils import (
+from lm_agent.backend_utils.models import (
+    BookingSchema,
+    ConfigurationSchema,
+    FeatureSchema,
+    InventorySchema,
+    JobSchema,
+    LicenseBooking,
+    LicenseBookingRequest,
+    LicenseServerSchema,
+    LicenseServerType,
+    ProductSchema,
+)
+from lm_agent.backend_utils.utils import (
     TOKEN_FILE_NAME,
     _load_token_from_cache,
     _write_token_to_cache,
     acquire_token,
     check_backend_health,
-    get_all_grace_times,
+    get_all_clusters_from_backend,
+    get_bookings_for_job_id,
     get_bookings_sum_per_cluster,
-    get_config_from_backend,
+    get_cluster_from_backend,
+    get_configs_from_backend,
+    get_feature_ids,
+    get_grace_times,
+    get_jobs_from_backend,
+    make_booking_request,
+    make_inventory_update,
+    remove_job_by_slurm_job_id,
 )
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBackendConnectionError
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerParseError
 
 
 def test__write_token_to_cache__caches_a_token(mock_cache_dir):
@@ -177,112 +198,438 @@ def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(resp
 
 
 @mark.asyncio
-async def test_check_backend_health__success_on_two_hundered(respx_mock):
+async def test__check_backend_health__success_on_two_hundered(respx_mock):
     respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(204))
     await check_backend_health()
 
 
 @mark.asyncio
-async def test_get_license_manager_backend_version__raises_exception_on_non_two_hundred(respx_mock):
+async def test__get_license_manager_backend_version__raises_exception_on_non_two_hundred(respx_mock):
     respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(500))
     with raises(LicenseManagerBackendConnectionError, match="Could not connect"):
         await check_backend_health()
 
 
 @mark.asyncio
-async def test_get_config_from_backend__omits_invalid_config_rows(
-    caplog,
-    respx_mock,
-):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/agent/all").mock(
+@pytest.mark.respx(base_url="http://backend")
+async def test__get_jobs_from_backend(clusters, respx_mock):
+    """Test that get_jobs_from_backend parses and returns the jobs from the cluster."""
+    respx_mock.get("/lm/clusters/by_client_id").mock(
         return_value=Response(
-            200,
-            json=[
-                # Valid config row
-                dict(
-                    product="SomeProduct",
-                    features={
-                        "A": {"total": 1, "limit": 1},
-                        "list": {"total": 2, "limit": 2},
-                        "of": {"total": 3, "limit": 3},
-                        "features": {"total": 4, "limit": 4},
-                    },
-                    license_servers=["A", "list", "of", "license", "servers"],
-                    license_server_type="O-Negative",
-                    grace_time=13,
-                    client_id="cluster-staging",
-                ),
-                # Invalid config row
-                dict(bad="Data. Should NOT work"),
-                # Another valid conig row
-                dict(
-                    product="AnotherProduct",
-                    features={
-                        "A": {"total": 1, "limit": 1},
-                        "colletion": {"total": 2, "limit": 2},
-                        "of": {"total": 3, "limit": 3},
-                        "features": {"total": 4, "limit": 4},
-                    },
-                    license_servers=["A", "collection", "of", "license", "servers"],
-                    license_server_type="AB-Positive",
-                    grace_time=21,
-                    client_id="cluster-staging",
-                ),
-            ],
-        ),
+            status_code=200,
+            json=clusters[0],
+        )
     )
-    configs = await get_config_from_backend()
-    assert [c.product for c in configs] == ["SomeProduct", "AnotherProduct"]
-    assert "Could not validate config entry at row 1" in caplog.text
+
+    expected_jobs = [
+        JobSchema(
+            id=1,
+            slurm_job_id="123",
+            cluster_id=1,
+            username="string",
+            lead_host="string",
+            bookings=[
+                BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
+                BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
+            ],
+        )
+    ]
+
+    jobs = await get_jobs_from_backend()
+    assert jobs == expected_jobs
 
 
 @mark.asyncio
-async def test_get_config_from_backend__returns_empty_list_on_connect_error(
-    caplog,
-    respx_mock,
-):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/api/v1/config/agent/all").mock(
-        side_effect=ConnectError("BOOM"),
+@pytest.mark.respx(base_url="http://backend")
+async def test__get_configs_from_backend(clusters, respx_mock):
+    """Test that get_configs_from_backend parses and returns the configurations from the cluster."""
+    respx_mock.get("/lm/clusters/by_client_id").mock(
+        return_value=Response(
+            status_code=200,
+            json=clusters[0],
+        )
     )
-    configs = await get_config_from_backend()
-    assert configs == []
-    assert "Connection failed to backend" in caplog.text
+
+    expected_configs = [
+        ConfigurationSchema(
+            id=1,
+            name="Abaqus",
+            cluster_id=1,
+            features=[
+                FeatureSchema(
+                    id=1,
+                    name="abaqus",
+                    product=ProductSchema(id=1, name="abaqus"),
+                    config_id=1,
+                    reserved=100,
+                    inventory=InventorySchema(id=1, feature_id=2, total=123, used=12),
+                )
+            ],
+            license_servers=[
+                LicenseServerSchema(id=1, config_id=1, host="licserv0001", port=1234),
+                LicenseServerSchema(id=3, config_id=1, host="licserv0003", port=8760),
+            ],
+            grace_time=60,
+            type=LicenseServerType.FLEXLM,
+        ),
+        ConfigurationSchema(
+            id=2,
+            name="Converge",
+            cluster_id=1,
+            features=[
+                FeatureSchema(
+                    id=2,
+                    name="converge_super",
+                    product=ProductSchema(id=2, name="converge"),
+                    config_id=2,
+                    reserved=0,
+                    inventory=InventorySchema(id=2, feature_id=2, total=500, used=50),
+                )
+            ],
+            license_servers=[
+                LicenseServerSchema(id=2, config_id=2, host="licserv0002", port=2345),
+            ],
+            grace_time=123,
+            type=LicenseServerType.RLM,
+        ),
+    ]
+
+    configs = await get_configs_from_backend()
+    assert configs == expected_configs
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test_get_all_grace_times(respx_mock):
-    """
-    Check the return value for the get_all_grace_times.
-    """
-    respx_mock.get("/lm/api/v1/config/all").mock(
+async def test__get_all_clusters_from_backend(clusters, parsed_clusters, respx_mock):
+    """Test that get_all_clusters_from_backend parses and returns the clusters from the cluster."""
+    respx_mock.get("/lm/clusters").mock(
         return_value=Response(
             status_code=200,
-            json=[
-                {"id": 1, "grace_time": 100},
-                {"id": 2, "grace_time": 300},
-            ],
+            json=clusters,
         )
     )
-    grace_times = await get_all_grace_times()
-    assert grace_times == {1: 100, 2: 300}
+
+    expected_clusters = parsed_clusters
+    clusters = await get_all_clusters_from_backend()
+    assert clusters == expected_clusters
 
 
-@mark.asyncio
+@pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test_get_bookings_sum_per_cluster(bookings, respx_mock):
-    """Test that get_bookings_sum_per_clusters returns the correct sum of bookings for each clusters."""
-    respx_mock.get("/lm/api/v1/booking/all").mock(
+async def test__get_all_clusters_from_backend__failure_backend_connection(respx_mock):
+    """
+    Test that get_all_clusters_from_backend handles failure to connect to the backend.
+    """
+    respx_mock.get("/lm/clusters").mock(
         return_value=Response(
-            status_code=200,
-            json=bookings,
+            status_code=500,
+            json={"error": "Internal Server Error"},
         )
     )
-    assert await get_bookings_sum_per_cluster("product.feature") == {
-        "cluster1": 15,
-        "cluster2": 17,
-        "cluster3": 71,
-    }
-    assert await get_bookings_sum_per_cluster("product2.feature2") == {
-        "cluster4": 1,
-    }
+
+    with pytest.raises(LicenseManagerBackendConnectionError):
+        await get_all_clusters_from_backend()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__get_all_clusters_from_backend__failure_parse_error(respx_mock):
+    """
+    Test that get_all_clusters_from_backend handles failure to parse the cluster data from the backend.
+    """
+    respx_mock.get("/lm/clusters").mock(
+        return_value=Response(
+            status_code=200,
+            json={"bla": "bla"},
+        )
+    )
+
+    with pytest.raises(LicenseManagerParseError):
+        await get_all_clusters_from_backend()
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__get_cluster_from_backend(clusters, parsed_clusters, respx_mock):
+    """Test that get_cluster_from_backend parses and returns the cluster from the cluster."""
+    respx_mock.get("/lm/clusters/by_client_id").mock(
+        return_value=Response(
+            status_code=200,
+            json=clusters[0],
+        )
+    )
+
+    expected_clusters = parsed_clusters[0]
+    clusters = await get_cluster_from_backend()
+    assert clusters == expected_clusters
+
+
+@pytest.mark.parametrize(
+    "cluster_data, index, expected_feature_ids",
+    [
+        (
+            "parsed_clusters",
+            0,
+            {
+                "abaqus.abaqus": 1,
+                "converge.converge_super": 2,
+            },
+        ),
+        (
+            "parsed_clusters",
+            1,
+            {
+                "Product 3.Feature 3": 4,
+                "Product 4.Feature 4": 7,
+            },
+        ),
+    ],
+)
+def test__get_feature_ids(cluster_data, index, expected_feature_ids, request):
+    """Test that get_feature_ids generates a dict with the id for each feature."""
+    cluster_data = request.getfixturevalue(cluster_data)
+    feature_ids = get_feature_ids(cluster_data[index])
+    assert feature_ids == expected_feature_ids
+
+
+@pytest.mark.parametrize(
+    "cluster_data, index, expected_grace_times",
+    [
+        (
+            "parsed_clusters",
+            0,
+            {
+                1: 60,
+                2: 123,
+            },
+        ),
+        (
+            "parsed_clusters",
+            1,
+            {
+                4: 60,
+                7: 60,
+            },
+        ),
+    ],
+)
+def test__get_grace_times(cluster_data, index, expected_grace_times, request):
+    """Test that get_grace_times generates a dict with the grace time for each feature_id."""
+    cluster_data = request.getfixturevalue(cluster_data)
+    grace_times = get_grace_times(cluster_data[index])
+    assert grace_times == expected_grace_times
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "product_feature, expected_booking_sum",
+    [
+        ("abaqus.abaqus", {1: 12}),
+        ("converge.converge_super", {1: 50}),
+        ("Product 3.Feature 3", {2: 15}),
+        ("Product 4.Feature 4", {2: 25}),
+    ],
+)
+async def test__get_bookings_sum_per_cluster(product_feature, expected_booking_sum, clusters, respx_mock):
+    """
+    Test that get_bookings_sum_per_cluster returns the booking sum per cluster for a given product_feature.
+    """
+    respx_mock.get("/lm/clusters").mock(
+        return_value=Response(
+            status_code=200,
+            json=clusters,
+        )
+    )
+
+    booking_sum = await get_bookings_sum_per_cluster(product_feature)
+    assert booking_sum == expected_booking_sum
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__make_inventory_update__success(respx_mock):
+    """
+    Test that make_inventory_update updates the inventory for a feature correctly.
+    """
+    feature_id = 1
+    total = 100
+    used = 50
+
+    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=200))
+
+    try:
+        await make_inventory_update(feature_id, total, used)
+    except Exception as e:
+        assert False, f"Exception was raised: {e}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__make_inventory_update__raises_exception_on_non_two_hundred(respx_mock):
+    """
+    Test that make_inventory_update handles a failed inventory update correctly.
+    """
+    feature_id = 1
+    total = 100
+    used = 50
+
+    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=500))
+
+    with pytest.raises(LicenseManagerBackendConnectionError):
+        await make_inventory_update(feature_id, total, used)
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__make_booking_request__success(mock_get_cluster, parsed_clusters, respx_mock):
+    """
+    Test that make_booking_request successfully creates a job and its bookings on the backend.
+    """
+    lbr = LicenseBookingRequest(
+        slurm_job_id="12345",
+        user_name="test_user",
+        lead_host="test_host",
+        bookings=[
+            LicenseBooking(product_feature="abaqus.abaqus", quantity=5),
+            LicenseBooking(product_feature="converge.converge_super", quantity=10),
+        ],
+    )
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    respx_mock.post("/lm/jobs").mock(
+        return_value=Response(
+            status_code=201,
+            json={"id": 1},
+        )
+    )
+
+    result = await make_booking_request(lbr)
+    assert result is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__make_booking_request_job__returns_false_on_booking_failure(
+    mock_get_cluster, parsed_clusters, respx_mock
+):
+    """
+    Test that make_booking_request handles the failure case when booking creation fails.
+    """
+    lbr = LicenseBookingRequest(
+        slurm_job_id="12345",
+        user_name="test_user",
+        lead_host="test_host",
+        bookings=[
+            LicenseBooking(product_feature="abaqus.abaqus", quantity=5),
+        ],
+    )
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    respx_mock.post("/lm/jobs").mock(
+        return_value=Response(
+            status_code=409,
+            json={"message": "Not enough licenses"},
+        )
+    )
+
+    assert not await make_booking_request(lbr)
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__remove_job_by_slurm_job_id__success(mock_get_cluster, parsed_clusters, respx_mock):
+    """
+    Test that remove_job_by_slurm_job_id successfully removes the job in the cluster.
+    """
+    slurm_job_id = "12345"
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{parsed_clusters[0].id}").mock(
+        return_value=Response(
+            status_code=200,
+            json={"message": "Job removed successfully"},
+        )
+    )
+
+    try:
+        await remove_job_by_slurm_job_id(slurm_job_id)
+    except Exception as e:
+        assert False, f"Exception was raised: {e}"
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
+    mock_get_cluster, parsed_clusters, respx_mock
+):
+    """
+    Test that remove_job_by_slurm_job_id raises an exception when the job removal fails.
+    """
+    slurm_job_id = "12345"
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{parsed_clusters[0].id}").mock(
+        return_value=Response(
+            status_code=500,
+            json={"error": "Internal Server Error"},
+        )
+    )
+
+    with pytest.raises(LicenseManagerBackendConnectionError):
+        await remove_job_by_slurm_job_id(slurm_job_id)
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__get_bookings_for_job_id__success(mock_get_cluster, clusters, parsed_clusters, respx_mock):
+    """
+    Test that get_bookings_for_job_id returns the bookings for a given job ID.
+    """
+    slurm_job_id = "12345"
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    bookings_data = clusters[0]["jobs"][0]["bookings"]
+
+    respx_mock.get(f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+        return_value=Response(
+            status_code=200,
+            json={"bookings": bookings_data},
+        )
+    )
+
+    bookings = await get_bookings_for_job_id(slurm_job_id)
+    assert bookings == bookings_data
+
+
+@pytest.mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
+async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(
+    mock_get_cluster, parsed_clusters, respx_mock
+):
+    """
+    Test that get_bookings_for_job_id handles failure to retrieve bookings for a given job ID.
+    """
+    slurm_job_id = "12345"
+
+    mock_get_cluster.return_value = parsed_clusters[0]
+
+    respx_mock.get(f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+        return_value=Response(
+            status_code=404,
+            json={"error": "Job not found"},
+        )
+    )
+
+    with pytest.raises(LicenseManagerBackendConnectionError):
+        await get_bookings_for_job_id(slurm_job_id)

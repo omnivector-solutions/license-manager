@@ -2,6 +2,10 @@ import bz2
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from textwrap import dedent
+from traceback import format_tb
+
+from buzz import DoExceptParams
 
 from lm_agent.config import settings
 
@@ -10,6 +14,26 @@ DEFAULT_FORMAT = "[%(asctime)s;%(levelname)s] %(filename)s:%(lineno)s - " "%(fun
 level = getattr(logging, settings.LOG_LEVEL)
 logger = logging.getLogger("license-manager-agent-logger")
 logger.setLevel(level)
+
+
+def log_error(params: DoExceptParams):
+    message_template = dedent(
+        """
+        {final_message}
+        Error:
+        ______
+        {err}
+        Traceback:
+        ----------
+        {trace}
+        """
+    ).strip()
+    message = message_template.format(
+        final_message=params.final_message,
+        err=str(params.err),
+        trace="\n".join(format_tb(params.trace)),
+    )
+    logger.error(message)
 
 
 def _rotator(source: str, dest: str):

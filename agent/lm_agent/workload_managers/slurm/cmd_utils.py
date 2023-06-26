@@ -5,7 +5,7 @@ import shlex
 import subprocess
 from typing import List, Optional, Union
 
-from lm_agent.backend_utils import LicenseBooking
+from lm_agent.backend_utils.models import LicenseBooking
 from lm_agent.logs import logger
 from lm_agent.workload_managers.slurm.common import (
     CMD_TIMEOUT,
@@ -71,13 +71,12 @@ def get_required_licenses_for_job(job_licenses: str) -> List:
         if not matched_license_items:
             continue
         product_feature = matched_license_items["product_feature"]
-        license_server_type = matched_license_items["server_type"]
-        tokens = matched_license_items["tokens"]
+        booked = matched_license_items["tokens"]
+
         # Create the license booking
         license_booking = LicenseBooking(
             product_feature=product_feature,
-            tokens=tokens,
-            license_server_type=license_server_type,
+            quantity=booked,
         )
         required_licenses.append(license_booking)
 
@@ -135,7 +134,6 @@ async def scontrol_show_lic():
     stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
     output = str(stdout, encoding=ENCODING)
     logger.debug("##### scontrol show lic #####")
-    logger.debug(output)
     return output
 
 
@@ -148,7 +146,6 @@ async def get_cluster_name() -> str:
         "format=Cluster",
     ]
     logger.debug("##### sacctmgr get cluster name cmd #####")
-    logger.debug(f"{' '.join(cmd)}")
 
     sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
         shlex.join(cmd),

@@ -1,6 +1,7 @@
 """LS-Dyna license server interface."""
 import typing
 
+from lm_agent.backend_utils.models import LicenseServerSchema
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import lsdyna
@@ -11,7 +12,7 @@ from lm_agent.utils import run_command
 class LSDynaLicenseServer(LicenseServerInterface):
     """Extract license information from LS-Dyna license server."""
 
-    def __init__(self, license_servers: typing.List[str]):
+    def __init__(self, license_servers: typing.List[LicenseServerSchema]):
         """Initialize the license server instance with the license server host and parser."""
         self.license_servers = license_servers
         self.parser = lsdyna.parse
@@ -19,13 +20,12 @@ class LSDynaLicenseServer(LicenseServerInterface):
     def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
-        for host, port in host_ports:
+        for license_server in self.license_servers:
             command_line = [
                 f"{settings.LSDYNA_PATH}",
                 "-s",
-                f"{port}@{host}",
+                f"{license_server.port}@{license_server.host}",
                 "-R",
             ]
             commands_to_run.append(command_line)
@@ -66,7 +66,6 @@ class LSDynaLicenseServer(LicenseServerInterface):
             product_feature=product_feature,
             used=current_feature_item["used"],
             total=current_feature_item["total"],
-            used_licenses=current_feature_item["uses"],
         )
 
         return report_item

@@ -20,6 +20,7 @@ async def test_add_configuration__success(
         "name": "Abaqus",
         "cluster_id": cluster_id,
         "grace_time": 60,
+        "type": "flexlm",
     }
 
     inject_security_header("owner1", Permissions.CONFIG_EDIT)
@@ -48,10 +49,12 @@ async def test_get_all_configurations__success(
     assert response_configurations[0]["name"] == create_configurations[0].name
     assert response_configurations[0]["cluster_id"] == create_configurations[0].cluster_id
     assert response_configurations[0]["grace_time"] == create_configurations[0].grace_time
+    assert response_configurations[0]["type"] == create_configurations[0].type
 
     assert response_configurations[1]["name"] == create_configurations[1].name
     assert response_configurations[1]["cluster_id"] == create_configurations[1].cluster_id
     assert response_configurations[1]["grace_time"] == create_configurations[1].grace_time
+    assert response_configurations[1]["type"] == create_configurations[1].type
 
 
 @mark.asyncio
@@ -70,6 +73,7 @@ async def test_get_all_configurations__with_search(
     assert response_configuration[0]["name"] == create_configurations[0].name
     assert response_configuration[0]["cluster_id"] == create_configurations[0].cluster_id
     assert response_configuration[0]["grace_time"] == create_configurations[0].grace_time
+    assert response_configuration[0]["type"] == create_configurations[0].type
 
 
 @mark.asyncio
@@ -85,14 +89,16 @@ async def test_get_all_configurations__with_sort(
 
     assert response.status_code == 200
 
-    response_clusters = response.json()
-    assert response_clusters[0]["name"] == create_configurations[1].name
-    assert response_clusters[0]["cluster_id"] == create_configurations[1].cluster_id
-    assert response_clusters[0]["grace_time"] == create_configurations[1].grace_time
+    response_configurations = response.json()
+    assert response_configurations[0]["name"] == create_configurations[1].name
+    assert response_configurations[0]["cluster_id"] == create_configurations[1].cluster_id
+    assert response_configurations[0]["grace_time"] == create_configurations[1].grace_time
+    assert response_configurations[0]["type"] == create_configurations[1].type
 
-    assert response_clusters[1]["name"] == create_configurations[0].name
-    assert response_clusters[1]["cluster_id"] == create_configurations[0].cluster_id
-    assert response_clusters[1]["grace_time"] == create_configurations[0].grace_time
+    assert response_configurations[1]["name"] == create_configurations[0].name
+    assert response_configurations[1]["cluster_id"] == create_configurations[0].cluster_id
+    assert response_configurations[1]["grace_time"] == create_configurations[0].grace_time
+    assert response_configurations[1]["type"] == create_configurations[0].type
 
 
 @mark.asyncio
@@ -113,6 +119,7 @@ async def test_get_configuration__success(
     assert response_configuration["name"] == create_one_configuration[0].name
     assert response_configuration["cluster_id"] == create_one_configuration[0].cluster_id
     assert response_configuration["grace_time"] == create_one_configuration[0].grace_time
+    assert response_configuration["type"] == create_one_configuration[0].type
 
 
 @mark.parametrize(

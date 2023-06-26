@@ -13,10 +13,11 @@ if the exit status is anything other then 0, e.g. 1.
 import asyncio
 import sys
 
-from lm_agent.backend_utils import LicenseBookingRequest, get_config_from_backend, make_booking_request
+from lm_agent.backend_utils.models import LicenseBookingRequest
+from lm_agent.backend_utils.utils import get_configs_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
-from lm_agent.reconciliation import update_report
+from lm_agent.reconciliation import update_inventories
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
 
@@ -30,14 +31,12 @@ async def prolog():
     job_id = job_context.get("job_id", "")
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
-    cluster_name = job_context.get("cluster_name")
     job_licenses = job_context.get("job_licenses")
 
     logger.info(f"Prolog started for job id: {job_id}")
 
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)
-        logger.debug(f"Required licenses: {required_licenses}")
     except Exception as e:
         logger.error(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
@@ -46,30 +45,32 @@ async def prolog():
         logger.debug("No licenses required, exiting!")
         sys.exit(0)
 
-    tracked_licenses = list()
-    # Create a list of tracked licenses in the form <product>.<feature>
+    logger.debug(f"Required licenses: {required_licenses}")
 
+    tracked_licenses = list()
+
+    # Create a list of tracked licenses in the form <product>.<feature>
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
-            entries = await get_config_from_backend()
+            entries = await get_configs_from_backend()
         except Exception as e:
             logger.error(f"Failed to call get_config_from_backend with {e}")
             sys.exit(1)
+
         for entry in entries:
             for feature in entry.features:
-                tracked_licenses.append(f"{entry.product}.{feature}")
+                tracked_licenses.append(f"{feature.product.name}.{feature.name}")
     logger.debug(f"Tracked licenses: {tracked_licenses}")
 
     # Create a tracked LicenseBookingRequest for licenses that we actually
     # track. These tracked licenses are what we will check feature token
     # availability for.
     tracked_license_booking_request = LicenseBookingRequest(
-        job_id=job_id,
-        bookings=[],
+        slurm_job_id=job_id,
         user_name=user_name,
         lead_host=lead_host,
-        cluster_name=cluster_name,
+        bookings=[],
     )
     for booking in required_licenses:
         if booking.product_feature in tracked_licenses:
@@ -81,7 +82,7 @@ async def prolog():
         if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
             # Force a reconciliation before we check the feature token availability.
             try:
-                await update_report()
+                await update_inventories()
             except Exception as e:
                 logger.error(f"Failed to call reconcile with {e}")
                 sys.exit(1)

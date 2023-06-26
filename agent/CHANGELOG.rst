@@ -6,6 +6,10 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Refactored agent to use new API
+
+2.3.2 -- 2023-06-08
+-------------------
 * Fix regex bug on scontrol show lic parser
 
 2.3.1 -- 2023-04-28

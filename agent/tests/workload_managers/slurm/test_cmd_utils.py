@@ -105,18 +105,15 @@ def test_get_required_licenses_for_job_good(job_licenses_good: str):
     assert required_licenses == [
         LicenseBooking(
             product_feature="testproduct.testfeature",
-            tokens=11,
-            license_server_type="flexlm",
+            quantity=11,
         ),
         LicenseBooking(
             product_feature="testproduct2.testfeature2",
-            tokens=22,
-            license_server_type="flexlm",
+            quantity=22,
         ),
         LicenseBooking(
             product_feature="testproduct3.testfeature3",
-            tokens=33,
-            license_server_type="flexlm",
+            quantity=33,
         ),
     ]
 

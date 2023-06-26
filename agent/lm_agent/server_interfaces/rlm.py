@@ -1,6 +1,7 @@
 """RLM license server interface."""
 import typing
 
+from lm_agent.backend_utils.models import LicenseServerSchema
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import rlm
@@ -11,17 +12,23 @@ from lm_agent.utils import run_command
 class RLMLicenseServer(LicenseServerInterface):
     """Extract license information from RLM license server."""
 
-    def __init__(self, license_servers: typing.List[str]):
+    def __init__(self, license_servers: typing.List[LicenseServerSchema]):
         self.license_servers = license_servers
         self.parser = rlm.parse
 
     def get_commands_list(self) -> typing.List[typing.List[str]]:
         """Generate a list of commands with the available license server hosts."""
 
-        host_ports = [(server.split(":")[1:]) for server in self.license_servers]
         commands_to_run = []
-        for host, port in host_ports:
-            command_line = [f"{settings.RLMUTIL_PATH}", "rlmstat", "-c", f"{port}@{host}", "-a", "-p"]
+        for license_server in self.license_servers:
+            command_line = [
+                f"{settings.RLMUTIL_PATH}",
+                "rlmstat",
+                "-c",
+                f"{license_server.port}@{license_server.host}",
+                "-a",
+                "-p",
+            ]
             commands_to_run.append(command_line)
         return commands_to_run
 
@@ -51,17 +58,15 @@ class RLMLicenseServer(LicenseServerInterface):
         (_, feature) = product_feature.split(".")
 
         current_feature_item = self._filter_current_feature(parsed_output["total"], feature)
-        used_licenses = self._filter_used_features(parsed_output["uses"], feature)
 
         # raise exception if parser didn't output license information
-        if current_feature_item is None or used_licenses is None:
+        if current_feature_item is None:
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
             product_feature=product_feature,
             used=current_feature_item["used"],
             total=current_feature_item["total"],
-            used_licenses=used_licenses,
         )
 
         return report_item
@@ -75,20 +80,3 @@ class RLMLicenseServer(LicenseServerInterface):
         for feature_item in parsed_list:
             if feature_item["feature"] == feature:
                 return feature_item
-
-    def _filter_used_features(self, parsed_list, feature):
-        """
-        The output from the RLM server returns information about all the licenses
-        that are in use. This function filters the output to return only the information
-        about the usage of the feature we want.
-        """
-        used_licenses = []
-        for feature_booked in parsed_list:
-            if feature_booked["feature"] == feature:
-                used_licenses.append(feature_booked)
-
-        for license in used_licenses:
-            # remove the feature key, since we already handled it.
-            del license["feature"]
-
-        return used_licenses

@@ -13,7 +13,7 @@ class Feature(Base):
 
     __tablename__ = "features"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String, nullable=False)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
     reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)

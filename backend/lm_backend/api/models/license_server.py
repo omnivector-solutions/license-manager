@@ -16,12 +16,11 @@ class LicenseServer(Base):
     config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
     host = Column(String, nullable=False)
     port = Column(Integer, CheckConstraint("port>0"), nullable=False)
-    type = Column(String, nullable=False)
 
     configurations = relationship("Configuration", back_populates="license_servers", lazy="selectin")
 
-    searchable_fields = [type, host]
-    sortable_fields = [config_id, type, host]
+    searchable_fields = [host]
+    sortable_fields = [config_id, host]
 
     def __repr__(self):
-        return f"LicenseServer(id={self.id}, host={self.host}, port={self.port}, type={self.type})"
+        return f"LicenseServer(id={self.id}, host={self.host}, port={self.port})"

@@ -20,7 +20,6 @@ async def test_add_license_server__success(
         "config_id": configuration_id,
         "host": "licserv0001.com",
         "port": 1234,
-        "type": "flexlm",
     }
 
     inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
@@ -33,7 +32,6 @@ async def test_add_license_server__success(
     assert fetched.config_id == configuration_id
     assert fetched.host == data["host"]
     assert fetched.port == data["port"]
-    assert fetched.type == data["type"]
 
 
 @mark.asyncio
@@ -51,11 +49,9 @@ async def test_get_all_license_servers__success(
     response_license_servers = response.json()
     assert response_license_servers[0]["host"] == create_license_servers[0].host
     assert response_license_servers[0]["port"] == create_license_servers[0].port
-    assert response_license_servers[0]["type"] == create_license_servers[0].type
 
     assert response_license_servers[1]["host"] == create_license_servers[1].host
     assert response_license_servers[1]["port"] == create_license_servers[1].port
-    assert response_license_servers[1]["type"] == create_license_servers[1].type
 
 
 @mark.asyncio
@@ -73,7 +69,6 @@ async def test_get_all_license_servers__with_search(
     response_license_servers = response.json()
     assert response_license_servers[0]["host"] == create_license_servers[0].host
     assert response_license_servers[0]["port"] == create_license_servers[0].port
-    assert response_license_servers[0]["type"] == create_license_servers[0].type
 
 
 @mark.asyncio
@@ -92,11 +87,9 @@ async def test_get_all_license_servers__with_sort(
     response_license_servers = response.json()
     assert response_license_servers[0]["host"] == create_license_servers[1].host
     assert response_license_servers[0]["port"] == create_license_servers[1].port
-    assert response_license_servers[0]["type"] == create_license_servers[1].type
 
     assert response_license_servers[1]["host"] == create_license_servers[0].host
     assert response_license_servers[1]["port"] == create_license_servers[0].port
-    assert response_license_servers[1]["type"] == create_license_servers[0].type
 
 
 @mark.asyncio
@@ -116,7 +109,6 @@ async def test_get_license_server__success(
     response_license_server = response.json()
     assert response_license_server["host"] == create_one_license_server[0].host
     assert response_license_server["port"] == create_one_license_server[0].port
-    assert response_license_server["type"] == create_one_license_server[0].type
 
 
 @mark.parametrize(
