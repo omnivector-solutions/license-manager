@@ -84,7 +84,7 @@ def login(ctx: typer.Context):
     token_set: TokenSet = fetch_auth_tokens(ctx.obj)
     persona: Persona = init_persona(ctx.obj, token_set)
     terminal_message(
-        f"User was logged in with email '{persona.identity_data.user_email}'",
+        f"User was logged in with email '{persona.user_email}'",
         subject="Logged in!",
     )
 

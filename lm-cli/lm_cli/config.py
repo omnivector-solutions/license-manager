@@ -41,8 +41,6 @@ class Settings(BaseSettings):
     OIDC_CLIENT_ID: str
     OIDC_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 
-    IDENTITY_CLAIMS_KEY: str = "email"
-
     @root_validator(skip_on_failure=True)
     def compute_extra_settings(cls, values):
         """
