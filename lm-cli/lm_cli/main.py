@@ -16,6 +16,7 @@ from lm_cli.logs import init_logs
 from lm_cli.render import render_json, terminal_message
 from lm_cli.schemas import LicenseManagerContext, Persona, TokenSet
 from lm_cli.subapps.bookings import app as bookings_app
+from lm_cli.subapps.clusters import app as clusters_app
 from lm_cli.subapps.configurations import app as configurations_app
 from lm_cli.subapps.licenses import app as licenses_app
 from lm_cli.text_tools import conjoin, copy_to_clipboard
@@ -26,6 +27,7 @@ app = typer.Typer()
 app.add_typer(licenses_app, name="licenses")
 app.add_typer(bookings_app, name="bookings")
 app.add_typer(configurations_app, name="configurations")
+app.add_typer(clusters_app, name="clusters")
 
 
 @app.callback(invoke_without_command=True)
