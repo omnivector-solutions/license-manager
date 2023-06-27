@@ -10,19 +10,17 @@ from lm_cli.constants import SortOrder
 from lm_cli.exceptions import handle_abort
 from lm_cli.render import StyleMapper, render_list_results, render_single_result, terminal_message
 from lm_cli.requests import make_request, parse_query_params
-from lm_cli.schemas import ConfigurationCreateRequestData, LicenseManagerContext
-from lm_cli.text_tools import dedent
+from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
 
 
 style_mapper = StyleMapper(
     id="blue",
     name="green",
-    product="cyan",
-    features="magenta",
-    license_servers="yellow",
-    license_server_type="white",
-    grace_time="red",
-    client_id="black",
+    cluster_id="cyan",
+    features="red",
+    license_servers="white",
+    grace_time="magenta",
+    type="yellow",
 )
 
 
@@ -52,7 +50,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/api/v1/config/all",
+            "/lm/configurations",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve configuration list from API",
@@ -92,7 +90,7 @@ def get_one(
         Dict,
         make_request(
             lm_ctx.client,
-            f"/lm/api/v1/config/{id}",
+            f"/lm/configurations/{id}",
             "GET",
             expected_status=200,
             abort_message="Couldn't get the configuration from the API",
@@ -118,39 +116,15 @@ def create(
         ...,
         help="The name of configuration to create.",
     ),
-    product: str = typer.Option(
+    cluster_id: int = typer.Option(
         ...,
-        help="The name of the product of the license.",
+        help="The id of the cluster where the configuration is being added.",
     ),
-    features: str = typer.Option(
-        ...,
-        help=dedent(
-            """
-            The features of the license, with total quantity and limit.
-            Must be a string with a valid JSON object serialized.
-            Example: '{"feature1": {"total": 10, "limit": 10}, "feature2": {"total": 20, "limit": 10}}'
-            """
-        ),
-    ),
-    license_servers: str = typer.Option(
-        ...,
-        help=dedent(
-            """
-            The list of license servers connection strings, in order of preference.
-            Must be in the format <license_server_type>:<hostname>:<port>.
-            Use commas to concatenate in case there's more than one entry.
-            """
-        ),
-    ),
-    license_server_type: str = typer.Option(..., help="The license server type."),
     grace_time: int = typer.Option(
         ...,
         help="The grace time for jobs using the license. Must be in seconds.",
     ),
-    client_id: str = typer.Option(
-        ...,
-        help="The identification (client_id) of the cluster where the license is configured.",
-    ),
+    license_server_type: str = typer.Option(..., help="The license server type."),
 ):
     """
     Create a new configuration.
@@ -161,19 +135,16 @@ def create(
     assert lm_ctx is not None
     assert lm_ctx.client is not None
 
-    request_data = ConfigurationCreateRequestData(
+    request_data = ConfigurationCreateSchema(
         name=name,
-        product=product,
-        features=features,
-        license_servers=license_servers,
-        license_server_type=license_server_type,
+        cluster_id=cluster_id,
         grace_time=grace_time,
-        client_id=client_id,
+        type=license_server_type,
     )
 
     make_request(
         lm_ctx.client,
-        "/lm/api/v1/config/",
+        "/lm/configurations/",
         "POST",
         expected_status=201,
         abort_message="Configuration creation failed",
@@ -207,7 +178,7 @@ def delete(
 
     make_request(
         lm_ctx.client,
-        f"/lm/api/v1/config/{id}",
+        f"/lm/configurations/{id}",
         "DELETE",
         expected_status=200,
         abort_message="Request to delete configuration was not accepted by the API",
