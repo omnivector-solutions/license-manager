@@ -5,7 +5,7 @@ import pytest
 from typer import Context, Typer
 from typer.testing import CliRunner
 
-from lm_cli.schemas import IdentityData, LicenseManagerContext, Persona, TokenSet
+from lm_cli.schemas import LicenseManagerContext, Persona, TokenSet
 
 
 @pytest.fixture
@@ -42,13 +42,10 @@ def dummy_context(dummy_domain):
 
 @pytest.fixture
 def attach_persona(dummy_context):
-    def _helper(user_email: str, org_name: str = "dumb-org", access_token: str = "foo"):
+    def _helper(user_email: str, access_token: str = "foo"):
         dummy_context.persona = Persona(
             token_set=TokenSet(access_token=access_token),
-            identity_data=IdentityData(
-                user_email=user_email,
-                org_name=org_name,
-            ),
+            user_email=user_email,
         )
 
     return _helper
@@ -119,7 +116,7 @@ def dummy_configuration_data():
             license_servers=["rlm:127.0.0.1:2345"],
             license_server_type="rlm",
             grace_time=60,
-            client_id="cluster-staging"
+            client_id="cluster-staging",
         ),
     ]
 

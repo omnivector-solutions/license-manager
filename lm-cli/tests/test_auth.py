@@ -39,15 +39,15 @@ def make_token():
     Provide a fixture that returns a helper function for creating an access_token for testing.
     """
 
-    def _helper(identity_data: dict = None, expires=plummet.AGGREGATE_TYPE) -> str:
+    def _helper(user_email: str = None, expires=plummet.AGGREGATE_TYPE) -> str:
         """
-        Create an access_token with a given user email, org name, and expiration moment.
+        Create an access_token with a given user email and expiration moment.
         """
         expires_moment: pendulum.DateTime = plummet.momentize(expires)
 
         extra_claims = dict()
-        if identity_data is not None:
-            extra_claims[settings.IDENTITY_CLAIMS_KEY] = identity_data
+        if user_email is not None:
+            extra_claims["email"] = user_email
 
         return jwt.encode(
             {
@@ -67,16 +67,12 @@ def test_validate_token_and_extract_identity__success(make_token):
     access token and extract identity_data from it.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
-        expires="2023-02-16 22:30:00",
+        user_email="good@email.com",
+        expires="2024-02-16 22:30:00",
     )
-    with plummet.frozen_time("2023-02-16 21:30:00"):
+    with plummet.frozen_time("2024-02-16 21:30:00"):
         identity_data = validate_token_and_extract_identity(TokenSet(access_token=access_token))
-    assert identity_data.user_email == "good@email.com"
-    assert identity_data.org_name == "good_org"
+    assert identity_data == "good@email.com"
 
 
 def test_validate_token_and_extract_identity__re_raises_ExpiredSignatureError(make_token):
@@ -85,10 +81,7 @@ def test_validate_token_and_extract_identity__re_raises_ExpiredSignatureError(ma
     ``ExpiredSignatureError`` thrown by the ``jwt.decode()`` function.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2022-02-16 20:30:00",
     )
     with plummet.frozen_time("2022-02-16 21:30:00"):
@@ -122,25 +115,9 @@ def test_validate_token_and_extract_identity__raises_abort_if_token_has_no_ident
     Validate that the ``validate_token_and_extract_identity()`` function will raise an Abort if the
     access_token doesn't carry identity_data in it.
     """
-    access_token = make_token(expires="2023-02-16 22:30:00")
-    with plummet.frozen_time("2023-02-16 21:30:00"):
+    access_token = make_token(expires="2024-02-16 22:30:00")
+    with plummet.frozen_time("2024-02-16 21:30:00"):
         with pytest.raises(Abort, match="No identity data found"):
-            validate_token_and_extract_identity(TokenSet(access_token=access_token))
-
-
-def test_validate_token_and_extract_identity__raises_abort_if_identity_data_is_malformed(make_token):
-    """
-    Validate that the ``validate_token_and_extract_identity()`` function will raise an Abort if the
-    access token's identity data does not match the ``IdentityData`` class spec.
-    """
-    access_token = make_token(
-        expires="2023-02-16 22:30:00",
-        identity_data=dict(
-            bad="data",
-        ),
-    )
-    with plummet.frozen_time("2023-02-16 21:30:00"):
-        with pytest.raises(Abort, match="malformed or incomplete"):
             validate_token_and_extract_identity(TokenSet(access_token=access_token))
 
 
@@ -150,10 +127,7 @@ def test_load_tokens_from_cache__success(make_token, tmp_path, mocker):
     cache on disk.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
@@ -186,10 +160,7 @@ def test_load_tokens_from_cache__omits_refresh_token_if_it_is_not_found(make_tok
     refresh token if the location specified by ``settings.LM_API_REFRESH_TOKEN_PATH`` does not exist.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
@@ -210,10 +181,7 @@ def test_save_tokens_to_cache__success(make_token, tmp_path, mocker):
     ``LM_API_REFRESH_TOKEN_PATH``.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
@@ -241,10 +209,7 @@ def test_save_tokens_to_cache__only_saves_access_token_if_refresh_token_is_not_d
     ``TokenSet`` instance does not carry a refresh token.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
@@ -269,10 +234,7 @@ def test_clear_token_cache__success(make_token, tmp_path, mocker):
     cache.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
@@ -313,11 +275,8 @@ def test_init_persona__success(make_token, tmp_path, dummy_context, mocker):
     within it.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
-        expires="2023-02-16 22:30:00",
+        user_email="good@email.com",
+        expires="2024-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
     access_token_path.write_text(access_token)
@@ -327,13 +286,12 @@ def test_init_persona__success(make_token, tmp_path, dummy_context, mocker):
 
     mocker.patch.object(settings, "LM_API_ACCESS_TOKEN_PATH", new=access_token_path)
     mocker.patch.object(settings, "LM_API_REFRESH_TOKEN_PATH", new=refresh_token_path)
-    with plummet.frozen_time("2023-02-16 21:30:00"):
+    with plummet.frozen_time("2024-02-16 21:30:00"):
         persona = init_persona(dummy_context)
 
     assert persona.token_set.access_token == access_token
     assert persona.token_set.refresh_token == refresh_token
-    assert persona.identity_data.user_email == "good@email.com"
-    assert persona.identity_data.org_name == "good_org"
+    assert persona.user_email == "good@email.com"
 
 
 def test_init_persona__uses_passed_token_set(make_token, tmp_path, dummy_context, mocker):
@@ -342,11 +300,8 @@ def test_init_persona__uses_passed_token_set(make_token, tmp_path, dummy_context
     loading it from the cache and will write the tokens to the cache after validating them.
     """
     access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
-        expires="2023-02-16 22:30:00",
+        user_email="good@email.com",
+        expires="2024-02-16 22:30:00",
     )
     access_token_path = tmp_path / "access.jwt"
     refresh_token = "dummy-refresh-token"
@@ -362,13 +317,12 @@ def test_init_persona__uses_passed_token_set(make_token, tmp_path, dummy_context
 
     mocker.patch.object(settings, "LM_API_ACCESS_TOKEN_PATH", new=access_token_path)
     mocker.patch.object(settings, "LM_API_REFRESH_TOKEN_PATH", new=refresh_token_path)
-    with plummet.frozen_time("2023-02-16 21:30:00"):
+    with plummet.frozen_time("2024-02-16 21:30:00"):
         persona = init_persona(dummy_context, token_set)
 
     assert persona.token_set.access_token == access_token
     assert persona.token_set.refresh_token == refresh_token
-    assert persona.identity_data.user_email == "good@email.com"
-    assert persona.identity_data.org_name == "good_org"
+    assert persona.user_email == "good@email.com"
 
     assert access_token_path.exists()
     assert access_token_path.read_text() == access_token
@@ -385,10 +339,7 @@ def test_refresh_access_token__success(make_token, respx_mock, dummy_context):
     token_set = TokenSet(access_token=access_token, refresh_token=refresh_token)
 
     refreshed_access_token = make_token(
-        identity_data=dict(
-            user_email="good@email.com",
-            org_name="good_org",
-        ),
+        user_email="good@email.com",
         expires="2023-02-17 22:30:00",
     )
 
