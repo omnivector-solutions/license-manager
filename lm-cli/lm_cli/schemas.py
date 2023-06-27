@@ -8,13 +8,14 @@ from json.decoder import JSONDecodeError
 from typing import List, Optional
 
 import httpx
-import pydantic
+from pydantic import BaseModel, Extra, PositiveInt, validator
 
+from lm_cli.constants import LicenseServerType
 from lm_cli.exceptions import Abort
 from lm_cli.text_tools import dedent
 
 
-class TokenSet(pydantic.BaseModel, extra=pydantic.Extra.ignore):
+class TokenSet(BaseModel, extra=Extra.ignore):
     """
     A model representing a pairing of access and refresh tokens.
     """
@@ -23,7 +24,7 @@ class TokenSet(pydantic.BaseModel, extra=pydantic.Extra.ignore):
     refresh_token: Optional[str] = None
 
 
-class Persona(pydantic.BaseModel):
+class Persona(BaseModel):
     """
     A model representing a pairing of a TokenSet and Identity data.
 
@@ -34,7 +35,7 @@ class Persona(pydantic.BaseModel):
     user_email: str
 
 
-class DeviceCodeData(pydantic.BaseModel, extra=pydantic.Extra.ignore):
+class DeviceCodeData(BaseModel, extra=Extra.ignore):
     """
     A model representing the data that is returned from OIDC's device code endpoint.
     """
@@ -44,7 +45,7 @@ class DeviceCodeData(pydantic.BaseModel, extra=pydantic.Extra.ignore):
     interval: int
 
 
-class LicenseManagerContext(pydantic.BaseModel, arbitrary_types_allowed=True):
+class LicenseManagerContext(BaseModel, arbitrary_types_allowed=True):
     """
     A data object describing context passed from the main entry point.
     """
@@ -53,7 +54,7 @@ class LicenseManagerContext(pydantic.BaseModel, arbitrary_types_allowed=True):
     client: Optional[httpx.Client]
 
 
-class ConfigurationCreateRequestData(pydantic.BaseModel):
+class ConfigurationCreateRequestData(BaseModel):
     """
     Describe the data that will be sent to the ``create`` endpoint of the LM API for configurations.
     """
@@ -66,7 +67,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
     grace_time: str
     client_id: str
 
-    @pydantic.validator("features", pre=True)
+    @validator("features", pre=True)
     def validate_features_is_valid_json(cls, features):
         """
         Validate the feature field to ensure it contains a valid JSON serialized object.
@@ -84,7 +85,7 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
             )
         return features
 
-    @pydantic.validator("license_servers", pre=True)
+    @validator("license_servers", pre=True)
     def validate_license_servers_are_valid_connection_strings(cls, license_servers):
         """
         Validate the license servers list to ensure each entry is in the correct format.
@@ -111,3 +112,52 @@ class ConfigurationCreateRequestData(pydantic.BaseModel):
                 )
 
         return license_servers_list
+
+
+class LicenseServerCreateSchema(BaseModel):
+    """
+    License server response from the database.
+    """
+
+    config_id: int
+    host: str
+    port: PositiveInt
+
+
+class ProductCreateSchema(BaseModel):
+    """
+    Represents a feature's product.
+    """
+
+    name: str
+
+
+class FeatureCreateSchema(BaseModel):
+    """
+    Represents the features in a feature configuration.
+    """
+
+    name: str
+    product_id: int
+    config_id: int
+    reserved: int
+
+
+class ConfigurationCreateSchema(BaseModel):
+    """
+    Represents the configuration for a set of features.
+    """
+
+    name: str
+    cluster_id: int
+    grace_time: int
+    type: LicenseServerType
+
+
+class ClusterCreateSchema(BaseModel):
+    """
+    Cluster response from the database.
+    """
+
+    name: str
+    client_id: str
