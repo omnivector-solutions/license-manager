@@ -1,5 +1,5 @@
 """
-A ``typer`` app that can interact with Clisters data in a cruddy manner.
+A ``typer`` app that can interact with Clusters data in a cruddy manner.
 """
 
 from typing import Dict, List, Optional, cast
@@ -48,7 +48,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/clusters",
+            "/lm/clusters/",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve clusters list from API",
@@ -57,10 +57,8 @@ def list_all(
         ),
     )
 
-    data2 = cast(List, data)
-
     render_list_results(
-        data2,
+        data,
         title="Clusters List",
         style_mapper=style_mapper,
     )
