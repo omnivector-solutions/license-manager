@@ -11,6 +11,7 @@ from lm_cli.exceptions import handle_abort
 from lm_cli.render import StyleMapper, render_list_results, render_single_result, terminal_message
 from lm_cli.requests import make_request, parse_query_params
 from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
+from lm_cli.constants import LicenseServerType
 
 
 style_mapper = StyleMapper(
@@ -50,7 +51,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/configurations",
+            "/lm/configurations/",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve configuration list from API",
@@ -124,7 +125,7 @@ def create(
         ...,
         help="The grace time for jobs using the license. Must be in seconds.",
     ),
-    license_server_type: str = typer.Option(..., help="The license server type."),
+    license_server_type: LicenseServerType = typer.Option(..., help="The license server type."),
 ):
     """
     Create a new configuration.
