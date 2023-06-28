@@ -158,7 +158,7 @@ def make_request(
         try:
             error_message_text = response.json()["detail"]
         except Exception:
-            error_message_text = response.text
+            error_message_text = f"{response.text} | status code: {response.status_code}"
 
         raise Abort(
             unwrap(
