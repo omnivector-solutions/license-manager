@@ -18,16 +18,22 @@ from lm_cli.schemas import LicenseManagerContext, Persona, TokenSet
 from lm_cli.subapps.bookings import app as bookings_app
 from lm_cli.subapps.clusters import app as clusters_app
 from lm_cli.subapps.configurations import app as configurations_app
-from lm_cli.subapps.licenses import app as licenses_app
+from lm_cli.subapps.features import app as features_app
+from lm_cli.subapps.jobs import app as jobs_app
+from lm_cli.subapps.license_servers import app as license_servers_app
+from lm_cli.subapps.products import app as products_app
 from lm_cli.text_tools import conjoin, copy_to_clipboard
 
 
 app = typer.Typer()
 
-app.add_typer(licenses_app, name="licenses")
 app.add_typer(bookings_app, name="bookings")
-app.add_typer(configurations_app, name="configurations")
 app.add_typer(clusters_app, name="clusters")
+app.add_typer(configurations_app, name="configurations")
+app.add_typer(features_app, name="features")
+app.add_typer(jobs_app, name="jobs")
+app.add_typer(license_servers_app, name="license_servers")
+app.add_typer(products_app, name="products")
 
 
 @app.callback(invoke_without_command=True)
