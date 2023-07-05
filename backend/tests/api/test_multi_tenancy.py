@@ -40,13 +40,13 @@ async def alt_engine():
 @pytest.fixture(scope="function")
 def get_synth_sessions():
     """
-    Get a the default and alternat sessions from the engine_factory.
+    Get a the default and alternate sessions from the engine_factory.
 
     This method produces a session for both the default and alternate test database.
 
     This is necessary to make sure that the test code uses the same session as the one returned by
     the dependency injection for the router code. Otherwise, changes made in the router's session would not
-    be visible in the test code. Not that changes made in this synthesized session are always rolled back
+    be visible in the test code. Note that changes made in this synthesized session are always rolled back
     and never committed.
 
     If multi-tenancy is enabled, the override_db_name for the default session will be the name of the normal
@@ -134,14 +134,14 @@ async def test_session_tenancy(get_synth_sessions):
 
 
 @pytest.mark.asyncio
-async def test_application_router_with_multi_tenancy(
+async def test_clusters_router_with_multi_tenancy(
     get_synth_sessions,
     backend_client: AsyncClient,
     inject_client_id_in_security_header,
     tweak_settings,
 ):
     """
-    Test POST /applications/ correctly creates an application using multi-tenancy.
+    Test POST /clusters/ correctly creates clusters using multi-tenancy.
 
     This method checks to make sure that the correct database is used for the API request based on the
     client_id that is provided in the auth token in the request header.
