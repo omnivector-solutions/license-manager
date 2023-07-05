@@ -69,7 +69,6 @@ class GenericCRUD:
         try:
             query = await db_session.execute(select(self.model).filter(self.model.id == id))
             db_obj = query.scalars().one_or_none()
-            print("DB OBJ: ", db_obj)
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")

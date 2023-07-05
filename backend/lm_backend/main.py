@@ -83,7 +83,7 @@ async def lifespan(_: FastAPI):
     Will set up logging and cleanup database engines when the app is shut down.
 
     This is the preferred method of handling lifespan events in FastAPI.
-    For mor details, see: https://fastapi.tiangolo.com/advanced/events/
+    For more details, see: https://fastapi.tiangolo.com/advanced/events/
     """
     logger.remove()
     logger.add(sys.stderr, level=settings.LOG_LEVEL)
