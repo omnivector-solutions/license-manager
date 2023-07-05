@@ -13,7 +13,6 @@ async def test_add_booking__success(
     read_object,
     create_one_job,
     create_one_inventory,
-    clean_up_database,
 ):
     job_id = create_one_job[0].id
     feature_id = create_one_inventory[0].feature_id
@@ -45,7 +44,6 @@ async def test_add_booking__fail_with_overbooking(
     inject_security_header,
     create_one_job,
     create_one_inventory,
-    clean_up_database,
 ):
     job_id = create_one_job[0].id
     feature_id = create_one_inventory[0].feature_id
@@ -68,7 +66,6 @@ async def test_add_booking__fail_with_overbooking_when_reserved(
     inject_security_header,
     create_one_job,
     create_one_inventory,
-    clean_up_database,
 ):
     job_id = create_one_job[0].id
     feature_id = create_one_inventory[0].feature_id
@@ -90,7 +87,6 @@ async def test_get_all_bookings__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_bookings,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.BOOKING_VIEW)
     response = await backend_client.get("/lm/bookings")
@@ -112,7 +108,6 @@ async def test_get_all_bookings__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_bookings,
-    clean_up_database,
 ):
 
     inject_security_header("owner1", Permissions.BOOKING_VIEW)
@@ -135,7 +130,6 @@ async def test_get_booking__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
-    clean_up_database,
 ):
     id = create_one_booking[0].id
 
@@ -163,7 +157,6 @@ async def test_get_booking__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.BOOKING_VIEW)
@@ -178,7 +171,6 @@ async def test_delete_booking__success(
     inject_security_header,
     create_one_booking,
     read_object,
-    clean_up_database,
 ):
     id = create_one_booking[0].id
 
@@ -206,7 +198,6 @@ async def test_delete_booking__fail_with_bad_parameter(
     inject_security_header,
     create_one_booking,
     read_object,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.BOOKING_EDIT)

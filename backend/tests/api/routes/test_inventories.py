@@ -12,7 +12,6 @@ async def test_add_inventory__success(
     inject_security_header,
     read_object,
     create_one_feature,
-    clean_up_database,
 ):
     feature_id = create_one_feature[0].id
 
@@ -40,7 +39,6 @@ async def test_get_all_inventories__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_inventories,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.INVENTORY_VIEW)
     response = await backend_client.get("/lm/inventories")
@@ -62,7 +60,6 @@ async def test_get_inventory__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_inventory,
-    clean_up_database,
 ):
     id = create_one_inventory[0].id
 
@@ -90,7 +87,6 @@ async def test_get_inventory__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_inventory,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.INVENTORY_VIEW)
@@ -105,7 +101,6 @@ async def test_update_inventory__success(
     inject_security_header,
     create_one_inventory,
     read_object,
-    clean_up_database,
 ):
     new_inventory = {
         "total": 9000,
@@ -137,7 +132,6 @@ async def test_update_inventory__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_inventory,
-    clean_up_database,
     id,
 ):
     new_inventory = {
@@ -155,7 +149,6 @@ async def test_update_inventory__fail_with_bad_data(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_inventory,
-    clean_up_database,
 ):
     new_inventory = {
         "bla": "bla",
@@ -175,7 +168,6 @@ async def test_delete_inventory__success(
     inject_security_header,
     create_one_inventory,
     read_object,
-    clean_up_database,
 ):
     id = create_one_inventory[0].id
 
@@ -202,7 +194,6 @@ async def test_delete_inventory__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_inventory,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.INVENTORY_EDIT)

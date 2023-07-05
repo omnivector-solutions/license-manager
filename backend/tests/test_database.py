@@ -11,8 +11,6 @@ from sqlalchemy import select
 from lm_backend import database
 from lm_backend.api.models.product import Product
 
-_LIST_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-
 
 def query_stripper(query: Any):
     """

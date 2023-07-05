@@ -20,8 +20,22 @@ class Settings(BaseSettings):
     # to match where the API is deployed in API Gateway
     ASGI_ROOT_PATH: str = ""
 
-    # database to connect
-    DATABASE_URL: str
+    # Database settings
+    DATABASE_HOST: str = "localhost"
+    DATABASE_USER: str = "local-user"
+    DATABASE_PSWD: str = "local-pswd"
+    DATABASE_NAME: str = "local-db"
+    DATABASE_PORT: int = 5432
+
+    # Test database settings
+    TEST_DATABASE_HOST: str = "localhost"
+    TEST_DATABASE_USER: str = "test-db-user"
+    TEST_DATABASE_PSWD: str = "test-db-pswd"
+    TEST_DATABASE_NAME: str = "test-db-name"
+    TEST_DATABASE_PORT: int = 5433
+
+    # Enable multi-tenancy so that the database is determined by the client_id in the auth token
+    MULTI_TENANCY_ENABLED: bool = Field(False)
 
     # log level (everything except sql tracing)
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO

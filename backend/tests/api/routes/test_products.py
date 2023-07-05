@@ -11,7 +11,6 @@ async def test_add_product__success(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
-    clean_up_database,
 ):
     data = {
         "name": "Abaqus",
@@ -32,7 +31,6 @@ async def test_get_all_products__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.PRODUCT_VIEW)
     response = await backend_client.get("/lm/products")
@@ -48,7 +46,6 @@ async def test_get_all_products__with_search(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.PRODUCT_VIEW)
     response = await backend_client.get(f"/lm/products/?search{create_products[0].name}")
@@ -64,7 +61,6 @@ async def test_get_all_products__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.PRODUCT_VIEW)
     response = await backend_client.get("/lm/products/?sort_field=name&sort_ascending=false")
@@ -81,7 +77,6 @@ async def test_get_product__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
 ):
     id = create_one_product[0].id
 
@@ -107,7 +102,6 @@ async def test_get_product__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.PRODUCT_VIEW)
@@ -122,7 +116,6 @@ async def test_update_product__success(
     inject_security_header,
     create_one_product,
     read_object,
-    clean_up_database,
 ):
     new_product = {
         "name": "Other Abaqus",
@@ -154,7 +147,6 @@ async def test_update_product__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
     id,
 ):
     new_product = {"name": "Other Abaqus"}
@@ -170,7 +162,6 @@ async def test_update_product__fail_with_bad_data(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
 ):
     new_product = {"bla": "bla"}
 
@@ -188,7 +179,6 @@ async def test_delete_product__success(
     inject_security_header,
     create_one_product,
     read_object,
-    clean_up_database,
 ):
     id = create_one_product[0].id
 

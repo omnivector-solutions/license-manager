@@ -36,16 +36,19 @@ services:
       context: .
       dockerfile: ./Dockerfile-ci
     environment:
-      DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+      TEST_DATABASE_HOST: test-db
+      TEST_DATABASE_USER: test-db-user
+      TEST_DATABASE_PSWD: test-db-pswd
+      TEST_DATABASE_NAME: test-db-name
+      TEST_DATABASE_PORT: 5432
       ARMASEC_DOMAIN: armasec.dev
       ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
+      DEPLOY_ENV: TEST
     command: poetry run pytest -s
     depends_on:
-      pgsql:
+      test-db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
     volumes:
       - ./tests:/app/tests
 
@@ -70,6 +73,22 @@ services:
       POSTGRES_PASSWORD: rats
       POSTGRES_DB: ratsdb
     ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test-db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=test-db-user
+      - POSTGRES_PASSWORD=test-db-pswd
+      - POSTGRES_MULTIPLE_DATABASES="test-db-name","alt-test-db"
+    volumes:
+      - ./docker-postgres-multiple-databases:/docker-entrypoint-initdb.d
+    ports: ["5433:5432"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]

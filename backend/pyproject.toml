@@ -24,6 +24,8 @@ SQLAlchemy = {extras = ["asyncio"], version = "^2.0.7"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
 psycopg2 = "^2.9.5"
+yarl = "^1.9.2"
+pydantic = {version = "^1", extras = ["email"]}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
@@ -47,6 +49,11 @@ mypy = "^0.910"
 minversion = "6.0"
 addopts = "--random-order --cov=lm_backend --cov-report=term-missing --cov-fail-under=85"
 testpaths = ["tests"]
+env = [
+    "DEPLOY_ENV = TEST",  # Enforces that test database env vars will be used
+    "ARMASEC_DOMAIN = armasec.dev",  # Must align with the rs256_domain fixture in armasec's pytest extension
+    "ARMASEC_DEBUG = False",  # Set this to True to debug armasec issues by seeing verbose logging
+]
 
 [tool.black]
 line-length = 110

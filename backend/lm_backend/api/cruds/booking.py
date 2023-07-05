@@ -67,13 +67,12 @@ class BookingCRUD(GenericCRUD):
             .returning(Booking)
         )
 
-        async with db_session.begin():
-            try:
-                result = await db_session.execute(insert_query)
-                db_obj = result.scalars().one_or_none()
-            except Exception as e:
-                logger.error(e)
-                raise HTTPException(status_code=400, detail="Object could not be read.")
+        try:
+            result = await db_session.execute(insert_query)
+            db_obj = result.scalars().one_or_none()
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail="Object could not be read.")
 
         if db_obj is None:
             raise HTTPException(status_code=409, detail="Not enough licenses available.")

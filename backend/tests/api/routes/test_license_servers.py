@@ -12,7 +12,6 @@ async def test_add_license_server__success(
     inject_security_header,
     read_object,
     create_one_configuration,
-    clean_up_database,
 ):
     configuration_id = create_one_configuration[0].id
 
@@ -39,7 +38,6 @@ async def test_get_all_license_servers__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_license_servers,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get("/lm/license_servers")
@@ -59,7 +57,6 @@ async def test_get_all_license_servers__with_search(
     backend_client: AsyncClient,
     inject_security_header,
     create_license_servers,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get(f"/lm/license_servers/?search={create_license_servers[0].host}")
@@ -76,7 +73,6 @@ async def test_get_all_license_servers__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_license_servers,
-    clean_up_database,
 ):
 
     inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
@@ -97,7 +93,6 @@ async def test_get_license_server__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_license_server,
-    clean_up_database,
 ):
     id = create_one_license_server[0].id
 
@@ -124,7 +119,6 @@ async def test_get_license_server__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_license_server,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
@@ -139,7 +133,6 @@ async def test_update_license_server__success(
     inject_security_header,
     create_one_license_server,
     read_object,
-    clean_up_database,
 ):
     new_license_server = {"host": "licserv9999.com"}
 
@@ -170,7 +163,6 @@ async def test_update_license_server__fail_with_bad_parameter(
     inject_security_header,
     create_one_license_server,
     read_object,
-    clean_up_database,
     id,
 ):
     new_license_server = {"host": "licserv9999.com"}
@@ -187,7 +179,6 @@ async def test_update_license_server__fail_with_bad_data(
     inject_security_header,
     create_one_license_server,
     read_object,
-    clean_up_database,
 ):
     new_license_server = {"bla": "bla"}
 
@@ -205,7 +196,6 @@ async def test_delete_license_server__success(
     inject_security_header,
     create_one_license_server,
     read_object,
-    clean_up_database,
 ):
     id = create_one_license_server[0].id
 
@@ -232,7 +222,6 @@ async def test_delete_license_server__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_license_server,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)

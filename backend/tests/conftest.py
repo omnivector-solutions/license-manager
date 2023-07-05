@@ -3,6 +3,7 @@ import contextlib
 import dataclasses
 import datetime
 import typing
+from unittest.mock import patch
 
 import sqlalchemy
 import sqlalchemy.orm
@@ -12,15 +13,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from lm_backend.api.models.booking import Booking
-from lm_backend.api.models.cluster import Cluster
-from lm_backend.api.models.configuration import Configuration
-from lm_backend.api.models.feature import Feature
-from lm_backend.api.models.inventory import Inventory
-from lm_backend.api.models.job import Job
-from lm_backend.api.models.license_server import LicenseServer
-from lm_backend.api.models.product import Product
-from lm_backend.session import AsyncScopedSession
+from lm_backend.database import engine_factory, Base
+from lm_backend.config import settings
 
 
 @fixture(scope="session")
@@ -62,28 +56,42 @@ async def backend_client(test_app):
         yield ac
 
 
+@fixture(autouse=True, scope="session")
+async def synth_engine():
+    """
+    Provide a fixture to prepare the test database.
+    """
+    engine = engine_factory.get_engine()
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all, checkfirst=True)
+    try:
+        yield engine
+    finally:
+        async with engine.begin() as connection:
+            await connection.run_sync(Base.metadata.drop_all)
+        await engine_factory.cleanup()
+
+
+@fixture(scope="function")
+async def synth_session():
+    """
+    Get a session from the engine_factory for the current test function.
+
+    This is necessary to make sure that the test code uses the same session as the one returned by
+    the dependency injection for the router code. Otherwise, changes made in the router's session would not
+    be visible in the test code. Not that changes made in this synthesized session are always rolled back
+    and never committed.
+    """
+    session = engine_factory.get_session()
+    with patch("lm_backend.database.engine_factory.get_session", return_value=session):
+        await session.begin_nested()
+        yield session
+        await session.rollback()
+        await session.close()
+
+
 @fixture
-def get_session() -> typing.Callable[[None], typing.AsyncGenerator[AsyncSession, None]]:
-    """A fixture to return the async session used to run SQL queries against a database."""
-
-    @contextlib.asynccontextmanager
-    async def _get_session() -> typing.AsyncGenerator[AsyncSession, None]:
-        """Get the async session to execute queries against the database."""
-        async with AsyncScopedSession() as session:
-            async with session.begin():
-                try:
-                    yield session
-                except Exception as err:
-                    await session.rollback()
-                    raise err
-                finally:
-                    await session.close()
-
-    return _get_session
-
-
-@fixture
-def insert_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
+def insert_objects(synth_session: AsyncSession):
     """
     A fixture that provides a helper method that perform a database insertion for the
     objects passed as the argument, into the specified table
@@ -95,22 +103,20 @@ def insert_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
         subquery_relation: InstrumentedAttribute = None,
     ):
         db_objects = [table(**obj) for obj in objects]
-        async with get_session() as sess:
-            for obj in db_objects:
-                sess.add(obj)
-            await sess.commit()
-        async with get_session() as sess:
-            query = sqlalchemy.select(table)
-            if subquery_relation is not None:
-                query = query.options(sqlalchemy.orm.subqueryload(subquery_relation))
-            fetched = (await sess.execute(query)).scalars().all()
+        for obj in db_objects:
+            synth_session.add(obj)
+        await synth_session.flush()
+        query = sqlalchemy.select(table)
+        if subquery_relation is not None:
+            query = query.options(sqlalchemy.orm.subqueryload(subquery_relation))
+        fetched = (await synth_session.execute(query)).scalars().all()
         return [obj for obj in fetched]
 
     return _helper
 
 
 @fixture
-async def update_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
+async def update_object(synth_session: AsyncSession):
     """
     A fixture that provides a helper method that perform a database update
     for the object passed as the argument, into the specified table
@@ -122,22 +128,21 @@ async def update_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
         table: sqlalchemy.Table,
         subquery_relation: InstrumentedAttribute = None,
     ):
-        async with get_session() as sess:
-            query = await sess.execute(select(table).filter(table.id == id))
-            db_obj = query.scalar_one_or_none()
+        query = await synth_session.execute(select(table).filter(table.id == id))
+        db_obj = query.scalar_one_or_none()
 
-            for field, value in object:
-                if value is not None:
-                    setattr(db_obj, field, value)
-            await sess.flush()
-        await sess.refresh(db_obj)
+        for field, value in object:
+            if value is not None:
+                setattr(db_obj, field, value)
+        await synth_session.flush()
+        await synth_session.refresh(db_obj)
         return db_obj
 
     return _helper
 
 
 @fixture
-def read_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
+def read_objects(synth_session: AsyncSession):
     """
     A fixture that provides a helper method that perform a database
     read all operation using the specified statement.
@@ -146,15 +151,17 @@ def read_objects(get_session: typing.AsyncGenerator[AsyncSession, None]):
     async def _helper(
         stmt,
     ):
-        async with get_session() as sess:
-            fetched = (await sess.execute(stmt)).scalars().all()
-        return [obj for obj in fetched]
+        fetched = (await synth_session.execute(stmt)).scalars().all()
+
+        # Necessary to lazy load relationships for joined models
+        await asyncio.gather(synth_session.refresh(obj) for obj in fetched if obj is not None)
+        return fetched
 
     return _helper
 
 
 @fixture
-def read_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
+def read_object(synth_session: AsyncSession):
     """
     A fixture that provides a helper method that perform a database
     read operation using the specified statement.
@@ -163,26 +170,14 @@ def read_object(get_session: typing.AsyncGenerator[AsyncSession, None]):
     async def _helper(
         stmt,
     ):
-        async with get_session() as sess:
-            return (await sess.execute(stmt)).scalars().one_or_none()
+        fetched = (await synth_session.execute(stmt)).scalars().one_or_none()
+
+        # Necessary to lazy load relationships for joined models
+        if fetched is not None:
+            await synth_session.refresh(fetched)
+        return fetched
 
     return _helper
-
-
-@fixture(autouse=True)
-async def clean_up_database(get_session: typing.AsyncGenerator[AsyncSession, None]) -> None:
-    """Clean up the database after test run."""
-    yield
-    async with get_session() as sess:
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Booking.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Job.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Inventory.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Feature.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Product.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {LicenseServer.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Configuration.__tablename__};"""))
-        await sess.execute(sqlalchemy.text(f"""DELETE FROM {Cluster.__tablename__};"""))
-        await sess.commit()
 
 
 @fixture(autouse=True)
@@ -256,5 +251,27 @@ def time_frame():
         window = TimeFrame(now=datetime.datetime.utcnow().replace(microsecond=0), later=None)
         yield window
         window.later = datetime.datetime.utcnow() + datetime.timedelta(seconds=1)
+
+    return _helper
+
+
+@fixture
+def tweak_settings():
+    """
+    Provide a fixture to use as a context manager where the app settings may be temporarily changed.
+    """
+
+    @contextlib.contextmanager
+    def _helper(**kwargs):
+        """
+        Context manager for tweaking app settings temporarily.
+        """
+        previous_values = {}
+        for (key, value) in kwargs.items():
+            previous_values[key] = getattr(settings, key)
+            setattr(settings, key, value)
+        yield
+        for (key, value) in previous_values.items():
+            setattr(settings, key, value)
 
     return _helper

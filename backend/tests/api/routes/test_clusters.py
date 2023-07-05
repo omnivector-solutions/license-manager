@@ -11,7 +11,6 @@ async def test_add_cluster__success(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
-    clean_up_database,
 ):
     data = {
         "name": "Dummy Cluster",
@@ -34,7 +33,6 @@ async def test_get_all_clusters__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_clusters,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters")
@@ -53,7 +51,6 @@ async def test_get_all_clusters__with_search(
     backend_client: AsyncClient,
     inject_security_header,
     create_clusters,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
     client_id = create_clusters[1].client_id
@@ -71,7 +68,6 @@ async def test_get_all_clusters__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_clusters,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters/?sort_field=name&sort_ascending=false")
@@ -90,7 +86,6 @@ async def test_get_cluster__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
 ):
     id = create_one_cluster[0].id
 
@@ -117,7 +112,6 @@ async def test_get_cluster__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
@@ -132,7 +126,6 @@ async def test_get_cluster_by_client_id__success(
     inject_security_header,
     inject_client_id_in_security_header,
     create_one_cluster,
-    clean_up_database,
 ):
     client_id = create_one_cluster[0].client_id
 
@@ -152,7 +145,6 @@ async def test_get_cluster_by_client_id__fail_with_bad_client_id(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters/by_client_id")
@@ -166,7 +158,6 @@ async def test_update_cluster__success(
     inject_security_header,
     create_one_cluster,
     read_object,
-    clean_up_database,
 ):
     new_cluster = {"name": "New Dummy Cluster", "client_id": "new-dummy"}
 
@@ -197,7 +188,6 @@ async def test_update_cluster__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
     id,
 ):
     new_cluster = {"name": "New Dummy Cluster", "client_id": "new-dummy"}
@@ -213,7 +203,6 @@ async def test_update_cluster__fail_with_bad_data(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
 ):
     new_cluster = {"bla": "bla"}
 
@@ -231,7 +220,6 @@ async def test_delete_cluster__success(
     inject_security_header,
     create_one_cluster,
     read_object,
-    clean_up_database,
 ):
     id = create_one_cluster[0].id
 
@@ -258,7 +246,6 @@ async def test_delete_cluster__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_cluster,
-    clean_up_database,
     id,
 ):
     inject_security_header("owner1", Permissions.CLUSTER_EDIT)
