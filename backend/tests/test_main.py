@@ -1,4 +1,3 @@
-
 from fastapi import status
 from httpx import AsyncClient
 from pytest import mark

@@ -9,8 +9,8 @@ from lm_backend.api.schemas.configuration import (
     ConfigurationSchema,
     ConfigurationUpdateSchema,
 )
+from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
-from lm_backend.database import secure_session, SecureSession
 
 router = APIRouter()
 

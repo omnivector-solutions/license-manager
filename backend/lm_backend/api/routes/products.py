@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, Query, status
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.product import Product
 from lm_backend.api.schemas.product import ProductCreateSchema, ProductSchema, ProductUpdateSchema
-from lm_backend.permissions import Permissions
 from lm_backend.database import SecureSession, secure_session
+from lm_backend.permissions import Permissions
 
 router = APIRouter()
 

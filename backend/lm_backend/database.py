@@ -1,8 +1,8 @@
 """
 Persistent data storage for the API.
 """
-from dataclasses import dataclass
 import typing
+from dataclasses import dataclass
 
 from fastapi import Depends
 from fastapi.exceptions import HTTPException
@@ -161,7 +161,6 @@ def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMod
                 await session.close()
 
     return dependency
-
 
 
 def render_sql(query) -> str:

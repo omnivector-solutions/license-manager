@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.cluster import Cluster
 from lm_backend.api.schemas.cluster import ClusterCreateSchema, ClusterSchema, ClusterUpdateSchema
+from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
-from lm_backend.database import secure_session, SecureSession
 
 router = APIRouter()
 

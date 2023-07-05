@@ -8,8 +8,8 @@ from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.job import Job
 from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
 from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
-from lm_backend.permissions import Permissions
 from lm_backend.database import SecureSession, secure_session
+from lm_backend.permissions import Permissions
 
 router = APIRouter()
 

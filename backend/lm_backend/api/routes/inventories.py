@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, status
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.inventory import Inventory
 from lm_backend.api.schemas.inventory import InventoryCreateSchema, InventorySchema, InventoryUpdateSchema
-from lm_backend.permissions import Permissions
 from lm_backend.database import SecureSession, secure_session
+from lm_backend.permissions import Permissions
 
 router = APIRouter()
 

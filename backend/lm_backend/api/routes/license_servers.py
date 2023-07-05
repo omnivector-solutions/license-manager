@@ -10,8 +10,8 @@ from lm_backend.api.schemas.license_server import (
     LicenseServerUpdateSchema,
 )
 from lm_backend.constants import LicenseServerType
-from lm_backend.permissions import Permissions
 from lm_backend.database import SecureSession, secure_session
+from lm_backend.permissions import Permissions
 
 router = APIRouter()
 

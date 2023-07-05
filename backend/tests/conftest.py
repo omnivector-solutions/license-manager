@@ -13,8 +13,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from lm_backend.database import engine_factory, Base
 from lm_backend.config import settings
+from lm_backend.database import Base, engine_factory
 
 
 @fixture(scope="session")
