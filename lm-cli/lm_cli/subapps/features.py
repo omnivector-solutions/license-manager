@@ -15,9 +15,14 @@ from lm_cli.schemas import FeatureCreateSchema, LicenseManagerContext
 
 style_mapper = StyleMapper(
     id="blue",
-    feature_id="green",
-    config_id="cyan",
-    reserved="magenta",
+    config_id="magenta",
+    product="cyan",
+    feature="green",
+    total="white",
+    used="red",
+    reserved="yellow",
+    booked="deep_pink3",
+    available="bright_blue",
 )
 
 
@@ -43,7 +48,7 @@ def list_all(
 
     params = parse_query_params(search=search, sort_order=sort_order, sort_field=sort_field)
 
-    data = cast(
+    feature_data = cast(
         List,
         make_request(
             lm_ctx.client,
@@ -56,8 +61,40 @@ def list_all(
         ),
     )
 
+    bookings_data = cast(
+        List,
+        make_request(
+            lm_ctx.client,
+            "/lm/bookings/",
+            "GET",
+            expected_status=200,
+            abort_message="Couldn't retrieve bookings list from API",
+            support=True,
+            params=params,
+        ),
+    )
+
+    formatted_data = []
+
+    for feature in feature_data:
+        new_data = {}
+
+        new_data["id"] = feature["id"]
+        new_data["config_id"] = feature["config_id"]
+        new_data["product"] = feature["product"]["name"]
+        new_data["feature"] = feature["name"]
+        new_data["total"] = feature["inventory"]["total"]
+        new_data["used"] = feature["inventory"]["used"]
+        new_data["reserved"] = feature["reserved"]
+        new_data["booked"] = sum(
+            [booking["quantity"] for booking in bookings_data if booking["feature_id"] == feature["id"]]
+        )
+        new_data["available"] = new_data["total"] - new_data["used"] - new_data["reserved"] - new_data["booked"]
+
+        formatted_data.append(new_data)
+
     render_list_results(
-        data,
+        formatted_data,
         title="Features List",
         style_mapper=style_mapper,
     )
@@ -90,8 +127,18 @@ def get_one(
         ),
     )
 
+    formatted_result = {}
+
+    formatted_result["id"] = result["id"]
+    formatted_result["config_id"] = result["config_id"]
+    formatted_result["product"] = result["product"]["name"]
+    formatted_result["feature"] = result["name"]
+    formatted_result["total"] = result["inventory"]["total"]
+    formatted_result["used"] = result["inventory"]["used"]
+    formatted_result["reserved"] = result["reserved"]
+
     render_single_result(
-        result,
+        formatted_result,
         title=f"Feature id {id}",
     )
 

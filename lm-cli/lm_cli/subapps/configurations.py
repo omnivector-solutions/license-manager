@@ -6,12 +6,11 @@ from typing import Dict, List, Optional, cast
 
 import typer
 
-from lm_cli.constants import SortOrder
+from lm_cli.constants import LicenseServerType, SortOrder
 from lm_cli.exceptions import handle_abort
 from lm_cli.render import StyleMapper, render_list_results, render_single_result, terminal_message
 from lm_cli.requests import make_request, parse_query_params
 from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
-from lm_cli.constants import LicenseServerType
 
 
 style_mapper = StyleMapper(
@@ -60,13 +59,28 @@ def list_all(
         ),
     )
 
-    # Add grace time measure unit to the results before printing
+    formatted_data = []
+
     for configuration in data:
-        grace_time = str(configuration["grace_time"]) + " (seconds)"
-        configuration["grace_time"] = grace_time
+        new_data = {}
+
+        new_data["id"] = configuration["id"]
+        new_data["name"] = configuration["name"]
+        new_data["cluster_id"] = configuration["cluster_id"]
+        new_data["features"] = ", ".join([feature["name"] for feature in configuration["features"]])
+        new_data["license_servers"] = ", ".join(
+            [
+                f"{license_server['host']}:{license_server['port']}"
+                for license_server in configuration["license_servers"]
+            ]
+        )
+        new_data["grace_time"] = f"{configuration['grace_time']} (seconds)"
+        new_data["type"] = configuration["type"]
+
+        formatted_data.append(new_data)
 
     render_list_results(
-        data,
+        formatted_data,
         title="Configurations List",
         style_mapper=style_mapper,
     )

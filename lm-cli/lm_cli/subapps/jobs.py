@@ -19,7 +19,7 @@ style_mapper = StyleMapper(
     cluster_id="green",
     username="cyan",
     lead_host="magenta",
-    bookings="white",
+    bookings="purple",
 )
 
 
@@ -58,8 +58,23 @@ def list_all(
         ),
     )
 
+    formatted_data = []
+
+    for job in data:
+        new_data = {}
+        new_data["id"] = job["id"]
+        new_data["slurm_job_id"] = job["slurm_job_id"]
+        new_data["cluster_id"] = job["cluster_id"]
+        new_data["username"] = job["username"]
+        new_data["lead_host"] = job["lead_host"]
+        new_data["bookings"] = " | ".join(
+            [f"feature_id: {booking['feature_id']}, quantity: {booking['quantity']}" for booking in job["bookings"]]
+        )
+
+        formatted_data.append(new_data)
+
     render_list_results(
-        data,
+        formatted_data,
         title="Jobs List",
         style_mapper=style_mapper,
     )

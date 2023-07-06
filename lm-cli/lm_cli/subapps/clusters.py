@@ -57,8 +57,20 @@ def list_all(
         ),
     )
 
+    formatted_data = []
+
+    for cluster in data:
+        new_data = {}
+
+        new_data["id"] = cluster["id"]
+        new_data["name"] = cluster["name"]
+        new_data["client_id"] = cluster["client_id"]
+        new_data["configurations"] = ", ".join([configuration["name"] for configuration in cluster["configurations"]])
+
+        formatted_data.append(new_data)
+
     render_list_results(
-        data,
+        formatted_data,
         title="Clusters List",
         style_mapper=style_mapper,
     )
