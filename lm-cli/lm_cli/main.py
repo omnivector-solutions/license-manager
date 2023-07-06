@@ -32,7 +32,7 @@ app.add_typer(clusters_app, name="clusters")
 app.add_typer(configurations_app, name="configurations")
 app.add_typer(features_app, name="features")
 app.add_typer(jobs_app, name="jobs")
-app.add_typer(license_servers_app, name="license_servers")
+app.add_typer(license_servers_app, name="license-servers")
 app.add_typer(products_app, name="products")
 
 
