@@ -49,7 +49,7 @@ def main(
     More information can be shown for each command listed below by running it with the --help option.
     """
     if version:
-        typer.echo(importlib_metadata.version("lm-cli"))
+        typer.echo(importlib_metadata.version("license-manager-cli"))
         raise typer.Exit()
 
     if ctx.invoked_subcommand is None:
