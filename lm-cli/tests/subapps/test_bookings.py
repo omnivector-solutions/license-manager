@@ -14,7 +14,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the bookings result.
     """
-    respx_mock.get(f"{dummy_domain}/lm/api/v1/booking/all").mock(
+    respx_mock.get(f"{dummy_domain}/lm/bookings/").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_booking_data,
