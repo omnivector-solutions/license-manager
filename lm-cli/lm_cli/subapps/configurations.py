@@ -27,6 +27,31 @@ style_mapper = StyleMapper(
 app = typer.Typer(help="Commands to interact with configurations.")
 
 
+def format_data(data):
+    """Return data in the correct format for printing."""
+    formatted_data = []
+
+    for configuration in data:
+        new_data = {}
+
+        new_data["id"] = configuration["id"]
+        new_data["name"] = configuration["name"]
+        new_data["cluster_id"] = configuration["cluster_id"]
+        new_data["features"] = ", ".join([feature["name"] for feature in configuration["features"]])
+        new_data["license_servers"] = ", ".join(
+            [
+                f"{license_server['host']}:{license_server['port']}"
+                for license_server in configuration["license_servers"]
+            ]
+        )
+        new_data["grace_time"] = f"{configuration['grace_time']} (seconds)"
+        new_data["type"] = configuration["type"]
+
+        formatted_data.append(new_data)
+
+    return formatted_data
+
+
 @app.command("list")
 @handle_abort
 def list_all(
@@ -59,25 +84,7 @@ def list_all(
         ),
     )
 
-    formatted_data = []
-
-    for configuration in data:
-        new_data = {}
-
-        new_data["id"] = configuration["id"]
-        new_data["name"] = configuration["name"]
-        new_data["cluster_id"] = configuration["cluster_id"]
-        new_data["features"] = ", ".join([feature["name"] for feature in configuration["features"]])
-        new_data["license_servers"] = ", ".join(
-            [
-                f"{license_server['host']}:{license_server['port']}"
-                for license_server in configuration["license_servers"]
-            ]
-        )
-        new_data["grace_time"] = f"{configuration['grace_time']} (seconds)"
-        new_data["type"] = configuration["type"]
-
-        formatted_data.append(new_data)
+    formatted_data = format_data(data)
 
     render_list_results(
         formatted_data,
@@ -113,12 +120,10 @@ def get_one(
         ),
     )
 
-    # Add grace time measure unit to the results before printing
-    grace_time = str(result["grace_time"]) + " (seconds)"
-    result["grace_time"] = grace_time
+    formatted_result = format_data([result])
 
     render_single_result(
-        result,
+        formatted_result[0],
         title=f"Configuration id {id}",
     )
 

@@ -25,6 +25,23 @@ style_mapper = StyleMapper(
 app = typer.Typer(help="Commands to interact with clusters.")
 
 
+def format_data(data):
+    """Return data in the correct format for printing."""
+    formatted_data = []
+
+    for cluster in data:
+        new_data = {}
+
+        new_data["id"] = cluster["id"]
+        new_data["name"] = cluster["name"]
+        new_data["client_id"] = cluster["client_id"]
+        new_data["configurations"] = ", ".join([configuration["name"] for configuration in cluster["configurations"]])
+
+        formatted_data.append(new_data)
+
+    return formatted_data
+
+
 @app.command("list")
 @handle_abort
 def list_all(
@@ -57,17 +74,7 @@ def list_all(
         ),
     )
 
-    formatted_data = []
-
-    for cluster in data:
-        new_data = {}
-
-        new_data["id"] = cluster["id"]
-        new_data["name"] = cluster["name"]
-        new_data["client_id"] = cluster["client_id"]
-        new_data["configurations"] = ", ".join([configuration["name"] for configuration in cluster["configurations"]])
-
-        formatted_data.append(new_data)
+    formatted_data = format_data(data)
 
     render_list_results(
         formatted_data,
@@ -103,8 +110,10 @@ def get_one(
         ),
     )
 
+    formatted_result = format_data([result])
+
     render_single_result(
-        result,
+        formatted_result[0],
         title=f"Cluster id {id}",
     )
 
