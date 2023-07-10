@@ -16,12 +16,8 @@ from lm_cli.schemas import LicenseManagerContext
 style_mapper = StyleMapper(
     id="blue",
     job_id="white",
-    product_feature="green",
-    booked="cyan",
-    config_id="magenta",
-    lead_host="white",
-    user_name="red",
-    cluster_name="yellow",
+    feature_id="green",
+    quantity="cyan",
 )
 
 
@@ -51,7 +47,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/api/v1/booking/all",
+            "/lm/bookings/",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve booking list from API",

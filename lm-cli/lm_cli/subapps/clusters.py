@@ -1,51 +1,41 @@
 """
-A ``typer`` app that can interact with Configurations data in a cruddy manner.
+A ``typer`` app that can interact with Clusters data in a cruddy manner.
 """
 
 from typing import Dict, List, Optional, cast
 
 import typer
 
-from lm_cli.constants import LicenseServerType, SortOrder
+from lm_cli.constants import SortOrder
 from lm_cli.exceptions import handle_abort
 from lm_cli.render import StyleMapper, render_list_results, render_single_result, terminal_message
 from lm_cli.requests import make_request, parse_query_params
-from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
+from lm_cli.schemas import ClusterCreateSchema, LicenseManagerContext
 
 
 style_mapper = StyleMapper(
     id="blue",
     name="green",
-    cluster_id="cyan",
-    features="red",
-    license_servers="white",
-    grace_time="magenta",
-    type="yellow",
+    client_id="cyan",
+    configurations="magenta",
+    jobs="yellow",
 )
 
 
-app = typer.Typer(help="Commands to interact with configurations.")
+app = typer.Typer(help="Commands to interact with clusters.")
 
 
 def format_data(data):
     """Return data in the correct format for printing."""
     formatted_data = []
 
-    for configuration in data:
+    for cluster in data:
         new_data = {}
 
-        new_data["id"] = configuration["id"]
-        new_data["name"] = configuration["name"]
-        new_data["cluster_id"] = configuration["cluster_id"]
-        new_data["features"] = ", ".join([feature["name"] for feature in configuration["features"]])
-        new_data["license_servers"] = ", ".join(
-            [
-                f"{license_server['host']}:{license_server['port']}"
-                for license_server in configuration["license_servers"]
-            ]
-        )
-        new_data["grace_time"] = f"{configuration['grace_time']} (seconds)"
-        new_data["type"] = configuration["type"]
+        new_data["id"] = cluster["id"]
+        new_data["name"] = cluster["name"]
+        new_data["client_id"] = cluster["client_id"]
+        new_data["configurations"] = ", ".join([configuration["name"] for configuration in cluster["configurations"]])
 
         formatted_data.append(new_data)
 
@@ -61,7 +51,7 @@ def list_all(
     sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted."),
 ):
     """
-    Show configuration information.
+    Show cluster information.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -75,10 +65,10 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/configurations/",
+            "/lm/clusters/",
             "GET",
             expected_status=200,
-            abort_message="Couldn't retrieve configuration list from API",
+            abort_message="Couldn't retrieve clusters list from API",
             support=True,
             params=params,
         ),
@@ -88,7 +78,7 @@ def list_all(
 
     render_list_results(
         formatted_data,
-        title="Configurations List",
+        title="Clusters List",
         style_mapper=style_mapper,
     )
 
@@ -97,10 +87,10 @@ def list_all(
 @handle_abort
 def get_one(
     ctx: typer.Context,
-    id: int = typer.Option(int, help="The specific id of the configuration."),
+    id: int = typer.Option(int, help="The specific id of the cluster."),
 ):
     """
-    Get a single configuration by id.
+    Get a single cluster by id.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -112,10 +102,10 @@ def get_one(
         Dict,
         make_request(
             lm_ctx.client,
-            f"/lm/configurations/{id}",
+            f"/lm/clusters/{id}",
             "GET",
             expected_status=200,
-            abort_message="Couldn't get the configuration from the API",
+            abort_message="Couldn't get the cluster from the API",
             support=True,
         ),
     )
@@ -124,30 +114,25 @@ def get_one(
 
     render_single_result(
         formatted_result[0],
-        title=f"Configuration id {id}",
+        title=f"Cluster id {id}",
     )
 
 
-@app.command()
+@app.command("create")
 @handle_abort
 def create(
     ctx: typer.Context,
     name: str = typer.Option(
         ...,
-        help="The name of configuration to create.",
+        help="The name of cluster to create.",
     ),
-    cluster_id: int = typer.Option(
+    client_id: str = typer.Option(
         ...,
-        help="The id of the cluster where the configuration is being added.",
+        help="The client_id of the cluster.",
     ),
-    grace_time: int = typer.Option(
-        ...,
-        help="The grace time for jobs using the license. Must be in seconds.",
-    ),
-    license_server_type: LicenseServerType = typer.Option(..., help="The license server type."),
 ):
     """
-    Create a new configuration.
+    Create a new cluster.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -155,40 +140,38 @@ def create(
     assert lm_ctx is not None
     assert lm_ctx.client is not None
 
-    request_data = ConfigurationCreateSchema(
+    request_data = ClusterCreateSchema(
         name=name,
-        cluster_id=cluster_id,
-        grace_time=grace_time,
-        type=license_server_type,
+        client_id=client_id,
     )
 
     make_request(
         lm_ctx.client,
-        "/lm/configurations/",
+        "/lm/clusters/",
         "POST",
         expected_status=201,
-        abort_message="Configuration creation failed",
+        abort_message="Cluster creation failed",
         support=True,
         request_model=request_data,
     )
 
     terminal_message(
-        "The configuration was created successfully.",
-        subject="Configuration creation succeeded.",
+        "The cluster was created successfully.",
+        subject="Cluster creation succeeded.",
     )
 
 
-@app.command()
+@app.command("delete")
 @handle_abort
 def delete(
     ctx: typer.Context,
     id: int = typer.Option(
         ...,
-        help="The id of the configuration to delete.",
+        help="The id of the cluster to delete.",
     ),
 ):
     """
-    Delete an existing configuration.
+    Delete an existing cluster.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -198,13 +181,13 @@ def delete(
 
     make_request(
         lm_ctx.client,
-        f"/lm/configurations/{id}",
+        f"/lm/clusters/{id}",
         "DELETE",
         expected_status=200,
-        abort_message="Request to delete configuration was not accepted by the API",
+        abort_message="Request to delete cluster was not accepted by the API",
         support=True,
     )
     terminal_message(
-        "The configuration was deleted successfully.",
-        subject="Configuration delete succeeded",
+        "The cluster was deleted successfully.",
+        subject="Cluster delete succeeded",
     )

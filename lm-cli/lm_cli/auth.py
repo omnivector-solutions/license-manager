@@ -5,7 +5,6 @@ Utilities for handling auth in lm-cli.
 from time import sleep
 from typing import Dict, Optional, cast
 
-import pydantic
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 from loguru import logger
@@ -14,12 +13,12 @@ from lm_cli.config import settings
 from lm_cli.exceptions import Abort, LicenseManagerCliError
 from lm_cli.render import terminal_message
 from lm_cli.requests import make_request
-from lm_cli.schemas import DeviceCodeData, IdentityData, LicenseManagerContext, Persona, TokenSet
+from lm_cli.schemas import DeviceCodeData, LicenseManagerContext, Persona, TokenSet
 from lm_cli.text_tools import unwrap
 from lm_cli.time_loop import TimeLoop
 
 
-def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
+def validate_token_and_extract_identity(token_set: TokenSet) -> str:
     """
     Validate the access_token from a TokenSet and extract the identity data.
 
@@ -73,30 +72,18 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> IdentityData:
         )
 
     logger.debug("Extracting identity data from the access token.")
-    user_email = token_data.get(settings.IDENTITY_CLAIMS_KEY)
-    identity_claims = {"user_email": user_email}
+    user_email = token_data.get("email")
 
     Abort.require_condition(
-        identity_claims,
+        user_email,
         "No identity data found in access token data.",
         raise_kwargs=dict(
             subject="No identity found.",
             support=True,
         ),
     )
-    try:
-        return IdentityData.parse_obj(identity_claims)
-    except pydantic.ValidationError as err:
-        raise Abort(
-            """
-            The identity data in the access token is malformed or incomplete.
 
-            Please try logging in again.
-            """,
-            subject="Invalid identity data.",
-            support=True,
-            log_message=f"Identity data is incomplete: {err}.",
-        )
+    return user_email
 
 
 def load_tokens_from_cache() -> TokenSet:
@@ -174,7 +161,7 @@ def init_persona(ctx: LicenseManagerContext, token_set: Optional[TokenSet] = Non
         token_set = load_tokens_from_cache()
 
     try:
-        identity_data = validate_token_and_extract_identity(token_set)
+        user_email = validate_token_and_extract_identity(token_set)
     except ExpiredSignatureError:
         Abort.require_condition(
             token_set.refresh_token is not None,
@@ -187,15 +174,15 @@ def init_persona(ctx: LicenseManagerContext, token_set: Optional[TokenSet] = Non
 
         logger.debug("The access token is expired. Attempting to refresh token.")
         refresh_access_token(ctx, token_set)
-        identity_data = validate_token_and_extract_identity(token_set)
+        user_email = validate_token_and_extract_identity(token_set)
 
-    logger.debug(f"Persona created with identity data: {identity_data}.")
+    logger.debug(f"Persona created with identity data: {user_email}.")
 
     save_tokens_to_cache(token_set)
 
     return Persona(
         token_set=token_set,
-        identity_data=identity_data,
+        user_email=user_email,
     )
 
 

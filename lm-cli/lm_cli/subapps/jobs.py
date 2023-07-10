@@ -1,5 +1,5 @@
 """
-A ``typer`` app that can interact with Licenses endpoint to list data.
+A ``typer`` app that can interact with Jobs endpoint to list data.
 """
 
 from typing import List, Optional, cast
@@ -14,15 +14,16 @@ from lm_cli.schemas import LicenseManagerContext
 
 
 style_mapper = StyleMapper(
-    product_feature="green",
-    used="cyan",
-    total="magenta",
-    booked="blue",
-    available="yellow",
+    id="blue",
+    slurm_job_id="white",
+    cluster_id="green",
+    username="cyan",
+    lead_host="magenta",
+    bookings="purple",
 )
 
 
-app = typer.Typer(help="Commands to interact with licenses.")
+app = typer.Typer(help="Commands to interact with jobs.")
 
 
 @app.command("list")
@@ -34,7 +35,7 @@ def list_all(
     sort_field: Optional[str] = typer.Option(None, help="The field by which results should be sorted."),
 ):
     """
-    Show license usage information.
+    Show job information.
     """
     lm_ctx: LicenseManagerContext = ctx.obj
 
@@ -48,17 +49,32 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/api/v1/license/complete/all",
+            "/lm/jobs/",
             "GET",
             expected_status=200,
-            abort_message="Couldn't retrieve license list from API",
+            abort_message="Couldn't retrieve job list from API",
             support=True,
             params=params,
         ),
     )
 
+    formatted_data = []
+
+    for job in data:
+        new_data = {}
+        new_data["id"] = job["id"]
+        new_data["slurm_job_id"] = job["slurm_job_id"]
+        new_data["cluster_id"] = job["cluster_id"]
+        new_data["username"] = job["username"]
+        new_data["lead_host"] = job["lead_host"]
+        new_data["bookings"] = " | ".join(
+            [f"feature_id: {booking['feature_id']}, quantity: {booking['quantity']}" for booking in job["bookings"]]
+        )
+
+        formatted_data.append(new_data)
+
     render_list_results(
-        data,
-        title="Licenses List",
+        formatted_data,
+        title="Jobs List",
         style_mapper=style_mapper,
     )

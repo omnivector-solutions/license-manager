@@ -13,3 +13,15 @@ class SortOrder(str, Enum):
     ASCENDING = "ascending"
     DESCENDING = "descending"
     UNSORTED = "unsorted"
+
+
+class LicenseServerType(str, Enum):
+    """
+    Describe the supported license server types that may be used for fetching licenses from license servers.
+    """
+
+    FLEXLM = "flexlm"
+    RLM = "rlm"
+    LMX = "lmx"
+    LSDYNA = "lsdyna"
+    OLICENSE = "olicense"

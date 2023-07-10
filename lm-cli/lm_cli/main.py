@@ -16,16 +16,24 @@ from lm_cli.logs import init_logs
 from lm_cli.render import render_json, terminal_message
 from lm_cli.schemas import LicenseManagerContext, Persona, TokenSet
 from lm_cli.subapps.bookings import app as bookings_app
+from lm_cli.subapps.clusters import app as clusters_app
 from lm_cli.subapps.configurations import app as configurations_app
-from lm_cli.subapps.licenses import app as licenses_app
+from lm_cli.subapps.features import app as features_app
+from lm_cli.subapps.jobs import app as jobs_app
+from lm_cli.subapps.license_servers import app as license_servers_app
+from lm_cli.subapps.products import app as products_app
 from lm_cli.text_tools import conjoin, copy_to_clipboard
 
 
 app = typer.Typer()
 
-app.add_typer(licenses_app, name="licenses")
 app.add_typer(bookings_app, name="bookings")
+app.add_typer(clusters_app, name="clusters")
 app.add_typer(configurations_app, name="configurations")
+app.add_typer(features_app, name="features")
+app.add_typer(jobs_app, name="jobs")
+app.add_typer(license_servers_app, name="license-servers")
+app.add_typer(products_app, name="products")
 
 
 @app.callback(invoke_without_command=True)
@@ -41,7 +49,7 @@ def main(
     More information can be shown for each command listed below by running it with the --help option.
     """
     if version:
-        typer.echo(importlib_metadata.version("lm-cli"))
+        typer.echo(importlib_metadata.version("license-manager-cli"))
         raise typer.Exit()
 
     if ctx.invoked_subcommand is None:
@@ -84,7 +92,7 @@ def login(ctx: typer.Context):
     token_set: TokenSet = fetch_auth_tokens(ctx.obj)
     persona: Persona = init_persona(ctx.obj, token_set)
     terminal_message(
-        f"User was logged in with email '{persona.identity_data.user_email}'",
+        f"User was logged in with email '{persona.user_email}'",
         subject="Logged in!",
     )
 

@@ -5,7 +5,7 @@ import pytest
 from typer import Context, Typer
 from typer.testing import CliRunner
 
-from lm_cli.schemas import IdentityData, LicenseManagerContext, Persona, TokenSet
+from lm_cli.schemas import LicenseManagerContext, Persona, TokenSet
 
 
 @pytest.fixture
@@ -42,109 +42,230 @@ def dummy_context(dummy_domain):
 
 @pytest.fixture
 def attach_persona(dummy_context):
-    def _helper(user_email: str, org_name: str = "dumb-org", access_token: str = "foo"):
+    def _helper(user_email: str, access_token: str = "foo"):
         dummy_context.persona = Persona(
             token_set=TokenSet(access_token=access_token),
-            identity_data=IdentityData(
-                user_email=user_email,
-                org_name=org_name,
-            ),
+            user_email=user_email,
         )
 
     return _helper
 
 
 @pytest.fixture
-def dummy_license_data():
+def dummy_booking_data():
     return [
-        dict(
-            product_feature="product1.license1",
-            used=0,
-            total=100,
-            available=100,
-        ),
-        dict(
-            product_feature="product2.license2",
-            used=0,
-            total=200,
-            available=200,
-        ),
+        {"id": 1, "job_id": 123, "feature_id": 1, "quantity": 50},
+        {"id": 2, "job_id": 234, "feature_id": 2, "quantity": 35},
     ]
 
 
 @pytest.fixture
-def dummy_booking_data():
+def dummy_cluster_data(dummy_configuration_data):
     return [
-        dict(
-            id=1,
-            job_id=123,
-            product_feature="product1.license1",
-            booked=10,
-            config_id=1,
-            lead_host="test-host",
-            user_name="test-user",
-            cluster_name="test-cluster",
-        ),
-        dict(
-            id=2,
-            job_id=234,
-            product_feature="product2.license2",
-            booked=20,
-            config_id=2,
-            lead_host="test-host",
-            user_name="test-user",
-            cluster_name="test-cluster",
-        ),
+        {
+            "id": 1,
+            "name": "Cluster 1",
+            "client_id": "cluster1",
+            "configurations": dummy_configuration_data,
+            "jobs": [
+                {
+                    "id": 1,
+                    "slurm_job_id": "string",
+                    "cluster_id": 1,
+                    "username": "string",
+                    "lead_host": "string",
+                    "bookings": [
+                        {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 50},
+                        {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 25},
+                    ],
+                }
+            ],
+        }
+    ]
+
+
+@pytest.fixture
+def dummy_cluster_data_for_printing():
+    return [
+        {
+            "id": 1,
+            "name": "Cluster 1",
+            "client_id": "cluster1",
+            "configurations": "Abaqus, Converge",
+        }
     ]
 
 
 @pytest.fixture
 def dummy_configuration_data():
     return [
-        dict(
-            id=1,
-            name="Configuration 1",
-            product="product1",
-            features='{"license1": 100}',
-            license_servers=["flexlm:127.0.0.1:1234"],
-            license_server_type="flexlm",
-            grace_time=60,
-            client_id="cluster-staging",
-        ),
-        dict(
-            id=2,
-            name="Configuration 2",
-            product="product2",
-            features='{"license2": 200}',
-            license_servers=["rlm:127.0.0.1:2345"],
-            license_server_type="rlm",
-            grace_time=60,
-            client_id="cluster-staging"
-        ),
+        {
+            "id": 1,
+            "name": "Abaqus",
+            "cluster_id": 1,
+            "features": [
+                {
+                    "id": 1,
+                    "name": "abaqus",
+                    "product": {"id": 1, "name": "abaqus"},
+                    "config_id": 1,
+                    "reserved": 100,
+                    "inventory": {"id": 1, "feature_id": 1, "total": 1000, "used": 500},
+                }
+            ],
+            "license_servers": [
+                {"id": 1, "config_id": 1, "host": "licserv0001", "port": 1234},
+                {"id": 2, "config_id": 1, "host": "licserv0002", "port": 2345},
+            ],
+            "grace_time": 60,
+            "type": "flexlm",
+        },
+        {
+            "id": 2,
+            "name": "Converge",
+            "cluster_id": 1,
+            "features": [
+                {
+                    "id": 2,
+                    "name": "converge_super",
+                    "product": {"id": 2, "name": "converge"},
+                    "config_id": 2,
+                    "reserved": 50,
+                    "inventory": {"id": 2, "feature_id": 2, "total": 600, "used": 300},
+                }
+            ],
+            "license_servers": [
+                {"id": 3, "config_id": 2, "host": "licserv0003", "port": 1234},
+                {"id": 4, "config_id": 2, "host": "licserv0004", "port": 2345},
+            ],
+            "grace_time": 60,
+            "type": "rlm",
+        },
     ]
 
 
 @pytest.fixture
 def dummy_configuration_data_for_printing():
     return [
-        dict(
-            id=1,
-            name="Configuration 1",
-            product="product1",
-            features='{"license1": 100}',
-            license_servers=["flexlm:127.0.0.1:1234"],
-            license_server_type="flexlm",
-            grace_time="60 (seconds)",
-            client_id="cluster-staging",
-        ),
-        dict(
-            id=2,
-            name="Configuration 2",
-            product="product2",
-            features='{"license2": 200}',
-            license_servers=["rlm:127.0.0.1:2345"],
-            license_server_type="rlm",
-            grace_time="60 (seconds)",
-            client_id="cluster-staging",
-        ),
+        {
+            "id": 1,
+            "name": "Abaqus",
+            "cluster_id": 1,
+            "features": "abaqus",
+            "license_servers": "licserv0001:1234, licserv0002:2345",
+            "grace_time": "60 (seconds)",
+            "type": "flexlm",
+        },
+        {
+            "id": 2,
+            "name": "Converge",
+            "cluster_id": 1,
+            "features": "converge_super",
+            "license_servers": "licserv0003:1234, licserv0004:2345",
+            "grace_time": "60 (seconds)",
+            "type": "rlm",
+        },
+    ]
+
+
+@pytest.fixture
+def dummy_feature_data():
+    return [
+        {
+            "id": 1,
+            "name": "abaqus",
+            "product": {"id": 1, "name": "abaqus"},
+            "config_id": 1,
+            "reserved": 100,
+            "inventory": {"id": 1, "feature_id": 1, "total": 1000, "used": 500},
+        },
+        {
+            "id": 2,
+            "name": "converge_super",
+            "product": {"id": 2, "name": "converge"},
+            "config_id": 2,
+            "reserved": 50,
+            "inventory": {"id": 2, "feature_id": 2, "total": 600, "used": 300},
+        },
+    ]
+
+
+@pytest.fixture
+def dummy_feature_data_for_printing():
+    return [
+        {
+            "id": 1,
+            "config_id": 1,
+            "product": "abaqus",
+            "feature": "abaqus",
+            "total": 1000,
+            "used": 500,
+            "reserved": 100,
+            "booked": 50,
+            "available": 350,
+        },
+        {
+            "id": 2,
+            "config_id": 2,
+            "product": "converge",
+            "feature": "converge_super",
+            "total": 600,
+            "used": 300,
+            "reserved": 50,
+            "booked": 35,
+            "available": 215,
+        },
+    ]
+
+
+@pytest.fixture
+def dummy_job_data():
+    return [
+        {
+            "id": 1,
+            "slurm_job_id": "string",
+            "cluster_id": 1,
+            "username": "string",
+            "lead_host": "string",
+            "bookings": [
+                {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 50},
+                {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 25},
+            ],
+        }
+    ]
+
+
+@pytest.fixture
+def dummy_job_data_for_printing():
+    return [
+        {
+            "id": 1,
+            "slurm_job_id": "string",
+            "cluster_id": 1,
+            "username": "string",
+            "lead_host": "string",
+            "bookings": "feature_id: 1, quantity: 50 | feature_id: 2, quantity: 25",
+        }
+    ]
+
+
+@pytest.fixture
+def dummy_license_server_data():
+    return [
+        {"id": 1, "config_id": 1, "host": "licserv0001", "port": 1234},
+        {"id": 2, "config_id": 1, "host": "licserv0002", "port": 2345},
+    ]
+
+
+@pytest.fixture
+def dummy_product_data():
+    return [
+        {
+            "id": 1,
+            "name": "abaqus",
+        },
+        {
+            "id": 2,
+            "name": "converge",
+        },
     ]
