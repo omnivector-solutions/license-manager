@@ -17,7 +17,7 @@ async def test_add_cluster__success(
         "client_id": "dummy",
     }
 
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.post("/lm/clusters", json=data)
     assert response.status_code == 201
 
@@ -34,7 +34,7 @@ async def test_get_all_clusters__success(
     inject_security_header,
     create_clusters,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters")
 
     assert response.status_code == 200
@@ -52,7 +52,7 @@ async def test_get_all_clusters__with_search(
     inject_security_header,
     create_clusters,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     client_id = create_clusters[1].client_id
     response = await backend_client.get(f"/lm/clusters/?search={client_id}")
 
@@ -69,7 +69,7 @@ async def test_get_all_clusters__with_sort(
     inject_security_header,
     create_clusters,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters/?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
@@ -89,7 +89,7 @@ async def test_get_cluster__success(
 ):
     id = create_one_cluster[0].id
 
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     response = await backend_client.get(f"/lm/clusters/{id}")
 
     assert response.status_code == 200
@@ -114,7 +114,7 @@ async def test_get_cluster__fail_with_bad_parameter(
     create_one_cluster,
     id,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     response = await backend_client.get(f"/lm/clusters/{id}")
 
     assert response.status_code == 404
@@ -124,12 +124,11 @@ async def test_get_cluster__fail_with_bad_parameter(
 async def test_get_cluster_by_client_id__success(
     backend_client: AsyncClient,
     inject_security_header,
-    inject_client_id_in_security_header,
     create_one_cluster,
 ):
     client_id = create_one_cluster[0].client_id
 
-    inject_client_id_in_security_header(client_id, Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW, client_id=client_id)
 
     response = await backend_client.get("/lm/clusters/by_client_id")
 
@@ -146,7 +145,7 @@ async def test_get_cluster_by_client_id__fail_with_bad_client_id(
     inject_security_header,
     create_one_cluster,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_VIEW)
     response = await backend_client.get("/lm/clusters/by_client_id")
 
     assert response.status_code == 400
@@ -163,7 +162,7 @@ async def test_update_cluster__success(
 
     id = create_one_cluster[0].id
 
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.put(f"/lm/clusters/{id}", json=new_cluster)
 
     assert response.status_code == 200
@@ -192,7 +191,7 @@ async def test_update_cluster__fail_with_bad_parameter(
 ):
     new_cluster = {"name": "New Dummy Cluster", "client_id": "new-dummy"}
 
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.put(f"/lm/clusters/{id}", json=new_cluster)
 
     assert response.status_code == 404
@@ -208,7 +207,7 @@ async def test_update_cluster__fail_with_bad_data(
 
     id = create_one_cluster[0].id
 
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.put(f"/lm/clusters/{id}", json=new_cluster)
 
     assert response.status_code == 400
@@ -223,7 +222,7 @@ async def test_delete_cluster__success(
 ):
     id = create_one_cluster[0].id
 
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.delete(f"/lm/clusters/{id}")
 
     assert response.status_code == 200
@@ -248,7 +247,7 @@ async def test_delete_cluster__fail_with_bad_parameter(
     create_one_cluster,
     id,
 ):
-    inject_security_header("owner1", Permissions.CLUSTER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CLUSTER_EDIT)
     response = await backend_client.delete(f"/lm/clusters/{id}")
 
     assert response.status_code == 404

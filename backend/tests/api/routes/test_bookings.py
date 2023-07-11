@@ -23,7 +23,7 @@ async def test_add_booking__success(
         "quantity": 150,
     }
 
-    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_EDIT)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 201
@@ -54,7 +54,7 @@ async def test_add_booking__fail_with_overbooking(
         "quantity": 1500,
     }
 
-    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_EDIT)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 409
@@ -76,7 +76,7 @@ async def test_add_booking__fail_with_overbooking_when_reserved(
         "quantity": 750,
     }
 
-    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_EDIT)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 409
@@ -88,7 +88,7 @@ async def test_get_all_bookings__success(
     inject_security_header,
     create_bookings,
 ):
-    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_VIEW)
     response = await backend_client.get("/lm/bookings")
 
     assert response.status_code == 200
@@ -110,7 +110,7 @@ async def test_get_all_bookings__with_sort(
     create_bookings,
 ):
 
-    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_VIEW)
     response = await backend_client.get("/lm/bookings/?sort_field=job_id&sort_ascending=false")
 
     assert response.status_code == 200
@@ -133,7 +133,7 @@ async def test_get_booking__success(
 ):
     id = create_one_booking[0].id
 
-    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_VIEW)
     response = await backend_client.get(f"/lm/bookings/{id}")
 
     assert response.status_code == 200
@@ -159,7 +159,7 @@ async def test_get_booking__fail_with_bad_parameter(
     create_one_booking,
     id,
 ):
-    inject_security_header("owner1", Permissions.BOOKING_VIEW)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_VIEW)
     response = await backend_client.get(f"/lm/bookings/{id}")
 
     assert response.status_code == 404
@@ -174,7 +174,7 @@ async def test_delete_booking__success(
 ):
     id = create_one_booking[0].id
 
-    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_EDIT)
     response = await backend_client.delete(f"/lm/bookings/{id}")
 
     assert response.status_code == 200
@@ -200,7 +200,7 @@ async def test_delete_booking__fail_with_bad_parameter(
     read_object,
     id,
 ):
-    inject_security_header("owner1", Permissions.BOOKING_EDIT)
+    inject_security_header("owner1@test.com", Permissions.BOOKING_EDIT)
     response = await backend_client.delete(f"/lm/bookings/{id}")
 
     assert response.status_code == 404

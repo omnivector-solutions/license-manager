@@ -21,7 +21,7 @@ async def test_add_inventory__success(
         "used": 350,
     }
 
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.post("/lm/inventories", json=data)
 
     assert response.status_code == 201
@@ -40,7 +40,7 @@ async def test_get_all_inventories__success(
     inject_security_header,
     create_inventories,
 ):
-    inject_security_header("owner1", Permissions.INVENTORY_VIEW)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_VIEW)
     response = await backend_client.get("/lm/inventories")
 
     assert response.status_code == 200
@@ -63,7 +63,7 @@ async def test_get_inventory__success(
 ):
     id = create_one_inventory[0].id
 
-    inject_security_header("owner1", Permissions.INVENTORY_VIEW)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_VIEW)
     response = await backend_client.get(f"/lm/inventories/{id}")
 
     assert response.status_code == 200
@@ -89,7 +89,7 @@ async def test_get_inventory__fail_with_bad_parameter(
     create_one_inventory,
     id,
 ):
-    inject_security_header("owner1", Permissions.INVENTORY_VIEW)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_VIEW)
     response = await backend_client.get(f"/lm/inventories/{id}")
 
     assert response.status_code == 404
@@ -108,7 +108,7 @@ async def test_update_inventory__success(
 
     id = create_one_inventory[0].id
 
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
 
     assert response.status_code == 200
@@ -138,7 +138,7 @@ async def test_update_inventory__fail_with_bad_parameter(
         "total": 9000,
     }
 
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
 
     assert response.status_code == 404
@@ -156,7 +156,7 @@ async def test_update_inventory__fail_with_bad_data(
 
     id = create_one_inventory[0].id
 
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.put(f"/lm/inventories/{id}", json=new_inventory)
 
     assert response.status_code == 400
@@ -171,7 +171,7 @@ async def test_delete_inventory__success(
 ):
     id = create_one_inventory[0].id
 
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.delete(f"/lm/inventories/{id}")
 
     assert response.status_code == 200
@@ -196,7 +196,7 @@ async def test_delete_inventory__fail_with_bad_parameter(
     create_one_inventory,
     id,
 ):
-    inject_security_header("owner1", Permissions.INVENTORY_EDIT)
+    inject_security_header("owner1@test.com", Permissions.INVENTORY_EDIT)
     response = await backend_client.delete(f"/lm/inventories/{id}")
 
     assert response.status_code == 404

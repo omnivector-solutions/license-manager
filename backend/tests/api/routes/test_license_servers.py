@@ -21,7 +21,7 @@ async def test_add_license_server__success(
         "port": 1234,
     }
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.post("/lm/license_servers", json=data)
     assert response.status_code == 201
 
@@ -39,7 +39,7 @@ async def test_get_all_license_servers__success(
     inject_security_header,
     create_license_servers,
 ):
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get("/lm/license_servers")
 
     assert response.status_code == 200
@@ -58,7 +58,7 @@ async def test_get_all_license_servers__with_search(
     inject_security_header,
     create_license_servers,
 ):
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get(f"/lm/license_servers/?search={create_license_servers[0].host}")
 
     assert response.status_code == 200
@@ -75,7 +75,7 @@ async def test_get_all_license_servers__with_sort(
     create_license_servers,
 ):
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get("/lm/license_servers/?sort_field=host&sort_ascending=false")
 
     assert response.status_code == 200
@@ -96,7 +96,7 @@ async def test_get_license_server__success(
 ):
     id = create_one_license_server[0].id
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get(f"/lm/license_servers/{id}")
 
     assert response.status_code == 200
@@ -121,7 +121,7 @@ async def test_get_license_server__fail_with_bad_parameter(
     create_one_license_server,
     id,
 ):
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_VIEW)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get(f"/lm/license_servers/{id}")
 
     assert response.status_code == 404
@@ -138,7 +138,7 @@ async def test_update_license_server__success(
 
     id = create_one_license_server[0].id
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.put(f"/lm/license_servers/{id}", json=new_license_server)
 
     assert response.status_code == 200
@@ -167,7 +167,7 @@ async def test_update_license_server__fail_with_bad_parameter(
 ):
     new_license_server = {"host": "licserv9999.com"}
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.put(f"/lm/license_servers/{id}", json=new_license_server)
 
     assert response.status_code == 404
@@ -184,7 +184,7 @@ async def test_update_license_server__fail_with_bad_data(
 
     id = create_one_license_server[0].id
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.put(f"/lm/license_servers/{id}", json=new_license_server)
 
     assert response.status_code == 400
@@ -199,7 +199,7 @@ async def test_delete_license_server__success(
 ):
     id = create_one_license_server[0].id
 
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.delete(f"/lm/license_servers/{id}")
 
     assert response.status_code == 200
@@ -224,7 +224,7 @@ async def test_delete_license_server__fail_with_bad_parameter(
     create_one_license_server,
     id,
 ):
-    inject_security_header("owner1", Permissions.LICENSE_SERVER_EDIT)
+    inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_EDIT)
     response = await backend_client.delete(f"/lm/license_servers/{id}")
 
     assert response.status_code == 404

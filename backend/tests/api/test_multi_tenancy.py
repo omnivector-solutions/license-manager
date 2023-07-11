@@ -115,8 +115,8 @@ async def test_session_tenancy(get_synth_sessions):
 
     Checks that database writes and reads for the two sessions are distinct and do not effect each other.
     """
-    default_client_id = settings.TEST_DATABASE_NAME
-    alt_client_id = "alt-test-db"
+    default_client_id = "default-client"
+    alt_client_id = "alt-client"
 
     async with get_synth_sessions() as (default_session, alt_session):
         default_session.add(Cluster(name="Dummy Cluster", client_id=default_client_id))
@@ -137,22 +137,27 @@ async def test_session_tenancy(get_synth_sessions):
 async def test_clusters_router_with_multi_tenancy(
     get_synth_sessions,
     backend_client: AsyncClient,
-    inject_client_id_in_security_header,
+    inject_security_header,
     tweak_settings,
 ):
     """
     Test POST /clusters/ correctly creates clusters using multi-tenancy.
 
     This method checks to make sure that the correct database is used for the API request based on the
-    client_id that is provided in the auth token in the request header.
+    organization_id that is provided in the auth token in the request header.
     """
-    default_client_id = settings.TEST_DATABASE_NAME
-    alt_client_id = "alt-test-db"
+    default_client_id = "default-client"
+    default_organization_id = settings.TEST_DATABASE_NAME
+
+    alt_client_id = "alt-client"
+    alt_organization_id = "alt-test-db"
 
     with tweak_settings(MULTI_TENANCY_ENABLED=True):
         async with get_synth_sessions() as (default_session, alt_session):
 
-            inject_client_id_in_security_header(default_client_id, Permissions.CLUSTER_EDIT)
+            inject_security_header(
+                "owner1@test.com", Permissions.CLUSTER_EDIT, organization_id=default_organization_id
+            )
             default_response = await backend_client.post(
                 "/lm/clusters/",
                 json=dict(
@@ -165,7 +170,9 @@ async def test_clusters_router_with_multi_tenancy(
             assert default_data["name"] == "default-cluster"
             assert default_data["client_id"] == default_client_id
 
-            inject_client_id_in_security_header(alt_client_id, Permissions.CLUSTER_EDIT)
+            inject_security_header(
+                "owner2@test.com", Permissions.CLUSTER_EDIT, organization_id=alt_organization_id
+            )
             alt_response = await backend_client.post(
                 "/lm/clusters/",
                 json=dict(

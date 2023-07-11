@@ -20,7 +20,7 @@ async def test_add_feature__success(
 
     data = {"name": "abaqus", "product_id": product_id, "config_id": configuration_id, "reserved": 0}
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.post("/lm/features", json=data)
     assert response.status_code == 201
 
@@ -44,7 +44,7 @@ async def test_get_all_features__success(
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
     response = await backend_client.get("/lm/features")
 
     assert response.status_code == 200
@@ -63,7 +63,7 @@ async def test_get_all_features__with_search(
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
     response = await backend_client.get(f"/lm/features/?search={create_features[0].name}")
 
     assert response.status_code == 200
@@ -79,7 +79,7 @@ async def test_get_all_features__with_sort(
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
     response = await backend_client.get("/lm/features/?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
@@ -100,7 +100,7 @@ async def test_get_feature__success(
 ):
     id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
     response = await backend_client.get(f"/lm/features/{id}")
 
     assert response.status_code == 200
@@ -125,7 +125,7 @@ async def test_get_feature__fail_with_bad_parameter(
     create_one_feature,
     id,
 ):
-    inject_security_header("owner1", Permissions.FEATURE_VIEW)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
     response = await backend_client.get(f"/lm/features/{id}")
 
     assert response.status_code == 404
@@ -142,7 +142,7 @@ async def test_update_feature__success(
 
     id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 200
@@ -170,7 +170,7 @@ async def test_update_feature__fail_with_bad_parameter(
 ):
     new_feature = {"name": "abaqus_2"}
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 404
@@ -186,7 +186,7 @@ async def test_update_feature__fail_with_bad_data(
 
     id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 400
@@ -206,7 +206,7 @@ async def test_update_inventory__success(
 
     feature_id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
 
     assert response.status_code == 200
@@ -237,7 +237,7 @@ async def test_update_inventory__fail_with_bad_parameter(
 ):
     new_inventory = {"total": 9999, "used": 9}
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{id}/update_inventory", json=new_inventory)
 
     assert response.status_code == 404
@@ -254,7 +254,7 @@ async def test_update_inventory__fail_with_bad_data(
 
     feature_id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
 
     assert response.status_code == 400
@@ -269,7 +269,7 @@ async def test_delete_feature__success(
 ):
     id = create_one_feature[0].id
 
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.delete(f"/lm/features/{id}")
 
     assert response.status_code == 200
@@ -294,7 +294,7 @@ async def test_delete_feature__fail_with_bad_parameter(
     create_one_feature,
     id,
 ):
-    inject_security_header("owner1", Permissions.FEATURE_EDIT)
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.delete(f"/lm/features/{id}")
 
     assert response.status_code == 404

@@ -22,7 +22,7 @@ async def test_add_job__success(
         "lead_host": "test-host",
     }
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -55,7 +55,7 @@ async def test_add_job__with_bookings(
         "bookings": [{"feature_id": feature_id, "quantity": 50}],
     }
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -90,7 +90,7 @@ async def test_add_job__with_bookings__fail_with_overbooking(
         "bookings": [{"feature_id": feature_id, "quantity": 9999}],
     }
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 409
 
@@ -106,7 +106,7 @@ async def test_get_all_jobs__success(
     inject_security_header,
     create_jobs,
 ):
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get("/lm/jobs")
 
     assert response.status_code == 200
@@ -129,7 +129,7 @@ async def test_get_all_jobs__with_search(
     inject_security_header,
     create_jobs,
 ):
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/?search={create_jobs[0].slurm_job_id}")
 
     assert response.status_code == 200
@@ -148,7 +148,7 @@ async def test_get_all_jobs__with_sort(
     create_jobs,
 ):
 
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get("/lm/jobs/?sort_field=slurm_job_id&sort_ascending=false")
 
     assert response.status_code == 200
@@ -173,7 +173,7 @@ async def test_get_job__success(
 ):
     id = create_one_job[0].id
 
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/{id}")
 
     assert response.status_code == 200
@@ -200,7 +200,7 @@ async def test_get_job__fail_with_bad_parameter(
     create_one_job,
     id,
 ):
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/{id}")
 
     assert response.status_code == 404
@@ -215,7 +215,7 @@ async def test_delete_job__success(
 ):
     id = create_one_job[0].id
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.delete(f"/lm/jobs/{id}")
 
     assert response.status_code == 200
@@ -240,7 +240,7 @@ async def test_delete_job__fail_with_bad_parameter(
     create_one_job,
     id,
 ):
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.delete(f"/lm/jobs/{id}")
 
     assert response.status_code == 404
@@ -256,7 +256,7 @@ async def test_delete_job_by_slurm_id__success(
     slurm_job_id = create_one_job[0].slurm_job_id
     cluster_id = create_one_job[0].cluster_id
 
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
 
     assert response.status_code == 200
@@ -282,7 +282,7 @@ async def test_delete_job_by_slurm_id__fail_with_bad_parameter(
     slurm_job_id,
     cluster_id,
 ):
-    inject_security_header("owner1", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
     response = await backend_client.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
 
     assert response.status_code == 404
@@ -297,7 +297,7 @@ async def test_read_job_by_slurm_id__success(
     slurm_job_id = create_one_job[0].slurm_job_id
     cluster_id = create_one_job[0].cluster_id
 
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
 
     assert response.status_code == 200
@@ -325,7 +325,7 @@ async def test_read_job_by_slurm_id__fail_with_bad_parameter(
     slurm_job_id,
     cluster_id,
 ):
-    inject_security_header("owner1", Permissions.JOB_VIEW)
+    inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}")
 
     assert response.status_code == 404

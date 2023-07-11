@@ -193,27 +193,23 @@ def enforce_mocked_oidc_provider(mock_openid_server):
 async def inject_security_header(backend_client, build_rs256_token):
     """
     Provides a helper method that will inject a security token into the requests for a test client. If no
-    permisions are provided, the security token will still be valid but will not carry any permissions. Uses
+    permissions are provided, the security token will still be valid but will not carry any permissions. Uses
     the `build_rs256_token()` fixture from the armasec package.
     """
 
-    def _helper(owner_id: str, *permissions: typing.List[str]):
-        token = build_rs256_token(claim_overrides=dict(sub=owner_id, permissions=permissions))
-        backend_client.headers.update({"Authorization": f"Bearer {token}"})
-
-    return _helper
-
-
-@fixture
-async def inject_client_id_in_security_header(backend_client, build_rs256_token):
-    """
-    Provides a helper method that will inject a security token into the requests for a test client. If no
-    client_id is provided, the security token will still be valid but will not carry any identification
-    in the `azp` parameter. Uses the `build_rs256_token()` fixture from the armasec package.
-    """
-
-    def _helper(client_id: str, *permissions: typing.List[str]):
-        token = build_rs256_token(claim_overrides=dict(azp=client_id, permissions=permissions))
+    def _helper(
+        owner_email: str,
+        *permissions: typing.List[str],
+        client_id: typing.Optional[str] = None,
+        organization_id: typing.Optional[str] = None,
+    ):
+        claim_overrides = dict(
+            email=owner_email,
+            client_id=client_id,
+            permissions=permissions,
+            organization={organization_id: dict()},
+        )
+        token = build_rs256_token(claim_overrides=claim_overrides)
         backend_client.headers.update({"Authorization": f"Bearer {token}"})
 
     return _helper
