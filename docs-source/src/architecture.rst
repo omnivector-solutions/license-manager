@@ -42,20 +42,52 @@ Thus, each license has a ``grace time`` period that is used to indicate how long
 After the ``grace time`` expires, the booking is deleted. This means that the license was checked out from the
 license server and doesn't need a booking anymore.
 
-License Manager Backend
------------------------
-The ``license-manager-backend`` provides a RESTful API where licenses, bookings and license configurations are tracked.
-The ``license-manager-agent`` uses this API to store the license usage information and to process the booking requests.
+License Manager API
+-------------------
+The ``License Manager API`` provides a RESTful API where licenses and bookins are tracked.
+The ``License Manager Agent`` uses this API to store the license usage information and to process the booking requests.
 
-The backend is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
+The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.
+
+The API contains 8 entities that have relationship among them.
+This means that some of the resources need to be created before others can be created as well.
+
+.. image:: images/diagram.png
+   :alt: License Manager Entity Diagram
+
+
+Clusters
+********
+The ``Cluster`` resource represents the cluster where ``License Manager Agent`` is running.
+It must have a ``client_id`` that identifies it in the OIDC provider.
+
+Endpoints available:
+
+* POST ``/lm/clusters``
+* GET ``/lm/clusters``
+* GET ``/lm/clusters/{id}``
+* PUT ``/lm/clusters/{id}``
+* DEL ``/lm/clusters/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "name": "cluster-name",
+        "client_id": "cluster-client-id"
+    }
 
 Configurations
 **************
-Each license tracked by License Manager has a configuration that defines the license type, the license server host
-addresses and the grace time period. The license type identifies the provider of the license server.
+The ``Configuration`` resource holds the information for a set of features that are available on the same license server.
+A configuration is attached to a cluster and can have ``n`` features attached to it.
+It also defines the license type, the license server host addresses and the grace time period.
+The license type identifies the provider of the license server.
 
-The following license server are supported:
+
+The following license server types are supported:
 
 * FlexLM
 * RLM
@@ -63,12 +95,171 @@ The following license server are supported:
 * LM-X
 * OLicense
 
-Licenses
+Endpoints available:
+
+* POST ``/lm/configurations``
+* GET ``/lm/configurations``
+* GET ``/lm/configurations/{id}``
+* PUT ``/lm/configurations/{id}``
+* DEL ``/lm/configurations/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "name": "configuration-name",
+        "cluster_id": 1, 
+        "grace_time": 60,
+        "type": "flexlm"
+    }
+
+After creating a configuration, the license servers and features can be added.
+
+License Servers
+***************
+The ``License Server`` resource represents the actual license server where the license is installed.
+A license server has a host and a port, and needs to be attached to a configuration.
+Each configuration can have ``n`` license servers, as long as they provide the same data (mirrored for redundancy).
+
+Endpoints available:
+
+* POST ``/lm/license_servers``
+* GET ``/lm/license_servers``
+* GET ``/lm/license_servers/{id}``
+* PUT ``/lm/license_servers/{id}``
+* DEL ``/lm/license_servers/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "config_id": 1,
+        "host": "licserv0001",
+        "port": 1234
+    }
+
+
+Products
 ********
-The ``license-manager-agent`` stores the information polled from the license server for each license configured.
-The information stored includes the total number of licenses available, how many licenses are in use and which user checked out the license.
+The ``Product`` resource represents the product name of the license.
+Each license is identified as ``product.feature@license_server_type``.
+To create a ``Feature``, a ``Product`` needs to be created first.
+
+Endpoints available:
+
+* POST ``/lm/products``
+* GET ``/lm/products``
+* GET ``/lm/products/{id}``
+* PUT ``/lm/products/{id}``
+* DEL ``/lm/products/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "name": "abaqus"
+    }
+
+
+Features
+********
+The ``Feature`` resource represents the licenses in the cluster.
+Each ``Feature`` is attached to a ``Configuration`` and a ``Product``, and has an ``Inventory`` attached to it.
+
+The feature has a ``reserved`` value, that represents how many licenses should be reserved for usage in desktop applications.
+The amount of licenses reserved is not used by the cluster.
+
+Each ``Feature`` has one ``Inventory`` attached to it, which is automatically created when a ``Feature`` is created.
+The ``License Manager Agent`` polls the license server to populate the ``Inventory``.
+The information stored includes the total number of licenses available and how many licenses are in use.
+
+Endpoints available:
+
+* POST ``/lm/features``
+* GET ``/lm/features``
+* GET ``/lm/features/{id}``
+* PUT ``/lm/features/{id}``
+* PUT ``/lm/features/{id}/update_inventory``
+* DEL ``/lm/features/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "name": "abaqus",
+        "product_id": 1,
+        "config_id": 1,
+        "reserved": 50,
+    }
+
+Payload example for PUT ``update_inventory``:
+
+.. code-block:: json
+
+    {
+        "total": 500,
+        "used": 150
+    }
+
+Jobs
+****
+The ``Job`` resource represents the jobs submitted to the cluster.
+When a job is intercepted by the ``PrologSlurmctld`` script, the job is created automatically.
+
+Each ``Job`` can have ``n`` ``Bookings`` attached to it.
+If the job requires licenses, a ``Booking`` is created for each license.
+Once the job finishes, the ``EpilogSlurmctld`` deletes the job from the API, along with its bookings.
+
+Since the ``slurm_job_id`` is not unique across clusters, each job is identified by the ``cluster_id`` alongside the ``slurm_job_id``.
+
+Endpoints available:
+
+* POST ``/lm/jobs``
+* GET ``/lm/jobs``
+* GET ``/lm/jobs/{id}``
+* DEL ``/lm/jobs/{id}``
+* GET ``/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}``
+* DEL ``/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "slurm_job_id": "123",
+        "cluster_id": 1,
+        "username": "user123",
+        "lead_host": "host1"
+    }
 
 Bookings
 ********
-The ``license-manager-agent`` stores the information about the booking requests made by Slurm when the ``PrologSlurmctld``
-script is used. The information stored includes the job id, the user that made the booking request and the number of licenses being booked.
+The ``Booking`` resource is responsible for booking licenses for a specific job.
+
+The booking ensures the job will have enough licenses to be used when the ``grace time`` is reached.
+``License Manager Agent`` stores the information about the booking requests made by Slurm when the ``PrologSlurmctld``
+script is used.
+
+Each ``Booking`` is attached to a ``Job``. The ``job_id`` parameter identifies the job in the API, and is different from the ``slurm job id``
+that idenfies it in the cluster.
+
+Endpoints available:
+
+* POST ``/lm/bookings``
+* GET ``/lm/bookings``
+* GET ``/lm/bookings/{id}``
+* DEL ``/lm/bookings/{id}``
+
+Payload example for POST:
+
+.. code-block:: json
+
+    {
+        "job_id": 1
+        "feature_id": 1,
+        "quantity": 50
+    }
