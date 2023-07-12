@@ -6,29 +6,29 @@ a prolog integration to Slurm.
 
 License Manager Agent
 ---------------------
-The ``license-manager-agent`` is responsible for keeping the local cluster license totals
+The ``License Manager Agent`` is responsible for keeping the local cluster license totals
 in sync with the the 3rd party license server totals. It's also responsible for making booking requests
-to the ``license-manager-backend`` when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``license-manager-agent``.
+to the ``License Manager API`` when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
 
 Reconciliation
 **************
-For each license tracked by License Manager, the ``license-manager-agent`` will periodically poll the license server to get
-the usage information and store it in the ``license-manager-backend``. The ``stat-interval`` is the period of time
-between each reconciliation and can be configured in the ``license-manager-agent`` configuration file.
+For each license tracked by License Manager, the ``License Manager Agent`` will periodically poll the license server to get
+the usage information and store it in the ``License Manager API``. The ``stat-interval`` is the period of time
+between each reconciliation and can be configured in the ``License Manager Agent`` configuration file.
 
-The information in the ``license-manager-backend`` is used by the reconciliation process to update the license counters in Slurm.
+The information in the ``License Manager API`` is used by the reconciliation process to update the license counters in Slurm.
 This is done by creating a reservation to represent the licenses used in the license server.
 
 This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.
-The reservation is created by the user configured in the ``license-manager-agent`` configuration file. The user must
+The reservation is created by the user configured in the ``License Manager Agent`` configuration file. The user must
 have a user account in the Slurm cluster and have ``operator`` privilege level to manage reservations.
 
 Bookings
 ********
-The ``license-manager-agent`` is also responsible for making booking requests to the ``license-manager-backend``
-when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``license-manager-agent``.
+The ``License Manager Agent`` is also responsible for making booking requests to the ``License Manager API``
+when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
 
-Each job submitted to Slurm will make a request to the ``license-manager-backend`` to book the needed licenses prior
+Each job submitted to Slurm will make a request to the ``License Manager API`` to book the needed licenses prior
 to the allocation of the job. The booking ensures that the licenses are available for the job to use by taking into
 consideration the licenses booked for other jobs and the license usage in the license server.
 
