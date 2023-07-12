@@ -3,9 +3,9 @@ Getting Started
 
 To run License Manager you will need three different systems:
 
-1. Slurm cluster (where ``license-manager-agent`` runs)
-2. License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense or license-manager-simulator)
-3. API with license information (``license-manager-backend``)
+1. Slurm cluster (where ``License Manager Agent`` runs)
+2. License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense or License Manager Simulator)
+3. API with license information (``License Manager API``)
 
 Slurm cluster
 *************
@@ -22,13 +22,13 @@ License Manager supports the following license servers:
 * LM-X
 * OLicense
 
-You need to have the license server installed and working on a path that is accessible to the ``license-manager-agent``.
-The path for each license server binary is configurable in the ``license-manager-agent`` charm.
-In case you don't have a license server, you can use the ``license-manager-simulator`` to simulate the output of a license server.
+You need to have the license server installed and working on a path that is accessible to the ``License Manager Agent``.
+The path for each license server binary is configurable in the ``License Manager Agent`` charm.
+In case you don't have a license server, you can use the ``License Manager Simulator`` to simulate the output of a license server.
 
-License Manager Backend
-***********************
-The ``license-manager-backend`` is an API that stores license usage information gathered from the license servers by the agent's reconciliation
+License Manager API
+*******************
+The ``License Manager API`` is an API that stores license usage information gathered from the license servers by the agent's reconciliation
 process. This data is used to update the license counters in the cluster to reflect the actual usage of the licenses.
 For each license tracked by License Manager, you need to create a configuration in the API. This includes the license name, the license
 features, the license server type and location, and the grace time (how long it takes for the license to be checked out after the job starts).
