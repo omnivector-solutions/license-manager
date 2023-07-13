@@ -25,7 +25,7 @@ target_metadata = None
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-from lm_backend.database import Base
+from lm_backend.database import Base, build_db_url
 from lm_backend.config import settings
 target_metadata = [Base.metadata]
 
@@ -52,7 +52,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=settings.DATABASE_URL,
+        url=build_db_url(asynchronous=False),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -71,7 +71,7 @@ def run_migrations_online():
 
     """
     ini_section = config.get_section(config.config_ini_section)
-    ini_section["sqlalchemy.url"] = settings.DATABASE_URL
+    ini_section["sqlalchemy.url"] = build_db_url(asynchronous=False)
     connectable = engine_from_config(
         ini_section,
         prefix="sqlalchemy.",

@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.booking import BookingCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -9,9 +8,8 @@ from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.job import Job
 from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
 from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
+from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
-from lm_backend.security import guard
-from lm_backend.session import get_session
 
 router = APIRouter()
 
@@ -24,15 +22,14 @@ crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
     "/",
     response_model=JobSchema,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_EDIT))],
 )
 async def create_job(
     job: JobWithBookingCreateSchema,
-    db_session: AsyncSession = Depends(get_session),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_EDIT)),
 ):
     """Create a new job."""
     job_created: Job = await crud_job.create(
-        db_session=db_session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
+        db_session=secure_session.session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
     )
 
     if job.bookings:
@@ -43,29 +40,28 @@ async def create_job(
                     "feature_id": booking.feature_id,
                     "quantity": booking.quantity,
                 }
-                await crud_booking.create(db_session=db_session, obj=BookingCreateSchema(**obj))
+                await crud_booking.create(db_session=secure_session.session, obj=BookingCreateSchema(**obj))
         except HTTPException:
-            await crud_job.delete(db_session=db_session, id=job_created.id)
+            await crud_job.delete(db_session=secure_session.session, id=job_created.id)
             raise
 
-    return await crud_job.read(db_session=db_session, id=job_created.id)
+    return await crud_job.read(db_session=secure_session.session, id=job_created.id)
 
 
 @router.get(
     "/",
     response_model=List[JobSchema],
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_VIEW))],
 )
 async def read_all_jobs(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    db_session: AsyncSession = Depends(get_session),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
 ):
     """Return all jobs."""
     return await crud_job.read_all(
-        db_session=db_session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
+        db_session=secure_session.session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
     )
 
 
@@ -73,31 +69,36 @@ async def read_all_jobs(
     "/{job_id}",
     response_model=JobSchema,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_VIEW))],
 )
-async def read_job(job_id: int, db_session: AsyncSession = Depends(get_session)):
+async def read_job(
+    job_id: int,
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
+):
     """Return a job with associated bookings with the given id."""
-    return await crud_job.read(db_session=db_session, id=job_id)
+    return await crud_job.read(db_session=secure_session.session, id=job_id)
 
 
 @router.delete(
     "/{job_id}",
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_EDIT))],
 )
-async def delete_job(job_id: int, db_session: AsyncSession = Depends(get_session)):
+async def delete_job(
+    job_id: int,
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_EDIT)),
+):
     """Delete a job from the database and associated bookings."""
-    await crud_job.delete(db_session=db_session, id=job_id)
+    await crud_job.delete(db_session=secure_session.session, id=job_id)
     return {"message": "Job deleted successfully"}
 
 
 @router.delete(
     "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_EDIT))],
 )
 async def delete_job_by_slurm_id(
-    slurm_job_id: str, cluster_id: int, db_session: AsyncSession = Depends(get_session)
+    slurm_job_id: str,
+    cluster_id: int,
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_EDIT)),
 ):
     """
     Delete a job from the database and associated bookings.
@@ -106,11 +107,11 @@ async def delete_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(db_session=secure_session.session, search=slurm_job_id)
 
     for job in jobs:
         if job.cluster_id == cluster_id:
-            return await crud_job.delete(db_session=db_session, id=job.id)
+            return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
 
@@ -119,10 +120,11 @@ async def delete_job_by_slurm_id(
     "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
     response_model=JobSchema,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(guard.lockdown(Permissions.JOB_VIEW))],
 )
 async def read_job_by_slurm_id(
-    slurm_job_id: str, cluster_id: int, db_session: AsyncSession = Depends(get_session)
+    slurm_job_id: str,
+    cluster_id: int,
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
 ):
     """
     Read a job from the database and associated bookings.
@@ -131,7 +133,7 @@ async def read_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(db_session=db_session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(db_session=secure_session.session, search=slurm_job_id)
 
     for job in jobs:
         if job.cluster_id == cluster_id:

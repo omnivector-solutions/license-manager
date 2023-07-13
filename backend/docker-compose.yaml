@@ -1,32 +1,25 @@
 version: "3.9"
 services:
 
-  postgres-back:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: 123
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "postgres", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    user: postgres
-
   license-manager:
     build:
       context: .
       dockerfile: ./Dockerfile
     depends_on:
-      postgres-back:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     volumes:
       - ./lm_backend:/app/lm_backend
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:123@postgres-back:5432/postgres}
+      DATABASE_HOST: ${DATABASE_HOST:-pgsql}
+      DATABASE_USER: ${DATABASE_USER:-compose-db-user}
+      DATABASE_PSWD: ${DATABASE_HOST:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_HOST:-compose-db-name}
+      DATABASE_PORT: 5432
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
       ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
-      ARMASEC_DEBUG: ${ARMASEC_DEBUG}
-      LOG_LEVEL: ${LOG_LEVEL}
+      ARMASEC_DEBUG: ${ARMASEC_DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
     ports:
       - "7000:8000"
     command: uvicorn lm_backend.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
@@ -36,16 +29,19 @@ services:
       context: .
       dockerfile: ./Dockerfile-ci
     environment:
-      DATABASE_URL: postgresql+asyncpg://omnivector:rats@pgsql:5432/ratsdb
+      TEST_DATABASE_HOST: test-db
+      TEST_DATABASE_USER: test-db-user
+      TEST_DATABASE_PSWD: test-db-pswd
+      TEST_DATABASE_NAME: test-db-name
+      TEST_DATABASE_PORT: 5432
       ARMASEC_DOMAIN: armasec.dev
       ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
+      DEPLOY_ENV: TEST
     command: poetry run pytest -s
     depends_on:
-      pgsql:
+      test-db:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
     volumes:
       - ./tests:/app/tests
 
@@ -54,7 +50,10 @@ services:
       context: .
       dockerfile: ./Dockerfile-ci
     environment:
-      DATABASE_URL: postgresql://omnivector:rats@pgsql:5432/ratsdb
+      DATABASE_HOST: ${DATABASE_HOST:-pgsql}
+      DATABASE_USER: ${DATABASE_USER:-compose-db-user}
+      DATABASE_PSWD: ${DATABASE_HOST:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_HOST:-compose-db-name}
       ARMASEC_DOMAIN: armasec.dev
       ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
@@ -66,10 +65,26 @@ services:
   pgsql:
     image: postgres:13-alpine
     environment:
-      POSTGRES_USER: omnivector
-      POSTGRES_PASSWORD: rats
-      POSTGRES_DB: ratsdb
+      POSTGRES_USER: compose-db-user
+      POSTGRES_PASSWORD: compose-db-pswd
+      POSTGRES_DB: compose-db-name
     ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test-db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=test-db-user
+      - POSTGRES_PASSWORD=test-db-pswd
+      - POSTGRES_MULTIPLE_DATABASES="test-db-name","alt-test-db"
+    volumes:
+      - ./docker-postgres-multiple-databases:/docker-entrypoint-initdb.d
+    ports: ["5433:5432"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]

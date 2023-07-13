@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added support for multi-tenancy
 * Refactored API to use a normalized database.
 * New endpoints available:
 

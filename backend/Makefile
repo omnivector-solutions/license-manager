@@ -11,7 +11,6 @@ install:
 
 .PHONY: test
 test:
-	docker-compose build migration
 	docker-compose build unittest
 	docker-compose run --rm unittest
 
@@ -44,7 +43,7 @@ publish:
 
 .PHONY: local
 local:
-	poetry run uvicorn --host 0.0.0.0 lm_backend.main:app --reload
+	docker-compose up --build license-manager
 
 # To include a message with the generated migration, set the MESSAGE variable in the make command:
 #   $ make db-migration MESSAGE="this migration applies foo to bar"

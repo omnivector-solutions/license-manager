@@ -11,13 +11,12 @@ async def test_add_product__success(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
-    clean_up_database,
 ):
     data = {
         "name": "Abaqus",
     }
 
-    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_EDIT)
     response = await backend_client.post("/lm/products", json=data)
     assert response.status_code == 201
 
@@ -32,9 +31,8 @@ async def test_get_all_products__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
-    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
     response = await backend_client.get("/lm/products")
 
     assert response.status_code == 200
@@ -48,9 +46,8 @@ async def test_get_all_products__with_search(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
-    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
     response = await backend_client.get(f"/lm/products/?search{create_products[0].name}")
 
     assert response.status_code == 200
@@ -64,9 +61,8 @@ async def test_get_all_products__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_products,
-    clean_up_database,
 ):
-    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
     response = await backend_client.get("/lm/products/?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
@@ -81,11 +77,10 @@ async def test_get_product__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
 ):
     id = create_one_product[0].id
 
-    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
     response = await backend_client.get(f"/lm/products/{id}")
 
     assert response.status_code == 200
@@ -107,10 +102,9 @@ async def test_get_product__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
     id,
 ):
-    inject_security_header("owner1", Permissions.PRODUCT_VIEW)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
     response = await backend_client.get(f"/lm/products/{id}")
 
     assert response.status_code == 404
@@ -122,7 +116,6 @@ async def test_update_product__success(
     inject_security_header,
     create_one_product,
     read_object,
-    clean_up_database,
 ):
     new_product = {
         "name": "Other Abaqus",
@@ -130,7 +123,7 @@ async def test_update_product__success(
 
     id = create_one_product[0].id
 
-    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_EDIT)
     response = await backend_client.put(f"/lm/products/{id}", json=new_product)
 
     assert response.status_code == 200
@@ -154,12 +147,11 @@ async def test_update_product__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
     id,
 ):
     new_product = {"name": "Other Abaqus"}
 
-    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_EDIT)
     response = await backend_client.put(f"/lm/products/{id}", json=new_product)
 
     assert response.status_code == 404
@@ -170,13 +162,12 @@ async def test_update_product__fail_with_bad_data(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_product,
-    clean_up_database,
 ):
     new_product = {"bla": "bla"}
 
     id = create_one_product[0].id
 
-    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_EDIT)
     response = await backend_client.put(f"/lm/products/{id}", json=new_product)
 
     assert response.status_code == 400
@@ -188,11 +179,10 @@ async def test_delete_product__success(
     inject_security_header,
     create_one_product,
     read_object,
-    clean_up_database,
 ):
     id = create_one_product[0].id
 
-    inject_security_header("owner1", Permissions.PRODUCT_EDIT)
+    inject_security_header("owner1@test.com", Permissions.PRODUCT_EDIT)
     response = await backend_client.delete(f"/lm/products/{id}")
 
     assert response.status_code == 200

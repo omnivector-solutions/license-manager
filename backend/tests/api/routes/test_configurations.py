@@ -12,7 +12,6 @@ async def test_add_configuration__success(
     inject_security_header,
     read_object,
     create_one_cluster,
-    clean_up_database,
 ):
     cluster_id = create_one_cluster[0].id
 
@@ -23,7 +22,7 @@ async def test_add_configuration__success(
         "type": "flexlm",
     }
 
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.post("/lm/configurations", json=data)
     assert response.status_code == 201
 
@@ -38,9 +37,8 @@ async def test_get_all_configurations__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_configurations,
-    clean_up_database,
 ):
-    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get("/lm/configurations")
 
     assert response.status_code == 200
@@ -62,9 +60,8 @@ async def test_get_all_configurations__with_search(
     backend_client: AsyncClient,
     inject_security_header,
     create_configurations,
-    clean_up_database,
 ):
-    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get(f"/lm/configurations/?search={create_configurations[0].name}")
 
     assert response.status_code == 200
@@ -81,10 +78,9 @@ async def test_get_all_configurations__with_sort(
     backend_client: AsyncClient,
     inject_security_header,
     create_configurations,
-    clean_up_database,
 ):
 
-    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get("/lm/configurations/?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
@@ -106,11 +102,10 @@ async def test_get_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_configuration,
-    clean_up_database,
 ):
     id = create_one_configuration[0].id
 
-    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get(f"/lm/configurations/{id}")
 
     assert response.status_code == 200
@@ -135,10 +130,9 @@ async def test_get_configuration__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_configuration,
-    clean_up_database,
     id,
 ):
-    inject_security_header("owner1", Permissions.CONFIG_VIEW)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get(f"/lm/configurations/{id}")
 
     assert response.status_code == 404
@@ -150,7 +144,6 @@ async def test_update_configuration__success(
     inject_security_header,
     create_one_configuration,
     read_object,
-    clean_up_database,
 ):
     new_configuration = {
         "name": "New Abaqus",
@@ -158,7 +151,7 @@ async def test_update_configuration__success(
 
     id = create_one_configuration[0].id
 
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
 
     assert response.status_code == 200
@@ -183,14 +176,13 @@ async def test_update_configuration__fail_with_bad_parameter(
     inject_security_header,
     create_one_configuration,
     read_object,
-    clean_up_database,
     id,
 ):
     new_configuration = {
         "name": "New Abaqus",
     }
 
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
 
     assert response.status_code == 404
@@ -202,7 +194,6 @@ async def test_update_configuration__fail_with_bad_data(
     inject_security_header,
     create_one_configuration,
     read_object,
-    clean_up_database,
 ):
     new_configuration = {
         "bla": "bla",
@@ -210,7 +201,7 @@ async def test_update_configuration__fail_with_bad_data(
 
     id = create_one_configuration[0].id
 
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
 
     assert response.status_code == 400
@@ -222,11 +213,10 @@ async def test_delete_configuration__success(
     inject_security_header,
     create_one_configuration,
     read_object,
-    clean_up_database,
 ):
     id = create_one_configuration[0].id
 
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.delete(f"/lm/configurations/{id}")
 
     assert response.status_code == 200
@@ -249,10 +239,9 @@ async def test_delete_configuration__fail_with_bad_parameter(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_configuration,
-    clean_up_database,
     id,
 ):
-    inject_security_header("owner1", Permissions.CONFIG_EDIT)
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
     response = await backend_client.delete(f"/lm/configurations/{id}")
 
     assert response.status_code == 404
