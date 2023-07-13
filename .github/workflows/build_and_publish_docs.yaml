@@ -1,14 +1,15 @@
-name: Sphinx Build
+name: Build Sphinx documentation
 
 # This action:
 #   - Is triggered when a file in the docs-source folder is pushed;
 #   - Build the documentation using Sphinx;
 #   - Publish the documentation to GitHub Pages.
 on:
-  push:
+  pull_request:
     paths:
-      - ./docs-source/**
-
+      - 'docs-source/**'
+    types:
+      - closed
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +24,7 @@ jobs:
           python-version: 3.8
 
       - name: Set up Poetry
-      - uses: Gr1N/setup-poetry@v8
+        uses: Gr1N/setup-poetry@v8
 
       - name: Build Sphinx documentation
         run: |
