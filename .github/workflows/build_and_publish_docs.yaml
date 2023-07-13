@@ -1,0 +1,37 @@
+name: Sphinx Build
+
+# This action:
+#   - Is triggered when a file in the docs-source folder is pushed;
+#   - Build the documentation using Sphinx;
+#   - Publish the documentation to GitHub Pages.
+on:
+  push:
+    paths:
+      - ./docs-source/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Set up Poetry
+      - uses: Gr1N/setup-poetry@v8
+
+      - name: Build Sphinx documentation
+        run: |
+          cd docs-source
+          make docs
+
+      - name: Deploy documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
