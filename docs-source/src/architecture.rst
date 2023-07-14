@@ -12,7 +12,7 @@ to the ``License Manager API`` when Slurm is configured to use the ``PrologSlurm
 
 Reconciliation
 **************
-For each license tracked by License Manager, the ``License Manager Agent`` will periodically poll the license server to get
+For each license tracked by License Manager, the ``License Manager Agent`` will periodically poll the license servers to get
 the usage information and store it in the ``License Manager API``. The ``stat-interval`` is the period of time
 between each reconciliation and can be configured in the ``License Manager Agent`` configuration file.
 
@@ -28,9 +28,9 @@ Bookings
 The ``License Manager Agent`` is also responsible for making booking requests to the ``License Manager API``
 when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
 
-Each job submitted to Slurm will make a request to the ``License Manager API`` to book the needed licenses prior
-to the allocation of the job. The booking ensures that the licenses are available for the job to use by taking into
-consideration the licenses booked for other jobs and the license usage in the license server.
+Each job submitted to Slurm will trigger the ``PrologSlurmctld`` script that makes a request to the ``License Manager API``
+to book the needed licenses prior to the allocation of the job. The booking ensures that the licenses are available for the job
+to use by taking into consideration the licenses booked for other jobs and the license usage in the license server.
 
 If the booking cannot be made, the job will be kept in the queue until there are enough licenses available to
 satisfy the booking request.
@@ -46,6 +46,7 @@ License Manager API
 -------------------
 The ``License Manager API`` provides a RESTful API where licenses and bookins are tracked.
 The ``License Manager Agent`` uses this API to store the license usage information and to process the booking requests.
+The ``License Manager CLI`` interacts with this API to add new configurations and to check the usage information for each tracked license.
 
 The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.
