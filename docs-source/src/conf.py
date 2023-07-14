@@ -32,6 +32,7 @@ extensions = [
     "sphinxcontrib.httpdomain",
     'sphinx.ext.autodoc',
     "sphinx_copybutton",
+    "sphinxcontrib.mermaid",
 ]
 
 

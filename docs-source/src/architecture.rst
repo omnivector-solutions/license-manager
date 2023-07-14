@@ -53,10 +53,66 @@ made and the license usage in the license server.
 The API contains 8 entities that have relationship among them.
 This means that some of the resources need to be created before others can be created as well.
 
-.. image:: images/diagram.png
-   :alt: License Manager Entity Diagram
+.. mermaid::
 
-
+    erDiagram
+        Bookings {
+            int id pk
+            int job_id pk
+            int feature_id pk
+            int quantity
+        }
+        Features {
+            int id pk,fk
+            int config_id pk
+            int product_id pk
+            str name 
+        }
+        Inventories {
+            int id pk
+            int feature_id fk
+            int total
+            int used
+        }
+        Products {
+            int id pk
+            str name
+        }
+        Jobs {
+            int id pk, fk
+            str slurm_job_id
+            str cluster_id fk
+            str username
+            str lead_host
+        }
+        Clusters {
+            int id pk
+            str name
+            str client_id
+        }
+        Configurations {
+            int id pk
+            str name
+            int cluster_id fk
+            int grace_time
+            int reserved
+            enum[str] type
+        }
+        LicenseServers {
+            int id pk
+            int config_id fk
+            str host
+            int port
+        }
+        Jobs ||--o{ Bookings : ""
+        Features ||--o{ Bookings : ""
+        Clusters ||--o{ Jobs : ""
+        Products ||--o{ Features : ""
+        Features ||--|| Inventories : ""
+        Configurations ||--|{ Features : ""
+        Clusters ||--o{ Configurations : ""
+        Configurations ||--|{ LicenseServers : ""
+        
 Clusters
 ********
 The ``Cluster`` resource represents the cluster where ``License Manager Agent`` is running.
