@@ -1,12 +1,12 @@
 Development
 ===========
-The ``license-manager`` application incorporates a mix of different services in docker and LXD containers.
+The ``License Manager`` application incorporates a mix of different services in docker and LXD containers.
 This text will attempt to define the procedure for initializing and running the different components.
 
 ----------------
 Pre-Installation
 ----------------
-Before you get started, enusure you have the following pre-requisites installed on your machine:
+Before you get started, ensure you have the following pre-requisites installed on your machine:
 
 - snapd
 - charmcraft
@@ -77,25 +77,25 @@ Lastly, validate that the node has successfully enlisted and the cluster is oper
    $ juju ssh slurmd/0 srun -posd-slurmd hostname
    juju-b71748-2
 
-The slurm cluster is now prepared for further configuration and use in ``license-manager`` development.
+The slurm cluster is now prepared for further configuration and use in ``License Manager`` development.
 
---------------------------------------
-2) Compose the license-manager backend
---------------------------------------
-Setting up the license-manager backend for development is done in three steps:
+----------------------------------
+2) Compose the License Manager API
+----------------------------------
+Setting up the ``License Manager API`` for development is done in three steps:
 
 1. Clone the project to your local machine
 2. Run ``docker-compose``
 3. Initialize the database with a license configuration for testing.
 
-To get started, clone the license-manager repository from github and run ``docker-compose up``.
+To get started, clone the ``license-manager`` repository from GitHub and run ``make local``.
 
 .. code-block:: bash
 
     git clone https://github.com/omnivector-solutions/license-manager
     cd license-manager/backend/
 
-    docker-compose up
+    make local
 
 We should now see two running docker containers; ``backend_license-manager_1`` and ``backend_postgres-back_1``.
 
@@ -108,69 +108,129 @@ We should now see two running docker containers; ``backend_license-manager_1`` a
     a62719b6fa65   backend_license-manager   "uvicorn lm_backend.…"   13 minutes ago   Up 13 minutes             0.0.0.0:7000->80/tcp, :::7000->80/tcp   backend_license-manager_1
     3d5abbc7ffff   postgres                  "docker-entrypoint.s…"   2 days ago       Up 13 minutes (healthy)   5432/tcp                                backend_postgres-back_1
 
-From the output above, we see that port ``7000`` on our local machine is forwarded to the listening port of the license-manager
-backend container (port ``80``). This means we will make requests to our local host IP address at port ``7000`` in order to access the
-license-manager backend http endpoints.
+From the output above, we see that port ``7000`` on our local machine is forwarded to the listening port of the ``License Manager API``
+container (port ``80``). This means we will make requests to our local host IP address at port ``7000`` in order to access the ``License Manager API`` HTTP endpoints.
 
-Now initialize the backend with an example configuration that we can use for testing.
+Now initialize the API with the following resources that we can use for testing:
+
+#. Cluster
+#. Configuration
+#. License server
+#. Product
+#. Feature
 
 .. code-block:: bash
 
-    curl -X 'POST' \
-      'http://$MY_IP:7000/lm/api/v1/config/' \
+    CLUSTER_ID=$(curl -X 'POST' \
+      'http://'$MY_IP':7000/lm/clusters/' \
       -H 'accept: application/json' \
       -H 'Content-Type: application/json' \
       -d '{
-      "name": "Product Feature",
-      "product": "product",
-      "features": "{\"feature\": {\"total\": 50, \"limit\": 50}}",
-      "license_servers": [
-        "flexlm:myexampleflexlmhost.example.com:24000"
-      ],
-      "license_server_type": "flexlm",
-      "grace_time": 30,
+      "name": "OSD Cluster",
       "client_id": "osd-cluster"
-    }'
+      }' | jq '.id')
+    
+    CONFIG_ID=$(curl -X 'POST' \
+      'http://'$MY_IP':7000/lm/configurations/' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "name": "Abaqus",
+      "cluster_id": '$CLUSTER_ID',
+      "grace_time": 30,
+      "type": "flexlm"
+      }' | jq '.id')
 
-You can check that the configuration was successfully added by making a request to list the configurations in the database. (this
-list should contain the configuration you previously added.)
+    curl -X 'POST' \
+      'http://'$MY_IP':7000/lm/license_servers/' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "config_id": '$CONFIG_ID',
+      "host": "myexampleflexlmhost.example.com",
+      "port": 24000
+      }'
+
+    PRODUCT_ID=$(curl -X 'POST' \
+      'http://'$MY_IP':7000/lm/products/' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "name": "abaqus"
+      }' | jq '.id')
+
+    curl -X 'POST' \
+      'http://'$MY_IP':7000/lm/features/' \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "name": "abaqus",
+      "product_id": '$PRODUCT_ID',
+      "config_id": '$CONFIG_ID',
+      "reserved": 0
+      }'
+
+You can check that the resources were successfully added by making a request to list the clusters in the database. (this
+list should contain the configuration and license you previously added.)
 
 .. code-block:: bash
 
     curl -X 'GET' \
-      'http://$MY_IP:7000/lm/api/v1/config/all' \
+      'http://'$MY_IP':7000/lm/clusters' \
       -H 'accept: application/json'
-
-The 201 HTTP response should contain the configuration item you created.
 
 .. code-block:: bash
 
       [
         {
-          "id": 1,
-          "name": "Product Feature",
-          "product": "product",
-          "features": {
-            "feature": {
-              "total": 50,
-              "limit": 50
-            }
-          },
-          "license_servers": [
-            "flexlm:myexampleflexlmhost.example.com:24000"
-          ],
-          "license_server_type": "flexlm",
-          "grace_time": 30,
-          "client_id": "osd-cluster"
-        }
+            "id": 1,
+            "name": "OSD Cluster",
+            "client_id": "osd-cluster",
+            "configurations": [
+              {
+                "id": 1,
+                "name": "Abaqus",
+                "cluster_id": 1,
+                "features": [
+                  {
+                    "id": 1,
+                    "name": "abaqus",
+                    "product": {
+                      "id": 1,
+                      "name": "abaqus"
+                    },
+                    "config_id": 1,
+                    "reserved": 0,
+                    "inventory": {
+                      "id": 1,
+                      "feature_id": 1,
+                      "total": 0,
+                      "used": 0
+                    }
+                  }
+                ],
+                "license_servers": [
+                  {
+                    "id": 1,
+                    "config_id": 1,
+                    "host": "myexampleflexlmhost.example.com",
+                    "port": 24000
+                  }
+                ],
+                "grace_time": 30,
+                "type": "flexlm"
+              }
+            ],
+            "jobs": []
+          }
       ]
 
-The ``license-manager`` backend is now configured and ready for use in the development environment.
+The ``License Manager API`` is now configured and ready for use in the development environment.
 
 ----------------------------------------
-3) Compose the license-manager-simulator
+3) Compose the License Manager Simulator
 ----------------------------------------
-To run the license-manager-simulator API, clone the repository and run ``docker-compose up``.
+To run the ``License Manager Simulator`` API, clone the repository and run ``docker-compose up``.
 
 .. code-block:: bash
 
@@ -180,9 +240,9 @@ To run the license-manager-simulator API, clone the repository and run ``docker-
    docker-compose up
 
 -----------------------------------------------
-4) Add the license-manager-agent to the cluster
+4) Add the License Manager Agent to the cluster
 -----------------------------------------------
-The final component we need to deploy is the ``license-manager-agent``. The ``license-manager-agent`` is deployed to the
+The final component we need to deploy is the ``License Manager Agent``. The ``License Manager Agent`` is deployed to the
 same model as the slurm charms, and related to ``slurmctld``.
 
 .. code-block:: bash
@@ -196,14 +256,14 @@ The ``make charm`` command will produce a resultant charm artifact named
 ``license-manager-agent.charm``. This is the charm that we will deploy.
 
 Before deploying the charm, create a ``yaml`` configuration file that contains the needed settings for the
-license-manager-agent charm. The config should look something like this:
+``License Manager Agent Charm``. The config should look something like this:
 
 .. code-block:: yaml
 
    license-manager-agent:
      log-level: DEBUG
      stat-interval: 30
-     license-manager-backend-base-url: "http://$MY_IP:7000"
+     license-manager-backend-base-url: "http://"$MY_IP":7000"
      lmutil-path: "/usr/local/bin/lmutil"
      rlmutil-path: "/usr/local/bin/rlmutil"
      lsdyna-path: "/usr/local/bin/lstc_qrun"
@@ -242,9 +302,9 @@ After the deploy, make sure to relate the charm to the juju-info and prolog-epil
 ---------------------------
 At this point you should have 3 systems running:
 
-1. slurm cluster in LXD
-2. license-manager-simulator
-3. license-manager backend
+1. Slurm cluster in LXD
+2. License Manager Simulator
+3. License Manager Backend
 
 Once the systems have been successfully deployed you will need to apply the post deployment configurations.
 These configurations will ensure that your slurm cluster has a fake license server client and available licenses
@@ -252,16 +312,16 @@ to be used by the fake application (which will be run as a batch script).
 
 Configuring the license server client
 *************************************
-The license-manager-simulator has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
-The script requests license information from the license-manager-simulator API and renders
-it in the template, simulating the output from the real license server. These files need to be copied to the license-manager-agent machine.
+The ``License Manager Simulator`` has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
+The script requests license information from the ``License Manager Simulator`` API and renders
+it in the template, simulating the output from the real license server. These files need to be copied to the ``License Manager Agent`` machine.
 
 You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
 application script, which requests a license to the simulator API, sleeps for a few seconds, and return the license. This
 application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.
 
-To set up everything needed to use the simulator, use the make setup command available in the license-manager-simulator project.
-This commands expects as an argument the license-manager-simulator API IP address.
+To set up everything needed to use the simulator, use the make setup command available in the ``License Manager Simulator`` project.
+This commands expects as an argument the ``License Manager Simulator`` API IP address.
 
 .. code-block:: bash
 
@@ -287,7 +347,7 @@ and ``olixtool.lin`` files.
     source /srv/license-manager-agent-venv/bin/activate
     /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 
-The output should display the "abaqus.abaqus" license that was added to the license-manager-simulator:
+The output should display the "abaqus.abaqus" license that was added to the ``License Manager Simulator``:
 
 .. code-block:: bash
 
@@ -314,8 +374,8 @@ The output should display the "abaqus.abaqus" license that was added to the lice
 
 Seeding the batch script and fake application
 *********************************************
-To test the license manager, there's a fake application and a batch script. These files are available at the ``/tmp`` folder in the ``slurmd`` machine.
-The fake application makes a request to the license-manager-simulator API to book 42 ``abaqus`` licenses, sleeps for a few seconds, and then deletes the booking after.
+To test the ``License Manager``, there's a fake application and a batch script. These files are available at the ``/tmp`` folder in the ``slurmd`` machine.
+The fake application makes a request to the ``License Manager Simulator`` API to book 42 ``abaqus`` licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.
 
 To run the job, use the ``sbatch`` command.
@@ -330,13 +390,13 @@ To use other licenses, change the license's name in the ``application.sh`` and `
 6) Validation
 -------------
 After following the steps above, you should have a working development environment.
-To validate that it is indeed working, submit a job to slurm (using the batch script) and check license manager backend.
-Make a request to the ``license`` endpoint.
+To validate that it is indeed working, submit a job to slurm (using the batch script) and check ``License Manager API``.
+Make a request to the ``features`` endpoint.
 
 .. code-block:: bash
 
     curl -X 'GET' \
-      'http://$MY_IP:7000/lm/api/v1/license/all' \
+      'http://'$MY_IP':7000/lm/features' \
       -H 'accept: application/json'
 
 You should see that the ``used`` value for the license was updated with the value used in the job (42).
@@ -345,37 +405,52 @@ You should see that the ``used`` value for the license was updated with the valu
 
     [
       {
-        "product_feature": "abaqus.abaqus",
-        "used": 42,
-        "total": 1000,
-        "available": 958
+        "id": 1,
+        "name": "abaqus",
+        "product": {
+          "id": 1,
+          "name": "abaqus"
+        },
+        "config_id": 10
+        "reserved": 0,
+        "inventory": {
+          "id": 1,
+          "feature_id": 1,
+          "total": 1000,
+          "used": 42
+        }
       }
     ]
 
-You also should have a new booking created. To verify this, make a request to the ``booking`` endpoint.
+You also should have a new job created. To verify this, make a request to the ``jobs`` endpoint.
 
 .. code-block:: bash
 
     curl -X 'GET' \
-      'http://$MY_IP:7000/lm/api/v1/booking/all' \
+      'http://'$MY_IP:7000'/lm/jobs' \
       -H 'accept: application/json'
 
-The booking should contain information about the job and the cluster, and also how many licenses were booked by the job.
+The job should contain information about the job and also how many licenses were booked by the job.
 
 .. code-block:: bash
 
     [
       {
         "id": 1,
-        "job_id": "1",
-        "product_feature": "abaqus.abaqus",
-        "booked": 42,
-        "config_id": 1,
+        "slurm_job_id": "1",
+        "cluster_id": 1,
+        "username": "ubuntu",
         "lead_host": "juju-d9201d-2",
-        "user_name": "ubuntu",
-        "cluster_name": "osd-cluster"
+        "bookings": [
+          {
+            "id": 1,
+            "job_id": 1,
+            "feature_id": 1,
+            "quantity": 42
+          }
+        ]
       }
     ]
 
-Wait for a few seconds (for the reconcile to run) and check again. The booking should be deleted
+Wait for a few seconds (for the reconcile to run) and check again. The job and the booking should be deleted
 and the ``used`` value will return to its original quantity.
