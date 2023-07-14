@@ -156,7 +156,7 @@ async def get_all_clusters_from_backend() -> List[ClusterSchema]:
     Get all clusters from the backend.
     """
     async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.get("/lm/clusters")
+        resp = await backend_client.get("/lm/clusters/")
 
         LicenseManagerBackendConnectionError.require_condition(
             resp.status_code == 200, f"Could not get cluster data from the backend: {resp.text}"
