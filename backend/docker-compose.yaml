@@ -13,8 +13,8 @@ services:
     environment:
       DATABASE_HOST: ${DATABASE_HOST:-pgsql}
       DATABASE_USER: ${DATABASE_USER:-compose-db-user}
-      DATABASE_PSWD: ${DATABASE_HOST:-compose-db-pswd}
-      DATABASE_NAME: ${DATABASE_HOST:-compose-db-name}
+      DATABASE_PSWD: ${DATABASE_PSWD:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
       DATABASE_PORT: 5432
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
       ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
@@ -52,8 +52,8 @@ services:
     environment:
       DATABASE_HOST: ${DATABASE_HOST:-pgsql}
       DATABASE_USER: ${DATABASE_USER:-compose-db-user}
-      DATABASE_PSWD: ${DATABASE_HOST:-compose-db-pswd}
-      DATABASE_NAME: ${DATABASE_HOST:-compose-db-name}
+      DATABASE_PSWD: ${DATABASE_PSWD:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
       ARMASEC_DOMAIN: armasec.dev
       ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
