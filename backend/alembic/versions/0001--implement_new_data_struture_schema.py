@@ -43,7 +43,6 @@ def upgrade():
             ["clusters.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name"),
     )
     op.create_table(
         "license_servers",
