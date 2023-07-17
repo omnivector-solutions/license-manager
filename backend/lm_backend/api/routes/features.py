@@ -50,6 +50,7 @@ async def read_all_features(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
+        force_refresh=True,  # To lazy load relationships and hybrid properties
     )
 
 

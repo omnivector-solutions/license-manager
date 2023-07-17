@@ -58,6 +58,28 @@ async def test_get_all_features__success(
 
 
 @mark.asyncio
+async def test_get_all_features__with_booked_total(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_features,
+    create_bookings,
+):
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
+    response = await backend_client.get("/lm/features?include_bookings=true")
+
+    assert response.status_code == 200
+
+    response_features = response.json()
+    assert response_features[0]["name"] == create_features[0].name
+    assert response_features[0]["reserved"] == create_features[0].reserved
+    assert response_features[0]["booked_total"] == create_bookings[0].quantity
+
+    assert response_features[1]["name"] == create_features[1].name
+    assert response_features[1]["reserved"] == create_features[1].reserved
+    assert response_features[1]["booked_total"] == create_bookings[1].quantity
+
+
+@mark.asyncio
 async def test_get_all_features__with_search(
     backend_client: AsyncClient,
     inject_security_header,
