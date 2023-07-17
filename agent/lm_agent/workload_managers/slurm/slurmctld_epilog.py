@@ -40,12 +40,8 @@ async def epilog():
         sys.exit(0)
 
     if len(required_licenses) > 0:
-        # Attempt to remove the booking and log the result.
-        booking_removed = await remove_job_by_slurm_job_id(job_id)
-        if booking_removed:
-            logger.debug(f"Booking for job id: {job_id} successfully deleted.")
-        else:
-            logger.debug(f"Booking for job id: {job_id} not removed.")
+        # Attempt to remove the job with its bookings.
+        await remove_job_by_slurm_job_id(job_id)
 
 
 def main():
