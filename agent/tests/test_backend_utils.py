@@ -302,7 +302,7 @@ async def test__get_configs_from_backend(clusters, respx_mock):
 @pytest.mark.respx(base_url="http://backend")
 async def test__get_all_clusters_from_backend(clusters, parsed_clusters, respx_mock):
     """Test that get_all_clusters_from_backend parses and returns the clusters from the cluster."""
-    respx_mock.get("/lm/clusters").mock(
+    respx_mock.get("/lm/clusters/").mock(
         return_value=Response(
             status_code=200,
             json=clusters,
@@ -320,7 +320,7 @@ async def test__get_all_clusters_from_backend__failure_backend_connection(respx_
     """
     Test that get_all_clusters_from_backend handles failure to connect to the backend.
     """
-    respx_mock.get("/lm/clusters").mock(
+    respx_mock.get("/lm/clusters/").mock(
         return_value=Response(
             status_code=500,
             json={"error": "Internal Server Error"},
@@ -337,7 +337,7 @@ async def test__get_all_clusters_from_backend__failure_parse_error(respx_mock):
     """
     Test that get_all_clusters_from_backend handles failure to parse the cluster data from the backend.
     """
-    respx_mock.get("/lm/clusters").mock(
+    respx_mock.get("/lm/clusters/").mock(
         return_value=Response(
             status_code=200,
             json={"bla": "bla"},
@@ -434,7 +434,7 @@ async def test__get_bookings_sum_per_cluster(product_feature, expected_booking_s
     """
     Test that get_bookings_sum_per_cluster returns the booking sum per cluster for a given product_feature.
     """
-    respx_mock.get("/lm/clusters").mock(
+    respx_mock.get("/lm/clusters/").mock(
         return_value=Response(
             status_code=200,
             json=clusters,
@@ -458,7 +458,7 @@ async def test__make_inventory_update__success(respx_mock):
     respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=200))
 
     try:
-        await make_inventory_update(feature_id, total, used)
+        await make_inventory_update(feature_id=feature_id, total=total, used=used)
     except Exception as e:
         assert False, f"Exception was raised: {e}"
 
@@ -476,7 +476,7 @@ async def test__make_inventory_update__raises_exception_on_non_two_hundred(respx
     respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=500))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_inventory_update(feature_id, total, used)
+        await make_inventory_update(feature_id=feature_id, total=total, used=used)
 
 
 @pytest.mark.asyncio
@@ -498,7 +498,7 @@ async def test__make_booking_request__success(mock_get_cluster, parsed_clusters,
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    respx_mock.post("/lm/jobs").mock(
+    respx_mock.post("/lm/jobs/").mock(
         return_value=Response(
             status_code=201,
             json={"id": 1},
@@ -529,7 +529,7 @@ async def test__make_booking_request_job__returns_false_on_booking_failure(
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    respx_mock.post("/lm/jobs").mock(
+    respx_mock.post("/lm/jobs/").mock(
         return_value=Response(
             status_code=409,
             json={"message": "Not enough licenses"},
@@ -550,7 +550,7 @@ async def test__remove_job_by_slurm_job_id__success(mock_get_cluster, parsed_clu
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{parsed_clusters[0].id}").mock(
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
         return_value=Response(
             status_code=200,
             json={"message": "Job removed successfully"},
@@ -576,7 +576,7 @@ async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{parsed_clusters[0].id}").mock(
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
         return_value=Response(
             status_code=500,
             json={"error": "Internal Server Error"},
