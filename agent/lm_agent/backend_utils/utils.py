@@ -257,11 +257,11 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.post(
-            "/lm/jobs",
+            "/lm/jobs/",
             json={
                 "slurm_job_id": lbr.slurm_job_id,
                 "cluster_id": cluster_data.id,
-                "user_name": lbr.user_name,
+                "username": lbr.user_name,
                 "lead_host": lbr.lead_host,
                 "bookings": bookings,
             },
