@@ -3,6 +3,7 @@ from pytest import mark
 from sqlalchemy import select
 
 from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.inventory import Inventory
 from lm_backend.permissions import Permissions
 
@@ -55,6 +56,31 @@ async def test_get_all_features__success(
 
     assert response_features[1]["name"] == create_features[1].name
     assert response_features[1]["reserved"] == create_features[1].reserved
+
+
+@mark.asyncio
+async def test_get_all_features__with_bookings(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_features,
+    create_bookings,
+):
+    inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
+    response = await backend_client.get("/lm/features?include_bookings=true")
+
+    assert response.status_code == 200
+
+    response_features = response.json()
+    print("RESPONSE: ", response_features)
+    assert response_features[0]["name"] == create_features[0].name
+    assert response_features[0]["reserved"] == create_features[0].reserved
+    assert len(response_features[0]["bookings"]) == 1
+    assert response_features[0]["bookings"][0]["id"] == create_bookings[0].id
+
+    assert response_features[1]["name"] == create_features[1].name
+    assert response_features[1]["reserved"] == create_features[1].reserved
+    assert len(response_features[1]["bookings"]) == 1
+    assert response_features[1]["bookings"][0]["id"] == create_bookings[1].id
 
 
 @mark.asyncio

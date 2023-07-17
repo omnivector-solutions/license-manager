@@ -4,6 +4,7 @@ from typing import List, Optional, Type, TypeVar, Union
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import Column, select
+from sqlalchemy.orm import RelationshipProperty, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
@@ -84,19 +85,24 @@ class GenericCRUD:
         search: str = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
+        with_selectinload: Optional[RelationshipProperty] = None,
     ) -> List[ModelType]:
         """
         Read all objects.
         Returns a list of objects.
         """
         try:
+            from lm_backend.database import render_sql
             stmt = select(self.model)
+            if with_selectinload is not None:
+                stmt = stmt.options(selectinload(with_selectinload))
             if search is not None:
                 stmt = stmt.where(search_clause(search, self.model.searchable_fields))
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
-            query = await db_session.execute(stmt)
-            db_objs = query.scalars().all()
+            print("QUERY: ", render_sql(stmt))
+            query = await db_session.scalars(stmt)
+            db_objs = query.all()
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, status
@@ -5,8 +6,10 @@ from fastapi import APIRouter, Depends, Query, status
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.inventory import Inventory
+from lm_backend.api.models.booking import Booking
 from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureSchema, FeatureUpdateSchema
 from lm_backend.api.schemas.inventory import InventoryCreateSchema, InventoryUpdateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
@@ -14,6 +17,7 @@ router = APIRouter()
 
 
 crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_booking = GenericCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
 crud_inventory = GenericCRUD(Inventory, InventoryCreateSchema, InventoryUpdateSchema)
 
 
@@ -45,12 +49,18 @@ async def read_all_features(
     secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW)),
 ):
     """Return all features with associated bookings and inventory."""
-    return await crud_feature.read_all(
+    features = await crud_feature.read_all(
         db_session=secure_session.session,
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
+        with_selectinload=Feature.bookings,
     )
+    for f in features:
+        print("PRODUCT: ", f.product)
+        print("BOOKINGS: ", f.bookings)
+        print("BOOKED TOTAL: ", f.booked_total)
+    return features
 
 
 @router.get(
