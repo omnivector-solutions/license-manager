@@ -41,6 +41,7 @@ class FeatureSchema(BaseModel):
     config_id: int
     reserved: int
     inventory: Optional[InventorySchema] = None
+    booked_total: Optional[int] = None
 
     class Config:
         orm_mode = True

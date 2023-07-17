@@ -29,7 +29,7 @@ style_mapper = StyleMapper(
 app = typer.Typer(help="Commands to interact with features.")
 
 
-def format_data(feature_data, bookings_data):
+def format_data(feature_data):
     """Return data in the correct format for printing."""
     formatted_data = []
 
@@ -43,9 +43,7 @@ def format_data(feature_data, bookings_data):
         new_data["total"] = feature["inventory"]["total"]
         new_data["used"] = feature["inventory"]["used"]
         new_data["reserved"] = feature["reserved"]
-        new_data["booked"] = sum(
-            [booking["quantity"] for booking in bookings_data if booking["feature_id"] == feature["id"]]
-        )
+        new_data["booked"] = feature["booked_total"]
         new_data["available"] = new_data["total"] - new_data["used"] - new_data["reserved"] - new_data["booked"]
 
         formatted_data.append(new_data)
@@ -85,20 +83,7 @@ def list_all(
         ),
     )
 
-    bookings_data = cast(
-        List,
-        make_request(
-            lm_ctx.client,
-            "/lm/bookings/",
-            "GET",
-            expected_status=200,
-            abort_message="Couldn't retrieve bookings list from API",
-            support=True,
-            params=params,
-        ),
-    )
-
-    formatted_data = format_data(feature_data, bookings_data)
+    formatted_data = format_data(feature_data)
 
     render_list_results(
         formatted_data,
@@ -134,19 +119,7 @@ def get_one(
         ),
     )
 
-    bookings_data = cast(
-        List,
-        make_request(
-            lm_ctx.client,
-            "/lm/bookings/",
-            "GET",
-            expected_status=200,
-            abort_message="Couldn't retrieve bookings list from API",
-            support=True,
-        ),
-    )
-
-    formatted_result = format_data([result], bookings_data)
+    formatted_result = format_data([result])
 
     render_single_result(
         formatted_result[0],
