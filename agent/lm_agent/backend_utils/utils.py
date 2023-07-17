@@ -281,9 +281,7 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
     cluster_data = await get_cluster_from_backend()
 
     async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.delete(
-            f"lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_data.id}"
-        )
+        resp = await backend_client.delete(f"lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_data.id}")
 
         LicenseManagerBackendConnectionError.require_condition(
             resp.status_code == 200, f"Failed to remove job: {resp.text}"
