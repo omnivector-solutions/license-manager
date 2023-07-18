@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from lm_agent.backend_utils.models import FeatureSchema, InventorySchema, ProductSchema
+from lm_agent.backend_utils.models import FeatureSchema, ProductSchema
 from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as main
 
 
@@ -63,9 +63,9 @@ async def test_main_error_in_get_config_from_backend(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_inventories")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 async def test_main_error_in_reconcile(
-    update_inventories_mock,
+    update_features_mock,
     get_configs_from_backend_mock,
     get_required_licenses_for_job_mock,
     get_job_context_mock,
@@ -89,11 +89,13 @@ async def test_main_error_in_reconcile(
             product=ProductSchema(id=1, name="test"),
             config_id=1,
             reserved=100,
-            inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            total=1000,
+            used=93,
+            booked_total=0,
         )
     ]
     get_configs_from_backend_mock.return_value = [backend_return_mock]
-    update_inventories_mock.side_effect = Exception
+    update_features_mock.side_effect = Exception
 
     with pytest.raises(SystemExit) as exc_info:
         await main()
@@ -109,11 +111,11 @@ async def test_main_error_in_reconcile(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_inventories")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.make_booking_request")
 async def test_main(
     make_booking_request_mock,
-    update_inventories_mock,
+    update_features_mock,
     get_configs_from_backend_mock,
     get_required_licenses_for_job_mock,
     get_job_context_mock,
@@ -139,7 +141,9 @@ async def test_main(
             product=ProductSchema(id=1, name="test"),
             config_id=1,
             reserved=100,
-            inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            total=1000,
+            used=93,
+            booked_total=0,
         )
     ]
     get_configs_from_backend_mock.return_value = [backend_return_mock]
@@ -148,7 +152,7 @@ async def test_main(
 
     get_configs_from_backend_mock.assert_awaited_once()
     get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
-    update_inventories_mock.assert_awaited_once()
+    update_features_mock.assert_awaited_once()
     make_booking_request_mock.assert_awaited_once()
 
 
@@ -158,11 +162,11 @@ async def test_main(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_inventories")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.make_booking_request")
 async def test_main_without_triggering_reconciliation(
     make_booking_request_mock,
-    update_inventories_mock,
+    update_features_mock,
     get_configs_from_backend_mock,
     get_required_licenses_for_job_mock,
     get_job_context_mock,
@@ -190,7 +194,9 @@ async def test_main_without_triggering_reconciliation(
             product=ProductSchema(id=1, name="test"),
             config_id=1,
             reserved=100,
-            inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+            total=1000,
+            used=93,
+            booked_total=0,
         )
     ]
     get_configs_from_backend_mock.return_value = [backend_return_mock]
@@ -202,4 +208,4 @@ async def test_main_without_triggering_reconciliation(
     get_configs_from_backend_mock.assert_awaited_once()
     get_required_licenses_for_job_mock.assert_called_once_with("test.feature@flexlm:10")
     make_booking_request_mock.assert_awaited_once()
-    update_inventories_mock.assert_not_called()
+    update_features_mock.assert_not_called()

@@ -14,7 +14,7 @@ from lm_agent.backend_utils.utils import (
     get_feature_ids,
     get_grace_times,
     get_jobs_from_backend,
-    make_inventory_update,
+    make_feature_update,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerReservationFailure
@@ -144,7 +144,7 @@ async def reconcile():
 
     # Generate report and update the backend
     logger.debug("Reconciling licenses in the backend")
-    license_usage_info = await update_inventories()
+    license_usage_info = await update_features()
     logger.debug("Backend licenses reconciliated")
 
     reservation_data = []
@@ -200,8 +200,8 @@ async def reconcile():
     logger.debug("Reconciliation done")
 
 
-async def update_inventories() -> List[dict]:
-    """Send the inventory data collected from the cluster to the backend."""
+async def update_features() -> List[dict]:
+    """Send the license data collected from the cluster to the backend."""
     license_report = await report()
 
     if not license_report:
@@ -216,6 +216,6 @@ async def update_inventories() -> List[dict]:
 
     for license in license_report:
         feature_id = feature_ids[license["product_feature"]]
-        await make_inventory_update(feature_id=feature_id, total=license["total"], used=license["used"])
+        await make_feature_update(feature_id=feature_id, total=license["total"], used=license["used"])
 
     return license_report

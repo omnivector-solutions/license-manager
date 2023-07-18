@@ -12,7 +12,6 @@ from lm_agent.backend_utils.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
-    InventorySchema,
     JobSchema,
     LicenseBooking,
     LicenseBookingRequest,
@@ -35,7 +34,7 @@ from lm_agent.backend_utils.utils import (
     get_grace_times,
     get_jobs_from_backend,
     make_booking_request,
-    make_inventory_update,
+    make_feature_update,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.config import settings
@@ -262,7 +261,9 @@ async def test__get_configs_from_backend(clusters, respx_mock):
                     product=ProductSchema(id=1, name="abaqus"),
                     config_id=1,
                     reserved=100,
-                    inventory=InventorySchema(id=1, feature_id=2, total=123, used=12),
+                    total=123,
+                    used=12,
+                    booked_total=12,
                 )
             ],
             license_servers=[
@@ -283,7 +284,9 @@ async def test__get_configs_from_backend(clusters, respx_mock):
                     product=ProductSchema(id=2, name="converge"),
                     config_id=2,
                     reserved=0,
-                    inventory=InventorySchema(id=2, feature_id=2, total=500, used=50),
+                    total=500,
+                    used=50,
+                    booked_total=50,
                 )
             ],
             license_servers=[
@@ -447,36 +450,36 @@ async def test__get_bookings_sum_per_cluster(product_feature, expected_booking_s
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__make_inventory_update__success(respx_mock):
+async def test__make_feature_update__success(respx_mock):
     """
-    Test that make_inventory_update updates the inventory for a feature correctly.
+    Test that make_feature_update updates the feature correctly.
     """
     feature_id = 1
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=200))
+    respx_mock.put(f"/lm/features/{feature_id}").mock(return_value=Response(status_code=200))
 
     try:
-        await make_inventory_update(feature_id=feature_id, total=total, used=used)
+        await make_feature_update(feature_id=feature_id, total=total, used=used)
     except Exception as e:
         assert False, f"Exception was raised: {e}"
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__make_inventory_update__raises_exception_on_non_two_hundred(respx_mock):
+async def test__make_feature_update__raises_exception_on_non_two_hundred(respx_mock):
     """
-    Test that make_inventory_update handles a failed inventory update correctly.
+    Test that make_feature_update handles a failed feature update correctly.
     """
     feature_id = 1
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/features/{feature_id}/update_inventory").mock(return_value=Response(status_code=500))
+    respx_mock.put(f"/lm/features/{feature_id}").mock(return_value=Response(status_code=500))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_inventory_update(feature_id=feature_id, total=total, used=used)
+        await make_feature_update(feature_id=feature_id, total=total, used=used)
 
 
 @pytest.mark.asyncio

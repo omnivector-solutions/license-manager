@@ -26,17 +26,6 @@ class ProductSchema(BaseModel):
     name: str
 
 
-class InventorySchema(BaseModel):
-    """
-    Represents the inventory of a feature.
-    """
-
-    id: int
-    feature_id: int
-    total: int
-    used: int
-
-
 class FeatureSchema(BaseModel):
     """
     Represents the features in a feature configuration.
@@ -47,7 +36,9 @@ class FeatureSchema(BaseModel):
     product: ProductSchema
     config_id: int
     reserved: int
-    inventory: InventorySchema
+    total: int
+    used: int
+    booked_total: int
 
 
 class ConfigurationSchema(BaseModel):

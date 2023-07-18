@@ -7,7 +7,6 @@ from lm_agent import license_report
 from lm_agent.backend_utils.models import (
     ConfigurationSchema,
     FeatureSchema,
-    InventorySchema,
     LicenseServerSchema,
     LicenseServerType,
     ProductSchema,
@@ -366,7 +365,9 @@ def test_get_local_license_configurations():
                 product=ProductSchema(id=1, name="converge"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=1, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[
@@ -388,7 +389,9 @@ def test_get_local_license_configurations():
                 product=ProductSchema(id=1, name="converge"),
                 config_id=2,
                 reserved=100,
-                inventory=InventorySchema(id=2, feature_id=2, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[

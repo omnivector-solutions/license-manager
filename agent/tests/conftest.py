@@ -14,7 +14,6 @@ from lm_agent.backend_utils.models import (
     ClusterSchema,
     ConfigurationSchema,
     FeatureSchema,
-    InventorySchema,
     JobSchema,
     LicenseServerSchema,
     LicenseServerType,
@@ -74,7 +73,9 @@ def clusters():
                             "product": {"id": 1, "name": "abaqus"},
                             "config_id": 1,
                             "reserved": 100,
-                            "inventory": {"id": 1, "feature_id": 2, "total": 123, "used": 12},
+                            "total": 123,
+                            "used": 12,
+                            "booked_total": 12,
                         }
                     ],
                     "license_servers": [
@@ -95,7 +96,9 @@ def clusters():
                             "product": {"id": 2, "name": "converge"},
                             "config_id": 2,
                             "reserved": 0,
-                            "inventory": {"id": 2, "feature_id": 2, "total": 500, "used": 50},
+                            "total": 500,
+                            "used": 50,
+                            "booked_total": 50,
                         }
                     ],
                     "license_servers": [{"id": 2, "config_id": 2, "host": "licserv0002", "port": 2345}],
@@ -133,7 +136,9 @@ def clusters():
                             "product": {"id": 5, "name": "Product 3"},
                             "config_id": 3,
                             "reserved": 20,
-                            "inventory": {"id": 6, "feature_id": 4, "total": 200, "used": 15},
+                            "total": 200,
+                            "used": 15,
+                            "booked_total": 15,
                         },
                         {
                             "id": 7,
@@ -141,7 +146,9 @@ def clusters():
                             "product": {"id": 8, "name": "Product 4"},
                             "config_id": 3,
                             "reserved": 30,
-                            "inventory": {"id": 9, "feature_id": 7, "total": 300, "used": 25},
+                            "total": 300,
+                            "used": 25,
+                            "booked_total": 25,
                         },
                     ],
                     "license_servers": [
@@ -199,7 +206,9 @@ def parsed_clusters():
                             product=ProductSchema(id=1, name="abaqus"),
                             config_id=1,
                             reserved=100,
-                            inventory=InventorySchema(id=1, feature_id=2, total=123, used=12),
+                            total=123,
+                            used=12,
+                            booked_total=12,
                         )
                     ],
                     license_servers=[
@@ -220,7 +229,9 @@ def parsed_clusters():
                             product=ProductSchema(id=2, name="converge"),
                             config_id=2,
                             reserved=0,
-                            inventory=InventorySchema(id=2, feature_id=2, total=500, used=50),
+                            total=500,
+                            used=50,
+                            booked_total=50,
                         )
                     ],
                     license_servers=[
@@ -260,7 +271,9 @@ def parsed_clusters():
                             product=ProductSchema(id=5, name="Product 3"),
                             config_id=3,
                             reserved=20,
-                            inventory=InventorySchema(id=6, feature_id=4, total=200, used=15),
+                            total=200,
+                            used=15,
+                            booked_total=15,
                         ),
                         FeatureSchema(
                             id=7,
@@ -268,7 +281,9 @@ def parsed_clusters():
                             product=ProductSchema(id=8, name="Product 4"),
                             config_id=3,
                             reserved=30,
-                            inventory=InventorySchema(id=9, feature_id=7, total=300, used=25),
+                            total=300,
+                            used=25,
+                            booked_total=25,
                         ),
                     ],
                     license_servers=[
@@ -320,7 +335,9 @@ def one_configuration_row_flexlm():
                 product=ProductSchema(id=1, name="testproduct"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[
@@ -344,7 +361,9 @@ def one_configuration_row_rlm():
                 product=ProductSchema(id=1, name="converge"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[
@@ -368,7 +387,9 @@ def one_configuration_row_lsdyna():
                 product=ProductSchema(id=1, name="mppdyna"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=2, total=500, used=440),
+                total=500,
+                used=440,
+                booked_total=0,
             )
         ],
         license_servers=[
@@ -392,7 +413,9 @@ def one_configuration_row_lmx():
                 product=ProductSchema(id=1, name="hyperworks"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[
@@ -416,7 +439,9 @@ def one_configuration_row_olicense():
                 product=ProductSchema(id=1, name="cosin"),
                 config_id=1,
                 reserved=100,
-                inventory=InventorySchema(id=1, feature_id=2, total=1000, used=93),
+                total=1000,
+                used=93,
+                booked_total=0,
             )
         ],
         license_servers=[

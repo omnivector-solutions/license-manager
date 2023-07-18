@@ -222,20 +222,20 @@ def get_grace_times(cluster_data: ClusterSchema) -> Dict[int, int]:
     return grace_times
 
 
-async def make_inventory_update(feature_id: int, total: int, used: int):
+async def make_feature_update(feature_id: int, total: int, used: int):
     """
-    Update the inventory for a feature with its current counters.
+    Update the feature with its current counters.
     """
     async with AsyncBackendClient() as backend_client:
-        inventory_response = await backend_client.put(
-            f"/lm/features/{feature_id}/update_inventory",
+        feature_response = await backend_client.put(
+            f"/lm/features/{feature_id}",
             json={
                 "total": total,
                 "used": used,
             },
         )
         LicenseManagerBackendConnectionError.require_condition(
-            inventory_response.status_code == 200, f"Failed to update inventory: {inventory_response.text}"
+            feature_response.status_code == 200, f"Failed to update feature: {feature_response.text}"
         )
 
 
