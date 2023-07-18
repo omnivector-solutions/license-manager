@@ -48,6 +48,7 @@ async def read_all_configurations(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
+        force_refresh=True,
     )
 
 
@@ -61,7 +62,7 @@ async def read_configuration(
     secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW)),
 ):
     """Return a configuration with the associated license severs and features with a given id."""
-    return await crud.read(db_session=secure_session.session, id=configuration_id)
+    return await crud.read(db_session=secure_session.session, id=configuration_id, force_refresh=True)
 
 
 @router.put(

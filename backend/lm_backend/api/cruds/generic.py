@@ -62,7 +62,9 @@ class GenericCRUD:
 
         return db_obj
 
-    async def read(self, db_session: AsyncSession, id: Union[Column[int], int]) -> Optional[ModelType]:
+    async def read(
+        self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
+    ) -> Optional[ModelType]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -76,6 +78,9 @@ class GenericCRUD:
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
+
+        if force_refresh:
+            await db_session.refresh(db_obj)
 
         return db_obj
 
