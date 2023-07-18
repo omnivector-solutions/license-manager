@@ -162,7 +162,7 @@ async def create_features(insert_objects, update_object, create_one_configuratio
 
     feature1_id = inserted_features[0].id
     feature2_id = inserted_features[1].id
-    
+
     features_usage = [
         {
             "total": 1000,
@@ -176,8 +176,12 @@ async def create_features(insert_objects, update_object, create_one_configuratio
 
     updated_features = []
 
-    updated_features.append(update_object(id=feature1_id, total=features_usage[0]["total"], used=features_usage[0]["used"]))
-    updated_features.append(update_object(id=feature2_id, total=features_usage[1]["total"], used=features_usage[1]["used"]))
+    updated_features.append(
+        update_object(id=feature1_id, total=features_usage[0]["total"], used=features_usage[0]["used"])
+    )
+    updated_features.append(
+        update_object(id=feature2_id, total=features_usage[1]["total"], used=features_usage[1]["used"])
+    )
 
     return updated_features
 
