@@ -40,9 +40,9 @@ def format_data(feature_data):
         new_data["config_id"] = feature["config_id"]
         new_data["product"] = feature["product"]["name"]
         new_data["feature"] = feature["name"]
-        new_data["total"] = feature["inventory"]["total"]
-        new_data["used"] = feature["inventory"]["used"]
         new_data["reserved"] = feature["reserved"]
+        new_data["total"] = feature["total"]
+        new_data["used"] = feature["used"]
         new_data["booked"] = feature["booked_total"]
         new_data["available"] = new_data["total"] - new_data["used"] - new_data["reserved"] - new_data["booked"]
 
