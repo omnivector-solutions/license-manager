@@ -51,7 +51,7 @@ The ``License Manager CLI`` interacts with this API to add new configurations an
 The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.
 
-The API contains 8 entities that have relationship among them.
+The API contains 7 entities that have relationship among them.
 This means that some of the resources need to be created before others can be created as well.
 
 .. mermaid::
@@ -67,13 +67,10 @@ This means that some of the resources need to be created before others can be cr
             int id pk,fk
             int config_id pk
             int product_id pk
-            str name 
-        }
-        Inventories {
-            int id pk
-            int feature_id fk
+            int reserved
             int total
             int used
+            str name 
         }
         Products {
             int id pk
@@ -96,7 +93,6 @@ This means that some of the resources need to be created before others can be cr
             str name
             int cluster_id fk
             int grace_time
-            int reserved
             enum[str] type
         }
         LicenseServers {
@@ -109,7 +105,6 @@ This means that some of the resources need to be created before others can be cr
         Features ||--o{ Bookings : ""
         Clusters ||--o{ Jobs : ""
         Products ||--o{ Features : ""
-        Features ||--|| Inventories : ""
         Configurations ||--|{ Features : ""
         Clusters ||--o{ Configurations : ""
         Configurations ||--|{ LicenseServers : ""
@@ -234,8 +229,7 @@ Each ``Feature`` is attached to a ``Configuration`` and a ``Product``.
 The feature has a ``reserved`` value, that represents how many licenses should be reserved for usage in desktop applications.
 The amount of licenses reserved is not used by the cluster.
 
-Each ``Feature`` has one ``Inventory`` attached to it, which is automatically created when a ``Feature`` is created.
-The ``License Manager Agent`` polls the license server to populate the ``Inventory``.
+The ``License Manager Agent`` polls the license server to populate the ``used`` and ``total`` values.
 The information stored includes the total number of licenses available and how many licenses are in use.
 
 Endpoints available:
@@ -244,7 +238,6 @@ Endpoints available:
 * GET ``/lm/features``
 * GET ``/lm/features/{id}``
 * PUT ``/lm/features/{id}``
-* PUT ``/lm/features/{id}/update_inventory``
 * DEL ``/lm/features/{id}``
 
 Payload example for POST:
@@ -256,15 +249,6 @@ Payload example for POST:
         "product_id": 1,
         "config_id": 1,
         "reserved": 50,
-    }
-
-Payload example for PUT ``update_inventory``:
-
-.. code-block:: json
-
-    {
-        "total": 500,
-        "used": 150
     }
 
 Jobs
@@ -333,7 +317,7 @@ The ``License Manager CLI`` is a client to interact with the ``License Manager A
 
 It can be used to add new configurations to the API and to check the usage information for each tracked license.
 
-The ``Jobs``, ``Bookings`` and ``Inventories`` are read only. The remaining resources can be edited by users with permission to do so.
+The ``Jobs`` and ``Bookings`` are read only. The remaining resources can be edited by users with permission to do so.
 
 Global commands
 ***************

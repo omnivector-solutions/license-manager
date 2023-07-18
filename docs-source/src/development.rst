@@ -201,12 +201,8 @@ list should contain the configuration and license you previously added.)
                     },
                     "config_id": 1,
                     "reserved": 0,
-                    "inventory": {
-                      "id": 1,
-                      "feature_id": 1,
-                      "total": 0,
-                      "used": 0
-                    }
+                    "total": 0,
+                    "used": 0
                   }
                 ],
                 "license_servers": [
@@ -413,11 +409,8 @@ You should see that the ``used`` value for the license was updated with the valu
         },
         "config_id": 10
         "reserved": 0,
-        "inventory": {
-          "id": 1,
-          "feature_id": 1,
-          "total": 1000,
-          "used": 42
+        "total": 1000,
+        "used": 42
         }
       }
     ]
