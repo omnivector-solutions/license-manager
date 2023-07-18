@@ -15,7 +15,6 @@ Unreleased
   - /configurations
   - /products
   - /features
-  - /inventories
   - /jobs
   - /bookings
 

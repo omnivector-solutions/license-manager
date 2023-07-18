@@ -42,7 +42,6 @@ async def test_add_job__with_bookings(
     read_object,
     create_one_cluster,
     create_one_feature,
-    create_one_inventory,
 ):
     cluster_id = create_one_cluster[0].id
     feature_id = create_one_feature[0].id
@@ -77,7 +76,6 @@ async def test_add_job__with_bookings__fail_with_overbooking(
     read_object,
     create_one_cluster,
     create_one_feature,
-    create_one_inventory,
 ):
     cluster_id = create_one_cluster[0].id
     feature_id = create_one_feature[0].id

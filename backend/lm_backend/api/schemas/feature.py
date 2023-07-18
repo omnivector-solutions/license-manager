@@ -4,7 +4,6 @@ from typing import Optional
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.inventory import InventorySchema
 from lm_backend.api.schemas.product import ProductSchema
 
 
@@ -28,6 +27,8 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     product_id: Optional[int] = None
     config_id: Optional[int] = None
     reserved: Optional[int] = None
+    total: Optional[int] = None
+    used: Optional[int] = None
 
 
 class FeatureSchema(BaseModel):
@@ -40,7 +41,8 @@ class FeatureSchema(BaseModel):
     product: ProductSchema
     config_id: int
     reserved: int
-    inventory: Optional[InventorySchema] = None
+    total: int
+    used: int
     booked_total: Optional[int] = None
 
     class Config:

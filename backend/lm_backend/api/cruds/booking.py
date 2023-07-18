@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lm_backend.api.cruds.generic import GenericCRUD, ModelType
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.feature import Feature
-from lm_backend.api.models.inventory import Inventory
 from lm_backend.api.schemas.booking import BookingCreateSchema
 
 
@@ -39,15 +38,14 @@ class BookingCRUD(GenericCRUD):
             select(Feature.id)
             .select_from(Feature)
             .join(Booking, Feature.id == Booking.feature_id, isouter=True)
-            .join(Inventory, Feature.id == Inventory.feature_id)
             .where(Feature.id == obj.feature_id)
             .group_by(Feature.id)
             .having(
                 func.sum(func.coalesce(Booking.quantity, 0))
-                + func.max(Inventory.used)
+                + func.max(Feature.used)
                 + func.max(Feature.reserved)
                 + obj.quantity
-                <= func.max(Inventory.total)
+                <= func.max(Feature.total)
             )
         ).exists()
 

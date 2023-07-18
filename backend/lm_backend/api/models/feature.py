@@ -18,12 +18,12 @@ class Feature(Base):
     name = Column(String, nullable=False)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
+    total = Column(Integer, CheckConstraint("total>=0"), default=0, nullable=False)
+    used = Column(Integer, CheckConstraint("used>=0"), default=0, nullable=False)
     reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
     product = relationship("Product", back_populates="features", lazy="selectin")
-    inventory = relationship(
-        "Inventory", back_populates="feature", uselist=False, lazy="selectin", cascade="all, delete-orphan"
-    )
+
     bookings = relationship(
         "Booking", back_populates="feature", lazy="selectin", cascade="all, delete-orphan"
     )
@@ -53,6 +53,8 @@ class Feature(Base):
             f"name={self.name}, "
             f"product_id={self.product_id}, "
             f"config_id={self.config_id}, "
+            f"total={self.total}, "
+            f"used={self.used}, "
             f"reserved={self.reserved}, "
             f"booked_total={self.booked_total})"
         )

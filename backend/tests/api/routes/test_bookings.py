@@ -12,10 +12,10 @@ async def test_add_booking__success(
     inject_security_header,
     read_object,
     create_one_job,
-    create_one_inventory,
+    create_one_feature,
 ):
     job_id = create_one_job[0].id
-    feature_id = create_one_inventory[0].feature_id
+    feature_id = create_one_feature[0].id
 
     data = {
         "job_id": job_id,
@@ -43,10 +43,10 @@ async def test_add_booking__fail_with_overbooking(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    create_one_inventory,
+    create_one_feature,
 ):
     job_id = create_one_job[0].id
-    feature_id = create_one_inventory[0].feature_id
+    feature_id = create_one_feature[0].id
 
     data = {
         "job_id": job_id,
@@ -65,10 +65,10 @@ async def test_add_booking__fail_with_overbooking_when_reserved(
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    create_one_inventory,
+    create_one_feature,
 ):
     job_id = create_one_job[0].id
-    feature_id = create_one_inventory[0].feature_id
+    feature_id = create_one_feature[0].id
 
     data = {
         "job_id": job_id,
