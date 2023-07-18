@@ -149,41 +149,21 @@ async def create_features(insert_objects, update_object, create_one_configuratio
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 100,
+            "total": 1000,
+            "used": 250,
         },
         {
             "name": "converge_super",
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 0,
+            "total": 1000,
+            "used": 250,
         },
     ]
 
     inserted_features = await insert_objects(features_to_add, Feature)
-
-    feature1_id = inserted_features[0].id
-    feature2_id = inserted_features[1].id
-
-    features_usage = [
-        {
-            "total": 1000,
-            "used": 250,
-        },
-        {
-            "total": 1000,
-            "used": 250,
-        },
-    ]
-
-    updated_features = []
-
-    updated_features.append(
-        update_object(id=feature1_id, total=features_usage[0]["total"], used=features_usage[0]["used"])
-    )
-    updated_features.append(
-        update_object(id=feature2_id, total=features_usage[1]["total"], used=features_usage[1]["used"])
-    )
-
-    return updated_features
+    return inserted_features
 
 
 @fixture
@@ -197,17 +177,13 @@ async def create_one_feature(insert_objects, update_object, create_one_configura
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 100,
+            "total": 1000,
+            "used": 250,
         },
     ]
 
     inserted_feature = await insert_objects(feature_to_add, Feature)
-
-    feature_id = inserted_feature[0].id
-    feature_usage = {
-        "total": 1000,
-        "used": 250,
-    }
-    return update_object(id=feature_id, total=feature_usage["total"], used=feature_usage["used"])
+    return inserted_feature
 
 
 @fixture
