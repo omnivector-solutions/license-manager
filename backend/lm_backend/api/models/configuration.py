@@ -13,7 +13,7 @@ class Configuration(Base):
 
     __tablename__ = "configs"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String, nullable=False)
     cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
     grace_time = Column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
     type = Column(String, nullable=False)

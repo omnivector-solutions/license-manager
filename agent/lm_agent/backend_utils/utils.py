@@ -156,7 +156,7 @@ async def get_all_clusters_from_backend() -> List[ClusterSchema]:
     Get all clusters from the backend.
     """
     async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.get("/lm/clusters")
+        resp = await backend_client.get("/lm/clusters/")
 
         LicenseManagerBackendConnectionError.require_condition(
             resp.status_code == 200, f"Could not get cluster data from the backend: {resp.text}"
@@ -257,11 +257,11 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.post(
-            "/lm/jobs",
+            "/lm/jobs/",
             json={
                 "slurm_job_id": lbr.slurm_job_id,
                 "cluster_id": cluster_data.id,
-                "user_name": lbr.user_name,
+                "username": lbr.user_name,
                 "lead_host": lbr.lead_host,
                 "bookings": bookings,
             },
@@ -281,9 +281,7 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
     cluster_data = await get_cluster_from_backend()
 
     async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.delete(
-            f"lm/jobs/slurm_job_id/{slurm_job_id}/cluster_id/{cluster_data.id}"
-        )
+        resp = await backend_client.delete(f"lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_data.id}")
 
         LicenseManagerBackendConnectionError.require_condition(
             resp.status_code == 200, f"Failed to remove job: {resp.text}"

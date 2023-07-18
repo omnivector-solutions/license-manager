@@ -216,6 +216,6 @@ async def update_inventories() -> List[dict]:
 
     for license in license_report:
         feature_id = feature_ids[license["product_feature"]]
-        await make_inventory_update(feature_id, license["used"], license["total"])
+        await make_inventory_update(feature_id=feature_id, total=license["total"], used=license["used"])
 
     return license_report
