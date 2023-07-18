@@ -1,4 +1,5 @@
 """Generic CRUD class for SQLAlchemy models."""
+from asyncio import gather
 from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
@@ -61,7 +62,9 @@ class GenericCRUD:
 
         return db_obj
 
-    async def read(self, db_session: AsyncSession, id: Union[Column[int], int]) -> Optional[ModelType]:
+    async def read(
+        self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
+    ) -> Optional[ModelType]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -76,6 +79,9 @@ class GenericCRUD:
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
+        if force_refresh:
+            await db_session.refresh(db_obj)
+
         return db_obj
 
     async def read_all(
@@ -84,10 +90,14 @@ class GenericCRUD:
         search: str = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
+        force_refresh: bool = False,
     ) -> List[ModelType]:
         """
         Read all objects.
         Returns a list of objects.
+
+        Note: The ``force_refresh`` parameter may be useful to force the gathered results to lazily load
+              relationships or other computed fields like column properties or hybrid attributes.
         """
         try:
             stmt = select(self.model)
@@ -95,12 +105,14 @@ class GenericCRUD:
                 stmt = stmt.where(search_clause(search, self.model.searchable_fields))
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
-            query = await db_session.execute(stmt)
-            db_objs = query.scalars().all()
+            query = await db_session.scalars(stmt)
+            db_objs = list(query.all())
+            if force_refresh:
+                await gather(*(db_session.refresh(db_obj) for db_obj in db_objs))
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
-        return [db_obj for db_obj in db_objs]
+        return db_objs
 
     async def update(
         self,

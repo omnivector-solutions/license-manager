@@ -178,6 +178,7 @@ def dummy_feature_data():
             "config_id": 1,
             "reserved": 100,
             "inventory": {"id": 1, "feature_id": 1, "total": 1000, "used": 500},
+            "booked_total": 50,
         },
         {
             "id": 2,
@@ -186,6 +187,7 @@ def dummy_feature_data():
             "config_id": 2,
             "reserved": 50,
             "inventory": {"id": 2, "feature_id": 2, "total": 600, "used": 300},
+            "booked_total": 35,
         },
     ]
 

@@ -45,7 +45,7 @@ async def create_job(
             await crud_job.delete(db_session=secure_session.session, id=job_created.id)
             raise
 
-    return await crud_job.read(db_session=secure_session.session, id=job_created.id)
+    return await crud_job.read(db_session=secure_session.session, id=job_created.id, force_refresh=True)
 
 
 @router.get(
@@ -61,7 +61,11 @@ async def read_all_jobs(
 ):
     """Return all jobs."""
     return await crud_job.read_all(
-        db_session=secure_session.session, search=search, sort_field=sort_field, sort_ascending=sort_ascending
+        db_session=secure_session.session,
+        search=search,
+        sort_field=sort_field,
+        sort_ascending=sort_ascending,
+        force_refresh=True,
     )
 
 
@@ -75,7 +79,7 @@ async def read_job(
     secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
 ):
     """Return a job with associated bookings with the given id."""
-    return await crud_job.read(db_session=secure_session.session, id=job_id)
+    return await crud_job.read(db_session=secure_session.session, id=job_id, force_refresh=True)
 
 
 @router.delete(
@@ -107,7 +111,9 @@ async def delete_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(db_session=secure_session.session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(
+        db_session=secure_session.session, search=slurm_job_id, force_refresh=True
+    )
 
     for job in jobs:
         if job.cluster_id == cluster_id:
@@ -133,7 +139,9 @@ async def read_job_by_slurm_id(
 
     Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(db_session=secure_session.session, search=slurm_job_id)
+    jobs: List[Job] = await crud_job.read_all(
+        db_session=secure_session.session, search=slurm_job_id, force_refresh=True
+    )
 
     for job in jobs:
         if job.cluster_id == cluster_id:

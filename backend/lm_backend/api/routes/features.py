@@ -30,7 +30,9 @@ async def create_feature(
     feature_created: Feature = await crud_feature.create(db_session=secure_session.session, obj=feature)
     inventory = InventoryCreateSchema(feature_id=feature_created.id, total=0, used=0)
     await crud_inventory.create(db_session=secure_session.session, obj=inventory)
-    return await crud_feature.read(db_session=secure_session.session, id=feature_created.id)
+    return await crud_feature.read(
+        db_session=secure_session.session, id=feature_created.id, force_refresh=True
+    )
 
 
 @router.get(
@@ -50,6 +52,7 @@ async def read_all_features(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
+        force_refresh=True,  # To lazy load relationships and hybrid properties
     )
 
 
@@ -63,7 +66,7 @@ async def read_feature(
     secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW)),
 ):
     """Return a feature with associated bookings and inventory with the given id."""
-    return await crud_feature.read(db_session=secure_session.session, id=feature_id)
+    return await crud_feature.read(db_session=secure_session.session, id=feature_id, force_refresh=True)
 
 
 @router.put(
@@ -105,7 +108,7 @@ async def update_inventory(
             obj=inventory_update,
         )
 
-    return await crud_feature.read(db_session=secure_session.session, id=feature_id)
+    return await crud_feature.read(db_session=secure_session.session, id=feature_id, force_refresh=True)
 
 
 @router.delete(
