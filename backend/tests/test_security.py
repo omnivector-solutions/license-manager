@@ -66,12 +66,12 @@ def test_identity_payload__extracts_organization_id_successfully():
     assert identity.organization_id == "dummy-organization-id"
 
 
-def test_identity_payload__fails_validation_with_non_dict_organization():
+def test_identity_payload__fails_validation_with_non_dict_organization_or_non_string():
     token_payload = {
         "exp": 1689105153,
         "sub": "dummy-sub",
         "azp": "dummy-client-id",
-        "organization": "dummy-organization-id",
+        "organization": 1234,
     }
     with pytest.raises(ValidationError, match="Invalid organization payload"):
         IdentityPayload(**token_payload)
