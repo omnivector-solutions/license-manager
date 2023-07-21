@@ -105,7 +105,7 @@ def test_create__success(
     assert create_route.called
 
     mocked_terminal_message.assert_called_once_with(
-        "The feature was created successfully.",
+        "The feature with id 1 was created successfully.",
         subject="Feature creation succeeded.",
     )
 

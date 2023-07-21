@@ -97,7 +97,7 @@ def test_create__success(
     assert create_route.called
 
     mocked_terminal_message.assert_called_once_with(
-        "The license server was created successfully.",
+        "The license server with id 1 was created successfully.",
         subject="License server creation succeeded.",
     )
 

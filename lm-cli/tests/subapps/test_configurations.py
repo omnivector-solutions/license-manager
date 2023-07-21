@@ -79,7 +79,7 @@ def test_create__success(
         return_value=httpx.Response(
             httpx.codes.CREATED,
             json={
-                "id": 2,
+                "id": 1,
                 "name": "Configuration 1",
                 "cluster_id": 1,
                 "features": [],
@@ -107,7 +107,7 @@ def test_create__success(
     assert create_route.called
 
     mocked_terminal_message.assert_called_once_with(
-        "The configuration was created successfully.",
+        "The configuration with id 1 was created successfully.",
         subject="Configuration creation succeeded.",
     )
 
