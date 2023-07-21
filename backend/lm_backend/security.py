@@ -68,15 +68,21 @@ class IdentityPayload(TokenPayload):
             }
         }
         """
-        organization_dict = values.pop("organization", None)
-        if organization_dict is None:
+        organization_payload = values.pop("organization", None)
+        if organization_payload is None:
             return values
-
-        if not isinstance(organization_dict, dict):
-            raise ValueError(f"Invalid organization payload: {organization_dict}")
-        elif len(organization_dict) != 1:
-            raise ValueError(f"Organization payload did not include exactly one value: {organization_dict}")
-        return {**values, "organization_id": next(iter(organization_dict))}
+        if not isinstance(organization_payload, dict) and not isinstance(organization_payload, str):
+            raise ValueError(f"Invalid organization payload: {organization_payload}")
+        elif len(organization_payload) != 1 and isinstance(organization_payload, dict):
+            raise ValueError(
+                f"Organization payload did not include exactly one value: {organization_payload}"
+            )
+        return {
+            **values,
+            "organization_id": next(iter(organization_payload))
+            if isinstance(organization_payload, dict)
+            else organization_payload,
+        }
 
 
 def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = PermissionMode.ALL):
