@@ -145,7 +145,7 @@ def create(
         client_id=client_id,
     )
 
-    make_request(
+    result = make_request(
         lm_ctx.client,
         "/lm/clusters/",
         "POST",
@@ -156,7 +156,7 @@ def create(
     )
 
     terminal_message(
-        "The cluster was created successfully.",
+        f"The cluster with id {result['id']} was created successfully.",
         subject="Cluster creation succeeded.",
     )
 

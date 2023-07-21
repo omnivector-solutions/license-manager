@@ -127,7 +127,7 @@ def create(
         port=port,
     )
 
-    make_request(
+    result = make_request(
         lm_ctx.client,
         "/lm/license_servers/",
         "POST",
@@ -138,7 +138,7 @@ def create(
     )
 
     terminal_message(
-        "The license server was created successfully.",
+        f"The license server with id {result['id']} was created successfully.",
         subject="License server creation succeeded.",
     )
 

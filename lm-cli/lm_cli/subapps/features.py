@@ -164,7 +164,7 @@ def create(
         reserved=reserved,
     )
 
-    make_request(
+    result = make_request(
         lm_ctx.client,
         "/lm/features/",
         "POST",
@@ -175,7 +175,7 @@ def create(
     )
 
     terminal_message(
-        "The feature was created successfully.",
+        f"The feature with id {result['id']} was created successfully.",
         subject="Feature creation succeeded.",
     )
 

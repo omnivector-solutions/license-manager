@@ -162,7 +162,7 @@ def create(
         type=license_server_type,
     )
 
-    make_request(
+    result = make_request(
         lm_ctx.client,
         "/lm/configurations/",
         "POST",
@@ -173,9 +173,14 @@ def create(
     )
 
     terminal_message(
-        "The configuration was created successfully.",
+        f"The configuration with id {result['id']} was created successfully.",
         subject="Configuration creation succeeded.",
     )
+
+    # render_single_result(
+    #     data=result,
+    #     title=f"Configuration id {result['id']}",
+    # )
 
 
 @app.command()

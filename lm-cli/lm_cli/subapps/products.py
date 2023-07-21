@@ -116,7 +116,7 @@ def create(
         name=name,
     )
 
-    make_request(
+    result = make_request(
         lm_ctx.client,
         "/lm/products/",
         "POST",
@@ -127,7 +127,7 @@ def create(
     )
 
     terminal_message(
-        "The product was created successfully.",
+        f"The product with id {result['id']} was created successfully.",
         subject="Product creation succeeded.",
     )
 
