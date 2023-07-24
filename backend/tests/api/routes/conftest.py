@@ -4,7 +4,6 @@ from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.cluster import Cluster
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
-from lm_backend.api.models.inventory import Inventory
 from lm_backend.api.models.job import Job
 from lm_backend.api.models.license_server import LicenseServer
 from lm_backend.api.models.product import Product
@@ -140,7 +139,7 @@ async def create_one_product(insert_objects):
 
 
 @fixture
-async def create_features(insert_objects, create_one_configuration, create_one_product):
+async def create_features(insert_objects, update_object, create_one_configuration, create_one_product):
     configuration_id = create_one_configuration[0].id
     product_id = create_one_product[0].id
 
@@ -150,12 +149,16 @@ async def create_features(insert_objects, create_one_configuration, create_one_p
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 100,
+            "total": 1000,
+            "used": 250,
         },
         {
             "name": "converge_super",
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 0,
+            "total": 1000,
+            "used": 250,
         },
     ]
 
@@ -164,7 +167,7 @@ async def create_features(insert_objects, create_one_configuration, create_one_p
 
 
 @fixture
-async def create_one_feature(insert_objects, create_one_configuration, create_one_product):
+async def create_one_feature(insert_objects, update_object, create_one_configuration, create_one_product):
     configuration_id = create_one_configuration[0].id
     product_id = create_one_product[0].id
 
@@ -174,6 +177,8 @@ async def create_one_feature(insert_objects, create_one_configuration, create_on
             "product_id": product_id,
             "config_id": configuration_id,
             "reserved": 100,
+            "total": 1000,
+            "used": 250,
         },
     ]
 
@@ -257,44 +262,3 @@ async def create_one_booking(insert_objects, create_one_job, create_one_feature)
 
     inserted_booking = await insert_objects(booking_to_add, Booking)
     return inserted_booking
-
-
-@fixture
-async def create_inventories(
-    insert_objects,
-    create_features,
-):
-    feature1_id = create_features[0].id
-    feature2_id = create_features[1].id
-
-    inventories_to_add = [
-        {
-            "feature_id": feature1_id,
-            "total": 1000,
-            "used": 250,
-        },
-        {
-            "feature_id": feature2_id,
-            "total": 1000,
-            "used": 250,
-        },
-    ]
-
-    inserted_inventories = await insert_objects(inventories_to_add, Inventory)
-    return inserted_inventories
-
-
-@fixture
-async def create_one_inventory(insert_objects, create_one_feature):
-    feature1_id = create_one_feature[0].id
-
-    inventories_to_add = [
-        {
-            "feature_id": feature1_id,
-            "total": 1000,
-            "used": 250,
-        },
-    ]
-
-    inserted_inventory = await insert_objects(inventories_to_add, Inventory)
-    return inserted_inventory

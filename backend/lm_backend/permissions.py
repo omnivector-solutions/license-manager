@@ -21,9 +21,6 @@ class Permissions(str, Enum):
     FEATURE_VIEW = "license-manager:feature:view"
     FEATURE_EDIT = "license-manager:feature:edit"
 
-    INVENTORY_VIEW = "license-manager:inventory:view"
-    INVENTORY_EDIT = "license-manager:inventory:edit"
-
     JOB_VIEW = "license-manager:job:view"
     JOB_EDIT = "license-manager:job:edit"
 

@@ -64,6 +64,8 @@ def upgrade():
         sa.Column("product_id", sa.Integer(), nullable=False),
         sa.Column("config_id", sa.Integer(), nullable=False),
         sa.Column("reserved", sa.Integer(), nullable=False),
+        sa.Column("total", sa.Integer(), nullable=False),
+        sa.Column("used", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["config_id"],
             ["configs.id"],
@@ -73,19 +75,6 @@ def upgrade():
             ["products.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_table(
-        "inventories",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("feature_id", sa.Integer(), nullable=False),
-        sa.Column("total", sa.Integer(), nullable=False),
-        sa.Column("used", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["feature_id"],
-            ["features.id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("feature_id"),
     )
     op.create_table(
         "jobs",

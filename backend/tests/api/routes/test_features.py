@@ -3,7 +3,6 @@ from pytest import mark
 from sqlalchemy import select
 
 from lm_backend.api.models.feature import Feature
-from lm_backend.api.models.inventory import Inventory
 from lm_backend.permissions import Permissions
 
 
@@ -31,11 +30,8 @@ async def test_add_feature__success(
     assert feature_fetched.config_id == configuration_id
     assert feature_fetched.product_id == product_id
     assert feature_fetched.reserved == data["reserved"]
-
-    stmt = select(Inventory).where(Inventory.feature_id == feature_fetched.id)
-    inventory_fetched = await read_object(stmt)
-
-    assert inventory_fetched.feature_id == feature_fetched.id
+    assert feature_fetched.total == 0
+    assert feature_fetched.used == 0
 
 
 @mark.asyncio
@@ -210,74 +206,6 @@ async def test_update_feature__fail_with_bad_data(
 
     inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
-
-    assert response.status_code == 400
-
-
-@mark.asyncio
-async def test_update_inventory__success(
-    backend_client: AsyncClient,
-    inject_security_header,
-    create_one_feature,
-    create_one_inventory,
-    read_object,
-    read_objects,
-    synth_session,
-):
-    new_inventory = {"total": 9999, "used": 9}
-
-    feature_id = create_one_feature[0].id
-
-    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
-    response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
-
-    assert response.status_code == 200
-
-    stmt = select(Feature).where(Feature.id == feature_id)
-    fetch_feature = await read_object(stmt)
-
-    assert fetch_feature.inventory.total == new_inventory["total"]
-    assert fetch_feature.inventory.used == new_inventory["used"]
-
-
-@mark.parametrize(
-    "id",
-    [
-        0,
-        -1,
-        999999999,
-    ],
-)
-@mark.asyncio
-async def test_update_inventory__fail_with_bad_parameter(
-    backend_client: AsyncClient,
-    inject_security_header,
-    create_one_feature,
-    create_one_inventory,
-    read_object,
-    id,
-):
-    new_inventory = {"total": 9999, "used": 9}
-
-    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
-    response = await backend_client.put(f"/lm/features/{id}/update_inventory", json=new_inventory)
-
-    assert response.status_code == 404
-
-
-@mark.asyncio
-async def test_update_inventory__fail_with_bad_data(
-    backend_client: AsyncClient,
-    inject_security_header,
-    create_one_feature,
-    create_one_inventory,
-):
-    new_inventory = {"bla": "bla"}
-
-    feature_id = create_one_feature[0].id
-
-    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT)
-    response = await backend_client.put(f"/lm/features/{feature_id}/update_inventory", json=new_inventory)
 
     assert response.status_code == 400
 

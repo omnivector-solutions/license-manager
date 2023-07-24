@@ -16,7 +16,7 @@ from lm_agent.reconciliation import (
     get_bookings_sum_per_cluster,
     get_greatest_grace_time_for_job,
     reconcile,
-    update_inventories,
+    update_features,
 )
 
 
@@ -186,11 +186,11 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
 @mock.patch("lm_agent.reconciliation.get_configs_from_backend")
 @mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
 @mock.patch("lm_agent.reconciliation.get_cluster_from_backend")
-@mock.patch("lm_agent.reconciliation.update_inventories")
+@mock.patch("lm_agent.reconciliation.update_features")
 @mock.patch("lm_agent.reconciliation.clean_jobs_by_grace_time")
 async def test__reconcile__success(
     clean_jobs_by_grace_time_mock,
-    update_inventories_mock,
+    update_features_mock,
     get_cluster_from_backend_mock,
     get_bookings_sum_mock,
     get_configs_from_backend_mock,
@@ -223,7 +223,7 @@ async def test__reconcile__success(
     is already "blocking" 23 licenses that are in use in the cluster, the reservation
     should block 380 licenses.
     """
-    update_inventories_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
+    update_features_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
     get_cluster_from_backend_mock.return_value = parsed_clusters[0]
     get_configs_from_backend_mock.return_value = parsed_clusters[0].configurations
     get_bookings_sum_mock.return_value = {
@@ -239,13 +239,13 @@ async def test__reconcile__success(
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.report")
-async def test__update_inventories__report_empty(report_mock):
+async def test__update_features__report_empty(report_mock):
     """
     Check the correct behavior when the report is empty in reconcile.
     """
     report_mock.return_value = []
     with pytest.raises(LicenseManagerEmptyReportError):
-        await update_inventories()
+        await update_features()
 
 
 @pytest.mark.asyncio
@@ -253,11 +253,11 @@ async def test__update_inventories__report_empty(report_mock):
 @mock.patch("lm_agent.reconciliation.report")
 @mock.patch("lm_agent.reconciliation.get_feature_ids")
 @mock.patch("lm_agent.reconciliation.get_cluster_from_backend")
-async def test__update_inventories__put_failed(
+async def test__update_features__put_failed(
     get_cluster_from_backend_mock, get_feature_ids_mock, report_mock, respx_mock, parsed_clusters
 ):
     """
-    Check that when put /features/update_inventorys status_code is not 200, should raise exception.
+    Check that when put /features status_code is not 200, should raise exception.
     """
     get_cluster_from_backend_mock.return_value = parsed_clusters[0]
     get_feature_ids_mock.return_value = {
@@ -266,10 +266,10 @@ async def test__update_inventories__put_failed(
     }
     report_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
 
-    respx_mock.put("/lm/features/1/update_inventory").mock(return_value=Response(status_code=400))
+    respx_mock.put("/lm/features/1").mock(return_value=Response(status_code=400))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await update_inventories()
+        await update_features()
 
 
 @pytest.mark.asyncio
