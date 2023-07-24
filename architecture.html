@@ -481,7 +481,7 @@ The <code class="docutils literal notranslate"><span class="pre">License</span> 
 The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">CLI</span></code> interacts with this API to add new configurations and to check the usage information for each tracked license.</p>
 <p>The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.</p>
-<p>The API contains 8 entities that have relationship among them.
+<p>The API contains 7 entities that have relationship among them.
 This means that some of the resources need to be created before others can be created as well.</p>
 <div class="mermaid">
             erDiagram
@@ -495,13 +495,10 @@ This means that some of the resources need to be created before others can be cr
         int id pk,fk
         int config_id pk
         int product_id pk
-        str name
-    }
-    Inventories {
-        int id pk
-        int feature_id fk
+        int reserved
         int total
         int used
+        str name
     }
     Products {
         int id pk
@@ -524,7 +521,6 @@ This means that some of the resources need to be created before others can be cr
         str name
         int cluster_id fk
         int grace_time
-        int reserved
         enum[str] type
     }
     LicenseServers {
@@ -537,7 +533,6 @@ This means that some of the resources need to be created before others can be cr
     Features ||--o{ Bookings : &quot;&quot;
     Clusters ||--o{ Jobs : &quot;&quot;
     Products ||--o{ Features : &quot;&quot;
-    Features ||--|| Inventories : &quot;&quot;
     Configurations ||--|{ Features : &quot;&quot;
     Clusters ||--o{ Configurations : &quot;&quot;
     Configurations ||--|{ LicenseServers : &quot;&quot;
@@ -642,8 +637,7 @@ To create a <code class="docutils literal notranslate"><span class="pre">Feature
 <p>Each <code class="docutils literal notranslate"><span class="pre">Feature</span></code> is attached to a <code class="docutils literal notranslate"><span class="pre">Configuration</span></code> and a <code class="docutils literal notranslate"><span class="pre">Product</span></code>.</p>
 <p>The feature has a <code class="docutils literal notranslate"><span class="pre">reserved</span></code> value, that represents how many licenses should be reserved for usage in desktop applications.
 The amount of licenses reserved is not used by the cluster.</p>
-<p>Each <code class="docutils literal notranslate"><span class="pre">Feature</span></code> has one <code class="docutils literal notranslate"><span class="pre">Inventory</span></code> attached to it, which is automatically created when a <code class="docutils literal notranslate"><span class="pre">Feature</span></code> is created.
-The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span></code> polls the license server to populate the <code class="docutils literal notranslate"><span class="pre">Inventory</span></code>.
+<p>The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span></code> polls the license server to populate the <code class="docutils literal notranslate"><span class="pre">used</span></code> and <code class="docutils literal notranslate"><span class="pre">total</span></code> values.
 The information stored includes the total number of licenses available and how many licenses are in use.</p>
 <p>Endpoints available:</p>
 <ul class="simple">
@@ -651,7 +645,6 @@ The information stored includes the total number of licenses available and how m
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/features</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
 <li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
-<li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}/update_inventory</span></code></p></li>
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
 </ul>
 <p>Payload example for POST:</p>
@@ -660,13 +653,6 @@ The information stored includes the total number of licenses available and how m
 <span class="w">    </span><span class="nt">&quot;product_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;reserved&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-</div>
-<p>Payload example for PUT <code class="docutils literal notranslate"><span class="pre">update_inventory</span></code>:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
@@ -727,7 +713,7 @@ that idenfies it in the cluster.</p>
 <h2>License Manager CLI<a class="headerlink" href="#license-manager-cli" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">CLI</span></code> is a client to interact with the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">API</span></code>.</p>
 <p>It can be used to add new configurations to the API and to check the usage information for each tracked license.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Jobs</span></code>, <code class="docutils literal notranslate"><span class="pre">Bookings</span></code> and <code class="docutils literal notranslate"><span class="pre">Inventories</span></code> are read only. The remaining resources can be edited by users with permission to do so.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Jobs</span></code> and <code class="docutils literal notranslate"><span class="pre">Bookings</span></code> are read only. The remaining resources can be edited by users with permission to do so.</p>
 <div class="section" id="global-commands">
 <h3>Global commands<a class="headerlink" href="#global-commands" title="Permalink to this headline">¶</a></h3>
 <table class="table">
