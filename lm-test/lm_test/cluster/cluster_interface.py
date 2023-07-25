@@ -69,9 +69,7 @@ def teardown(license_servers_backup):
             "juju",
             "config",
             "license-agent-agent",
-            license_server,
-            "=",
-            old_path,
+            f"{license_server}={old_path}",
         )
         print(f"{license_server} path restored: {old_path}")
 
