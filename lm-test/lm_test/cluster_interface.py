@@ -39,6 +39,18 @@ def setup():
     )
     print("LM-SIM setup complete")
 
+    # run reconciliation to update license counters
+    run(
+        "juju ssh",
+        "license-manager-agent/0",
+        "\"sudo /bin/bash",
+        "-c",
+        "'source",
+        "/srv/license-manager-agent-venv/bin/activate",
+        "&&",
+        "reconcile'\""
+    )
+
     print("Setup complete.")
     return backed_up_license_servers
 
