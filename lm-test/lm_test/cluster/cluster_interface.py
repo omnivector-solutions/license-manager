@@ -23,7 +23,7 @@ def setup():
         old_path = run(
             "juju",
             "config",
-            "license-agent-agent",
+            "license-manager-agent",
             license_server,
         )
         backed_up_license_servers[license_server] = old_path
