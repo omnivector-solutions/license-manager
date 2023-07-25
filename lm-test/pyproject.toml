@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "lm-test"
+version = "0.1.0"
+description = "License Manager automated integration test"
+authors = ["Omnivector Solutions <info@omnivector.solutions>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/omnivector-solutions/license-manager"
+packages = [{include = "lm_test"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+license-manager-cli = {path = "../lm-cli"}
+py-buzz = "^3.2.1"
+httpx = "^0.22.0"
+
+[tool.poetry.scripts]
+test-lm = "lm_test.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
