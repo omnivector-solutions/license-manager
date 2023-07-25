@@ -4,7 +4,8 @@ from lm_test.exceptions import JobFailedError
 
 def get_job_info(job_id):
     return run(
-        "juju ssh",
+        "juju",
+        "ssh",
         "slurmd/leader",
         "scontrol",
         "show",
@@ -20,7 +21,8 @@ def submit_job():
     """
     print("Submitting job...")
     job_submission = run(
-        "juju ssh",
+        "juju",
+        "ssh",
         "slurmd/leader",
         "sbatch",
         "/tmp/batch.sh",

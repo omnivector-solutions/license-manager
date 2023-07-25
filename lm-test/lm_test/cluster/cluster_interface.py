@@ -34,24 +34,24 @@ def setup():
         "make",
         "setup",
         "-C",
-        settings.LM_SIM_PATH,
+        str(settings.LM_SIM_PATH),
         "lm_sim_ip=",
-        settings.LM_SIM_BASE_URL
+        str(settings.LM_SIM_BASE_URL),
     )
     print("LM-SIM setup complete")
 
     # run reconciliation to update license counters
     run(
-        "juju"
+        "juju",
         "ssh",
-        "license-manager-agent/0",
-        "\"sudo",
+        "license-manager-agent/leader",
+        "sudo",
         "/bin/bash",
         "-c",
         "'source",
         "/srv/license-manager-agent-venv/bin/activate",
         "&&",
-        "reconcile'\""
+        "reconcile'",
     )
 
     print("Setup complete.")
@@ -80,7 +80,7 @@ def teardown(license_servers_backup):
     run(
         "juju",
         "ssh",
-        "license-agent-agent/0",
+        "license-agent-agent/leader",
         "sudo",
         "sacctmgr",
         "delete",
