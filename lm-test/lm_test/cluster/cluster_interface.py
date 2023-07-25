@@ -68,7 +68,7 @@ def teardown(license_servers_backup):
         run(
             "juju",
             "config",
-            "license-agent-agent",
+            "license-manager-agent",
             f"{license_server}={old_path}",
         )
         print(f"{license_server} path restored: {old_path}")
@@ -77,7 +77,7 @@ def teardown(license_servers_backup):
     run(
         "juju",
         "ssh",
-        "license-agent-agent/leader",
+        "license-manager-agent/leader",
         "sudo",
         "sacctmgr",
         "delete",
