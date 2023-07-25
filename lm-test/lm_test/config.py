@@ -15,8 +15,7 @@ class Settings(BaseSettings):
     LM_SIM_PATH: Path
 
     # Cluster configurations
-    CLUSTER_NAME: str
-    CLUSTER_CLIENT_ID: str
+    CLUSTER_ID: str
 
     # OIDC config for machine-to-machine security
     OIDC_DOMAIN: str
