@@ -11,12 +11,7 @@ async def setup():
     """
     print("Setting up License Manager API...")
 
-    cluster_data = {
-        "name": settings.CLUSTER_NAME,
-        "client_id": settings.CLUSTER_CLIENT_ID,
-    }
-    cluster_id = (await create_resource(lm_api_client, cluster_data, "/lm/clusters/"))["id"]
-    print(f"Created cluster with id: {cluster_id}")
+    cluster_id = settings.CLUSTER_ID
 
     configuration_data = {
         "name": "test-configuration",
@@ -53,11 +48,8 @@ async def setup():
     print("Setup complete.")
 
     return {
-        "cluster_id": cluster_id,
         "configuration_id": configuration_id,
-        "license_server_id": license_server_id,
         "product_id": product_id,
-        "feature_id": feature_id,
     }
 
 
@@ -71,7 +63,7 @@ async def teardown(created_data: dict):
     print(f"Deleted product with id: {created_data['product_id']}")
 
     # Cluster delete cascades to configurations, license servers, and features
-    await delete_resource(client=lm_api_client, resource_id=created_data["cluster_id"], resource_url="/lm/clusters")
-    print(f"Deleted cluster with id: {created_data['cluster_id']}")
+    await delete_resource(client=lm_api_client, resource_id=created_data["configuration_id"], resource_url="/lm/configurations")
+    print(f"Deleted configuration with id: {created_data['configuration_id']}")
 
     print("Tear down complete.")
