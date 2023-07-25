@@ -35,8 +35,7 @@ def setup():
         "setup",
         "-C",
         str(settings.LM_SIM_PATH),
-        "lm_sim_ip=",
-        str(settings.LM_SIM_BASE_URL),
+        f"lm_sim_ip={settings.LM_SIM_BASE_URL}",
     )
     print("LM-SIM setup complete")
 
