@@ -76,7 +76,7 @@ def teardown(license_servers_backup):
             "license-manager-agent",
             f"{license_server}={old_path}",
         )
-        print(f"{license_server} path restored: {old_path}")
+        print(f"{license_server} path restored")
 
     print("Deleting fake license from cluster...")
     # delete the fake license from the cluster
@@ -107,5 +107,5 @@ def teardown(license_servers_backup):
         "/tmp/application.sh",
     )
     print("Fake job deleted")
-    
+
     print("Teardown complete.")
