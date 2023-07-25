@@ -77,12 +77,3 @@ async def teardown(created_data: dict):
     print(f"Deleted cluster with id: {created_data['cluster_id']}")
 
     print("Tear down complete.")
-
-
-async def main():
-    created_data = await setup()
-    await teardown(created_data)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

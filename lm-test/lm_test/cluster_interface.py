@@ -96,8 +96,3 @@ def teardown(license_servers_backup):
     )
 
     print("Teardown complete.")
-
-
-def main():
-    backed_up_data = setup()
-    teardown(backed_up_data)
