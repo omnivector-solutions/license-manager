@@ -8,6 +8,7 @@ def setup():
     """
     print("Setting up cluster...")
 
+    print("Backing up license server paths...")
     # backup the license server paths before changing it with LM-SIM
     license_servers_configs = [
         "lmutil-path",
@@ -27,8 +28,9 @@ def setup():
             license_server,
         )
         backed_up_license_servers[license_server] = old_path
-        print(f"{license_server} path backed up: {old_path}")
+        print(f"{license_server} path backed up")
 
+    print("Setting up LM-SIM...")
     # set the lmutil path to the fake one use by LM-SIM
     run(
         "make",
@@ -39,6 +41,7 @@ def setup():
     )
     print("LM-SIM setup complete")
 
+    print("Triggering reconciliation...")
     # run reconciliation to update license counters
     run(
         "juju",
@@ -52,6 +55,7 @@ def setup():
         "&&",
         "reconcile'",
     )
+    print("Reconciliation done")
 
     print("Setup complete.")
     return backed_up_license_servers
@@ -63,6 +67,7 @@ def teardown(license_servers_backup):
     """
     print("Tearing down cluster...")
 
+    print("Restoring license server paths...")
     # restore the license server paths
     for license_server, old_path in license_servers_backup.items():
         run(
@@ -73,6 +78,7 @@ def teardown(license_servers_backup):
         )
         print(f"{license_server} path restored: {old_path}")
 
+    print("Deleting fake license from cluster...")
     # delete the fake license from the cluster
     run(
         "juju",
@@ -85,7 +91,9 @@ def teardown(license_servers_backup):
         "test_product.test_feature",
         "-i",
     )
+    print("Fake license deleted")
 
+    print("Deleting fake job from cluster...")
     # delete the fake job created by LM-SIM
     run(
         "juju",
@@ -98,5 +106,6 @@ def teardown(license_servers_backup):
         "rm",
         "/tmp/application.sh",
     )
-
+    print("Fake job deleted")
+    
     print("Teardown complete.")
