@@ -14,3 +14,7 @@ class ResponseNotJSONError(Buzz):
 
 class ResponseError(Buzz):
     """Exception for wrong status code in the response."""
+
+
+class JobFailedError(Buzz):
+    """Exception for job failure."""
