@@ -2,8 +2,11 @@
 Run the integration test.
 """
 import asyncio
-from lm_test.cluster.cluster_interface import setup as cluster_setup, teardown as cluster_teardown
-from lm_test.api.lm_api_interface import setup as lm_api_setup, teardown as lm_api_teardown
+
+from lm_test.api.lm_api_interface import setup as lm_api_setup
+from lm_test.api.lm_api_interface import teardown as lm_api_teardown
+from lm_test.cluster.cluster_interface import setup as cluster_setup
+from lm_test.cluster.cluster_interface import teardown as cluster_teardown
 from lm_test.job.run_job import submit_job
 
 
@@ -32,7 +35,7 @@ async def main():
         - restore the license servers paths;
         - delete the fake license (test_product.test_feature) from LM-SIM;
         - delete the fake job from the slurmd node;
-"""
+    """
     print("Starting integration test...")
 
     lm_api_created_data = await lm_api_setup()

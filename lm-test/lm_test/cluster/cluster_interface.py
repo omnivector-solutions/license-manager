@@ -1,5 +1,5 @@
-from lm_test.utils import run
 from lm_test.config import settings
+from lm_test.utils import run
 
 
 def setup():
@@ -102,7 +102,7 @@ def teardown(license_servers_backup):
         "sudo",
         "rm",
         "/tmp/batch.sh",
-        "&&"
+        "&&",
         "rm",
         "/tmp/application.sh",
     )

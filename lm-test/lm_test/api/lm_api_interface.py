@@ -1,5 +1,5 @@
-from lm_test.utils import LM_API_Client, create_resource, delete_resource
 from lm_test.config import settings
+from lm_test.utils import LM_API_Client, create_resource, delete_resource
 
 
 lm_api_client = LM_API_Client()
@@ -63,7 +63,9 @@ async def teardown(created_data: dict):
     print(f"Deleted product with id: {created_data['product_id']}")
 
     # Cluster delete cascades to configurations, license servers, and features
-    await delete_resource(client=lm_api_client, resource_id=created_data["configuration_id"], resource_url="/lm/configurations")
+    await delete_resource(
+        client=lm_api_client, resource_id=created_data["configuration_id"], resource_url="/lm/configurations"
+    )
     print(f"Deleted configuration with id: {created_data['configuration_id']}")
 
     print("Tear down complete.")

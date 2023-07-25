@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     """
     Configurations to run the integration test.
     """
+
     # APIs endpoint
     LM_API_BASE_URL: str
     LM_SIM_BASE_URL: str

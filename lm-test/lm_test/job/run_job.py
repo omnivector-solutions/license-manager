@@ -1,18 +1,9 @@
-from lm_test.utils import run
 from lm_test.exceptions import JobFailedError
+from lm_test.utils import run
 
 
 def get_job_info(job_id):
-    return run(
-        "juju",
-        "ssh",
-        "slurmd/leader",
-        "scontrol",
-        "show",
-        "job",
-        job_id,
-        "-o"
-    )
+    return run("juju", "ssh", "slurmd/leader", "scontrol", "show", "job", job_id, "-o")
 
 
 def submit_job():
@@ -38,9 +29,6 @@ def submit_job():
     while "JobState=COMPLETED" not in job_info:
         job_info = get_job_info(job_id)
 
-        JobFailedError.require_condition(
-            "JobState=FAILED" not in job_info,
-            "Job failed."
-        )
+        JobFailedError.require_condition("JobState=FAILED" not in job_info, "Job failed.")
 
     print("Job finished.")

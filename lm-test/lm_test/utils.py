@@ -1,9 +1,11 @@
 import subprocess
+from typing import Optional, Union
+
 import buzz
 import httpx
+
 from lm_test.config import settings
-from lm_test.exceptions import AuthTokenError, ResponseNotJSONError, ResponseError
-from typing import Optional, Union
+from lm_test.exceptions import AuthTokenError, ResponseError, ResponseNotJSONError
 
 
 def acquire_token() -> str:
@@ -50,6 +52,7 @@ class LM_API_Client(BaseBackendClient):
     """
     Client to make requests to the License Manager API.
     """
+
     def __init__(self):
         super().__init__(url=settings.LM_API_BASE_URL)
 
@@ -58,6 +61,7 @@ class LM_SIM_Client(BaseBackendClient):
     """
     Client to make requests to the License Manager Simulator.
     """
+
     def __init__(self):
         super().__init__(url=settings.LM_SIM_BASE_URL)
 
