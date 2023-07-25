@@ -1,6 +1,7 @@
 import asyncio
 
 from lm_test.utils import LM_API_Client, create_resource, delete_resource
+from config import settings
 
 
 lm_api_client = LM_API_Client()
@@ -10,9 +11,11 @@ async def setup():
     """
     Set up the License Manager API with the resouces needed for the integration test.
     """
+    print("Setting up License Manager API...")
+
     cluster_data = {
-        "name": "test-cluster",
-        "client_id": "test-client-id",
+        "name": settings.CLUSTER_NAME,
+        "client_id": settings.CLUSTER_CLIENT_ID,
     }
     cluster_id = (await create_resource(lm_api_client, cluster_data, "/lm/clusters/"))["id"]
     print(f"Created cluster with id: {cluster_id}")
@@ -64,6 +67,8 @@ async def teardown(created_data: dict):
     """
     Tear down the License Manager API by deleting the resources created for the integration test.
     """
+    print("Tearing down License Manager API...")
+    
     await delete_resource(client=lm_api_client, resource_id=created_data["product_id"], resource_url="/lm/products")
     print(f"Deleted product with id: {created_data['product_id']}")
 
