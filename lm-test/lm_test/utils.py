@@ -124,4 +124,4 @@ def run(*command):
     ):
         result.check_returncode()
 
-    return result["stdout"]
+    return result.stdout
