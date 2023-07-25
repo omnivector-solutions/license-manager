@@ -40,6 +40,7 @@ def submit_job():
 
         JobFailedError.require_condition(
             "JobState=FAILED" not in job_info,
+            "Job failed."
         )
 
     print("Job finished.")
