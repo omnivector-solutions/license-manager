@@ -1,5 +1,3 @@
-import asyncio
-
 from lm_test.utils import LM_API_Client, create_resource, delete_resource
 from lm_test.config import settings
 
