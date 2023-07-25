@@ -1,5 +1,5 @@
 from lm_test.utils import run
-from config import settings
+from lm_test.config import settings
 
 
 def setup():

@@ -1,7 +1,7 @@
 import asyncio
 
 from lm_test.utils import LM_API_Client, create_resource, delete_resource
-from config import settings
+from lm_test.config import settings
 
 
 lm_api_client = LM_API_Client()
@@ -68,7 +68,7 @@ async def teardown(created_data: dict):
     Tear down the License Manager API by deleting the resources created for the integration test.
     """
     print("Tearing down License Manager API...")
-    
+
     await delete_resource(client=lm_api_client, resource_id=created_data["product_id"], resource_url="/lm/products")
     print(f"Deleted product with id: {created_data['product_id']}")
 
