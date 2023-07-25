@@ -11,6 +11,13 @@ class Settings(BaseSettings):
     LM_API_BASE_URL: str
     LM_SIM_BASE_URL: str
 
+    # License Manager Simulator repo path
+    LM_SIM_PATH: Path
+
+    # Cluster configurations
+    CLUSTER_NAME: str
+    CLUSTER_CLIENT_ID: str
+
     # OIDC config for machine-to-machine security
     OIDC_DOMAIN: str
     OIDC_AUDIENCE: str
