@@ -36,13 +36,13 @@ async def setup():
     print(f"Created license server with id: {license_server_id}")
 
     product_data = {
-        "name": "test-product",
+        "name": "test_product",
     }
     product_id = (await create_resource(lm_api_client, product_data, "/lm/products/"))["id"]
     print(f"Created product with id: {product_id}")
 
     feature_data = {
-        "name": "test-feature",
+        "name": "test_feature",
         "product_id": product_id,
         "config_id": configuration_id,
         "reserved": 0,
