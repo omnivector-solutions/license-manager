@@ -31,11 +31,10 @@ def setup():
 
     # set the lmutil path to the fake one use by LM-SIM
     run(
-        "cd",
-        settings.LM_SIM_PATH,
-        "&&",
         "make",
         "setup",
+        "-C",
+        settings.LM_SIM_PATH,
         "lm_sim_ip=",
         settings.LM_SIM_BASE_URL
     )
