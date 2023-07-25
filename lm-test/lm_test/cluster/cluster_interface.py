@@ -21,7 +21,8 @@ def setup():
 
     for license_server in license_servers_configs:
         old_path = run(
-            "juju config",
+            "juju",
+            "config",
             "license-agent-agent",
             license_server,
         )
@@ -33,7 +34,8 @@ def setup():
         "cd",
         settings.LM_SIM_PATH,
         "&&",
-        "make setup",
+        "make",
+        "setup",
         "lm_sim_ip=",
         settings.LM_SIM_BASE_URL
     )
@@ -41,9 +43,11 @@ def setup():
 
     # run reconciliation to update license counters
     run(
-        "juju ssh",
+        "juju"
+        "ssh",
         "license-manager-agent/0",
-        "\"sudo /bin/bash",
+        "\"sudo",
+        "/bin/bash",
         "-c",
         "'source",
         "/srv/license-manager-agent-venv/bin/activate",
@@ -64,7 +68,8 @@ def teardown(license_servers_backup):
     # restore the license server paths
     for license_server, old_path in license_servers_backup.items():
         run(
-            "juju config",
+            "juju",
+            "config",
             "license-agent-agent",
             license_server,
             "=",
@@ -74,9 +79,11 @@ def teardown(license_servers_backup):
 
     # delete the fake license from the cluster
     run(
-        "juju ssh",
+        "juju",
+        "ssh",
         "license-agent-agent/0",
-        "sudo sacctmgr",
+        "sudo",
+        "sacctmgr",
         "delete",
         "resource",
         "test_product.test_feature",
@@ -85,7 +92,8 @@ def teardown(license_servers_backup):
 
     # delete the fake job created by LM-SIM
     run(
-        "juju ssh",
+        "juju",
+        "ssh",
         "slurmd/leader",
         "sudo",
         "rm",
