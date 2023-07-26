@@ -194,10 +194,15 @@ async def reconcile():
         if reservation_amount:
             reservation_data.append(f"{product_feature}@{license_server_type}:{reservation_amount}")
 
-    # Create the reservation or update the existing one
-    logger.debug(f"Reservation data: {reservation_data}")
-    await create_or_update_reservation(",".join(reservation_data))
-    logger.debug("Reconciliation done")
+        if reservation_data:
+            logger.debug(f"Reservation data: {reservation_data}")
+
+            # Create the reservation or update the existing one
+            await create_or_update_reservation(",".join(reservation_data))
+        else:
+            logger.debug("No reservation needed")
+
+        logger.debug("Reconciliation done")
 
 
 async def update_features() -> List[dict]:
