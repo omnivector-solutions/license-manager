@@ -603,7 +603,7 @@ async def test__get_bookings_for_job_id__success(mock_get_cluster, clusters, par
 
     bookings_data = clusters[0]["jobs"][0]["bookings"]
 
-    respx_mock.get(f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
         return_value=Response(
             status_code=200,
             json={"bookings": bookings_data},
@@ -627,7 +627,7 @@ async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(
 
     mock_get_cluster.return_value = parsed_clusters[0]
 
-    respx_mock.get(f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
         return_value=Response(
             status_code=404,
             json={"error": "Job not found"},
