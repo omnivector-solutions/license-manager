@@ -8,6 +8,7 @@ from lm_test.api.lm_api_interface import teardown as lm_api_teardown
 from lm_test.cluster.cluster_interface import setup as cluster_setup
 from lm_test.cluster.cluster_interface import teardown as cluster_teardown
 from lm_test.job.run_job import submit_job
+from lm_test.exceptions import JobFailedError
 
 
 async def main():
@@ -41,7 +42,10 @@ async def main():
     lm_api_created_data = await lm_api_setup()
     cluster_backed_up_data = cluster_setup()
 
-    submit_job()
+    try:
+        submit_job()
+    except JobFailedError:
+        print("Integration test failed!")
 
     cluster_teardown(cluster_backed_up_data)
     await lm_api_teardown(lm_api_created_data)
