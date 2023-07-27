@@ -298,7 +298,7 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
 
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.get(
-            f"/lm/jobs/by_slurm_id/{slurm_job_id}/cluster/{cluster_data.id}"
+            f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_data.id}"
         )
 
         LicenseManagerBackendConnectionError.require_condition(
