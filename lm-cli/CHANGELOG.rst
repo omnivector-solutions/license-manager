@@ -6,6 +6,9 @@ This file keeps track of all notable changes to License Manager CLI.
 
 Unreleased
 ----------
+
+3.0.0 -- 2023-07-31
+-------------------
 * Refactored CLI to use new API
 
 2.3.1 -- 2023-04-28

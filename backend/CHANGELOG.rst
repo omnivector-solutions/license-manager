@@ -6,7 +6,9 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
-* Added support for multi-tenancy
+
+3.0.0 -- 2023-07-31
+-------------------
 * Refactored API to use a normalized database.
 * New endpoints available:
 
@@ -17,6 +19,7 @@ Unreleased
   - /features
   - /jobs
   - /bookings
+* Added support for multi-tenancy
 
 2.3.1 -- 2023-04-28
 -------------------
