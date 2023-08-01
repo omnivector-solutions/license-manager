@@ -15,14 +15,14 @@ class ConfigurationCreateSchema(BaseCreateSchema):
     """
 
     name: str
-    cluster_id: int
+    cluster_client_id: str
     grace_time: int
     type: LicenseServerType
 
 
 class ConfigurationUpdateSchema(BaseUpdateSchema):
     name: Optional[str] = None
-    cluster_id: Optional[int] = None
+    cluster_client_id: Optional[str] = None
     grace_time: Optional[int] = None
     type: Optional[LicenseServerType] = None
 
@@ -34,7 +34,7 @@ class ConfigurationSchema(BaseModel):
 
     id: int
     name: str
-    cluster_id: int
+    cluster_client_id: str
     features: List[FeatureSchema] = []
     license_servers: List[LicenseServerSchema] = []
     grace_time: int
