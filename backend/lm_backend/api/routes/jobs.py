@@ -96,55 +96,69 @@ async def delete_job(
 
 
 @router.delete(
-    "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
+    "/slurm_job_id/{slurm_job_id}",
     status_code=status.HTTP_200_OK,
 )
 async def delete_job_by_slurm_id(
     slurm_job_id: str,
-    cluster_id: int,
     secure_session: SecureSession = Depends(secure_session(Permissions.JOB_EDIT)),
 ):
     """
     Delete a job from the database and associated bookings.
 
-    Uses the slurm_job_id and the cluster_id to filter the job.
+    Uses the slurm_job_id and the cluster client_id to filter the job.
 
-    Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
+    Since the slurm_job_id can be the same across clusters, we need the cluster client_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(
-        db_session=secure_session.session, search=slurm_job_id, force_refresh=True
+    client_id = secure_session.identity_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
+    jobs: List[Job] = await crud_job.filter(
+        db_session=secure_session.session, filter_field=Job.slurm_job_id, filter_term=slurm_job_id
     )
 
     for job in jobs:
-        if job.cluster_id == cluster_id:
+        if job.cluster_client_id == client_id:
             return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
 
 
 @router.get(
-    "/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}",
+    "/slurm_job_id/{slurm_job_id}",
     response_model=JobSchema,
     status_code=status.HTTP_200_OK,
 )
 async def read_job_by_slurm_id(
     slurm_job_id: str,
-    cluster_id: int,
     secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
 ):
     """
     Read a job from the database and associated bookings.
 
-    Uses the slurm_job_id and the cluster_id to filter the job.
+    Uses the slurm_job_id and the cluster client_id to filter the job.
 
-    Since the slurm_job_id can be the same across clusters, we need the cluster_id to validate.
+    Since the slurm_job_id can be the same across clusters, we need the cluster client_id to validate.
     """
-    jobs: List[Job] = await crud_job.read_all(
-        db_session=secure_session.session, search=slurm_job_id, force_refresh=True
+    client_id = secure_session.identity_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
+    jobs: List[Job] = await crud_job.filter(
+        db_session=secure_session.session, filter_field=Job.slurm_job_id, filter_term=slurm_job_id
     )
 
     for job in jobs:
-        if job.cluster_id == cluster_id:
+        if job.cluster_client_id == client_id:
             return job
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
