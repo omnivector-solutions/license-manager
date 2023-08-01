@@ -19,15 +19,14 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+from lm_backend.database import Base, build_db_url
+from lm_backend.api.models import *
+target_metadata = [Base.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-from lm_backend.database import Base, build_db_url
-from lm_backend.config import settings
-target_metadata = [Base.metadata]
 
 
 def render_item(type_, obj, autogen_context):
