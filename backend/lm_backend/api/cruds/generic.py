@@ -45,7 +45,7 @@ class GenericCRUD:
 
     async def filter(
         self, db_session: AsyncSession, filter_field: Column, filter_term: Union[str, int]
-    ) -> Optional[ModelType]:
+    ) -> List[ModelType]:
         """
         Filter objects using a filter field and filter term.
         Returns the list of objects or raise an exception if it does not exist.
