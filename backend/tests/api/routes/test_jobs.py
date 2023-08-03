@@ -14,12 +14,12 @@ async def test_add_job__success(
 ):
     data = {
         "slurm_job_id": "123",
-        "cluster_client_id": "dummy",
         "username": "user",
         "lead_host": "test-host",
     }
+    client_id = "dummy"
 
-    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -27,9 +27,26 @@ async def test_add_job__success(
     fetched = await read_object(stmt)
 
     assert fetched.slurm_job_id == data["slurm_job_id"]
-    assert fetched.cluster_client_id == data["cluster_client_id"]
+    assert fetched.cluster_client_id == client_id
     assert fetched.username == data["username"]
     assert fetched.lead_host == data["lead_host"]
+    assert fetched.bookings == []
+
+
+@mark.asyncio
+async def test_add_job__fail_with_bad_client_id(
+    backend_client: AsyncClient,
+    inject_security_header,
+):
+    data = {
+        "slurm_job_id": "123",
+        "username": "user",
+        "lead_host": "test-host",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
+    response = await backend_client.post("/lm/jobs", json=data)
+    assert response.status_code == 400
 
 
 @mark.asyncio
@@ -39,17 +56,18 @@ async def test_add_job__with_bookings(
     read_object,
     create_one_feature,
 ):
-    feature_id = create_one_feature[0].id
+    feature_name = create_one_feature[0].name
+    product_name = create_one_feature[0].product.name
+    client_id = "dummy"
 
     data = {
         "slurm_job_id": "123",
-        "cluster_client_id": "dummy",
         "username": "user",
         "lead_host": "test-host",
-        "bookings": [{"feature_id": feature_id, "quantity": 50}],
+        "bookings": [{"product_feature": f"{product_name}.{feature_name}", "quantity": 50}],
     }
 
-    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -57,10 +75,10 @@ async def test_add_job__with_bookings(
     fetched = await read_object(stmt)
 
     assert fetched.slurm_job_id == data["slurm_job_id"]
-    assert fetched.cluster_client_id == data["cluster_client_id"]
+    assert fetched.cluster_client_id == client_id
     assert fetched.username == data["username"]
     assert fetched.lead_host == data["lead_host"]
-    assert fetched.bookings[0].feature_id == data["bookings"][0]["feature_id"]
+    assert fetched.bookings[0].feature_id == create_one_feature[0].id
     assert fetched.bookings[0].quantity == data["bookings"][0]["quantity"]
 
 
@@ -71,17 +89,18 @@ async def test_add_job__with_bookings__fail_with_overbooking(
     read_object,
     create_one_feature,
 ):
-    feature_id = create_one_feature[0].id
+    feature_name = create_one_feature[0].name
+    product_name = create_one_feature[0].product.name
+    client_id = "dummy"
 
     data = {
         "slurm_job_id": "123",
-        "cluster_client_id": "dummy",
         "username": "user",
         "lead_host": "test-host",
-        "bookings": [{"feature_id": feature_id, "quantity": 9999}],
+        "bookings": [{"product_feature": f"{product_name}.{feature_name}", "quantity": 9999}],
     }
 
-    inject_security_header("owner1@test.com", Permissions.JOB_EDIT)
+    inject_security_header("owner1@test.com", Permissions.JOB_EDIT, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 409
 
