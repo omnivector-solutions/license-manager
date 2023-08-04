@@ -5,11 +5,11 @@ import asyncio
 import typing
 
 from lm_agent.backend_utils.models import ConfigurationSchema
-from lm_agent.backend_utils.utils import get_configs_from_backend
+from lm_agent.backend_utils.utils import get_cluster_configs_from_backend
 from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
-from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
@@ -35,7 +35,7 @@ def get_local_license_configurations(
     return filtered_entries
 
 
-async def report() -> typing.List[dict]:
+async def report() -> typing.List[LicenseReportItem]:
     """
     Get stat counts using a license stat tool.
 
@@ -52,7 +52,7 @@ async def report() -> typing.List[dict]:
     product_features_awaited = []
 
     # Get cluster configuration
-    license_configurations = await get_configs_from_backend()
+    license_configurations = await get_cluster_configs_from_backend()
 
     local_licenses = await get_all_product_features_from_cluster()
     filtered_entries = get_local_license_configurations(license_configurations, local_licenses)
@@ -101,8 +101,7 @@ async def report() -> typing.List[dict]:
         else:
             report_items.append(result)
 
-    reconciliation = [item.dict() for item in report_items]
     logger.debug("#### Reconciliation items:")
-    logger.debug(reconciliation)
+    logger.debug(report_items)
 
-    return reconciliation
+    return report_items
