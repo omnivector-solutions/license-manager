@@ -14,7 +14,7 @@ import asyncio
 import sys
 
 from lm_agent.backend_utils.models import LicenseBookingRequest
-from lm_agent.backend_utils.utils import get_configs_from_backend, make_booking_request
+from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.reconciliation import update_features
@@ -53,7 +53,7 @@ async def prolog():
     if len(required_licenses) > 0:
         # Create a list of tracked licenses in the form <product>.<feature>
         try:
-            entries = await get_configs_from_backend()
+            entries = await get_cluster_configs_from_backend()
         except Exception as e:
             logger.error(f"Failed to call get_config_from_backend with {e}")
             sys.exit(1)
@@ -68,7 +68,7 @@ async def prolog():
     # availability for.
     tracked_license_booking_request = LicenseBookingRequest(
         slurm_job_id=job_id,
-        user_name=user_name,
+        username=user_name,
         lead_host=lead_host,
         bookings=[],
     )
