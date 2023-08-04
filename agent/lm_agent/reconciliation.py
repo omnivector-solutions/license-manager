@@ -5,21 +5,20 @@ Reconciliation functionality live here.
 import asyncio
 from typing import Dict, List
 
-from lm_agent.backend_utils.models import BookingSchema, ClusterSchema
+from lm_agent.backend_utils.models import BookingSchema
 from lm_agent.backend_utils.utils import (
     get_bookings_for_job_id,
-    get_bookings_sum_per_cluster,
-    get_cluster_from_backend,
-    get_configs_from_backend,
-    get_feature_ids,
-    get_grace_times,
-    get_jobs_from_backend,
+    get_cluster_configs_from_backend,
+    get_cluster_grace_times,
+    get_cluster_jobs_from_backend,
+    get_feature_bookings_sum,
     make_feature_update,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerReservationFailure
 from lm_agent.license_report import report
 from lm_agent.logs import logger
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_tokens_for_license,
     return_formatted_squeue_out,
@@ -49,7 +48,7 @@ def get_running_jobs(squeue_result: List) -> List:
     return [j for j in squeue_result if j["state"] == "RUNNING"]
 
 
-async def clean_jobs_by_grace_time(cluster_data: ClusterSchema):
+async def clean_jobs_by_grace_time():
     """
     Clean the jobs where running time is greater than the grace_time.
     """
@@ -69,7 +68,7 @@ async def clean_jobs_by_grace_time(cluster_data: ClusterSchema):
     results = await asyncio.gather(*get_bookings_call)
     bookings_for_running_jobs = {job["job_id"]: result for job, result in zip(squeue_running_jobs, results)}
 
-    grace_times = get_grace_times(cluster_data)
+    grace_times = await get_cluster_grace_times()
 
     # get the grace_time for each job
     for job in squeue_running_jobs:
@@ -89,7 +88,7 @@ async def clean_jobs(squeue_result):
     """Clean the jobs that aren't running along with its bookings."""
     logger.debug("CLEAN_JOBS: start")
 
-    cluster_jobs = [job.slurm_job_id for job in await get_jobs_from_backend()]
+    cluster_jobs = [job.slurm_job_id for job in await get_cluster_jobs_from_backend()]
     if squeue_result is None:
         squeue_result = []
 
@@ -134,12 +133,11 @@ async def reconcile():
     logger.debug("Starting reconciliation")
 
     # Get cluster data
-    cluster_data = await get_cluster_from_backend()
-    configurations = await get_configs_from_backend()
+    configurations = await get_cluster_configs_from_backend()
 
     # Delete bookings for jobs that reached the grace time
     logger.debug("Cleaning jobs by grace time")
-    await clean_jobs_by_grace_time(cluster_data)
+    await clean_jobs_by_grace_time()
     logger.debug("Jobs cleaned by grace time")
 
     # Generate report and update the backend
@@ -152,16 +150,12 @@ async def reconcile():
     # Calculate how many licenses should be reserved for each license
     for license_data in license_usage_info:
         # Get license usage from license report
-        product_feature = license_data["product_feature"]
-        server_used = license_data["used"]
-        total = license_data["total"]
+        product_feature = license_data.product_feature
+        server_used = license_data.used
+        total = license_data.total
 
         # Get booking information from backend
-        bookings_per_cluster = await get_bookings_sum_per_cluster(product_feature)
-        cluster_booking_sum = bookings_per_cluster.get(cluster_data.id, 0)
-        other_cluster_booking_sum = sum(
-            [booking for cluster_id, booking in bookings_per_cluster.items() if cluster_id != cluster_data.id]
-        )
+        booking_sum = await get_feature_bookings_sum(product_feature)
 
         # Get license server type and reserved from the configuration in the backend
         for configuration in configurations:
@@ -181,9 +175,7 @@ async def reconcile():
         The reservation is not meant to be used by any user, it's a way to block usage of licenses
         """
 
-        reservation_amount = (
-            server_used - (slurm_used - cluster_booking_sum) + other_cluster_booking_sum + reserved
-        )
+        reservation_amount = server_used - slurm_used + booking_sum + reserved
 
         if reservation_amount < 0:
             reservation_amount = 0
@@ -205,7 +197,7 @@ async def reconcile():
         logger.debug("Reconciliation done")
 
 
-async def update_features() -> List[dict]:
+async def update_features() -> List[LicenseReportItem]:
     """Send the license data collected from the cluster to the backend."""
     license_report = await report()
 
@@ -216,11 +208,8 @@ async def update_features() -> List[dict]:
         )
         raise LicenseManagerEmptyReportError("Got an empty response from the license server")
 
-    cluster_data = await get_cluster_from_backend()
-    feature_ids = get_feature_ids(cluster_data)
-
     for license in license_report:
-        feature_id = feature_ids[license["product_feature"]]
-        await make_feature_update(feature_id=feature_id, total=license["total"], used=license["used"])
+        product, feature = license.product_feature.split(".")
+        await make_feature_update(feature=feature, total=license.total, used=license.used)
 
     return license_report
