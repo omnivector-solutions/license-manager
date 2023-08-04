@@ -20,7 +20,7 @@ crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, Lice
 
 
 @router.post(
-    "/",
+    "",
     response_model=LicenseServerSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -33,7 +33,7 @@ async def create_license_server(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[LicenseServerSchema],
     status_code=status.HTTP_200_OK,
 )

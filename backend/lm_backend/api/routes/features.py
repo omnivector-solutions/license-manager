@@ -20,7 +20,7 @@ crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
 
 
 @router.post(
-    "/",
+    "",
     response_model=FeatureSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -33,7 +33,7 @@ async def create_feature(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[FeatureSchema],
     status_code=status.HTTP_200_OK,
 )

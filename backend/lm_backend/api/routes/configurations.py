@@ -19,7 +19,7 @@ crud = GenericCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdate
 
 
 @router.post(
-    "/",
+    "",
     response_model=ConfigurationSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -32,7 +32,7 @@ async def create_configuration(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[ConfigurationSchema],
     status_code=status.HTTP_200_OK,
 )
