@@ -46,7 +46,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/license_servers/",
+            "/lm/license_servers",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve license servers list from API",
@@ -129,7 +129,7 @@ def create(
 
     make_request(
         lm_ctx.client,
-        "/lm/license_servers/",
+        "/lm/license_servers",
         "POST",
         expected_status=201,
         abort_message="License server creation failed",

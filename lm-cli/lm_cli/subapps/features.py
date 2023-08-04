@@ -74,7 +74,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/features/",
+            "/lm/features",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve features list from API",
@@ -166,7 +166,7 @@ def create(
 
     make_request(
         lm_ctx.client,
-        "/lm/features/",
+        "/lm/features",
         "POST",
         expected_status=201,
         abort_message="Feature creation failed",

@@ -16,7 +16,7 @@ from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
 style_mapper = StyleMapper(
     id="blue",
     name="green",
-    cluster_id="cyan",
+    cluster_client_id="cyan",
     features="red",
     license_servers="white",
     grace_time="magenta",
@@ -36,7 +36,7 @@ def format_data(data):
 
         new_data["id"] = configuration["id"]
         new_data["name"] = configuration["name"]
-        new_data["cluster_id"] = configuration["cluster_id"]
+        new_data["cluster_client_id"] = configuration["cluster_client_id"]
         new_data["features"] = ", ".join([feature["name"] for feature in configuration["features"]])
         new_data["license_servers"] = ", ".join(
             [
@@ -75,7 +75,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/configurations/",
+            "/lm/configurations",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve configuration list from API",
@@ -136,9 +136,9 @@ def create(
         ...,
         help="The name of configuration to create.",
     ),
-    cluster_id: int = typer.Option(
+    cluster_client_id: str = typer.Option(
         ...,
-        help="The id of the cluster where the configuration is being added.",
+        help="The cluster OIDC client_id of the cluster where the configuration is being added.",
     ),
     grace_time: int = typer.Option(
         ...,
@@ -157,14 +157,14 @@ def create(
 
     request_data = ConfigurationCreateSchema(
         name=name,
-        cluster_id=cluster_id,
+        cluster_client_id=cluster_client_id,
         grace_time=grace_time,
         type=license_server_type,
     )
 
     make_request(
         lm_ctx.client,
-        "/lm/configurations/",
+        "/lm/configurations",
         "POST",
         expected_status=201,
         abort_message="Configuration creation failed",

@@ -45,7 +45,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/products/",
+            "/lm/products",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve products list from API",
@@ -118,7 +118,7 @@ def create(
 
     make_request(
         lm_ctx.client,
-        "/lm/products/",
+        "/lm/products",
         "POST",
         expected_status=201,
         abort_message="Product creation failed",
