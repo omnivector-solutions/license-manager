@@ -25,14 +25,11 @@ from lm_agent.backend_utils.utils import (
     _write_token_to_cache,
     acquire_token,
     check_backend_health,
-    get_all_clusters_from_backend,
     get_bookings_for_job_id,
-    get_bookings_sum_per_cluster,
-    get_cluster_from_backend,
-    get_configs_from_backend,
-    get_feature_ids,
-    get_grace_times,
-    get_jobs_from_backend,
+    get_cluster_configs_from_backend,
+    get_cluster_grace_times,
+    get_cluster_jobs_from_backend,
+    get_feature_bookings_sum,
     make_booking_request,
     make_feature_update,
     remove_job_by_slurm_job_id,
@@ -211,12 +208,12 @@ async def test__get_license_manager_backend_version__raises_exception_on_non_two
 
 @mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__get_jobs_from_backend(clusters, respx_mock):
+async def test__get_cluster_jobs_from_backend(jobs, respx_mock):
     """Test that get_jobs_from_backend parses and returns the jobs from the cluster."""
-    respx_mock.get("/lm/clusters/by_client_id").mock(
+    respx_mock.get("/lm/jobs/by_client_id").mock(
         return_value=Response(
             status_code=200,
-            json=clusters[0],
+            json=jobs[:2],
         )
     )
 
@@ -224,28 +221,39 @@ async def test__get_jobs_from_backend(clusters, respx_mock):
         JobSchema(
             id=1,
             slurm_job_id="123",
-            cluster_id=1,
-            username="string",
-            lead_host="string",
+            cluster_client_id="dummy",
+            username="user1",
+            lead_host="host1",
             bookings=[
                 BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
                 BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
             ],
-        )
+        ),
+        JobSchema(
+            id=2,
+            slurm_job_id="456",
+            cluster_client_id="dummy",
+            username="user2",
+            lead_host="host2",
+            bookings=[
+                BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
+                BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
+            ],
+        ),
     ]
 
-    jobs = await get_jobs_from_backend()
+    jobs = await get_cluster_jobs_from_backend()
     assert jobs == expected_jobs
 
 
 @mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__get_configs_from_backend(clusters, respx_mock):
+async def test__get_cluster_configs_from_backend(configurations, respx_mock):
     """Test that get_configs_from_backend parses and returns the configurations from the cluster."""
-    respx_mock.get("/lm/clusters/by_client_id").mock(
+    respx_mock.get("/lm/configurations/by_client_id").mock(
         return_value=Response(
             status_code=200,
-            json=clusters[0],
+            json=configurations,
         )
     )
 
@@ -253,7 +261,7 @@ async def test__get_configs_from_backend(clusters, respx_mock):
         ConfigurationSchema(
             id=1,
             name="Abaqus",
-            cluster_id=1,
+            cluster_client_id="dummy",
             features=[
                 FeatureSchema(
                     id=1,
@@ -276,7 +284,7 @@ async def test__get_configs_from_backend(clusters, respx_mock):
         ConfigurationSchema(
             id=2,
             name="Converge",
-            cluster_id=1,
+            cluster_client_id="dummy",
             features=[
                 FeatureSchema(
                     id=2,
@@ -297,155 +305,30 @@ async def test__get_configs_from_backend(clusters, respx_mock):
         ),
     ]
 
-    configs = await get_configs_from_backend()
+    configs = await get_cluster_configs_from_backend()
     assert configs == expected_configs
 
 
 @pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_all_clusters_from_backend(clusters, parsed_clusters, respx_mock):
-    """Test that get_all_clusters_from_backend parses and returns the clusters from the cluster."""
-    respx_mock.get("/lm/clusters/").mock(
-        return_value=Response(
-            status_code=200,
-            json=clusters,
-        )
-    )
+@mock.patch("lm_agent.backend_utils.utils.get_cluster_configs_from_backend")
+async def test__get_cluster_grace_times(get_cluster_configs_mock, parsed_configurations):
+    """Test that get_cluster_grace_times generates a dict with the grace time for each feature_id."""
+    get_cluster_configs_mock.return_value = parsed_configurations
+    expected_grace_times = {1: 60, 2: 123}
 
-    expected_clusters = parsed_clusters
-    clusters = await get_all_clusters_from_backend()
-    assert clusters == expected_clusters
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_all_clusters_from_backend__failure_backend_connection(respx_mock):
-    """
-    Test that get_all_clusters_from_backend handles failure to connect to the backend.
-    """
-    respx_mock.get("/lm/clusters/").mock(
-        return_value=Response(
-            status_code=500,
-            json={"error": "Internal Server Error"},
-        )
-    )
-
-    with pytest.raises(LicenseManagerBackendConnectionError):
-        await get_all_clusters_from_backend()
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_all_clusters_from_backend__failure_parse_error(respx_mock):
-    """
-    Test that get_all_clusters_from_backend handles failure to parse the cluster data from the backend.
-    """
-    respx_mock.get("/lm/clusters/").mock(
-        return_value=Response(
-            status_code=200,
-            json={"bla": "bla"},
-        )
-    )
-
-    with pytest.raises(LicenseManagerParseError):
-        await get_all_clusters_from_backend()
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_cluster_from_backend(clusters, parsed_clusters, respx_mock):
-    """Test that get_cluster_from_backend parses and returns the cluster from the cluster."""
-    respx_mock.get("/lm/clusters/by_client_id").mock(
-        return_value=Response(
-            status_code=200,
-            json=clusters[0],
-        )
-    )
-
-    expected_clusters = parsed_clusters[0]
-    clusters = await get_cluster_from_backend()
-    assert clusters == expected_clusters
-
-
-@pytest.mark.parametrize(
-    "cluster_data, index, expected_feature_ids",
-    [
-        (
-            "parsed_clusters",
-            0,
-            {
-                "abaqus.abaqus": 1,
-                "converge.converge_super": 2,
-            },
-        ),
-        (
-            "parsed_clusters",
-            1,
-            {
-                "Product 3.Feature 3": 4,
-                "Product 4.Feature 4": 7,
-            },
-        ),
-    ],
-)
-def test__get_feature_ids(cluster_data, index, expected_feature_ids, request):
-    """Test that get_feature_ids generates a dict with the id for each feature."""
-    cluster_data = request.getfixturevalue(cluster_data)
-    feature_ids = get_feature_ids(cluster_data[index])
-    assert feature_ids == expected_feature_ids
-
-
-@pytest.mark.parametrize(
-    "cluster_data, index, expected_grace_times",
-    [
-        (
-            "parsed_clusters",
-            0,
-            {
-                1: 60,
-                2: 123,
-            },
-        ),
-        (
-            "parsed_clusters",
-            1,
-            {
-                4: 60,
-                7: 60,
-            },
-        ),
-    ],
-)
-def test__get_grace_times(cluster_data, index, expected_grace_times, request):
-    """Test that get_grace_times generates a dict with the grace time for each feature_id."""
-    cluster_data = request.getfixturevalue(cluster_data)
-    grace_times = get_grace_times(cluster_data[index])
+    grace_times = await get_cluster_grace_times()
     assert grace_times == expected_grace_times
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "product_feature, expected_booking_sum",
-    [
-        ("abaqus.abaqus", {1: 12}),
-        ("converge.converge_super", {1: 50}),
-        ("Product 3.Feature 3", {2: 15}),
-        ("Product 4.Feature 4", {2: 25}),
-    ],
-)
-async def test__get_bookings_sum_per_cluster(product_feature, expected_booking_sum, clusters, respx_mock):
+@mock.patch("lm_agent.backend_utils.utils.get_all_features_from_backend")
+async def test__get_feature_bookings_sum(get_all_features_mock, parsed_features):
     """
     Test that get_bookings_sum_per_cluster returns the booking sum per cluster for a given product_feature.
     """
-    respx_mock.get("/lm/clusters/").mock(
-        return_value=Response(
-            status_code=200,
-            json=clusters,
-        )
-    )
-
-    booking_sum = await get_bookings_sum_per_cluster(product_feature)
-    assert booking_sum == expected_booking_sum
+    get_all_features_mock.return_value = parsed_features
+    booking_sum = await get_feature_bookings_sum("abaqus.abaqus")
+    assert booking_sum == 62
 
 
 @pytest.mark.asyncio
@@ -454,14 +337,14 @@ async def test__make_feature_update__success(respx_mock):
     """
     Test that make_feature_update updates the feature correctly.
     """
-    feature_id = 1
+    feature = "abaqus"
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/features/{feature_id}").mock(return_value=Response(status_code=200))
+    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=200))
 
     try:
-        await make_feature_update(feature_id=feature_id, total=total, used=used)
+        await make_feature_update(feature=feature, total=total, used=used)
     except Exception as e:
         assert False, f"Exception was raised: {e}"
 
@@ -472,26 +355,25 @@ async def test__make_feature_update__raises_exception_on_non_two_hundred(respx_m
     """
     Test that make_feature_update handles a failed feature update correctly.
     """
-    feature_id = 1
+    feature = "abaqus"
     total = 100
     used = 50
 
-    respx_mock.put(f"/lm/features/{feature_id}").mock(return_value=Response(status_code=500))
+    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=500))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_feature_update(feature_id=feature_id, total=total, used=used)
+        await make_feature_update(feature=feature, total=total, used=used)
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__make_booking_request__success(mock_get_cluster, parsed_clusters, respx_mock):
+async def test__make_booking_request__success(respx_mock):
     """
     Test that make_booking_request successfully creates a job and its bookings on the backend.
     """
     lbr = LicenseBookingRequest(
         slurm_job_id="12345",
-        user_name="test_user",
+        username="test_user",
         lead_host="test_host",
         bookings=[
             LicenseBooking(product_feature="abaqus.abaqus", quantity=5),
@@ -499,9 +381,7 @@ async def test__make_booking_request__success(mock_get_cluster, parsed_clusters,
         ],
     )
 
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.post("/lm/jobs/").mock(
+    respx_mock.post("/lm/jobs").mock(
         return_value=Response(
             status_code=201,
             json={"id": 1},
@@ -514,25 +394,20 @@ async def test__make_booking_request__success(mock_get_cluster, parsed_clusters,
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__make_booking_request_job__returns_false_on_booking_failure(
-    mock_get_cluster, parsed_clusters, respx_mock
-):
+async def test__make_booking_request_job__returns_false_on_booking_failure(respx_mock):
     """
     Test that make_booking_request handles the failure case when booking creation fails.
     """
     lbr = LicenseBookingRequest(
         slurm_job_id="12345",
-        user_name="test_user",
+        username="test_user",
         lead_host="test_host",
         bookings=[
             LicenseBooking(product_feature="abaqus.abaqus", quantity=5),
         ],
     )
 
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.post("/lm/jobs/").mock(
+    respx_mock.post("/lm/jobs").mock(
         return_value=Response(
             status_code=409,
             json={"message": "Not enough licenses"},
@@ -544,16 +419,13 @@ async def test__make_booking_request_job__returns_false_on_booking_failure(
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__remove_job_by_slurm_job_id__success(mock_get_cluster, parsed_clusters, respx_mock):
+async def test__remove_job_by_slurm_job_id__success(respx_mock):
     """
     Test that remove_job_by_slurm_job_id successfully removes the job in the cluster.
     """
     slurm_job_id = "12345"
 
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
         return_value=Response(
             status_code=200,
             json={"message": "Job removed successfully"},
@@ -568,18 +440,13 @@ async def test__remove_job_by_slurm_job_id__success(mock_get_cluster, parsed_clu
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
-    mock_get_cluster, parsed_clusters, respx_mock
-):
+async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(respx_mock):
     """
     Test that remove_job_by_slurm_job_id raises an exception when the job removal fails.
     """
     slurm_job_id = "12345"
 
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
         return_value=Response(
             status_code=500,
             json={"error": "Internal Server Error"},
@@ -592,42 +459,31 @@ async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__get_bookings_for_job_id__success(mock_get_cluster, clusters, parsed_clusters, respx_mock):
+async def test__get_bookings_for_job_id__success(jobs, respx_mock):
     """
     Test that get_bookings_for_job_id returns the bookings for a given job ID.
     """
-    slurm_job_id = "12345"
+    slurm_job_id = "123"
 
-    mock_get_cluster.return_value = parsed_clusters[0]
+    job_data = jobs[0]
 
-    bookings_data = clusters[0]["jobs"][0]["bookings"]
-
-    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
-        return_value=Response(
-            status_code=200,
-            json={"bookings": bookings_data},
-        )
+    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
+        return_value=Response(status_code=200, json=job_data)
     )
 
     bookings = await get_bookings_for_job_id(slurm_job_id)
-    assert bookings == bookings_data
+    assert bookings == job_data["bookings"]
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_from_backend")
-async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(
-    mock_get_cluster, parsed_clusters, respx_mock
-):
+async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(respx_mock):
     """
     Test that get_bookings_for_job_id handles failure to retrieve bookings for a given job ID.
     """
-    slurm_job_id = "12345"
+    slurm_job_id = "123"
 
-    mock_get_cluster.return_value = parsed_clusters[0]
-
-    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{parsed_clusters[0].id}").mock(
+    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
         return_value=Response(
             status_code=404,
             json={"error": "Job not found"},

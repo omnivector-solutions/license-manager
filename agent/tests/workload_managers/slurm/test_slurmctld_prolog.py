@@ -33,7 +33,7 @@ async def test_main_error_in_get_required_licenses_for_job(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_cluster_configs_from_backend")
 async def test_main_error_in_get_config_from_backend(
     get_configs_from_backend_mock,
     get_required_licenses_for_job_mock,
@@ -62,7 +62,7 @@ async def test_main_error_in_get_config_from_backend(
 @pytest.mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_cluster_configs_from_backend")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 async def test_main_error_in_reconcile(
     update_features_mock,
@@ -110,7 +110,7 @@ async def test_main_error_in_reconcile(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.sys")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_cluster_configs_from_backend")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.make_booking_request")
 async def test_main(
@@ -161,7 +161,7 @@ async def test_main(
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.settings")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_job_context")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_required_licenses_for_job")
-@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_configs_from_backend")
+@mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.get_cluster_configs_from_backend")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.update_features")
 @mock.patch("lm_agent.workload_managers.slurm.slurmctld_prolog.make_booking_request")
 async def test_main_without_triggering_reconciliation(
