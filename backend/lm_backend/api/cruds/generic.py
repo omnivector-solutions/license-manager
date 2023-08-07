@@ -4,7 +4,7 @@ from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import ColumnElement, Column, and_, select
+from sqlalchemy import Column, ColumnElement, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
