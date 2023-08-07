@@ -23,6 +23,5 @@ async def find_feature_id_by_name_and_client_id(db_session: AsyncSession, featur
     for feature in features:
         configuration = await crud_configuration.read(db_session=db_session, id=feature.config_id)
 
-        if configuration:
-            if configuration.cluster_client_id == client_id:
-                return feature.id
+        if configuration and configuration.cluster_client_id == client_id:
+            return feature.id
