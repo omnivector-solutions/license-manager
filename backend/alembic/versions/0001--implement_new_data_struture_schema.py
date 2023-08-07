@@ -16,15 +16,6 @@ depends_on = None
 
 def upgrade():
     op.create_table(
-        "clusters",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
-        sa.Column("client_id", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("client_id"),
-        sa.UniqueConstraint("name"),
-    )
-    op.create_table(
         "products",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
@@ -35,13 +26,9 @@ def upgrade():
         "configs",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("cluster_id", sa.Integer(), nullable=False),
+        sa.Column("cluster_client_id", sa.String(), nullable=False),
         sa.Column("grace_time", sa.Integer(), nullable=False),
         sa.Column("type", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["cluster_id"],
-            ["clusters.id"],
-        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -64,6 +51,8 @@ def upgrade():
         sa.Column("product_id", sa.Integer(), nullable=False),
         sa.Column("config_id", sa.Integer(), nullable=False),
         sa.Column("reserved", sa.Integer(), nullable=False),
+        sa.Column("total", sa.Integer(), nullable=False),
+        sa.Column("used", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["config_id"],
             ["configs.id"],
@@ -75,29 +64,12 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
-        "inventories",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("feature_id", sa.Integer(), nullable=False),
-        sa.Column("total", sa.Integer(), nullable=False),
-        sa.Column("used", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["feature_id"],
-            ["features.id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("feature_id"),
-    )
-    op.create_table(
         "jobs",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("slurm_job_id", sa.String(), nullable=False),
-        sa.Column("cluster_id", sa.Integer(), nullable=False),
+        sa.Column("cluster_client_id", sa.String(), nullable=False),
         sa.Column("username", sa.String(), nullable=False),
         sa.Column("lead_host", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["cluster_id"],
-            ["clusters.id"],
-        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
