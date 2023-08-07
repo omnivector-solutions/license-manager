@@ -70,7 +70,7 @@ async def read_configurations_by_client_id(
         )
 
     return await crud.filter(
-        db_session=secure_session.session, filter_field=Configuration.cluster_client_id, filter_term=client_id
+        db_session=secure_session.session, filter_expressions=[Configuration.cluster_client_id == client_id]
     )
 
 

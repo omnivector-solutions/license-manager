@@ -87,7 +87,7 @@ async def read_jobs_by_client_id(
         )
 
     return await crud_job.filter(
-        db_session=secure_session.session, filter_field=Job.cluster_client_id, filter_term=client_id
+        db_session=secure_session.session, filter_expressions=[Job.cluster_client_id == client_id]
     )
 
 
@@ -134,8 +134,7 @@ async def delete_job(
     secure_session: SecureSession = Depends(secure_session(Permissions.JOB_EDIT)),
 ):
     """Delete a job from the database and associated bookings."""
-    await crud_job.delete(db_session=secure_session.session, id=job_id)
-    return {"message": "Job deleted successfully"}
+    return await crud_job.delete(db_session=secure_session.session, id=job_id)
 
 
 @router.delete(
@@ -162,12 +161,12 @@ async def delete_job_by_slurm_id(
         )
 
     jobs: List[Job] = await crud_job.filter(
-        db_session=secure_session.session, filter_field=Job.slurm_job_id, filter_term=slurm_job_id
+        db_session=secure_session.session,
+        filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )
 
     for job in jobs:
-        if job.cluster_client_id == client_id:
-            return await crud_job.delete(db_session=secure_session.session, id=job.id)
+        return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
 
@@ -197,11 +196,11 @@ async def read_job_by_slurm_id(
         )
 
     jobs: List[Job] = await crud_job.filter(
-        db_session=secure_session.session, filter_field=Job.slurm_job_id, filter_term=slurm_job_id
+        db_session=secure_session.session,
+        filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )
 
     for job in jobs:
-        if job.cluster_client_id == client_id:
-            return job
+        return job
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")

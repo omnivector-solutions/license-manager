@@ -17,7 +17,7 @@ async def find_feature_id_by_name_and_client_id(db_session: AsyncSession, featur
     Find the feature id by name and client id.
     """
     features: List[Feature] = await crud_feature.filter(
-        db_session=db_session, filter_field=Feature.name, filter_term=feature_name
+        db_session=db_session, filter_expressions=[Feature.name == feature_name]
     )
 
     for feature in features:
