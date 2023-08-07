@@ -33,7 +33,7 @@ class FeatureUpdateSchema(BaseUpdateSchema):
 
 class FeatureUpdateByNameSchema(BaseUpdateSchema):
     """
-    Represents the features in a feature configuration.
+    Represents the feature usage data that will be updated using the name as a filter.
     """
 
     name: str

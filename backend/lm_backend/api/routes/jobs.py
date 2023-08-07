@@ -77,7 +77,7 @@ async def create_job(
 async def read_jobs_by_client_id(
     secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
 ):
-    """Return the jobs with the specified client_id."""
+    """Return the jobs with the specified OIDC client_id retrieved from the request."""
     client_id = secure_session.identity_payload.client_id
 
     if not client_id:
