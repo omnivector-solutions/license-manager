@@ -4,7 +4,7 @@ from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import Column, select
+from sqlalchemy import ColumnElement, Column, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
@@ -44,14 +44,14 @@ class GenericCRUD:
         return db_obj
 
     async def filter(
-        self, db_session: AsyncSession, filter_field: Column, filter_term: Union[str, int]
+        self, db_session: AsyncSession, filter_expressions: List[ColumnElement[bool]]
     ) -> List[ModelType]:
         """
         Filter objects using a filter field and filter term.
         Returns the list of objects or raise an exception if it does not exist.
         """
         try:
-            query = await db_session.execute(select(self.model).filter(filter_field == filter_term))
+            query = await db_session.execute(select(self.model).filter(and_(*filter_expressions)))
             db_objs = list(query.scalars().all())
         except Exception as e:
             logger.error(e)
