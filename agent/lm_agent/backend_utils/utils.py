@@ -148,14 +148,10 @@ async def get_cluster_jobs_from_backend() -> List[JobSchema]:
 
     parsed_resp: List = resp.json()
 
-    jobs = []
-
-    for job in parsed_resp:
-        with LicenseManagerParseError.handle_errors(
-            "Could not parse job data returned from the backend", do_except=log_error
-        ):
-            parsed_job = JobSchema.parse_obj(job)
-        jobs.append(parsed_job)
+    with LicenseManagerParseError.handle_errors(
+        "Could not parse job data returned from the backend", do_except=log_error
+    ):
+        jobs = [JobSchema.parse_obj(job) for job in parsed_resp]
 
     return jobs
 
@@ -173,14 +169,10 @@ async def get_cluster_configs_from_backend() -> List[ConfigurationSchema]:
 
     parsed_resp: List = resp.json()
 
-    configurations = []
-
-    for configuration in parsed_resp:
-        with LicenseManagerParseError.handle_errors(
-            "Could not parse configuration data returned from the backend", do_except=log_error
-        ):
-            parsed_configuration = ConfigurationSchema.parse_obj(configuration)
-        configurations.append(parsed_configuration)
+    with LicenseManagerParseError.handle_errors(
+        "Could not parse configuration data returned from the backend", do_except=log_error
+    ):
+        configurations = [ConfigurationSchema.parse_obj(configuration) for configuration in parsed_resp]
 
     return configurations
 
@@ -263,14 +255,10 @@ async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
         with LicenseManagerParseError.handle_errors(""):
             parsed_resp: List = job_response.json()["bookings"]
 
-    bookings = []
-
-    for booking in parsed_resp:
-        with LicenseManagerParseError.handle_errors(
-            "Could not parse booking data returned from the backend", do_except=log_error
-        ):
-            parsed_booking = BookingSchema.parse_obj(booking)
-        bookings.append(parsed_booking)
+    with LicenseManagerParseError.handle_errors(
+        "Could not parse booking data returned from the backend", do_except=log_error
+    ):
+        bookings = [BookingSchema.parse_obj(booking) for booking in parsed_resp]
 
     return bookings
 
@@ -289,14 +277,10 @@ async def get_all_features_from_backend() -> List[FeatureSchema]:
         with LicenseManagerParseError.handle_errors(""):
             parsed_resp: List = feature_response.json()
 
-    features = []
-
-    for feature in parsed_resp:
-        with LicenseManagerParseError.handle_errors(
-            "Could not parse feature data returned from the backend", do_except=log_error
-        ):
-            parsed_feature = FeatureSchema.parse_obj(feature)
-        features.append(parsed_feature)
+    with LicenseManagerParseError.handle_errors(
+        "Could not parse feature data returned from the backend", do_except=log_error
+    ):
+        features = [FeatureSchema.parse_obj(feature) for feature in parsed_resp]
 
     return features
 
@@ -314,10 +298,10 @@ async def get_feature_bookings_sum(product_feature: str) -> int:
     features = await get_all_features_from_backend()
 
     # sum bookings for each feature with the same name
-    booking_sum = 0
-
-    for feature in features:
-        if f"{feature.product.name}.{feature.name}" == product_feature:
-            booking_sum += feature.booked_total
+    booking_sum = sum(
+        feature.booked_total
+        for feature in features
+        if f"{feature.product.name}.{feature.name}" == product_feature
+    )
 
     return booking_sum
