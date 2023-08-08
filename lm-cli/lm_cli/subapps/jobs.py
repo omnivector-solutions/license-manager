@@ -16,7 +16,7 @@ from lm_cli.schemas import LicenseManagerContext
 style_mapper = StyleMapper(
     id="blue",
     slurm_job_id="white",
-    cluster_id="green",
+    cluster_client_id="green",
     username="cyan",
     lead_host="magenta",
     bookings="purple",
@@ -49,7 +49,7 @@ def list_all(
         List,
         make_request(
             lm_ctx.client,
-            "/lm/jobs/",
+            "/lm/jobs",
             "GET",
             expected_status=200,
             abort_message="Couldn't retrieve job list from API",
@@ -64,7 +64,7 @@ def list_all(
         new_data = {}
         new_data["id"] = job["id"]
         new_data["slurm_job_id"] = job["slurm_job_id"]
-        new_data["cluster_id"] = job["cluster_id"]
+        new_data["cluster_client_id"] = job["cluster_client_id"]
         new_data["username"] = job["username"]
         new_data["lead_host"] = job["lead_host"]
         new_data["bookings"] = " | ".join(

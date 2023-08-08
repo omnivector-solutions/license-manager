@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
@@ -19,7 +19,7 @@ crud = GenericCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdate
 
 
 @router.post(
-    "/",
+    "",
     response_model=ConfigurationSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -32,7 +32,7 @@ async def create_configuration(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[ConfigurationSchema],
     status_code=status.HTTP_200_OK,
 )
@@ -49,6 +49,28 @@ async def read_all_configurations(
         sort_field=sort_field,
         sort_ascending=sort_ascending,
         force_refresh=True,
+    )
+
+
+@router.get(
+    "/by_client_id",
+    response_model=List[ConfigurationSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def read_configurations_by_client_id(
+    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW)),
+):
+    """Return the configurations with the specified client_id."""
+    client_id = secure_session.identity_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
+    return await crud.filter(
+        db_session=secure_session.session, filter_expressions=[Configuration.cluster_client_id == client_id]
     )
 
 

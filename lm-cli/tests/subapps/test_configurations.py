@@ -18,7 +18,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the configurations result.
     """
-    respx_mock.get(f"{dummy_domain}/lm/configurations/").mock(
+    respx_mock.get(f"{dummy_domain}/lm/configurations").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_configuration_data,
@@ -75,13 +75,13 @@ def test_create__success(
     """
     Test if the create command makes the request with the parsed arguments to create the configuration.
     """
-    create_route = respx_mock.post(f"{dummy_domain}/lm/configurations/").mock(
+    create_route = respx_mock.post(f"{dummy_domain}/lm/configurations").mock(
         return_value=httpx.Response(
             httpx.codes.CREATED,
             json={
                 "id": 2,
                 "name": "Configuration 1",
-                "cluster_id": 1,
+                "cluster_client_id": "dummy",
                 "features": [],
                 "license_servers": [],
                 "grace_time": 60,
@@ -97,7 +97,8 @@ def test_create__success(
         shlex.split(
             unwrap(
                 """
-                create --name 'Configuration 1' --cluster-id 1 --grace-time 60 --license-server-type 'flexlm'
+                create --name 'Configuration 1' --cluster-client-id 'dummy'
+                --grace-time 60 --license-server-type 'flexlm'
                 """
             )
         ),

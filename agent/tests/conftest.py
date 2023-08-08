@@ -11,7 +11,6 @@ from pytest import fixture
 
 from lm_agent.backend_utils.models import (
     BookingSchema,
-    ClusterSchema,
     ConfigurationSchema,
     FeatureSchema,
     JobSchema,
@@ -54,270 +53,248 @@ def respx_mock():
 
 
 @fixture
-def clusters():
-    """Some cluster reponse examples."""
+def jobs():
+    """Some job response examples."""
     return [
         {
             "id": 1,
-            "name": "Cluster 1",
-            "client_id": "cluster1",
-            "configurations": [
-                {
-                    "id": 1,
-                    "name": "Abaqus",
-                    "cluster_id": 1,
-                    "features": [
-                        {
-                            "id": 1,
-                            "name": "abaqus",
-                            "product": {"id": 1, "name": "abaqus"},
-                            "config_id": 1,
-                            "reserved": 100,
-                            "total": 123,
-                            "used": 12,
-                            "booked_total": 12,
-                        }
-                    ],
-                    "license_servers": [
-                        {"id": 1, "config_id": 1, "host": "licserv0001", "port": 1234},
-                        {"id": 3, "config_id": 1, "host": "licserv0003", "port": 8760},
-                    ],
-                    "grace_time": 60,
-                    "type": "flexlm",
-                },
-                {
-                    "id": 2,
-                    "name": "Converge",
-                    "cluster_id": 1,
-                    "features": [
-                        {
-                            "id": 2,
-                            "name": "converge_super",
-                            "product": {"id": 2, "name": "converge"},
-                            "config_id": 2,
-                            "reserved": 0,
-                            "total": 500,
-                            "used": 50,
-                            "booked_total": 50,
-                        }
-                    ],
-                    "license_servers": [{"id": 2, "config_id": 2, "host": "licserv0002", "port": 2345}],
-                    "grace_time": 123,
-                    "type": "rlm",
-                },
-            ],
-            "jobs": [
-                {
-                    "id": 1,
-                    "slurm_job_id": "123",
-                    "cluster_id": 1,
-                    "username": "string",
-                    "lead_host": "string",
-                    "bookings": [
-                        {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 12},
-                        {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 50},
-                    ],
-                }
+            "slurm_job_id": "123",
+            "cluster_client_id": "dummy",
+            "username": "user1",
+            "lead_host": "host1",
+            "bookings": [
+                {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 12},
+                {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 50},
             ],
         },
         {
             "id": 2,
-            "name": "Cluster 2",
-            "client_id": "cluster2",
-            "configurations": [
-                {
-                    "id": 3,
-                    "name": "Configuration 2",
-                    "cluster_id": 2,
-                    "features": [
-                        {
-                            "id": 4,
-                            "name": "Feature 3",
-                            "product": {"id": 5, "name": "Product 3"},
-                            "config_id": 3,
-                            "reserved": 20,
-                            "total": 200,
-                            "used": 15,
-                            "booked_total": 15,
-                        },
-                        {
-                            "id": 7,
-                            "name": "Feature 4",
-                            "product": {"id": 8, "name": "Product 4"},
-                            "config_id": 3,
-                            "reserved": 30,
-                            "total": 300,
-                            "used": 25,
-                            "booked_total": 25,
-                        },
-                    ],
-                    "license_servers": [
-                        {"id": 10, "config_id": 3, "host": "licserv2_1", "port": 1234},
-                        {"id": 11, "config_id": 3, "host": "licserv2_2", "port": 5678},
-                    ],
-                    "grace_time": 60,
-                    "type": "flexlm",
-                }
+            "slurm_job_id": "456",
+            "cluster_client_id": "dummy",
+            "username": "user2",
+            "lead_host": "host2",
+            "bookings": [
+                {"id": 3, "job_id": 2, "feature_id": 4, "quantity": 15},
+                {"id": 4, "job_id": 2, "feature_id": 7, "quantity": 25},
             ],
-            "jobs": [
-                {
-                    "id": 5,
-                    "slurm_job_id": "456",
-                    "cluster_id": 2,
-                    "username": "user2",
-                    "lead_host": "host2",
-                    "bookings": [
-                        {"id": 12, "job_id": 5, "feature_id": 4, "quantity": 10},
-                        {"id": 13, "job_id": 5, "feature_id": 7, "quantity": 8},
-                    ],
-                },
-                {
-                    "id": 6,
-                    "slurm_job_id": "789",
-                    "cluster_id": 2,
-                    "username": "user3",
-                    "lead_host": "host3",
-                    "bookings": [
-                        {"id": 14, "job_id": 6, "feature_id": 4, "quantity": 5},
-                        {"id": 15, "job_id": 6, "feature_id": 7, "quantity": 17},
-                    ],
-                },
+        },
+        {
+            "id": 3,
+            "slurm_job_id": "789",
+            "cluster_client_id": "dummy-2",
+            "username": "user3",
+            "lead_host": "host3",
+            "bookings": [
+                {"id": 14, "job_id": 6, "feature_id": 4, "quantity": 5},
+                {"id": 15, "job_id": 6, "feature_id": 7, "quantity": 17},
             ],
         },
     ]
 
 
 @fixture
-def parsed_clusters():
+def parsed_jobs():
+    """Some parsed job response examples."""
     return [
-        ClusterSchema(
+        JobSchema(
             id=1,
-            name="Cluster 1",
-            client_id="cluster1",
-            configurations=[
-                ConfigurationSchema(
-                    id=1,
-                    name="Abaqus",
-                    cluster_id=1,
-                    features=[
-                        FeatureSchema(
-                            id=1,
-                            name="abaqus",
-                            product=ProductSchema(id=1, name="abaqus"),
-                            config_id=1,
-                            reserved=100,
-                            total=123,
-                            used=12,
-                            booked_total=12,
-                        )
-                    ],
-                    license_servers=[
-                        LicenseServerSchema(id=1, config_id=1, host="licserv0001", port=1234),
-                        LicenseServerSchema(id=3, config_id=1, host="licserv0003", port=8760),
-                    ],
-                    grace_time=60,
-                    type=LicenseServerType.FLEXLM,
-                ),
-                ConfigurationSchema(
-                    id=2,
-                    name="Converge",
-                    cluster_id=1,
-                    features=[
-                        FeatureSchema(
-                            id=2,
-                            name="converge_super",
-                            product=ProductSchema(id=2, name="converge"),
-                            config_id=2,
-                            reserved=0,
-                            total=500,
-                            used=50,
-                            booked_total=50,
-                        )
-                    ],
-                    license_servers=[
-                        LicenseServerSchema(id=2, config_id=2, host="licserv0002", port=2345),
-                    ],
-                    grace_time=123,
-                    type=LicenseServerType.RLM,
-                ),
-            ],
-            jobs=[
-                JobSchema(
-                    id=1,
-                    slurm_job_id="123",
-                    cluster_id=1,
-                    username="string",
-                    lead_host="string",
-                    bookings=[
-                        BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
-                        BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
-                    ],
-                )
+            slurm_job_id="123",
+            cluster_client_id="dummy",
+            username="user1",
+            lead_host="host1",
+            bookings=[
+                BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
+                BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
             ],
         ),
-        ClusterSchema(
+        JobSchema(
             id=2,
-            name="Cluster 2",
-            client_id="cluster2",
-            configurations=[
-                ConfigurationSchema(
-                    id=3,
-                    name="Configuration 2",
-                    cluster_id=2,
-                    features=[
-                        FeatureSchema(
-                            id=4,
-                            name="Feature 3",
-                            product=ProductSchema(id=5, name="Product 3"),
-                            config_id=3,
-                            reserved=20,
-                            total=200,
-                            used=15,
-                            booked_total=15,
-                        ),
-                        FeatureSchema(
-                            id=7,
-                            name="Feature 4",
-                            product=ProductSchema(id=8, name="Product 4"),
-                            config_id=3,
-                            reserved=30,
-                            total=300,
-                            used=25,
-                            booked_total=25,
-                        ),
-                    ],
-                    license_servers=[
-                        LicenseServerSchema(id=10, config_id=3, host="licserv2_1", port=1234),
-                        LicenseServerSchema(id=11, config_id=3, host="licserv2_2", port=5678),
-                    ],
-                    grace_time=60,
-                    type=LicenseServerType.FLEXLM,
-                ),
+            slurm_job_id="456",
+            cluster_client_id="dummy",
+            username="user2",
+            lead_host="host2",
+            bookings=[
+                BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
+                BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
             ],
-            jobs=[
-                JobSchema(
-                    id=5,
-                    slurm_job_id="456",
-                    cluster_id=2,
-                    username="user2",
-                    lead_host="host2",
-                    bookings=[
-                        BookingSchema(id=12, job_id=5, feature_id=4, quantity=10),
-                        BookingSchema(id=13, job_id=5, feature_id=7, quantity=8),
-                    ],
-                ),
-                JobSchema(
-                    id=6,
-                    slurm_job_id="789",
-                    cluster_id=2,
-                    username="user3",
-                    lead_host="host3",
-                    bookings=[
-                        BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
-                        BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
-                    ],
-                ),
+        ),
+        JobSchema(
+            id=3,
+            slurm_job_id="789",
+            cluster_client_id="dummy",
+            username="user3",
+            lead_host="host3",
+            bookings=[
+                BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
+                BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
             ],
+        ),
+    ]
+
+
+@fixture
+def bookings():
+    """Some booking response examples."""
+    return [
+        {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 12},
+        {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 50},
+        {"id": 3, "job_id": 2, "feature_id": 4, "quantity": 15},
+        {"id": 4, "job_id": 2, "feature_id": 7, "quantity": 25},
+        {"id": 14, "job_id": 6, "feature_id": 4, "quantity": 5},
+        {"id": 15, "job_id": 6, "feature_id": 7, "quantity": 17},
+    ]
+
+
+@fixture
+def configurations():
+    """Some configuration response examples."""
+    return [
+        {
+            "id": 1,
+            "name": "Abaqus",
+            "cluster_client_id": "dummy",
+            "features": [
+                {
+                    "id": 1,
+                    "name": "abaqus",
+                    "product": {"id": 1, "name": "abaqus"},
+                    "config_id": 1,
+                    "reserved": 100,
+                    "total": 123,
+                    "used": 12,
+                    "booked_total": 12,
+                }
+            ],
+            "license_servers": [
+                {"id": 1, "config_id": 1, "host": "licserv0001", "port": 1234},
+                {"id": 3, "config_id": 1, "host": "licserv0003", "port": 8760},
+            ],
+            "grace_time": 60,
+            "type": "flexlm",
+        },
+        {
+            "id": 2,
+            "name": "Converge",
+            "cluster_client_id": "dummy",
+            "features": [
+                {
+                    "id": 2,
+                    "name": "converge_super",
+                    "product": {"id": 2, "name": "converge"},
+                    "config_id": 2,
+                    "reserved": 0,
+                    "total": 500,
+                    "used": 50,
+                    "booked_total": 50,
+                }
+            ],
+            "license_servers": [{"id": 2, "config_id": 2, "host": "licserv0002", "port": 2345}],
+            "grace_time": 123,
+            "type": "rlm",
+        },
+    ]
+
+
+@fixture
+def parsed_configurations():
+    """Some parsed configuration response examples."""
+    return [
+        ConfigurationSchema(
+            id=1,
+            name="Abaqus",
+            cluster_client_id="dummy",
+            features=[
+                FeatureSchema(
+                    id=1,
+                    name="abaqus",
+                    product=ProductSchema(id=1, name="abaqus"),
+                    config_id=1,
+                    reserved=100,
+                    total=123,
+                    used=12,
+                    booked_total=12,
+                )
+            ],
+            license_servers=[
+                LicenseServerSchema(id=1, config_id=1, host="licserv0001", port=1234),
+                LicenseServerSchema(id=3, config_id=1, host="licserv0003", port=8760),
+            ],
+            grace_time=60,
+            type=LicenseServerType.FLEXLM,
+        ),
+        ConfigurationSchema(
+            id=2,
+            name="Converge",
+            cluster_client_id="dummy",
+            features=[
+                FeatureSchema(
+                    id=2,
+                    name="converge_super",
+                    product=ProductSchema(id=2, name="converge"),
+                    config_id=2,
+                    reserved=0,
+                    total=500,
+                    used=50,
+                    booked_total=50,
+                )
+            ],
+            license_servers=[LicenseServerSchema(id=2, config_id=2, host="licserv0002", port=2345)],
+            grace_time=123,
+            type=LicenseServerType.RLM,
+        ),
+    ]
+
+
+@fixture
+def features():
+    """Some features reponse examples."""
+    return [
+        {
+            "id": 1,
+            "name": "abaqus",
+            "product": {"id": 1, "name": "abaqus"},
+            "config_id": 1,
+            "reserved": 100,
+            "total": 123,
+            "used": 12,
+            "booked_total": 12,
+        },
+        {
+            "id": 2,
+            "name": "abaqus",
+            "product": {"id": 1, "name": "abaqus"},
+            "config_id": 2,
+            "reserved": 100,
+            "total": 123,
+            "used": 12,
+            "booked_total": 50,
+        },
+    ]
+
+
+@fixture
+def parsed_features():
+    """Some parsed features reponse examples."""
+    return [
+        FeatureSchema(
+            id=1,
+            name="abaqus",
+            product=ProductSchema(id=1, name="abaqus"),
+            config_id=1,
+            reserved=100,
+            total=123,
+            used=12,
+            booked_total=12,
+        ),
+        FeatureSchema(
+            id=2,
+            name="abaqus",
+            product=ProductSchema(id=1, name="abaqus"),
+            config_id=2,
+            reserved=100,
+            total=123,
+            used=12,
+            booked_total=50,
         ),
     ]
 
@@ -327,7 +304,7 @@ def one_configuration_row_flexlm():
     return ConfigurationSchema(
         id=1,
         name="Test Feature",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,
@@ -353,7 +330,7 @@ def one_configuration_row_rlm():
     return ConfigurationSchema(
         id=1,
         name="Converge",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,
@@ -379,7 +356,7 @@ def one_configuration_row_lsdyna():
     return ConfigurationSchema(
         id=1,
         name="MPPDYNA",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,
@@ -405,7 +382,7 @@ def one_configuration_row_lmx():
     return ConfigurationSchema(
         id=1,
         name="HyperWorks",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,
@@ -431,7 +408,7 @@ def one_configuration_row_olicense():
     return ConfigurationSchema(
         id=1,
         name="FTire Adams",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,

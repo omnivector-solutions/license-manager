@@ -31,6 +31,16 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     used: Optional[int] = None
 
 
+class FeatureUpdateByNameSchema(BaseUpdateSchema):
+    """
+    Represents the feature usage data that will be updated using the name as a filter.
+    """
+
+    name: str
+    total: int
+    used: int
+
+
 class FeatureSchema(BaseModel):
     """
     Represents the features in a feature configuration.

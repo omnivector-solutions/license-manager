@@ -4,23 +4,20 @@ import pytest
 from httpx import Response
 from pytest import mark, raises
 
-from lm_agent.exceptions import (
-    LicenseManagerBackendConnectionError,
-    LicenseManagerEmptyReportError,
-    LicenseManagerFeatureConfigurationIncorrect,
-)
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.reconciliation import (
     clean_jobs,
     clean_jobs_by_grace_time,
     create_or_update_reservation,
-    get_bookings_sum_per_cluster,
+    get_feature_bookings_sum,
     get_greatest_grace_time_for_job,
     reconcile,
     update_features,
 )
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 
 
-def test__get_greatest_grace_time_for_job(parsed_clusters):
+def test__get_greatest_grace_time_for_job(parsed_jobs):
     """
     Test if the function really returns the greatest value for the grace_time.
     """
@@ -29,7 +26,7 @@ def test__get_greatest_grace_time_for_job(parsed_clusters):
         2: 20,
     }
 
-    job_bookings = parsed_clusters[0].jobs[0].bookings
+    job_bookings = parsed_jobs[0].bookings
 
     expected_result = 20
 
@@ -39,19 +36,19 @@ def test__get_greatest_grace_time_for_job(parsed_clusters):
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
-@mock.patch("lm_agent.reconciliation.get_grace_times")
+@mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
 @mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__on_delete(
     clean_jobs_mock,
-    get_jobs_from_backend_mock,
+    get_cluster_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
     get_bookings_for_job_id_mock,
-    get_grace_times_mock,
+    get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
-    parsed_clusters,
+    parsed_jobs,
 ):
     """
     Test for cleaning jobs when running time is greater than grace_time.
@@ -59,36 +56,36 @@ async def test__clean_jobs_by_grace_time__on_delete(
     slurm_job_id = 1
     formatted_squeue_out = "1|5:00|RUNNING"
     grace_times = {1: 10, 2: 20}
-    job_bookings = parsed_clusters[0].jobs[0].bookings
+    job_bookings = parsed_jobs[0].bookings
 
-    get_jobs_from_backend_mock.return_value = parsed_clusters[0].jobs
+    get_cluster_jobs_from_backend_mock.return_value = parsed_jobs
     get_bookings_for_job_id_mock.return_value = job_bookings
     remove_job_by_slurm_job_id_mock.return_value = True
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
-    get_grace_times_mock.return_value = grace_times
+    get_cluster_grace_times_mock.return_value = grace_times
 
-    await clean_jobs_by_grace_time(parsed_clusters[0])
+    await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_awaited_once_with(slurm_job_id)
     get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
-    get_grace_times_mock.assert_called_once_with(parsed_clusters[0])
+    get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
-@mock.patch("lm_agent.reconciliation.get_grace_times")
+@mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
 @mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete(
     clean_jobs_mock,
     get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
     get_bookings_for_job_id_mock,
-    get_grace_times_mock,
+    get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
-    parsed_clusters,
+    parsed_jobs,
 ):
     """
     Test for when the running time is smaller than the grace_time, then don't delete the booking.
@@ -96,35 +93,35 @@ async def test__clean_jobs_by_grace_time__dont_delete(
     slurm_job_id = 1
     formatted_squeue_out = "1|5:00|RUNNING"
     grace_times = {1: 1000, 2: 3000}
-    job_bookings = parsed_clusters[0].jobs[0].bookings
+    job_bookings = parsed_jobs[0].bookings
 
-    get_jobs_from_backend_mock.return_value = parsed_clusters[0].jobs
+    get_jobs_from_backend_mock.return_value = parsed_jobs
     get_bookings_for_job_id_mock.return_value = job_bookings
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
-    get_grace_times_mock.return_value = grace_times
+    get_cluster_grace_times_mock.return_value = grace_times
 
-    await clean_jobs_by_grace_time(parsed_clusters[0])
+    await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
     get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
-    get_grace_times_mock.assert_called_once_with(parsed_clusters[0])
+    get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
-@mock.patch("lm_agent.reconciliation.get_grace_times")
+@mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
 @mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete_if_grace_time_invalid(
     clean_jobs_mock,
     get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
     get_bookings_for_job_id_mock,
-    get_grace_times_mock,
+    get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
-    parsed_clusters,
+    parsed_jobs,
 ):
     """
     Test for when the grace_time is invalid because there aren't bookings in the job.
@@ -133,33 +130,33 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_grace_time_invalid(
     formatted_squeue_out = "1|5:00|RUNNING"
     grace_times = {1: 10, 2: 20}
 
-    get_jobs_from_backend_mock.return_value = parsed_clusters[0].jobs
+    get_jobs_from_backend_mock.return_value = parsed_jobs
     get_bookings_for_job_id_mock.return_value = []
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
-    get_grace_times_mock.return_value = grace_times
+    get_cluster_grace_times_mock.return_value = grace_times
 
-    await clean_jobs_by_grace_time(parsed_clusters[0])
+    await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
     get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
-    get_grace_times_mock.assert_called_once_with(parsed_clusters[0])
+    get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
-@mock.patch("lm_agent.reconciliation.get_grace_times")
+@mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
 @mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
     clean_jobs_mock,
     get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
     get_bookings_for_job_id_mock,
-    get_grace_times_mock,
+    get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
-    parsed_clusters,
+    parsed_jobs,
 ):
     """
     Test for when there are no jobs running, don't delete.
@@ -167,37 +164,35 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
     formatted_squeue_out = ""
     grace_times = {1: 10, 2: 20}
 
-    get_jobs_from_backend_mock.return_value = parsed_clusters[0].jobs
+    get_jobs_from_backend_mock.return_value = parsed_jobs
     get_bookings_for_job_id_mock.return_value = []
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
-    get_grace_times_mock.return_value = grace_times
+    get_cluster_grace_times_mock.return_value = grace_times
 
-    await clean_jobs_by_grace_time(parsed_clusters[0])
+    await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
     get_bookings_for_job_id_mock.assert_not_awaited()
-    get_grace_times_mock.assert_not_called()
+    get_cluster_grace_times_mock.assert_not_called()
 
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.create_or_update_reservation")
 @mock.patch("lm_agent.reconciliation.get_tokens_for_license")
-@mock.patch("lm_agent.reconciliation.get_configs_from_backend")
-@mock.patch("lm_agent.reconciliation.get_bookings_sum_per_cluster")
-@mock.patch("lm_agent.reconciliation.get_cluster_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_feature_bookings_sum")
 @mock.patch("lm_agent.reconciliation.update_features")
 @mock.patch("lm_agent.reconciliation.clean_jobs_by_grace_time")
 async def test__reconcile__success(
     clean_jobs_by_grace_time_mock,
     update_features_mock,
-    get_cluster_from_backend_mock,
     get_bookings_sum_mock,
     get_configs_from_backend_mock,
     get_tokens_mock,
     create_or_update_reservation_mock,
     respx_mock,
-    parsed_clusters,
+    parsed_configurations,
 ):
     """
     Check if reconcile updates the reservation with the correct value.
@@ -223,14 +218,15 @@ async def test__reconcile__success(
     is already "blocking" 23 licenses that are in use in the cluster, the reservation
     should block 380 licenses.
     """
-    update_features_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
-    get_cluster_from_backend_mock.return_value = parsed_clusters[0]
-    get_configs_from_backend_mock.return_value = parsed_clusters[0].configurations
-    get_bookings_sum_mock.return_value = {
-        1: 15,
-        2: 17,
-        3: 71,
-    }
+    update_features_mock.return_value = [
+        LicenseReportItem(
+            product_feature="abaqus.abaqus",
+            total=1000,
+            used=200,
+        )
+    ]
+    get_configs_from_backend_mock.return_value = parsed_configurations
+    get_bookings_sum_mock.return_value = 103
     get_tokens_mock.return_value = 23
 
     await reconcile()
@@ -251,29 +247,29 @@ async def test__update_features__report_empty(report_mock):
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.report")
-@mock.patch("lm_agent.reconciliation.get_feature_ids")
-@mock.patch("lm_agent.reconciliation.get_cluster_from_backend")
 async def test__update_features__put_failed(
-    get_cluster_from_backend_mock, get_feature_ids_mock, report_mock, respx_mock, parsed_clusters
+    report_mock,
+    respx_mock,
 ):
     """
     Check that when put /features status_code is not 200, should raise exception.
     """
-    get_cluster_from_backend_mock.return_value = parsed_clusters[0]
-    get_feature_ids_mock.return_value = {
-        "abaqus.abaqus": 1,
-        "converge.converge_super": 2,
-    }
-    report_mock.return_value = [{"product_feature": "abaqus.abaqus", "total": 1000, "used": 200}]
+    report_mock.return_value = [
+        LicenseReportItem(
+            product_feature="abaqus.abaqus",
+            total=1000,
+            used=200,
+        )
+    ]
 
-    respx_mock.put("/lm/features/1").mock(return_value=Response(status_code=400))
+    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=400))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
         await update_features()
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
 async def test__clean_jobs(remove_job_by_slurm_job_id_mock, get_jobs_from_backend_mock):
     """
@@ -295,7 +291,7 @@ async def test__clean_jobs(remove_job_by_slurm_job_id_mock, get_jobs_from_backen
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.reconciliation.get_jobs_from_backend")
+@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
 async def test__clean_jobs__not_in_squeue(remove_job_by_slurm_job_id_mock, get_jobs_from_backend_mock):
     """

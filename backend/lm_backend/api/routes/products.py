@@ -15,7 +15,7 @@ crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
 
 
 @router.post(
-    "/",
+    "",
     response_model=ProductSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -28,7 +28,7 @@ async def create_product(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[ProductSchema],
     status_code=status.HTTP_200_OK,
 )

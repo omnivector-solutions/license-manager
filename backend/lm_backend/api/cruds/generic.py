@@ -4,7 +4,7 @@ from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import Column, select
+from sqlalchemy import Column, ColumnElement, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
@@ -44,23 +44,23 @@ class GenericCRUD:
         return db_obj
 
     async def filter(
-        self, db_session: AsyncSession, filter_field: Column, filter_term: Union[str, int]
-    ) -> Optional[ModelType]:
+        self, db_session: AsyncSession, filter_expressions: List[ColumnElement[bool]]
+    ) -> List[ModelType]:
         """
-        Filter an object using a filter field and filter term.
-        Returns the object or raise an exception if it does not exist.
+        Filter objects using a filter field and filter term.
+        Returns the list of objects or raise an exception if it does not exist.
         """
         try:
-            query = await db_session.execute(select(self.model).filter(filter_field == filter_term))
-            db_obj = query.scalars().one_or_none()
+            query = await db_session.execute(select(self.model).filter(and_(*filter_expressions)))
+            db_objs = list(query.scalars().all())
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
 
-        if db_obj is None:
+        if db_objs is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
 
-        return db_obj
+        return db_objs
 
     async def read(
         self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False

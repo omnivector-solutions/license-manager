@@ -17,7 +17,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the license servers result.
     """
-    respx_mock.get(f"{dummy_domain}/lm/products/").mock(
+    respx_mock.get(f"{dummy_domain}/lm/products").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_product_data,
@@ -74,7 +74,7 @@ def test_create__success(
     """
     Test if the create command makes the request with the parsed arguments to create the product.
     """
-    create_route = respx_mock.post(f"{dummy_domain}/lm/products/").mock(
+    create_route = respx_mock.post(f"{dummy_domain}/lm/products").mock(
         return_value=httpx.Response(httpx.codes.CREATED, json={"id": 1, "name": "abaqus"}),
     )
 

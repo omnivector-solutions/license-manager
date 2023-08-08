@@ -31,7 +31,7 @@ from lm_agent.backend_utils.models import (
 )
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_flexlm_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -83,7 +83,7 @@ async def test_flexlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_rlm_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -135,7 +135,7 @@ async def test_rlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_lsdyna_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -187,7 +187,7 @@ async def test_lsdyna_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_lmx_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -239,7 +239,7 @@ async def test_lmx_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.olicense.OLicenseLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_olicense_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -265,7 +265,7 @@ async def test_olicense_get_report(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_flexlm_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -283,7 +283,7 @@ async def test_flexlm_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_rlm_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -301,7 +301,7 @@ async def test_rlm_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_lsdyna_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -319,7 +319,7 @@ async def test_lsdyna_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_lmx_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -337,7 +337,7 @@ async def test_lmx_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_configs_from_backend")
+@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
 async def test_olicense_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -357,7 +357,7 @@ def test_get_local_license_configurations():
     configuration_super = ConfigurationSchema(
         id=1,
         name="Converge",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=1,
@@ -381,7 +381,7 @@ def test_get_local_license_configurations():
     configuration_polygonica = ConfigurationSchema(
         id=2,
         name="Converge GUI Polygonica",
-        cluster_id=1,
+        cluster_client_id="dummy",
         features=[
             FeatureSchema(
                 id=2,

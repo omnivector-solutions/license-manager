@@ -8,7 +8,7 @@ from lm_backend.api.schemas.booking import BookingSchema
 
 
 class JobBookingCreateSchema(BaseCreateSchema):
-    feature_id: int
+    product_feature: str
     quantity: int
 
 
@@ -18,7 +18,7 @@ class JobCreateSchema(BaseCreateSchema):
     """
 
     slurm_job_id: str
-    cluster_id: int
+    cluster_client_id: str
     username: str
     lead_host: str
 
@@ -29,7 +29,7 @@ class JobWithBookingCreateSchema(BaseCreateSchema):
     """
 
     slurm_job_id: str
-    cluster_id: int
+    cluster_client_id: Optional[str]
     username: str
     lead_host: str
     bookings: List[JobBookingCreateSchema] = []
@@ -41,7 +41,7 @@ class JobUpdateSchema(BaseUpdateSchema):
     """
 
     slurm_job_id: Optional[str]
-    cluster_id: Optional[int]
+    cluster_client_id: Optional[str]
     username: Optional[str]
     lead_host: Optional[str]
 
@@ -53,7 +53,7 @@ class JobSchema(BaseModel):
 
     id: int
     slurm_job_id: str
-    cluster_id: int
+    cluster_client_id: str
     username: str
     lead_host: str
 

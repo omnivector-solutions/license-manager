@@ -60,49 +60,12 @@ def dummy_booking_data():
 
 
 @pytest.fixture
-def dummy_cluster_data(dummy_configuration_data):
-    return [
-        {
-            "id": 1,
-            "name": "Cluster 1",
-            "client_id": "cluster1",
-            "configurations": dummy_configuration_data,
-            "jobs": [
-                {
-                    "id": 1,
-                    "slurm_job_id": "string",
-                    "cluster_id": 1,
-                    "username": "string",
-                    "lead_host": "string",
-                    "bookings": [
-                        {"id": 1, "job_id": 1, "feature_id": 1, "quantity": 50},
-                        {"id": 2, "job_id": 1, "feature_id": 2, "quantity": 25},
-                    ],
-                }
-            ],
-        }
-    ]
-
-
-@pytest.fixture
-def dummy_cluster_data_for_printing():
-    return [
-        {
-            "id": 1,
-            "name": "Cluster 1",
-            "client_id": "cluster1",
-            "configurations": "Abaqus, Converge",
-        }
-    ]
-
-
-@pytest.fixture
 def dummy_configuration_data():
     return [
         {
             "id": 1,
             "name": "Abaqus",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "features": [
                 {
                     "id": 1,
@@ -124,7 +87,7 @@ def dummy_configuration_data():
         {
             "id": 2,
             "name": "Converge",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "features": [
                 {
                     "id": 2,
@@ -152,7 +115,7 @@ def dummy_configuration_data_for_printing():
         {
             "id": 1,
             "name": "Abaqus",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "features": "abaqus",
             "license_servers": "licserv0001:1234, licserv0002:2345",
             "grace_time": "60 (seconds)",
@@ -161,7 +124,7 @@ def dummy_configuration_data_for_printing():
         {
             "id": 2,
             "name": "Converge",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "features": "converge_super",
             "license_servers": "licserv0003:1234, licserv0004:2345",
             "grace_time": "60 (seconds)",
@@ -230,7 +193,7 @@ def dummy_job_data():
         {
             "id": 1,
             "slurm_job_id": "string",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "username": "string",
             "lead_host": "string",
             "bookings": [
@@ -247,7 +210,7 @@ def dummy_job_data_for_printing():
         {
             "id": 1,
             "slurm_job_id": "string",
-            "cluster_id": 1,
+            "cluster_client_id": "dummy",
             "username": "string",
             "lead_host": "string",
             "bookings": "feature_id: 1, quantity: 50 | feature_id: 2, quantity: 25",

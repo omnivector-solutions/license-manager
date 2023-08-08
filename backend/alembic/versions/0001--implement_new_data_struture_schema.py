@@ -16,15 +16,6 @@ depends_on = None
 
 def upgrade():
     op.create_table(
-        "clusters",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
-        sa.Column("client_id", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("client_id"),
-        sa.UniqueConstraint("name"),
-    )
-    op.create_table(
         "products",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
@@ -35,13 +26,9 @@ def upgrade():
         "configs",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("cluster_id", sa.Integer(), nullable=False),
+        sa.Column("cluster_client_id", sa.String(), nullable=False),
         sa.Column("grace_time", sa.Integer(), nullable=False),
         sa.Column("type", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["cluster_id"],
-            ["clusters.id"],
-        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -80,13 +67,9 @@ def upgrade():
         "jobs",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("slurm_job_id", sa.String(), nullable=False),
-        sa.Column("cluster_id", sa.Integer(), nullable=False),
+        sa.Column("cluster_client_id", sa.String(), nullable=False),
         sa.Column("username", sa.String(), nullable=False),
         sa.Column("lead_host", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["cluster_id"],
-            ["clusters.id"],
-        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(

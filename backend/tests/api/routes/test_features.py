@@ -211,6 +211,51 @@ async def test_update_feature__fail_with_bad_data(
 
 
 @mark.asyncio
+async def test_update_feature_by_client_id__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_feature,
+    read_object,
+):
+    data_to_update = {
+        "name": create_one_feature[0].name,
+        "total": 9876,
+        "used": 1234,
+    }
+    client_id = "dummy"
+
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT, client_id=client_id)
+    response = await backend_client.put("/lm/features/by_client_id", json=data_to_update)
+
+    assert response.status_code == 200
+
+    stmt = select(Feature).where(Feature.name == data_to_update["name"])
+    fetch_feature = await read_object(stmt)
+
+    assert fetch_feature.name == data_to_update["name"]
+    assert fetch_feature.total == data_to_update["total"]
+    assert fetch_feature.used == data_to_update["used"]
+
+
+@mark.asyncio
+async def test_update_feature_by_client_id__fail_with_non_existing_feature(
+    backend_client: AsyncClient,
+    inject_security_header,
+):
+    data_to_update = {
+        "name": "not-a-feature",
+        "total": 100,
+        "used": 50,
+    }
+    client_id = "dummy"
+
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT, client_id=client_id)
+    response = await backend_client.put("/lm/features/by_client_id", json=data_to_update)
+
+    assert response.status_code == 400
+
+
+@mark.asyncio
 async def test_delete_feature__success(
     backend_client: AsyncClient,
     inject_security_header,

@@ -18,7 +18,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the features result.
     """
-    respx_mock.get(f"{dummy_domain}/lm/features/").mock(
+    respx_mock.get(f"{dummy_domain}/lm/features").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_feature_data,
@@ -54,7 +54,7 @@ def test_get_one__success(
             json=dummy_feature_data[0],
         ),
     )
-    respx_mock.get(f"{dummy_domain}/lm/bookings/").mock(
+    respx_mock.get(f"{dummy_domain}/lm/bookings").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_booking_data,
@@ -82,7 +82,7 @@ def test_create__success(
     """
     Test if the create command makes the request with the parsed arguments to create the feature.
     """
-    create_route = respx_mock.post(f"{dummy_domain}/lm/features/").mock(
+    create_route = respx_mock.post(f"{dummy_domain}/lm/features").mock(
         return_value=httpx.Response(
             httpx.codes.CREATED, json={"id": 1, "name": "feature1", "product_id": 1, "config_id": 1, "reserved": 50}
         ),

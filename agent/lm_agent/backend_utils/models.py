@@ -48,7 +48,7 @@ class ConfigurationSchema(BaseModel):
 
     id: int
     name: str
-    cluster_id: int
+    cluster_client_id: str
     features: List[FeatureSchema] = []
     license_servers: List[LicenseServerSchema] = []
     grace_time: int
@@ -73,23 +73,11 @@ class JobSchema(BaseModel):
 
     id: int
     slurm_job_id: str
-    cluster_id: int
+    cluster_client_id: str
     username: str
     lead_host: str
 
     bookings: List[BookingSchema] = []
-
-
-class ClusterSchema(BaseModel):
-    """
-    Cluster response from the database.
-    """
-
-    id: int
-    name: str
-    client_id: str
-    configurations: List[ConfigurationSchema] = []
-    jobs: List[JobSchema] = []
 
 
 class LicenseBooking(BaseModel):
@@ -107,6 +95,6 @@ class LicenseBookingRequest(BaseModel):
     """
 
     slurm_job_id: int
-    user_name: str
+    username: str
     lead_host: str
     bookings: List[LicenseBooking] = []

@@ -1,7 +1,6 @@
 from pytest import fixture
 
 from lm_backend.api.models.booking import Booking
-from lm_backend.api.models.cluster import Cluster
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.job import Job
@@ -10,47 +9,18 @@ from lm_backend.api.models.product import Product
 
 
 @fixture
-async def create_clusters(insert_objects):
-    clusters_to_add = [
-        {
-            "name": "Dummy Cluster",
-            "client_id": "dummy",
-        },
-        {
-            "name": "Dummy Cluster 2",
-            "client_id": "dummy2",
-        },
-    ]
-    inserted_clusters = await insert_objects(clusters_to_add, Cluster)
-    return inserted_clusters
-
-
-@fixture
-async def create_one_cluster(insert_objects):
-    cluster_to_add = [
-        {
-            "name": "Dummy Cluster",
-            "client_id": "dummy",
-        },
-    ]
-    inserted_cluster = await insert_objects(cluster_to_add, Cluster)
-    return inserted_cluster
-
-
-@fixture
-async def create_configurations(insert_objects, create_one_cluster):
-    cluster_id = create_one_cluster[0].id
+async def create_configurations(insert_objects):
 
     configurations_to_add = [
         {
             "name": "Abaqus",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "grace_time": 60,
             "type": "flexlm",
         },
         {
             "name": "Converge",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "grace_time": 60,
             "type": "rlm",
         },
@@ -60,13 +30,11 @@ async def create_configurations(insert_objects, create_one_cluster):
 
 
 @fixture
-async def create_one_configuration(insert_objects, create_one_cluster):
-    cluster_id = create_one_cluster[0].id
-
+async def create_one_configuration(insert_objects):
     configuration_to_add = [
         {
             "name": "Abaqus",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "grace_time": 60,
             "type": "flexlm",
         },
@@ -187,18 +155,17 @@ async def create_one_feature(insert_objects, update_object, create_one_configura
 
 
 @fixture
-async def create_jobs(insert_objects, create_one_cluster):
-    cluster_id = create_one_cluster[0].id
+async def create_jobs(insert_objects):
     jobs_to_add = [
         {
             "slurm_job_id": "123",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "username": "user",
             "lead_host": "test-host",
         },
         {
             "slurm_job_id": "234",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "username": "user2",
             "lead_host": "test-host2",
         },
@@ -209,12 +176,11 @@ async def create_jobs(insert_objects, create_one_cluster):
 
 
 @fixture
-async def create_one_job(insert_objects, create_one_cluster):
-    cluster_id = create_one_cluster[0].id
+async def create_one_job(insert_objects):
     job_to_add = [
         {
             "slurm_job_id": "123",
-            "cluster_id": cluster_id,
+            "cluster_client_id": "dummy",
             "username": "user",
             "lead_host": "test-host",
         },

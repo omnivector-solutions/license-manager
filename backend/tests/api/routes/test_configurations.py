@@ -11,13 +11,10 @@ async def test_add_configuration__success(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
-    create_one_cluster,
 ):
-    cluster_id = create_one_cluster[0].id
-
     data = {
         "name": "Abaqus",
-        "cluster_id": cluster_id,
+        "cluster_client_id": "dummy",
         "grace_time": 60,
         "type": "flexlm",
     }
@@ -45,12 +42,12 @@ async def test_get_all_configurations__success(
 
     response_configurations = response.json()
     assert response_configurations[0]["name"] == create_configurations[0].name
-    assert response_configurations[0]["cluster_id"] == create_configurations[0].cluster_id
+    assert response_configurations[0]["cluster_client_id"] == create_configurations[0].cluster_client_id
     assert response_configurations[0]["grace_time"] == create_configurations[0].grace_time
     assert response_configurations[0]["type"] == create_configurations[0].type
 
     assert response_configurations[1]["name"] == create_configurations[1].name
-    assert response_configurations[1]["cluster_id"] == create_configurations[1].cluster_id
+    assert response_configurations[1]["cluster_client_id"] == create_configurations[1].cluster_client_id
     assert response_configurations[1]["grace_time"] == create_configurations[1].grace_time
     assert response_configurations[1]["type"] == create_configurations[1].type
 
@@ -68,7 +65,7 @@ async def test_get_all_configurations__with_search(
 
     response_configuration = response.json()
     assert response_configuration[0]["name"] == create_configurations[0].name
-    assert response_configuration[0]["cluster_id"] == create_configurations[0].cluster_id
+    assert response_configuration[0]["cluster_client_id"] == create_configurations[0].cluster_client_id
     assert response_configuration[0]["grace_time"] == create_configurations[0].grace_time
     assert response_configuration[0]["type"] == create_configurations[0].type
 
@@ -87,12 +84,12 @@ async def test_get_all_configurations__with_sort(
 
     response_configurations = response.json()
     assert response_configurations[0]["name"] == create_configurations[1].name
-    assert response_configurations[0]["cluster_id"] == create_configurations[1].cluster_id
+    assert response_configurations[0]["cluster_client_id"] == create_configurations[1].cluster_client_id
     assert response_configurations[0]["grace_time"] == create_configurations[1].grace_time
     assert response_configurations[0]["type"] == create_configurations[1].type
 
     assert response_configurations[1]["name"] == create_configurations[0].name
-    assert response_configurations[1]["cluster_id"] == create_configurations[0].cluster_id
+    assert response_configurations[1]["cluster_client_id"] == create_configurations[0].cluster_client_id
     assert response_configurations[1]["grace_time"] == create_configurations[0].grace_time
     assert response_configurations[1]["type"] == create_configurations[0].type
 
@@ -112,7 +109,7 @@ async def test_get_configuration__success(
 
     response_configuration = response.json()
     assert response_configuration["name"] == create_one_configuration[0].name
-    assert response_configuration["cluster_id"] == create_one_configuration[0].cluster_id
+    assert response_configuration["cluster_client_id"] == create_one_configuration[0].cluster_client_id
     assert response_configuration["grace_time"] == create_one_configuration[0].grace_time
     assert response_configuration["type"] == create_one_configuration[0].type
 
@@ -245,3 +242,31 @@ async def test_delete_configuration__fail_with_bad_parameter(
     response = await backend_client.delete(f"/lm/configurations/{id}")
 
     assert response.status_code == 404
+
+
+@mark.asyncio
+async def test_get_configurations_by_client_id__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+):
+    id = create_one_configuration[0].id
+    cluster_client_id = create_one_configuration[0].cluster_client_id
+
+    inject_security_header("owner@test1.com", Permissions.CONFIG_VIEW, client_id="not-the-correct-client-id")
+    response = await backend_client.get("/lm/configurations/by_client_id")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+    inject_security_header("owner@test1.com", Permissions.CONFIG_VIEW, client_id=cluster_client_id)
+    response = await backend_client.get("/lm/configurations/by_client_id")
+
+    response_configurations = response.json()
+
+    assert response.status_code == 200
+    assert response_configurations[0]["id"] == id
+    assert response_configurations[0]["name"] == create_one_configuration[0].name
+    assert response_configurations[0]["cluster_client_id"] == create_one_configuration[0].cluster_client_id
+    assert response_configurations[0]["grace_time"] == create_one_configuration[0].grace_time
+    assert response_configurations[0]["type"] == create_one_configuration[0].type

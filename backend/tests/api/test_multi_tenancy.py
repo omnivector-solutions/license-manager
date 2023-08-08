@@ -8,7 +8,7 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy import select
 
-from lm_backend.api.models.cluster import Cluster
+from lm_backend.api.models.product import Product
 from lm_backend.config import settings
 from lm_backend.database import Base, engine_factory
 from lm_backend.permissions import Permissions
@@ -115,80 +115,71 @@ async def test_session_tenancy(get_synth_sessions):
 
     Checks that database writes and reads for the two sessions are distinct and do not effect each other.
     """
-    default_client_id = "default-client"
-    alt_client_id = "alt-client"
 
     async with get_synth_sessions() as (default_session, alt_session):
-        default_session.add(Cluster(name="Dummy Cluster", client_id=default_client_id))
+        default_session.add(Product(name="Dummy Default Product"))
         await default_session.flush()
 
-        alt_session.add(Cluster(name="Dummy Cluster", client_id=alt_client_id))
+        alt_session.add(Product(name="Dummy Alt Product"))
         await alt_session.flush()
 
-        default_clusters = (await default_session.execute(select(Cluster))).scalars().all()
-        alt_clusters = (await alt_session.execute(select(Cluster))).scalars().all()
+        default_products = (await default_session.execute(select(Product))).scalars().all()
+        alt_products = (await alt_session.execute(select(Product))).scalars().all()
 
-        assert len(default_clusters) == 1
-        assert len(alt_clusters) == 1
-        assert default_clusters != alt_clusters
+        assert len(default_products) == 1
+        assert len(alt_products) == 1
+        assert default_products != alt_products
 
 
 @pytest.mark.asyncio
-async def test_clusters_router_with_multi_tenancy(
+async def test_products_router_with_multi_tenancy(
     get_synth_sessions,
     backend_client: AsyncClient,
     inject_security_header,
     tweak_settings,
 ):
     """
-    Test POST /clusters/ correctly creates clusters using multi-tenancy.
+    Test POST /products correctly creates clusters using multi-tenancy.
 
     This method checks to make sure that the correct database is used for the API request based on the
     organization_id that is provided in the auth token in the request header.
     """
-    default_client_id = "default-client"
     default_organization_id = settings.TEST_DATABASE_NAME
-
-    alt_client_id = "alt-client"
     alt_organization_id = "alt-test-db"
 
     with tweak_settings(MULTI_TENANCY_ENABLED=True):
         async with get_synth_sessions() as (default_session, alt_session):
 
             inject_security_header(
-                "owner1@test.com", Permissions.CLUSTER_EDIT, organization_id=default_organization_id
+                "owner1@test.com", Permissions.PRODUCT_EDIT, organization_id=default_organization_id
             )
             default_response = await backend_client.post(
-                "/lm/clusters/",
+                "/lm/products",
                 json=dict(
-                    name="default-cluster",
-                    client_id=default_client_id,
+                    name="default-product",
                 ),
             )
             assert default_response.status_code == status.HTTP_201_CREATED
             default_data = default_response.json()
-            assert default_data["name"] == "default-cluster"
-            assert default_data["client_id"] == default_client_id
+            assert default_data["name"] == "default-product"
 
             inject_security_header(
-                "owner2@test.com", Permissions.CLUSTER_EDIT, organization_id=alt_organization_id
+                "owner2@test.com", Permissions.PRODUCT_EDIT, organization_id=alt_organization_id
             )
             alt_response = await backend_client.post(
-                "/lm/clusters/",
+                "/lm/products",
                 json=dict(
-                    name="alt-cluster",
-                    client_id=alt_client_id,
+                    name="alt-product",
                 ),
             )
             assert alt_response.status_code == status.HTTP_201_CREATED
             alt_data = alt_response.json()
-            assert alt_data["name"] == "alt-cluster"
-            assert alt_data["client_id"] == alt_client_id
+            assert alt_data["name"] == "alt-product"
 
-            default_clusters = (await default_session.execute(select(Cluster))).scalars().all()
-            assert len(default_clusters) == 1
-            assert default_clusters[0].name == default_data["name"]
+            default_products = (await default_session.execute(select(Product))).scalars().all()
+            assert len(default_products) == 1
+            assert default_products[0].name == default_data["name"]
 
-            alt_clusters = (await alt_session.execute(select(Cluster))).scalars().all()
-            assert len(alt_clusters) == 1
-            assert alt_clusters[0].name == alt_data["name"]
+            alt_products = (await alt_session.execute(select(Product))).scalars().all()
+            assert len(alt_products) == 1
+            assert alt_products[0].name == alt_data["name"]

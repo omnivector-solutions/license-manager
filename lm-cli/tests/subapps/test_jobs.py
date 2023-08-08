@@ -15,7 +15,7 @@ def test_list_all__makes_request_and_renders_results(
     """
     Test if the list all command fetches and renders the jobs result.
     """
-    respx_mock.get(f"{dummy_domain}/lm/jobs/").mock(
+    respx_mock.get(f"{dummy_domain}/lm/jobs").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
             json=dummy_job_data,
