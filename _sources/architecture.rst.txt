@@ -51,7 +51,7 @@ The ``License Manager CLI`` interacts with this API to add new configurations an
 The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.
 
-The API contains 7 entities that have relationship among them.
+The API contains 6 entities that have relationship among them.
 This means that some of the resources need to be created before others can be created as well.
 
 .. mermaid::
@@ -79,19 +79,14 @@ This means that some of the resources need to be created before others can be cr
         Jobs {
             int id pk, fk
             str slurm_job_id
-            str cluster_id fk
+            str cluster_client_id
             str username
             str lead_host
-        }
-        Clusters {
-            int id pk
-            str name
-            str client_id
         }
         Configurations {
             int id pk
             str name
-            int cluster_id fk
+            str cluster_client_id
             int grace_time
             enum[str] type
         }
@@ -103,35 +98,10 @@ This means that some of the resources need to be created before others can be cr
         }
         Jobs ||--o{ Bookings : ""
         Features ||--o{ Bookings : ""
-        Clusters ||--o{ Jobs : ""
         Products ||--o{ Features : ""
         Configurations ||--|{ Features : ""
-        Clusters ||--o{ Configurations : ""
         Configurations ||--|{ LicenseServers : ""
         
-Clusters
-********
-The ``Cluster`` resource represents the cluster where ``License Manager Agent`` is running.
-
-It must have a ``client_id`` that identifies it in the OIDC provider.
-
-Endpoints available:
-
-* POST ``/lm/clusters``
-* GET ``/lm/clusters``
-* GET ``/lm/clusters/{id}``
-* PUT ``/lm/clusters/{id}``
-* DEL ``/lm/clusters/{id}``
-
-Payload example for POST:
-
-.. code-block:: json
-
-    {
-        "name": "cluster-name",
-        "client_id": "cluster-client-id"
-    }
-
 Configurations
 **************
 The ``Configuration`` resource holds the information for a set of features that are available on the same license server.
@@ -153,9 +123,12 @@ Endpoints available:
 
 * POST ``/lm/configurations``
 * GET ``/lm/configurations``
+* GET ``/lm/configurations/by_client_id``
 * GET ``/lm/configurations/{id}``
 * PUT ``/lm/configurations/{id}``
 * DEL ``/lm/configurations/{id}``
+
+The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and returns the configurations that belong to the cluster.
 
 Payload example for POST:
 
@@ -163,7 +136,7 @@ Payload example for POST:
 
     {
         "name": "configuration-name",
-        "cluster_id": 1, 
+        "cluster_client_id": "cluster-client-id", 
         "grace_time": 60,
         "type": "flexlm"
     }
@@ -238,7 +211,13 @@ Endpoints available:
 * GET ``/lm/features``
 * GET ``/lm/features/{id}``
 * PUT ``/lm/features/{id}``
+* PUT ``/lm/features/by_client_id``
 * DEL ``/lm/features/{id}``
+
+The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and updates the feature for that cluster.
+
+This endpoint is needed since there can be multiple licenses with the same name in different clusters.
+
 
 Payload example for POST:
 
@@ -261,16 +240,21 @@ Each ``Job`` can have ``n`` ``Bookings`` attached to it.
 If the job requires licenses, a ``Booking`` is created for each license.
 Once the job finishes, the ``EpilogSlurmctld`` deletes the job from the API, along with its bookings.
 
-Since the ``slurm_job_id`` is not unique across clusters, each job is identified by the ``cluster_id`` alongside the ``slurm_job_id``.
+Since the ``slurm_job_id`` is not unique across clusters, each job is identified by the ``cluster_client_id`` alongside the ``slurm_job_id``.
 
 Endpoints available:
 
 * POST ``/lm/jobs``
 * GET ``/lm/jobs``
+* GET ``/lm/jobs/by_client_id``
 * GET ``/lm/jobs/{id}``
+* GET ``/lm/jobs/slurm_job_id/{slurm_job_id}``
 * DEL ``/lm/jobs/{id}``
-* GET ``/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}``
-* DEL ``/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}``
+* DEL ``/lm/jobs/slurm_job_id/{slurm_job_id}``
+
+The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and returns the jobs that belong to the cluster.
+
+The in the POST endpoint, the parameter ``cluster_client_id`` is optional. If it's not provided, the ``cluster_client_id`` is extracted from the request.
 
 Payload example for POST:
 
@@ -278,7 +262,7 @@ Payload example for POST:
 
     {
         "slurm_job_id": "123",
-        "cluster_id": 1,
+        "cluster_client_id": "cluster-client-id",
         "username": "user123",
         "lead_host": "host1"
     }
@@ -331,83 +315,45 @@ Global commands
 | lm-cli logout                                                               | Logout and remove your access token                |
 +-----------------------------------------------------------------------------+----------------------------------------------------+
 
-Cluster commands
-****************
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| **Command**                                                                 | **Description**                                    |   
-+=============================================================================+====================================================+
-| lm-cli clusters list                                                        | List all clusters                                  |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters list                                                        | Search clusters with the specified string          |
-|                                                                             |                                                    |
-| --search <search string>                                                    |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters list                                                        | Sort clusters by the specified field               |
-|                                                                             |                                                    |
-| --sort-field <sort field>                                                   |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters list                                                        | Sort clusters by the specified order               |
-|                                                                             |                                                    |
-| --sort-field <sort field>                                                   |                                                    |
-|                                                                             |                                                    |
-| --sort-order ascending                                                      |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters get-one                                                     | List the cluster with the specified id             |
-|                                                                             |                                                    |
-| --id <cluster id>                                                           |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters create                                                      | Create a new cluster                               |
-|                                                                             |                                                    |
-| --name <cluster name>                                                       |                                                    |
-|                                                                             |                                                    |
-| --client-id <cluster identification in the OIDC provider>                   |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli clusters delete                                                      | Delete the cluster with the specified id           |
-|                                                                             |                                                    |
-| --id <id to delete>                                                         |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-
 Configuration commands
 **********************
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| **Command**                                                                 | **Description**                                    |   
-+=============================================================================+====================================================+
-| lm-cli configurations list                                                  | List all configurations                            |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations list                                                  | Search configurations with the specified string    |
-|                                                                             |                                                    |
-| --search <search string>                                                    |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations list                                                  | Sort configurations by the specified field         |
-|                                                                             |                                                    |
-| --sort-field <sort field>                                                   |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations list                                                  | Sort configurations by the specified order         |
-|                                                                             |                                                    |
-| --sort-field <sort field>                                                   |                                                    |
-|                                                                             |                                                    |
-| --sort-order ascending                                                      |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations get-one                                               | List the configuration with the specified id       |
-|                                                                             |                                                    |
-| --id <configuration id>                                                     |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations create                                                | Create a new configuration                         |
-|                                                                             |                                                    |
-| --name <configuration name>                                                 |                                                    |
-|                                                                             |                                                    |
-| --cluster-id <id of the cluster where the configuration applies             |                                                    |
-|                                                                             |                                                    |
-| --grace-time <grace time in seconds>                                        |                                                    |
-|                                                                             |                                                    |
-| --license-server-type <license server type>                                 |                                                    |
-|                                                                             |                                                    |
-| --client-id <cluster identification where the license is configured>        |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
-| lm-cli configurations delete                                                | Delete the configuration with the specified id     |
-|                                                                             |                                                    |
-| --id <id to delete>                                                         |                                                    |
-+-----------------------------------------------------------------------------+----------------------------------------------------+
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| **Command**                                                                        | **Description**                                    |   
++====================================================================================+====================================================+
+| lm-cli configurations list                                                         | List all configurations                            |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations list                                                         | Search configurations with the specified string    |
+|                                                                                    |                                                    |
+| --search <search string>                                                           |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations list                                                         | Sort configurations by the specified field         |
+|                                                                                    |                                                    |
+| --sort-field <sort field>                                                          |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations list                                                         | Sort configurations by the specified order         |
+|                                                                                    |                                                    |
+| --sort-field <sort field>                                                          |                                                    |
+|                                                                                    |                                                    |
+| --sort-order ascending                                                             |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations get-one                                                      | List the configuration with the specified id       |
+|                                                                                    |                                                    |
+| --id <configuration id>                                                            |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations create                                                       | Create a new configuration                         |
+|                                                                                    |                                                    |
+| --name <configuration name>                                                        |                                                    |
+|                                                                                    |                                                    |
+| --cluster-client-id <OIDC client_id of the cluster where the configuration applies |                                                    |
+|                                                                                    |                                                    |
+| --grace-time <grace time in seconds>                                               |                                                    |
+|                                                                                    |                                                    |
+| --license-server-type <license server type>                                        |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
+| lm-cli configurations delete                                                       | Delete the configuration with the specified id     |
+|                                                                                    |                                                    |
+| --id <id to delete>                                                                |                                                    |
++------------------------------------------------------------------------------------+----------------------------------------------------+
 
 License server commands
 ***********************

@@ -212,11 +212,6 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#clusters">
-     Clusters
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#configurations">
      Configurations
     </a>
@@ -256,11 +251,6 @@
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#global-commands">
      Global commands
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#cluster-commands">
-     Cluster commands
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
@@ -343,11 +333,6 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#clusters">
-     Clusters
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#configurations">
      Configurations
     </a>
@@ -387,11 +372,6 @@
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#global-commands">
      Global commands
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#cluster-commands">
-     Cluster commands
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
@@ -481,7 +461,7 @@ The <code class="docutils literal notranslate"><span class="pre">License</span> 
 The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">CLI</span></code> interacts with this API to add new configurations and to check the usage information for each tracked license.</p>
 <p>The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.</p>
-<p>The API contains 7 entities that have relationship among them.
+<p>The API contains 6 entities that have relationship among them.
 This means that some of the resources need to be created before others can be created as well.</p>
 <div class="mermaid">
             erDiagram
@@ -507,19 +487,14 @@ This means that some of the resources need to be created before others can be cr
     Jobs {
         int id pk, fk
         str slurm_job_id
-        str cluster_id fk
+        str cluster_client_id
         str username
         str lead_host
-    }
-    Clusters {
-        int id pk
-        str name
-        str client_id
     }
     Configurations {
         int id pk
         str name
-        int cluster_id fk
+        str cluster_client_id
         int grace_time
         enum[str] type
     }
@@ -531,32 +506,10 @@ This means that some of the resources need to be created before others can be cr
     }
     Jobs ||--o{ Bookings : &quot;&quot;
     Features ||--o{ Bookings : &quot;&quot;
-    Clusters ||--o{ Jobs : &quot;&quot;
     Products ||--o{ Features : &quot;&quot;
     Configurations ||--|{ Features : &quot;&quot;
-    Clusters ||--o{ Configurations : &quot;&quot;
     Configurations ||--|{ LicenseServers : &quot;&quot;
-        </div><div class="section" id="clusters">
-<h3>Clusters<a class="headerlink" href="#clusters" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">Cluster</span></code> resource represents the cluster where <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span></code> is running.</p>
-<p>It must have a <code class="docutils literal notranslate"><span class="pre">client_id</span></code> that identifies it in the OIDC provider.</p>
-<p>Endpoints available:</p>
-<ul class="simple">
-<li><p>POST <code class="docutils literal notranslate"><span class="pre">/lm/clusters</span></code></p></li>
-<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/clusters</span></code></p></li>
-<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/clusters/{id}</span></code></p></li>
-<li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/clusters/{id}</span></code></p></li>
-<li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/clusters/{id}</span></code></p></li>
-</ul>
-<p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-name&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="configurations">
+        </div><div class="section" id="configurations">
 <h3>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">Configuration</span></code> resource holds the information for a set of features that are available on the same license server.</p>
 <p>A configuration is attached to a cluster and can have <code class="docutils literal notranslate"><span class="pre">n</span></code> features attached to it.
@@ -574,14 +527,16 @@ The license type identifies the provider of the license server.</p>
 <ul class="simple">
 <li><p>POST <code class="docutils literal notranslate"><span class="pre">/lm/configurations</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/configurations</span></code></p></li>
+<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/configurations/by_client_id</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/configurations/{id}</span></code></p></li>
 <li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/configurations/{id}</span></code></p></li>
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/configurations/{id}</span></code></p></li>
 </ul>
+<p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and returns the configurations that belong to the cluster.</p>
 <p>Payload example for POST:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;configuration-name&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;cluster_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;grace_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flexlm&quot;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
@@ -645,8 +600,11 @@ The information stored includes the total number of licenses available and how m
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/features</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
 <li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
+<li><p>PUT <code class="docutils literal notranslate"><span class="pre">/lm/features/by_client_id</span></code></p></li>
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/features/{id}</span></code></p></li>
 </ul>
+<p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and updates the feature for that cluster.</p>
+<p>This endpoint is needed since there can be multiple licenses with the same name in different clusters.</p>
 <p>Payload example for POST:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span><span class="p">,</span><span class="w"></span>
@@ -664,20 +622,23 @@ The information stored includes the total number of licenses available and how m
 <p>Each <code class="docutils literal notranslate"><span class="pre">Job</span></code> can have <code class="docutils literal notranslate"><span class="pre">n</span></code> <code class="docutils literal notranslate"><span class="pre">Bookings</span></code> attached to it.
 If the job requires licenses, a <code class="docutils literal notranslate"><span class="pre">Booking</span></code> is created for each license.
 Once the job finishes, the <code class="docutils literal notranslate"><span class="pre">EpilogSlurmctld</span></code> deletes the job from the API, along with its bookings.</p>
-<p>Since the <code class="docutils literal notranslate"><span class="pre">slurm_job_id</span></code> is not unique across clusters, each job is identified by the <code class="docutils literal notranslate"><span class="pre">cluster_id</span></code> alongside the <code class="docutils literal notranslate"><span class="pre">slurm_job_id</span></code>.</p>
+<p>Since the <code class="docutils literal notranslate"><span class="pre">slurm_job_id</span></code> is not unique across clusters, each job is identified by the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> alongside the <code class="docutils literal notranslate"><span class="pre">slurm_job_id</span></code>.</p>
 <p>Endpoints available:</p>
 <ul class="simple">
 <li><p>POST <code class="docutils literal notranslate"><span class="pre">/lm/jobs</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/jobs</span></code></p></li>
+<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/jobs/by_client_id</span></code></p></li>
 <li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/jobs/{id}</span></code></p></li>
+<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/jobs/slurm_job_id/{slurm_job_id}</span></code></p></li>
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/jobs/{id}</span></code></p></li>
-<li><p>GET <code class="docutils literal notranslate"><span class="pre">/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}</span></code></p></li>
-<li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/jobs/slurm_job_id/{slurm_job_id}/cluster/{cluster_id}</span></code></p></li>
+<li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/jobs/slurm_job_id/{slurm_job_id}</span></code></p></li>
 </ul>
+<p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and returns the jobs that belong to the cluster.</p>
+<p>The in the POST endpoint, the parameter <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> is optional. If it's not provided, the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> is extracted from the request.</p>
 <p>Payload example for POST:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;slurm_job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;cluster_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user123&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;lead_host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;host1&quot;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
@@ -739,63 +700,12 @@ that idenfies it in the cluster.</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="cluster-commands">
-<h3>Cluster commands<a class="headerlink" href="#cluster-commands" title="Permalink to this headline">¶</a></h3>
-<table class="table">
-<colgroup>
-<col style="width: 60%" />
-<col style="width: 40%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p><strong>Command</strong></p></th>
-<th class="head"><p><strong>Description</strong></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>lm-cli clusters list</p></td>
-<td><p>List all clusters</p></td>
-</tr>
-<tr class="row-odd"><td><p>lm-cli clusters list</p>
-<p>--search &lt;search string&gt;</p>
-</td>
-<td><p>Search clusters with the specified string</p></td>
-</tr>
-<tr class="row-even"><td><p>lm-cli clusters list</p>
-<p>--sort-field &lt;sort field&gt;</p>
-</td>
-<td><p>Sort clusters by the specified field</p></td>
-</tr>
-<tr class="row-odd"><td><p>lm-cli clusters list</p>
-<p>--sort-field &lt;sort field&gt;</p>
-<p>--sort-order ascending</p>
-</td>
-<td><p>Sort clusters by the specified order</p></td>
-</tr>
-<tr class="row-even"><td><p>lm-cli clusters get-one</p>
-<p>--id &lt;cluster id&gt;</p>
-</td>
-<td><p>List the cluster with the specified id</p></td>
-</tr>
-<tr class="row-odd"><td><p>lm-cli clusters create</p>
-<p>--name &lt;cluster name&gt;</p>
-<p>--client-id &lt;cluster identification in the OIDC provider&gt;</p>
-</td>
-<td><p>Create a new cluster</p></td>
-</tr>
-<tr class="row-even"><td><p>lm-cli clusters delete</p>
-<p>--id &lt;id to delete&gt;</p>
-</td>
-<td><p>Delete the cluster with the specified id</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="section" id="configuration-commands">
 <h3>Configuration commands<a class="headerlink" href="#configuration-commands" title="Permalink to this headline">¶</a></h3>
 <table class="table">
 <colgroup>
-<col style="width: 60%" />
-<col style="width: 40%" />
+<col style="width: 62%" />
+<col style="width: 38%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Command</strong></p></th>
@@ -829,10 +739,9 @@ that idenfies it in the cluster.</p>
 </tr>
 <tr class="row-odd"><td><p>lm-cli configurations create</p>
 <p>--name &lt;configuration name&gt;</p>
-<p>--cluster-id &lt;id of the cluster where the configuration applies</p>
+<p>--cluster-client-id &lt;OIDC client_id of the cluster where the configuration applies</p>
 <p>--grace-time &lt;grace time in seconds&gt;</p>
 <p>--license-server-type &lt;license server type&gt;</p>
-<p>--client-id &lt;cluster identification where the license is configured&gt;</p>
 </td>
 <td><p>Create a new configuration</p></td>
 </tr>
