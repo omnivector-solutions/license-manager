@@ -19,6 +19,18 @@ router = APIRouter()
 crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
 
 
+@router.get(
+    "/types/",
+    status_code=status.HTTP_200_OK,
+    response_model=List[LicenseServerType],
+)
+async def get_license_server_types(
+    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW)),
+):
+    """Return a list of the available license server types."""
+    return list(LicenseServerType)
+
+
 @router.post(
     "",
     response_model=LicenseServerSchema,
@@ -90,13 +102,3 @@ async def delete_license_server(
 ):
     """Delete a license server from the database."""
     return await crud_license_server.delete(db_session=secure_session.session, id=license_server_id)
-
-
-@router.get(
-    "/types/",
-    status_code=status.HTTP_200_OK,
-    response_model=List[LicenseServerType],
-)
-async def get_license_server_types():
-    """Return a list of the available license server types."""
-    return LicenseServerType
