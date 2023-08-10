@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Fixed bug in /license_servers/types route and updated it to use authentication
 
 3.0.0 -- 2023-08-08
 -------------------
