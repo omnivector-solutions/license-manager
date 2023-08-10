@@ -4,8 +4,11 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.feature import FeatureSchema
-from lm_backend.api.schemas.license_server import LicenseServerSchema
+from lm_backend.api.schemas.feature import FeatureCreateWithProductName, FeatureSchema
+from lm_backend.api.schemas.license_server import (
+    LicenseServerSchema,
+    LicenseServerWithoutConfigIdCreateSchema,
+)
 from lm_backend.constants import LicenseServerType
 
 
@@ -20,7 +23,26 @@ class ConfigurationCreateSchema(BaseCreateSchema):
     type: LicenseServerType
 
 
+class ConfigurationCompleteCreateSchema(BaseCreateSchema):
+    """
+    Represents the data to create a complete configuration.
+
+    Includes the features and the license servers.
+    """
+
+    name: str
+    cluster_client_id: str
+    grace_time: int
+    type: LicenseServerType
+    features: List[FeatureCreateWithProductName] = []
+    license_servers: List[LicenseServerWithoutConfigIdCreateSchema] = []
+
+
 class ConfigurationUpdateSchema(BaseUpdateSchema):
+    """
+    Represents the data for a configuration update.
+    """
+
     name: Optional[str] = None
     cluster_client_id: Optional[str] = None
     grace_time: Optional[int] = None

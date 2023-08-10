@@ -16,6 +16,17 @@ class LicenseServerCreateSchema(BaseCreateSchema):
     port: PositiveInt
 
 
+class LicenseServerWithoutConfigIdCreateSchema(BaseCreateSchema):
+    """
+    License server to be created by configurations endpoint.
+
+    The config_id will be handled in the endpoint.
+    """
+
+    host: str
+    port: PositiveInt
+
+
 class LicenseServerUpdateSchema(BaseUpdateSchema):
     """
     License server to be updated in the database.

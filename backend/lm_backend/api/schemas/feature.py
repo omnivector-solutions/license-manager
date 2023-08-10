@@ -18,6 +18,16 @@ class FeatureCreateSchema(BaseCreateSchema):
     reserved: int
 
 
+class FeatureCreateWithProductName(BaseCreateSchema):
+    """
+    Represents the features in a feature configuration.
+    """
+
+    name: str
+    product_name: str
+    reserved: int
+
+
 class FeatureUpdateSchema(BaseUpdateSchema):
     """
     Represents the features in a feature configuration.
