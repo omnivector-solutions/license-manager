@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 
+3.0.1 -- 2023-08-10
+-------------------
+* Bumped version to keep in sync with backend
+
 3.0.0 -- 2023-08-08
 -------------------
 * Refactored agent to use new API
