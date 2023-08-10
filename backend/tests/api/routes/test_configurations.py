@@ -42,7 +42,10 @@ async def test_add_configuration__with__features(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
+    create_one_product,
 ):
+    product_id = create_one_product[0].id
+
     data = {
         "name": "Abaqus",
         "cluster_client_id": "dummy",
@@ -50,12 +53,12 @@ async def test_add_configuration__with__features(
         "features": [
             {
                 "name": "abaqus1",
-                "product_name": "abaqus",
+                "product_id": product_id,
                 "reserved": 0,
             },
             {
                 "name": "abaqus2",
-                "product_name": "abaqus",
+                "product_id": product_id,
                 "reserved": 0,
             },
         ],
@@ -73,19 +76,18 @@ async def test_add_configuration__with__features(
     assert fetched.name == "Abaqus"
     assert len(fetched.features) == 2
     assert fetched.features[0].name == "abaqus1"
-    assert fetched.features[0].product.name == "abaqus"
+    assert fetched.features[0].product.name == "Abaqus"
     assert fetched.features[1].name == "abaqus2"
-    assert fetched.features[1].product.name == "abaqus"
+    assert fetched.features[1].product.name == "Abaqus"
 
 
 @mock.patch("lm_backend.api.routes.configurations.crud_feature.create")
 @mark.asyncio
 async def test_add_configuration__with__features__fail(
-    mock_create_feature,
-    backend_client: AsyncClient,
-    inject_security_header,
-    read_object,
+    mock_create_feature, backend_client: AsyncClient, inject_security_header, create_one_product
 ):
+    product_id = create_one_product[0].id
+
     mock_create_feature.side_effect = HTTPException(400, "Feature could not be created")
 
     data = {
@@ -95,7 +97,7 @@ async def test_add_configuration__with__features__fail(
         "features": [
             {
                 "name": "abaqus1",
-                "product_name": "abaqus",
+                "product_id": product_id,
                 "reserved": 0,
             },
         ],
@@ -155,7 +157,6 @@ async def test_add_configuration__with__license_servers__fail(
     mock_create_license_server,
     backend_client: AsyncClient,
     inject_security_header,
-    read_object,
 ):
     mock_create_license_server.side_effect = HTTPException(400, "License server could not be created")
 
@@ -184,7 +185,10 @@ async def test_add_configuration__with__features_and_license_servers(
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
+    create_one_product,
 ):
+    product_id = create_one_product[0].id
+
     data = {
         "name": "Abaqus",
         "cluster_client_id": "dummy",
@@ -192,12 +196,12 @@ async def test_add_configuration__with__features_and_license_servers(
         "features": [
             {
                 "name": "abaqus1",
-                "product_name": "abaqus",
+                "product_id": product_id,
                 "reserved": 0,
             },
             {
                 "name": "abaqus2",
-                "product_name": "abaqus",
+                "product_id": product_id,
                 "reserved": 0,
             },
         ],
@@ -225,9 +229,9 @@ async def test_add_configuration__with__features_and_license_servers(
     assert fetched.name == "Abaqus"
     assert len(fetched.features) == 2
     assert fetched.features[0].name == "abaqus1"
-    assert fetched.features[0].product.name == "abaqus"
+    assert fetched.features[0].product.name == "Abaqus"
     assert fetched.features[1].name == "abaqus2"
-    assert fetched.features[1].product.name == "abaqus"
+    assert fetched.features[1].product.name == "Abaqus"
     assert len(fetched.license_servers) == 2
     assert fetched.license_servers[0].host == "licserv0001"
     assert fetched.license_servers[0].port == 1234

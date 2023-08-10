@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.api.schemas.feature import FeatureCreateWithProductName, FeatureSchema
+from lm_backend.api.schemas.feature import FeatureSchema, FeatureWithoutConfigIdCreateSchema
 from lm_backend.api.schemas.license_server import (
     LicenseServerSchema,
     LicenseServerWithoutConfigIdCreateSchema,
@@ -34,7 +34,7 @@ class ConfigurationCompleteCreateSchema(BaseCreateSchema):
     cluster_client_id: str
     grace_time: int
     type: LicenseServerType
-    features: List[FeatureCreateWithProductName] = []
+    features: List[FeatureWithoutConfigIdCreateSchema] = []
     license_servers: List[LicenseServerWithoutConfigIdCreateSchema] = []
 
 

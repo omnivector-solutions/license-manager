@@ -51,23 +51,9 @@ async def create_configuration(
     if configuration.features:
         try:
             for feature in configuration.features:
-                products: List[Product] = await crud_product.filter(
-                    secure_session.session, [Product.name == feature.product_name]
-                )
-                if not products:
-                    product_obj = {
-                        "name": feature.product_name,
-                    }
-                    product_created: Product = await crud_product.create(
-                        db_session=secure_session.session, obj=ProductCreateSchema(**product_obj)
-                    )
-                    product_id = product_created.id
-                else:
-                    product_id = products[0].id
-
                 feature_obj = {
                     "name": feature.name,
-                    "product_id": product_id,
+                    "product_id": feature.product_id,
                     "config_id": configuration_created.id,
                     "reserved": feature.reserved,
                 }
