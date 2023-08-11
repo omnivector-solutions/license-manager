@@ -55,6 +55,9 @@ env = [
     "ARMASEC_DEBUG = False",  # Set this to True to debug armasec issues by seeing verbose logging
 ]
 
+[tool.coverage.run]
+concurrency = ["greenlet", "thread"]
+
 [tool.black]
 line-length = 110
 src = ["lm_backend", "tests"]
