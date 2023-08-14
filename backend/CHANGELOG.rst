@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added total and used as sortable fields in /features route
 
 3.0.1 -- 2023-08-10
 -------------------
