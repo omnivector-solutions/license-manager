@@ -52,7 +52,7 @@ when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``Lic
 
 Each job submitted to Slurm will trigger the ``PrologSlurmctld`` script that makes a request to the ``License Manager API``
 to book the needed licenses prior to the allocation of the job. The booking ensures that the licenses are available for the job
-to consume at the license server by taking into consideration the licenses booked for other jobs and the total license usage
+to consume from the license server by taking into consideration the licenses booked for other jobs and the total license usage
 in the license server. It also prevents jobs from being eligible to start when the numbers of licenses free from the licenses
 servers perspective is higher or equal to what has been requested by the job.
 
