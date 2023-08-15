@@ -9,7 +9,7 @@ Licenses Manager concept
 ------------------------
 The current Slurm (23.02) licence accounting capabilities are limited to handle only consumption occurring within the cluster
 using counters. Hence, license consumption originating in other clusters or workstations is not accounted for by this counter.
-The counter is setup defining the total number of licenses available and the number of consumed and free licenses are
+The counter is set up by defining the total number of licenses available, and the number of consumed and free licenses are
 calculated based on current running jobs.
 
 When jobs are submitted to the cluster the number of licenses expected to be consumed is stated which allows for Slurm
