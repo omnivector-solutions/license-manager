@@ -17,8 +17,8 @@ to only schedule jobs when licenses are available. When a job that requested lic
 reduced. If sufficient licenses are not available, the job is not deemed eligible for submission by Slurm's scheduler and
 will be held back in the queue.
 
-In a situation where license consumption may arise outside a single Slurm cluster, i.e. multiple clusters or consumed by
-other consumers, the internal counter of Slurm is not sufficient for efficient cluster and license utilization. The License
+In a situation where license consumption may arise outside a single Slurm cluster (i.e. multiple clusters share a license pool or licenses are used by
+consumers other than Slurm), the internal counter of Slurm is not sufficient for efficient cluster and license utilization. The License
 Manager may then assist in keeping track of license consumption to continuously update the license availability to account
 for licenses consumed globally as well as licenses for jobs which have been started but not yet consumed the licenses from
 the license servers perspective.
