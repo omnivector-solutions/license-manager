@@ -14,7 +14,7 @@ calculated based on current running jobs.
 
 When jobs are submitted to the cluster, a parameter is passed to Slurm to set the number of licenses that are expected to be consumed. This allows for Slurm
 to only schedule jobs when licenses are available. When a job that requested licenses starts, the number of available licenses are
-reduced. If not sufficient licenses are available, the job is not deemed eligible for submission by Slurm's scheduler and
+reduced. If sufficient licenses are not available, the job is not deemed eligible for submission by Slurm's scheduler and
 will be held back in the queue.
 
 In a situation where license consumption may arise outside a single Slurm cluster, i.e. multiple clusters or consumed by
