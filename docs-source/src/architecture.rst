@@ -2,7 +2,29 @@ License Manager Architecture
 ============================
 The License Manager is based on a client/backend architecture. The backend consists of a RESTful API built with Python over a
 PostgreSQL database. The client consists of a timed reconcile job that runs on the control node in the cluster and
-a prolog integration to Slurm.
+a prolog integration to Slurm. The License Manager may serve multiple Slurm clusters and account for license consumption
+originating outside these Slurm clusters.
+
+Licenses Manager concept
+------------------------
+The current Slurm (23.02) licence accounting capabilities are limited to handle only consumption occurring within the cluster
+using counters. Hence, license consumption originating in other clusters or workstations is not accounted for by this counter.
+The counter is setup defining the total number of licenses available and the number of consumed and free licenses are
+calculated based on current running jobs.
+
+When jobs are submitted to the cluster the number of licenses expected to be consumed is stated which allows for Slurm
+to only schedule jobs when licenses are available. When a job starts which requested licenses, the available licenses are
+reduced. If not sufficient licenses are available, the job is not deemed eligible for submission by Slurm's scheduler and
+will be held back in the queue.
+
+In a situation where license consumption may arise outside a single Slurm cluster, i.e. multiple clusters or consumed by
+other consumers, the internal counter of Slurm is not sufficient for efficient cluster and license utilization. The License
+Manager may then assist in keeping track of license consumption to continuously update the license availability to account
+for licenses consumed globally as well as licenses for jobs which have been started but not yet consumed the licenses from
+the license servers perspective.
+
+Each component required to achieve this functionality in the License Manager is described in the following sections.
+
 
 License Manager Agent
 ---------------------
@@ -17,10 +39,10 @@ the usage information and store it in the ``License Manager API``. The ``stat-in
 between each reconciliation and can be configured in the ``License Manager Agent`` configuration file.
 
 The information in the ``License Manager API`` is used by the reconciliation process to update the license counters in Slurm.
-This is done by creating a reservation to represent the licenses used in the license server.
+This is done by creating a reservation in Slurm to represent the licenses used in the license server.
 
-This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.
-The reservation is created by the user configured in the ``License Manager Agent`` configuration file. The user must
+This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use by other
+clusters or license consumers. The reservation is created by the user configured in the ``License Manager Agent`` configuration file. The user must
 have a user account in the Slurm cluster and have ``operator`` privilege level to manage reservations.
 
 Bookings
@@ -30,7 +52,11 @@ when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``Lic
 
 Each job submitted to Slurm will trigger the ``PrologSlurmctld`` script that makes a request to the ``License Manager API``
 to book the needed licenses prior to the allocation of the job. The booking ensures that the licenses are available for the job
-to use by taking into consideration the licenses booked for other jobs and the license usage in the license server.
+to consume at the license server by taking into consideration the licenses booked for other jobs and the total license usage
+in the license server. It also prevents jobs from being eligible to start when the numbers of licenses free from the licenses
+servers perspective is higher or equal to what has been requested by the job.
+
+Bookings are removed when the job has started and the requested licenses has been consumed at the license sever.
 
 If the booking cannot be made, the job will be kept in the queue until there are enough licenses available to
 satisfy the booking request.
@@ -39,12 +65,15 @@ Grace time
 **********
 A job can take some time to check out the license from the license server after it is submitted to Slurm.
 Thus, each license has a ``grace time`` period that is used to indicate how long a booking will be retained.
-After the ``grace time`` expires, the booking is deleted. This means that the license was checked out from the
-license server and doesn't need a booking anymore.
+After the ``grace time`` expires, the booking is deleted. If the ``grace time`` expires the job is assumed to have failed
+and deemed not to consume the requested licenses, hence the booking is deleted to allow for other jobs start. Note that
+the job may still consume compute resources until the run-time expires and will from the cluster counter perspective consume
+licenses.
+
 
 License Manager API
 -------------------
-The ``License Manager API`` provides a RESTful API where licenses and bookins are tracked.
+The ``License Manager API`` provides a RESTful API where licenses and bookings are tracked.
 The ``License Manager Agent`` uses this API to store the license usage information and to process the booking requests.
 The ``License Manager CLI`` interacts with this API to add new configurations and to check the usage information for each tracked license.
 
@@ -112,6 +141,7 @@ The license type identifies the provider of the license server.
 
 
 The following license server types are supported:
+(Note: The binaries required for communication with the license daemon must be supplied and specified)
 
 * FlexLM
 * RLM
