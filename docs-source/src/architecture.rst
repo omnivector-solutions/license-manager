@@ -13,7 +13,7 @@ The counter is set up by defining the total number of licenses available, and th
 calculated based on current running jobs.
 
 When jobs are submitted to the cluster, a parameter is passed to Slurm to set the number of licenses that are expected to be consumed. This allows for Slurm
-to only schedule jobs when licenses are available. When a job starts which requested licenses, the available licenses are
+to only schedule jobs when licenses are available. When a job that requested licenses starts, the number of available licenses are
 reduced. If not sufficient licenses are available, the job is not deemed eligible for submission by Slurm's scheduler and
 will be held back in the queue.
 
