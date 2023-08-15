@@ -30,7 +30,7 @@ class Feature(Base):
     configurations = relationship("Configuration", back_populates="features", lazy="selectin")
 
     searchable_fields = [name]
-    sortable_fields = [name, product_id, config_id]
+    sortable_fields = [name, product_id, config_id, total, used, reserved]
 
     @hybrid_property
     def booked_total(self) -> int:
