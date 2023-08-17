@@ -1,3 +1,6 @@
+from unittest import mock
+
+from fastapi import HTTPException
 from httpx import AsyncClient
 from pytest import mark
 from sqlalchemy import select
@@ -16,6 +19,8 @@ async def test_add_configuration__success(
         "name": "Abaqus",
         "cluster_client_id": "dummy",
         "grace_time": 60,
+        "features": [],
+        "license_servers": [],
         "type": "flexlm",
     }
 
@@ -27,6 +32,290 @@ async def test_add_configuration__success(
     fetched = await read_object(stmt)
 
     assert fetched.name == "Abaqus"
+    assert fetched.cluster_client_id == "dummy"
+    assert fetched.grace_time == 60
+    assert fetched.type == "flexlm"
+
+
+@mock.patch("lm_backend.api.routes.configurations.crud_configuration.create")
+@mark.asyncio
+async def test_add_configuration__fail(
+    mock_create,
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+):
+    mock_create.side_effect = HTTPException(status_code=400, detail="Configuration could not be created")
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [],
+        "license_servers": [],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 400
+
+
+@mark.asyncio
+async def test_add_configuration__with__features(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_product,
+):
+    product_id = create_one_product[0].id
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+            {
+                "name": "abaqus2",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+        ],
+        "license_servers": [],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 201
+
+    stmt = select(Configuration).where(Configuration.name == "Abaqus")
+    fetched = await read_object(stmt)
+
+    assert fetched.name == "Abaqus"
+    assert len(fetched.features) == 2
+    assert fetched.features[0].name == "abaqus1"
+    assert fetched.features[0].product.name == "Abaqus"
+    assert fetched.features[1].name == "abaqus2"
+    assert fetched.features[1].product.name == "Abaqus"
+
+
+@mock.patch("lm_backend.api.routes.configurations.crud_feature.create")
+@mark.asyncio
+async def test_add_configuration__with__features__fail(
+    mock_create_feature, backend_client: AsyncClient, inject_security_header, create_one_product, read_object
+):
+    product_id = create_one_product[0].id
+
+    mock_create_feature.side_effect = HTTPException(400, "Feature could not be created")
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+        ],
+        "license_servers": [],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=data)
+
+    assert response.status_code == 400
+    assert await read_object(select(Configuration).where(Configuration.name == "Abaqus")) is None
+
+
+@mark.asyncio
+async def test_add_configuration__with__license_servers(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+):
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [],
+        "license_servers": [
+            {
+                "host": "licserv0001",
+                "port": 1234,
+            },
+            {
+                "host": "licserv0002",
+                "port": 2345,
+            },
+        ],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 201
+
+    stmt = select(Configuration).where(Configuration.name == "Abaqus")
+    fetched = await read_object(stmt)
+
+    assert fetched.name == "Abaqus"
+    assert len(fetched.license_servers) == 2
+    assert fetched.license_servers[0].host == "licserv0001"
+    assert fetched.license_servers[0].port == 1234
+    assert fetched.license_servers[1].host == "licserv0002"
+    assert fetched.license_servers[1].port == 2345
+
+
+@mock.patch("lm_backend.api.routes.configurations.crud_license_server.create")
+@mark.asyncio
+async def test_add_configuration__with__license_servers__fail(
+    mock_create_license_server,
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+):
+    mock_create_license_server.side_effect = HTTPException(400, "License server could not be created")
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [],
+        "license_servers": [
+            {
+                "host": "licserv0001",
+                "port": 1234,
+            },
+        ],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=data)
+
+    assert response.status_code == 400
+    assert await read_object(select(Configuration).where(Configuration.name == "Abaqus")) is None
+
+
+@mark.asyncio
+async def test_add_configuration__with__features_and_license_servers(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_product,
+):
+    product_id = create_one_product[0].id
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+            {
+                "name": "abaqus2",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+        ],
+        "license_servers": [
+            {
+                "host": "licserv0001",
+                "port": 1234,
+            },
+            {
+                "host": "licserv0002",
+                "port": 2345,
+            },
+        ],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 201
+
+    stmt = select(Configuration).where(Configuration.name == "Abaqus")
+    fetched = await read_object(stmt)
+
+    assert fetched.name == "Abaqus"
+    assert len(fetched.features) == 2
+    assert fetched.features[0].name == "abaqus1"
+    assert fetched.features[0].product.name == "Abaqus"
+    assert fetched.features[1].name == "abaqus2"
+    assert fetched.features[1].product.name == "Abaqus"
+    assert len(fetched.license_servers) == 2
+    assert fetched.license_servers[0].host == "licserv0001"
+    assert fetched.license_servers[0].port == 1234
+    assert fetched.license_servers[1].host == "licserv0002"
+    assert fetched.license_servers[1].port == 2345
+
+
+@mock.patch("lm_backend.api.routes.configurations.crud_license_server.create")
+@mock.patch("lm_backend.api.routes.configurations.crud_feature.create")
+@mark.asyncio
+async def test_add_configuration__with__features_and_license_servers__fail(
+    mock_create_feature,
+    mock_create_license_server,
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_product,
+):
+    mock_create_feature.side_effect = HTTPException(400, "Feature could not be created")
+    mock_create_license_server.side_effect = HTTPException(400, "License server could not be created")
+
+    product_id = create_one_product[0].id
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+            {
+                "name": "abaqus2",
+                "product_id": product_id,
+                "reserved": 0,
+            },
+        ],
+        "license_servers": [
+            {
+                "host": "licserv0001",
+                "port": 1234,
+            },
+        ],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 400
+
+    stmt = select(Configuration).where(Configuration.name == "Abaqus")
+    fetched = await read_object(stmt)
+
+    assert fetched is None
 
 
 @mark.asyncio
@@ -270,3 +559,15 @@ async def test_get_configurations_by_client_id__success(
     assert response_configurations[0]["cluster_client_id"] == create_one_configuration[0].cluster_client_id
     assert response_configurations[0]["grace_time"] == create_one_configuration[0].grace_time
     assert response_configurations[0]["type"] == create_one_configuration[0].type
+
+
+@mark.asyncio
+async def test_get_configurations_by_client_id__fail_with_bad_client_id(
+    backend_client: AsyncClient,
+    inject_security_header,
+):
+    inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW, client_id=None)
+
+    response = await backend_client.get("/lm/configurations/by_client_id")
+
+    assert response.status_code == 400
