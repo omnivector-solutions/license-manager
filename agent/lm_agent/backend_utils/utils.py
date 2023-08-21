@@ -285,7 +285,7 @@ async def get_all_features_from_backend() -> List[FeatureSchema]:
     return features
 
 
-async def get_feature_bookings_sum(product_feature: str) -> int:
+async def get_all_features_bookings_sum() -> Dict[str, int]:
     """
     Get booking sum for a license's bookings in all clusters.
 
@@ -296,12 +296,16 @@ async def get_feature_bookings_sum(product_feature: str) -> int:
     """
     # get all features
     features = await get_all_features_from_backend()
+    all_product_features = [f"{feature.product.name}.{feature.name}" for feature in features]
 
     # sum bookings for each feature with the same name
-    booking_sum = sum(
-        feature.booked_total
-        for feature in features
-        if f"{feature.product.name}.{feature.name}" == product_feature
-    )
+    bookings_sum = {
+        product_feature: sum(
+            feature.booked_total
+            for feature in features
+            if f"{feature.product.name}.{feature.name}" == product_feature
+        )
+        for product_feature in all_product_features
+    }
 
-    return booking_sum
+    return bookings_sum
