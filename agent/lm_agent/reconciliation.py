@@ -7,11 +7,11 @@ from typing import Dict, List
 
 from lm_agent.backend_utils.models import BookingSchema
 from lm_agent.backend_utils.utils import (
+    get_all_features_bookings_sum,
     get_bookings_for_job_id,
     get_cluster_configs_from_backend,
     get_cluster_grace_times,
     get_cluster_jobs_from_backend,
-    get_feature_bookings_sum,
     make_feature_update,
     remove_job_by_slurm_job_id,
 )
@@ -135,6 +135,9 @@ async def reconcile():
     # Get cluster data
     configurations = await get_cluster_configs_from_backend()
 
+    # Get feature bookings sum
+    all_features_bookings_sum = await get_all_features_bookings_sum()
+
     # Delete bookings for jobs that reached the grace time
     logger.debug("Cleaning jobs by grace time")
     await clean_jobs_by_grace_time()
@@ -155,7 +158,7 @@ async def reconcile():
         total = license_data.total
 
         # Get booking information from backend
-        booking_sum = await get_feature_bookings_sum(product_feature)
+        booking_sum = all_features_bookings_sum[product_feature]
 
         # Get license server type and reserved from the configuration in the backend
         for configuration in configurations:
@@ -186,15 +189,15 @@ async def reconcile():
         if reservation_amount:
             reservation_data.append(f"{product_feature}@{license_server_type}:{reservation_amount}")
 
-        if reservation_data:
-            logger.debug(f"Reservation data: {reservation_data}")
+    if reservation_data:
+        logger.debug(f"Reservation data: {reservation_data}")
 
-            # Create the reservation or update the existing one
-            await create_or_update_reservation(",".join(reservation_data))
-        else:
-            logger.debug("No reservation needed")
+        # Create the reservation or update the existing one
+        await create_or_update_reservation(",".join(reservation_data))
+    else:
+        logger.debug("No reservation needed")
 
-        logger.debug("Reconciliation done")
+    logger.debug("Reconciliation done")
 
 
 async def update_features() -> List[LicenseReportItem]:

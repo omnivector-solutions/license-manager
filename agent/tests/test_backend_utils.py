@@ -25,11 +25,11 @@ from lm_agent.backend_utils.utils import (
     _write_token_to_cache,
     acquire_token,
     check_backend_health,
+    get_all_features_bookings_sum,
     get_bookings_for_job_id,
     get_cluster_configs_from_backend,
     get_cluster_grace_times,
     get_cluster_jobs_from_backend,
-    get_feature_bookings_sum,
     make_booking_request,
     make_feature_update,
     remove_job_by_slurm_job_id,
@@ -322,13 +322,13 @@ async def test__get_cluster_grace_times(get_cluster_configs_mock, parsed_configu
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.backend_utils.utils.get_all_features_from_backend")
-async def test__get_feature_bookings_sum(get_all_features_mock, parsed_features):
+async def test__get_all_features_bookings_sum(get_all_features_mock, parsed_features):
     """
     Test that get_bookings_sum_per_cluster returns the booking sum per cluster for a given product_feature.
     """
     get_all_features_mock.return_value = parsed_features
-    booking_sum = await get_feature_bookings_sum("abaqus.abaqus")
-    assert booking_sum == 62
+    bookings_sum = await get_all_features_bookings_sum()
+    assert bookings_sum["abaqus.abaqus"] == 62
 
 
 @pytest.mark.asyncio
