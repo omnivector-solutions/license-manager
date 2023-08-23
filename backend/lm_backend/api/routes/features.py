@@ -108,6 +108,49 @@ async def update_feature_by_client_id(
 
 
 @router.put(
+    "/bulk",
+    status_code=status.HTTP_200_OK,
+)
+async def bulk_update_feature(
+    features: List[FeatureUpdateByNameSchema],
+    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_EDIT)),
+):
+    """
+    Update a list of features in the database using the name of each feature.
+    Since the name is not unique across clusters, the client_id
+    in the token is used to identify the cluster.
+    """
+    client_id = secure_session.identity_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
+    for feature_update in features:
+        feature_id = await find_feature_id_by_name_and_client_id(
+            db_session=secure_session.session,
+            feature_name=feature_update.name,
+            client_id=client_id,
+        )
+
+        if not feature_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=("Couldn't find a feature with the given name and client_id."),
+            )
+
+        await crud_feature.update(
+            db_session=secure_session.session,
+            id=feature_id,
+            obj=feature_update,
+        )
+
+    return status.HTTP_200_OK
+
+
+@router.put(
     "/{feature_id}",
     response_model=FeatureSchema,
     status_code=status.HTTP_200_OK,
