@@ -1,70 +1,118 @@
 """
-Parser for rlm
+Parser for RLM
 """
 import re
+from typing import Optional
 
 INT = r"\d+"
 VERSION = rf"v{INT}\.{INT}"
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTWORD2 = r"[a-zA-Z0-9-.]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD2})*"
+FEATURE_NAME = r"[a-zA-Z0-9-_]+"
 
-TOTALS_LINE = rf"^(?P<license_feature>\w+) {VERSION}: (?P<user_name>\w+)@(?P<lead_host>{HOSTNAME}) (?P<license_used_by_host>\d+).*$"  # noqa
-DATA_LINE = rf"^\s*(?P<license_feature>\w+) {VERSION}$"
+FEATURE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}$"
 COUNT_LINE = r"^\s*count: (?P<count>\d+).*inuse: (?P<in_use>\d+).*$"
+USAGE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}: (?P<user_name>\w+)@(?P<lead_host>{HOSTNAME}) (?P<license_used_by_host>\d+).*$"  # noqa
 
-RX_TOTAL = re.compile(TOTALS_LINE)
-RX_DATA = re.compile(DATA_LINE)
+RX_FEATURE = re.compile(FEATURE_LINE)
 RX_COUNT = re.compile(COUNT_LINE)
+RX_USAGE = re.compile(USAGE_LINE)
 
 
-def _get_start_offset(lines) -> int:
-    """Get the start offset of the license data."""
-    i = len(lines) - 1
-    count = 0
-    for line in lines[::-1]:
-        if "-" * 10 in line:
-            count += 1
-        if count == 2:
-            break
-        i -= 1
-    return max(i, 0)
-
-
-def parse(s: str) -> dict:
+def parse_feature_line(line: str) -> Optional[str]:
     """
-    Parse lines of the license output with regular expressions
+    Parse the feature line in the RLM output.
+    Data we need:
+    - ``feature``: license name
     """
-    parsed_dict: dict = {"uses": [], "total": []}
-    lines = s.splitlines()
-    start_offset = _get_start_offset(lines)
-    lines = [line.strip() for line in lines[start_offset:]]
+    parsed_feature = RX_FEATURE.match(line)
+    if parsed_feature is None:
+        return None
+    feature_data = parsed_feature.groupdict()
+    if feature_data["license_feature"] == "rlmutil":
+        return None
 
-    for i, line in enumerate(lines):
-        parsed_total = RX_TOTAL.match(line)
-        parsed_data = RX_DATA.match(line)
-        if parsed_total:
-            total_data = parsed_total.groupdict()
-            parsed_dict["uses"].append(
-                {
-                    "user_name": total_data["user_name"],
-                    "lead_host": total_data["lead_host"],
-                    "booked": int(total_data["license_used_by_host"]),
-                    "feature": total_data["license_feature"].lower(),
-                }
-            )
-        elif parsed_data:
-            parsed_count = RX_COUNT.match(lines[i + 1])
-            if not parsed_count:
-                continue
-            count_data = parsed_count.groupdict()
-            data_data = parsed_data.groupdict()
-            parsed_dict["total"].append(
-                {
-                    "feature": data_data["license_feature"].lower(),
-                    "total": int(count_data["count"]),
-                    "used": int(count_data["in_use"]),
-                }
-            )
+    return feature_data["license_feature"].lower()
 
-    return parsed_dict
+
+def parse_count_line(line: str) -> Optional[dict]:
+    """
+    Parse the count line in the RLM output.
+    Data we need:
+    - ``count``: total amount of licenses
+    - ``in_use``: quantity of licenses being use
+    """
+    parsed_count = RX_COUNT.match(line)
+    if parsed_count is None:
+        return None
+    count_data = parsed_count.groupdict()
+
+    return {
+        "count": int(count_data["count"]),
+        "in_use": int(count_data["in_use"]),
+    }
+
+
+def parse_usage_line(line: str) -> Optional[dict]:
+    """
+    Parse the usage line in the RLM output.
+    Data we need:
+    - ``feature``: license name
+    - ``user_name``: user name
+    - ``lead_host``: lead host
+    - ``license_used_by_host``: quantity of licenses being use
+    """
+    parsed_usage = RX_USAGE.match(line)
+    if parsed_usage is None:
+        return None
+    usage_data = parsed_usage.groupdict()
+
+    return {
+        "license_feature": usage_data["license_feature"].lower(),
+        "user_name": usage_data["user_name"],
+        "lead_host": usage_data["lead_host"],
+        "booked": int(usage_data["license_used_by_host"]),
+    }
+
+
+def parse(server_output: str) -> dict:
+    """
+    Parse the output from the RLM server.
+    Data we need:
+    - ``feature``: license name
+    - ``count``: total amount of licenses
+    - ``in_use``: quantity of licenses being use
+    """
+    parsed_data: dict = {}
+    feature_list: list = []
+
+    for line in server_output.splitlines():
+        # breakpoint()
+        feature = parse_feature_line(line)
+        if feature:
+            feature_list.append(feature)
+            parsed_data[feature] = {"uses": [], "total": []}
+            continue
+
+        count = parse_count_line(line)
+        if count:
+            feature = feature_list[-1]
+            parsed_data[feature] = {
+                "used": count["in_use"],
+                "total": count["count"],
+                "uses": [],
+            }
+            continue
+
+        usage = parse_usage_line(line)
+        if usage:
+            feature = usage["license_feature"]
+            del usage["license_feature"]
+            parsed_data[feature]["uses"].append(usage)
+            continue
+
+        else:
+            continue
+
+    return parsed_data
