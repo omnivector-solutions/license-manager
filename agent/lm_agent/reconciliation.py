@@ -214,8 +214,19 @@ async def update_features() -> List[LicenseReportItem]:
         )
         raise LicenseManagerEmptyReportError("Got an empty response from the license server")
 
+    features_to_update = []
+
     for license in license_report:
         product, feature = license.product_feature.split(".")
-        await make_feature_update(feature=feature, total=license.total, used=license.used)
+
+        feature_data = {
+            "name": feature,
+            "total": license.total,
+            "used": license.used,
+        }
+
+        features_to_update.append(feature_data)
+
+    await make_feature_update(features_to_update)
 
     return license_report

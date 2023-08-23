@@ -252,7 +252,7 @@ async def test__update_features__put_failed(
     respx_mock,
 ):
     """
-    Check that when put /features status_code is not 200, should raise exception.
+    Check that when put /features/bulk status_code is not 200, should raise exception.
     """
     report_mock.return_value = [
         LicenseReportItem(
@@ -262,7 +262,7 @@ async def test__update_features__put_failed(
         )
     ]
 
-    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=400))
+    respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=400))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
         await update_features()

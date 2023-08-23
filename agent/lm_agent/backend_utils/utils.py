@@ -192,21 +192,17 @@ async def get_cluster_grace_times() -> Dict[int, int]:
     return grace_times
 
 
-async def make_feature_update(feature: str, total: int, used: int):
+async def make_feature_update(features_to_update: List[Dict]):
     """
     Update the feature with its current counters.
     """
     async with AsyncBackendClient() as backend_client:
-        feature_response = await backend_client.put(
-            "/lm/features/by_client_id",
-            json={
-                "name": feature,
-                "total": total,
-                "used": used,
-            },
+        features_response = await backend_client.put(
+            "/lm/features/bulk",
+            json=features_to_update,
         )
         LicenseManagerBackendConnectionError.require_condition(
-            feature_response.status_code == 200, f"Failed to update feature: {feature_response.text}"
+            features_response.status_code == 200, f"Failed to update feature: {features_response.text}"
         )
 
 
