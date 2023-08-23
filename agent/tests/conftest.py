@@ -633,6 +633,99 @@ def rlm_output():
 
 
 @fixture
+def another_rlm_output():
+    """Some rlm output to parse."""
+    return dedent(
+        """\
+        Setting license file path to 1234@licserv0001.com
+        rlmutil v12.2
+
+            powercase v1.0
+                count: 5, # reservations: 0, inuse: 3, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 19
+            powerexport v1.0
+                count: 5, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powerflow-decomp v1.0
+                count: 3000, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 6
+            powerflow-disc v1.0
+                count: 3000, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 6
+            powerinsight v1.0
+                count: 5, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 5
+            powerviz v1.0
+                count: 5, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 26
+            powerviz-generator v1.0
+                count: 2, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 22
+            powerviz-soiling v1.0
+                count: 7, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            exasignalprocessingjob v1.0
+                count: 6, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            poweracoustics v1.0
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 2
+            powercool v1.0
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powerdelta v1.0
+                count: 1, # reservations: 0, inuse: 1, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 9
+            powerdelta-meshunion v1.0
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powerdelta-translate2 v1.0
+                count: 1000000, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powerflow-sim v1.0
+                count: 7000, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 6
+            powerinsight-generator v1.0
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powerthermconnector v1.0
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+
+            ------------------------
+
+            tainc license pool status on licserv0001.com (port 1234)
+
+            powertherm v2023.1
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powertherm-mp v2023.1
+                count: 3, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powertherm-multigrid v2023.1
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powertherm-sc v2023.1
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+            powertherm-solver v2023.1
+                count: 1, # reservations: 0, inuse: 0, exp: 31-dec-2023
+                obsolete: 0, min_remove: 120, total checkouts: 0
+
+
+            ------------------------
+
+            exacorp license usage status on licserv0001.com (port 1234)
+
+            powercase v1.0: dfsdgv@server1 1/0 at 08/15 09:34  (handle: 182)
+            powercase v1.0: addvbh@server2 1/0 at 08/16 09:36  (handle: c4)
+            powercase v1.0: wrtgb3@server3 1/0 at 08/21 14:53  (handle: 11c)
+            powerdelta v1.0: ghnds2@server4 1/0 at 08/23 15:16  (handle: a2)
+        """
+    )
+
+
+@fixture
 def rlm_output_no_licenses():
     """Some rlm output with no licenses in use to parse."""
     return dedent(
