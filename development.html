@@ -334,7 +334,7 @@ This text will attempt to define the procedure for initializing and running the 
 </ul>
 <p>Additionally, assign the host machine's primary IP address to a variable <code class="docutils literal notranslate"><span class="pre">MY_IP</span></code>. We will use this value throughout the
 development environment setup process.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">MY_IP</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>ip route get <span class="m">1</span> <span class="p">|</span> awk <span class="s1">&#39;{print $(NF-2);exit}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">MY_IP</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>ip<span class="w"> </span>route<span class="w"> </span>get<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $(NF-2);exit}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -345,41 +345,41 @@ to deploy a local LXD slurm cluster that we can use in development.</p>
 <p>The general idea is to run <code class="docutils literal notranslate"><span class="pre">juju</span> <span class="pre">deploy</span> <span class="pre">slurm</span></code>, following which, you will have a local slurm cluster to
 use in development.</p>
 <p>After the deployment of slurm has completed and settled, the environment should resemble the following:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Model                    Controller           Cloud/Region         Version  SLA          Timestamp
-license-manager-testing  localhost-localhost  localhost/localhost  <span class="m">2</span>.9.17   unsupported  <span class="m">06</span>:46:42Z
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Model<span class="w">                    </span>Controller<span class="w">           </span>Cloud/Region<span class="w">         </span>Version<span class="w">  </span>SLA<span class="w">          </span>Timestamp
+license-manager-testing<span class="w">  </span>localhost-localhost<span class="w">  </span>localhost/localhost<span class="w">  </span><span class="m">2</span>.9.17<span class="w">   </span>unsupported<span class="w">  </span><span class="m">06</span>:46:42Z
 
-App              Version  Status  Scale  Charm            Store     Channel  Rev  OS      Message
-percona-cluster  <span class="m">5</span>.7.20   active      <span class="m">1</span>  percona-cluster  charmhub  stable   <span class="m">302</span>  ubuntu  Unit is ready
-slurmctld        <span class="m">0</span>.8.1    active      <span class="m">1</span>  slurmctld        charmhub  stable    <span class="m">17</span>  ubuntu  slurmctld available
-slurmd           <span class="m">0</span>.8.1    active      <span class="m">1</span>  slurmd           charmhub  stable    <span class="m">26</span>  ubuntu  slurmd available
-slurmdbd         <span class="m">0</span>.8.1    active      <span class="m">1</span>  slurmdbd         charmhub  stable    <span class="m">15</span>  ubuntu  slurmdbd available
-slurmrestd       <span class="m">0</span>.8.1    active      <span class="m">1</span>  slurmrestd       charmhub  stable    <span class="m">15</span>  ubuntu  slurmrestd available
+App<span class="w">              </span>Version<span class="w">  </span>Status<span class="w">  </span>Scale<span class="w">  </span>Charm<span class="w">            </span>Store<span class="w">     </span>Channel<span class="w">  </span>Rev<span class="w">  </span>OS<span class="w">      </span>Message
+percona-cluster<span class="w">  </span><span class="m">5</span>.7.20<span class="w">   </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>percona-cluster<span class="w">  </span>charmhub<span class="w">  </span>stable<span class="w">   </span><span class="m">302</span><span class="w">  </span>ubuntu<span class="w">  </span>Unit<span class="w"> </span>is<span class="w"> </span>ready
+slurmctld<span class="w">        </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmctld<span class="w">        </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">17</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmctld<span class="w"> </span>available
+slurmd<span class="w">           </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmd<span class="w">           </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">26</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmd<span class="w"> </span>available
+slurmdbd<span class="w">         </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmdbd<span class="w">         </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">15</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmdbd<span class="w"> </span>available
+slurmrestd<span class="w">       </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmrestd<span class="w">       </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">15</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmrestd<span class="w"> </span>available
 
-Unit                Workload  Agent  Machine  Public address  Ports     Message
-percona-cluster/0*  active    idle   <span class="m">0</span>        <span class="m">10</span>.20.96.130    <span class="m">3306</span>/tcp  Unit is ready
-slurmctld/0*        active    idle   <span class="m">1</span>        <span class="m">10</span>.20.96.57               slurmctld available
-slurmd/0*           active    idle   <span class="m">2</span>        <span class="m">10</span>.20.96.233              slurmd available
-slurmdbd/0*         active    idle   <span class="m">3</span>        <span class="m">10</span>.20.96.123              slurmdbd available
-slurmrestd/0*       active    idle   <span class="m">4</span>        <span class="m">10</span>.20.96.62               slurmrestd available
+Unit<span class="w">                </span>Workload<span class="w">  </span>Agent<span class="w">  </span>Machine<span class="w">  </span>Public<span class="w"> </span>address<span class="w">  </span>Ports<span class="w">     </span>Message
+percona-cluster/0*<span class="w">  </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">0</span><span class="w">        </span><span class="m">10</span>.20.96.130<span class="w">    </span><span class="m">3306</span>/tcp<span class="w">  </span>Unit<span class="w"> </span>is<span class="w"> </span>ready
+slurmctld/0*<span class="w">        </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">10</span>.20.96.57<span class="w">               </span>slurmctld<span class="w"> </span>available
+slurmd/0*<span class="w">           </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">2</span><span class="w">        </span><span class="m">10</span>.20.96.233<span class="w">              </span>slurmd<span class="w"> </span>available
+slurmdbd/0*<span class="w">         </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">3</span><span class="w">        </span><span class="m">10</span>.20.96.123<span class="w">              </span>slurmdbd<span class="w"> </span>available
+slurmrestd/0*<span class="w">       </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">4</span><span class="w">        </span><span class="m">10</span>.20.96.62<span class="w">               </span>slurmrestd<span class="w"> </span>available
 
-Machine  State    DNS           Inst id        Series  AZ  Message
-<span class="m">0</span>        started  <span class="m">10</span>.20.96.130  juju-b71748-0  bionic      Running
-<span class="m">1</span>        started  <span class="m">10</span>.20.96.57   juju-b71748-1  focal       Running
-<span class="m">2</span>        started  <span class="m">10</span>.20.96.233  juju-b71748-2  focal       Running
-<span class="m">3</span>        started  <span class="m">10</span>.20.96.123  juju-b71748-3  focal       Running
-<span class="m">4</span>        started  <span class="m">10</span>.20.96.62   juju-b71748-4  focal       Running
+Machine<span class="w">  </span>State<span class="w">    </span>DNS<span class="w">           </span>Inst<span class="w"> </span>id<span class="w">        </span>Series<span class="w">  </span>AZ<span class="w">  </span>Message
+<span class="m">0</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.130<span class="w">  </span>juju-b71748-0<span class="w">  </span>bionic<span class="w">      </span>Running
+<span class="m">1</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.57<span class="w">   </span>juju-b71748-1<span class="w">  </span>focal<span class="w">       </span>Running
+<span class="m">2</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.233<span class="w">  </span>juju-b71748-2<span class="w">  </span>focal<span class="w">       </span>Running
+<span class="m">3</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.123<span class="w">  </span>juju-b71748-3<span class="w">  </span>focal<span class="w">       </span>Running
+<span class="m">4</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.62<span class="w">   </span>juju-b71748-4<span class="w">  </span>focal<span class="w">       </span>Running
 </pre></div>
 </div>
 <p>Following the deployment, run the action to enlist the <cite>slurmd</cite> node and set it's state to idle.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju run-action slurmd/0 node-configured
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju<span class="w"> </span>run-action<span class="w"> </span>slurmd/0<span class="w"> </span>node-configured
 </pre></div>
 </div>
 <p>Lastly, validate that the node has successfully enlisted and the cluster is operational.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ juju ssh slurmd/0 sinfo
-PARTITION  AVAIL  TIMELIMIT  NODES  STATE NODELIST
-osd-slurmd    up   infinite      <span class="m">1</span>   idle juju-b71748-2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>sinfo
+PARTITION<span class="w">  </span>AVAIL<span class="w">  </span>TIMELIMIT<span class="w">  </span>NODES<span class="w">  </span>STATE<span class="w"> </span>NODELIST
+osd-slurmd<span class="w">    </span>up<span class="w">   </span>infinite<span class="w">      </span><span class="m">1</span><span class="w">   </span>idle<span class="w"> </span>juju-b71748-2
 
-$ juju ssh slurmd/0 srun -posd-slurmd hostname
+$<span class="w"> </span>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>srun<span class="w"> </span>-posd-slurmd<span class="w"> </span>hostname
 juju-b71748-2
 </pre></div>
 </div>
@@ -394,18 +394,18 @@ juju-b71748-2
 <li><p>Initialize the database with a license configuration for testing.</p></li>
 </ol>
 <p>To get started, clone the <code class="docutils literal notranslate"><span class="pre">license-manager</span></code> repository from GitHub and run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">local</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/omnivector-solutions/license-manager
-<span class="nb">cd</span> license-manager/backend/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/omnivector-solutions/license-manager
+<span class="nb">cd</span><span class="w"> </span>license-manager/backend/
 
-make <span class="nb">local</span>
+make<span class="w"> </span><span class="nb">local</span>
 </pre></div>
 </div>
 <p>We should now see two running docker containers; <code class="docutils literal notranslate"><span class="pre">backend_license-manager_1</span></code> and <code class="docutils literal notranslate"><span class="pre">backend_postgres-back_1</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> shows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker ps
-CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS                    PORTS                                   NAMES
-a62719b6fa65   backend_license-manager   <span class="s2">&quot;uvicorn lm_backend.…&quot;</span>   <span class="m">13</span> minutes ago   Up <span class="m">13</span> minutes             <span class="m">0</span>.0.0.0:7000-&gt;80/tcp, :::7000-&gt;80/tcp   backend_license-manager_1
-3d5abbc7ffff   postgres                  <span class="s2">&quot;docker-entrypoint.s…&quot;</span>   <span class="m">2</span> days ago       Up <span class="m">13</span> minutes <span class="o">(</span>healthy<span class="o">)</span>   <span class="m">5432</span>/tcp                                backend_postgres-back_1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>ps
+CONTAINER<span class="w"> </span>ID<span class="w">   </span>IMAGE<span class="w">                     </span>COMMAND<span class="w">                  </span>CREATED<span class="w">          </span>STATUS<span class="w">                    </span>PORTS<span class="w">                                   </span>NAMES
+a62719b6fa65<span class="w">   </span>backend_license-manager<span class="w">   </span><span class="s2">&quot;uvicorn lm_backend.…&quot;</span><span class="w">   </span><span class="m">13</span><span class="w"> </span>minutes<span class="w"> </span>ago<span class="w">   </span>Up<span class="w"> </span><span class="m">13</span><span class="w"> </span>minutes<span class="w">             </span><span class="m">0</span>.0.0.0:7000-&gt;80/tcp,<span class="w"> </span>:::7000-&gt;80/tcp<span class="w">   </span>backend_license-manager_1
+3d5abbc7ffff<span class="w">   </span>postgres<span class="w">                  </span><span class="s2">&quot;docker-entrypoint.s…&quot;</span><span class="w">   </span><span class="m">2</span><span class="w"> </span>days<span class="w"> </span>ago<span class="w">       </span>Up<span class="w"> </span><span class="m">13</span><span class="w"> </span>minutes<span class="w"> </span><span class="o">(</span>healthy<span class="o">)</span><span class="w">   </span><span class="m">5432</span>/tcp<span class="w">                                </span>backend_postgres-back_1
 </pre></div>
 </div>
 <p>From the output above, we see that port <code class="docutils literal notranslate"><span class="pre">7000</span></code> on our local machine is forwarded to the listening port of the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">API</span></code>
@@ -418,49 +418,49 @@ container (port <code class="docutils literal notranslate"><span class="pre">80<
 <li><p>Product</p></li>
 <li><p>Feature</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CLUSTER_ID</span><span class="o">=</span><span class="k">$(</span>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/clusters/&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-  -d <span class="s1">&#39;{</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CLUSTER_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/clusters/&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">  &quot;name&quot;: &quot;OSD Cluster&quot;,</span>
 <span class="s1">  &quot;client_id&quot;: &quot;osd-cluster&quot;</span>
-<span class="s1">  }&#39;</span> <span class="p">|</span> jq <span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+<span class="s1">  }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
 
-<span class="nv">CONFIG_ID</span><span class="o">=</span><span class="k">$(</span>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/configurations/&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-  -d <span class="s1">&#39;{</span>
+<span class="nv">CONFIG_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/configurations/&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">  &quot;name&quot;: &quot;Abaqus&quot;,</span>
 <span class="s1">  &quot;cluster_id&quot;: &#39;</span><span class="nv">$CLUSTER_ID</span><span class="s1">&#39;,</span>
 <span class="s1">  &quot;grace_time&quot;: 30,</span>
 <span class="s1">  &quot;type&quot;: &quot;flexlm&quot;</span>
-<span class="s1">  }&#39;</span> <span class="p">|</span> jq <span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+<span class="s1">  }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
 
-curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/license_servers/&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-  -d <span class="s1">&#39;{</span>
+curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/license_servers/&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">  &quot;config_id&quot;: &#39;</span><span class="nv">$CONFIG_ID</span><span class="s1">&#39;,</span>
 <span class="s1">  &quot;host&quot;: &quot;myexampleflexlmhost.example.com&quot;,</span>
 <span class="s1">  &quot;port&quot;: 24000</span>
 <span class="s1">  }&#39;</span>
 
-<span class="nv">PRODUCT_ID</span><span class="o">=</span><span class="k">$(</span>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/products/&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-  -d <span class="s1">&#39;{</span>
+<span class="nv">PRODUCT_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/products/&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">  &quot;name&quot;: &quot;abaqus&quot;</span>
-<span class="s1">  }&#39;</span> <span class="p">|</span> jq <span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+<span class="s1">  }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
 
-curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features/&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-  -d <span class="s1">&#39;{</span>
+curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features/&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">  &quot;name&quot;: &quot;abaqus&quot;,</span>
 <span class="s1">  &quot;product_id&quot;: &#39;</span><span class="nv">$PRODUCT_ID</span><span class="s1">&#39;,</span>
 <span class="s1">  &quot;config_id&quot;: &#39;</span><span class="nv">$CONFIG_ID</span><span class="s1">&#39;,</span>
@@ -470,49 +470,49 @@ curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
 </div>
 <p>You can check that the resources were successfully added by making a request to list the clusters in the database. (this
 list should contain the configuration and license you previously added.)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X <span class="s1">&#39;GET&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/clusters&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/clusters&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
 </pre></div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>
-  <span class="o">{</span>
-      <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-      <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;OSD Cluster&quot;</span>,
-      <span class="s2">&quot;client_id&quot;</span>: <span class="s2">&quot;osd-cluster&quot;</span>,
-      <span class="s2">&quot;configurations&quot;</span>: <span class="o">[</span>
-        <span class="o">{</span>
-          <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-          <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;Abaqus&quot;</span>,
-          <span class="s2">&quot;cluster_id&quot;</span>: <span class="m">1</span>,
-          <span class="s2">&quot;features&quot;</span>: <span class="o">[</span>
-            <span class="o">{</span>
-              <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-              <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;abaqus&quot;</span>,
-              <span class="s2">&quot;product&quot;</span>: <span class="o">{</span>
-                <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-                <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;abaqus&quot;</span>
-              <span class="o">}</span>,
-              <span class="s2">&quot;config_id&quot;</span>: <span class="m">1</span>,
-              <span class="s2">&quot;reserved&quot;</span>: <span class="m">0</span>,
-              <span class="s2">&quot;total&quot;</span>: <span class="m">0</span>,
-              <span class="s2">&quot;used&quot;</span>: <span class="m">0</span>
-            <span class="o">}</span>
-          <span class="o">]</span>,
-          <span class="s2">&quot;license_servers&quot;</span>: <span class="o">[</span>
-            <span class="o">{</span>
-              <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-              <span class="s2">&quot;config_id&quot;</span>: <span class="m">1</span>,
-              <span class="s2">&quot;host&quot;</span>: <span class="s2">&quot;myexampleflexlmhost.example.com&quot;</span>,
-              <span class="s2">&quot;port&quot;</span>: <span class="m">24000</span>
-            <span class="o">}</span>
-          <span class="o">]</span>,
-          <span class="s2">&quot;grace_time&quot;</span>: <span class="m">30</span>,
-          <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;flexlm&quot;</span>
-        <span class="o">}</span>
-      <span class="o">]</span>,
-      <span class="s2">&quot;jobs&quot;</span>: <span class="o">[]</span>
-    <span class="o">}</span>
+<span class="w">  </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">      </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;OSD Cluster&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;client_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;osd-cluster&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;configurations&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">        </span><span class="o">{</span>
+<span class="w">          </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">          </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;Abaqus&quot;</span>,
+<span class="w">          </span><span class="s2">&quot;cluster_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">          </span><span class="s2">&quot;features&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">            </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">              </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;product&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">                </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">                </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+<span class="w">              </span><span class="o">}</span>,
+<span class="w">              </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">              </span><span class="s2">&quot;reserved&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">              </span><span class="s2">&quot;total&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">              </span><span class="s2">&quot;used&quot;</span>:<span class="w"> </span><span class="m">0</span>
+<span class="w">            </span><span class="o">}</span>
+<span class="w">          </span><span class="o">]</span>,
+<span class="w">          </span><span class="s2">&quot;license_servers&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">            </span><span class="o">{</span>
+<span class="w">              </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">              </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">              </span><span class="s2">&quot;host&quot;</span>:<span class="w"> </span><span class="s2">&quot;myexampleflexlmhost.example.com&quot;</span>,
+<span class="w">              </span><span class="s2">&quot;port&quot;</span>:<span class="w"> </span><span class="m">24000</span>
+<span class="w">            </span><span class="o">}</span>
+<span class="w">          </span><span class="o">]</span>,
+<span class="w">          </span><span class="s2">&quot;grace_time&quot;</span>:<span class="w"> </span><span class="m">30</span>,
+<span class="w">          </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;flexlm&quot;</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">      </span><span class="o">]</span>,
+<span class="w">      </span><span class="s2">&quot;jobs&quot;</span>:<span class="w"> </span><span class="o">[]</span>
+<span class="w">    </span><span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
 </div>
@@ -521,10 +521,10 @@ list should contain the configuration and license you previously added.)</p>
 <div class="section" id="compose-the-license-manager-simulator">
 <h2>3) Compose the License Manager Simulator<a class="headerlink" href="#compose-the-license-manager-simulator" title="Permalink to this headline">¶</a></h2>
 <p>To run the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Simulator</span></code> API, clone the repository and run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/omnivector-solutions/license-manager-simulator
-<span class="nb">cd</span> license-manager-simulator/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/omnivector-solutions/license-manager-simulator
+<span class="nb">cd</span><span class="w"> </span>license-manager-simulator/
 
-docker-compose up
+docker-compose<span class="w"> </span>up
 </pre></div>
 </div>
 </div>
@@ -532,30 +532,30 @@ docker-compose up
 <h2>4) Add the License Manager Agent to the cluster<a class="headerlink" href="#add-the-license-manager-agent-to-the-cluster" title="Permalink to this headline">¶</a></h2>
 <p>The final component we need to deploy is the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span></code>. The <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span></code> is deployed to the
 same model as the slurm charms, and related to <code class="docutils literal notranslate"><span class="pre">slurmctld</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:omnivector-solutions/charm-license-manager-agent
-<span class="nb">cd</span> charm-license-manager-agent/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:omnivector-solutions/charm-license-manager-agent
+<span class="nb">cd</span><span class="w"> </span>charm-license-manager-agent/
 
-make charm
+make<span class="w"> </span>charm
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">charm</span></code> command will produce a resultant charm artifact named
 <code class="docutils literal notranslate"><span class="pre">license-manager-agent.charm</span></code>. This is the charm that we will deploy.</p>
 <p>Before deploying the charm, create a <code class="docutils literal notranslate"><span class="pre">yaml</span></code> configuration file that contains the needed settings for the
 <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Agent</span> <span class="pre">Charm</span></code>. The config should look something like this:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">license-manager-agent</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">log-level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span><span class="w"></span>
-<span class="w">  </span><span class="nt">stat-interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"></span>
-<span class="w">  </span><span class="nt">license-manager-backend-base-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://&quot;</span><span class="l l-Scalar l-Scalar-Plain">$MY_IP&quot;:7000&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">lmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmutil&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">rlmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/rlmutil&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">lsdyna-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lstc_qrun&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">lmxendutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmxendutil&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">olixtool-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/olixtool&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">oidc-domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-domain&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">oidc-audience</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-audience&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">oidc-client-id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-id&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">oidc-client-secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-secret&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="nt">sentry-dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">license-manager-agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">log-level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
+<span class="w">  </span><span class="nt">stat-interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">license-manager-backend-base-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://&quot;</span><span class="l l-Scalar l-Scalar-Plain">$MY_IP&quot;:7000&quot;</span>
+<span class="w">  </span><span class="nt">lmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmutil&quot;</span>
+<span class="w">  </span><span class="nt">rlmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/rlmutil&quot;</span>
+<span class="w">  </span><span class="nt">lsdyna-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lstc_qrun&quot;</span>
+<span class="w">  </span><span class="nt">lmxendutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmxendutil&quot;</span>
+<span class="w">  </span><span class="nt">olixtool-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/olixtool&quot;</span>
+<span class="w">  </span><span class="nt">oidc-domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-domain&quot;</span>
+<span class="w">  </span><span class="nt">oidc-audience</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-audience&quot;</span>
+<span class="w">  </span><span class="nt">oidc-client-id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-id&quot;</span>
+<span class="w">  </span><span class="nt">oidc-client-secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-secret&quot;</span>
+<span class="w">  </span><span class="nt">sentry-dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </pre></div>
 </div>
 <p>Make sure to substitute the correct values into the new <code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code> configuration file
@@ -565,13 +565,13 @@ against the backend API.</p>
 the config file for the charm (<code class="docutils literal notranslate"><span class="pre">license-manager-agent.yaml</span></code>), we are ready to deploy.</p>
 <p>Using <code class="docutils literal notranslate"><span class="pre">juju</span></code>, deploy the <code class="docutils literal notranslate"><span class="pre">license-manager-agent</span></code> charm to the model, specifying the config file as an argument to the
 deploy command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju deploy ./license-manager-agent.charm <span class="se">\</span>
-    --config ./license-manager-agent.yaml --series focal
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju<span class="w"> </span>deploy<span class="w"> </span>./license-manager-agent.charm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>./license-manager-agent.yaml<span class="w"> </span>--series<span class="w"> </span>focal
 </pre></div>
 </div>
 <p>After the deploy, make sure to relate the charm to the juju-info and prolog-epilog interface.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju relate license-manager-agent:juju-info slurmctld
-juju relate license-manager-agent:prolog-epilog slurmctld
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju<span class="w"> </span>relate<span class="w"> </span>license-manager-agent:juju-info<span class="w"> </span>slurmctld
+juju<span class="w"> </span>relate<span class="w"> </span>license-manager-agent:prolog-epilog<span class="w"> </span>slurmctld
 </pre></div>
 </div>
 </div>
@@ -596,8 +596,8 @@ application script, which requests a license to the simulator API, sleeps for a 
 application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.</p>
 <p>To set up everything needed to use the simulator, use the make setup command available in the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Simulator</span></code> project.
 This commands expects as an argument the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Simulator</span></code> API IP address.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> license-manager-simulator/
-make setup <span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span class="nv">$MY_IP</span>:8000
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>license-manager-simulator/
+make<span class="w"> </span>setup<span class="w"> </span><span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span class="nv">$MY_IP</span>:8000
 </pre></div>
 </div>
 </div>
@@ -613,32 +613,32 @@ make setup <span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span
 </ol>
 <p>These licenses will be available in the simulated license servers. You can check it by executing <code class="docutils literal notranslate"><span class="pre">lmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">rlmutil</span></code>, <code class="docutils literal notranslate"><span class="pre">lstc_qrun</span></code>, <code class="docutils literal notranslate"><span class="pre">lmxendutil</span></code>
 and <code class="docutils literal notranslate"><span class="pre">olixtool.lin</span></code> files.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh license-manager-agent/0
-<span class="nb">source</span> /srv/license-manager-agent-venv/bin/activate
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju<span class="w"> </span>ssh<span class="w"> </span>license-manager-agent/0
+<span class="nb">source</span><span class="w"> </span>/srv/license-manager-agent-venv/bin/activate
 /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 </pre></div>
 </div>
 <p>The output should display the &quot;abaqus.abaqus&quot; license that was added to the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Simulator</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lmutil - Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">1989</span>-2012 Flexera Software LLC. All Rights Reserved.
-Flexible License Manager status on Thu <span class="m">10</span>/29/2020 <span class="m">17</span>:44
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lmutil<span class="w"> </span>-<span class="w"> </span>Copyright<span class="w"> </span><span class="o">(</span>c<span class="o">)</span><span class="w"> </span><span class="m">1989</span>-2012<span class="w"> </span>Flexera<span class="w"> </span>Software<span class="w"> </span>LLC.<span class="w"> </span>All<span class="w"> </span>Rights<span class="w"> </span>Reserved.
+Flexible<span class="w"> </span>License<span class="w"> </span>Manager<span class="w"> </span>status<span class="w"> </span>on<span class="w"> </span>Thu<span class="w"> </span><span class="m">10</span>/29/2020<span class="w"> </span><span class="m">17</span>:44
 
-License server status: server1,server2,server3
-    License file<span class="o">(</span>s<span class="o">)</span> on server1: f:<span class="se">\f</span>lexlm<span class="se">\A</span>baqusLM<span class="se">\L</span>icense<span class="se">\l</span>icense.dat:
+License<span class="w"> </span>server<span class="w"> </span>status:<span class="w"> </span>server1,server2,server3
+<span class="w">    </span>License<span class="w"> </span>file<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>on<span class="w"> </span>server1:<span class="w"> </span>f:<span class="se">\f</span>lexlm<span class="se">\A</span>baqusLM<span class="se">\L</span>icense<span class="se">\l</span>icense.dat:
 
-server1: license server UP v11.13
-server2: license server UP <span class="o">(</span>MASTER<span class="o">)</span> v11.13
-server3: license server UP v11.13
+server1:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span>v11.13
+server2:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span><span class="o">(</span>MASTER<span class="o">)</span><span class="w"> </span>v11.13
+server3:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span>v11.13
 
-Vendor daemon status <span class="o">(</span>on server2<span class="o">)</span>:
-  FakeLM: UP v11.13
+Vendor<span class="w"> </span>daemon<span class="w"> </span>status<span class="w"> </span><span class="o">(</span>on<span class="w"> </span>server2<span class="o">)</span>:
+<span class="w">  </span>FakeLM:<span class="w"> </span>UP<span class="w"> </span>v11.13
 
-Feature usage info:
+Feature<span class="w"> </span>usage<span class="w"> </span>info:
 
-Users of abaqus:  <span class="o">(</span>Total of <span class="m">1000</span> licenses issued<span class="p">;</span>  Total of <span class="m">0</span> licenses <span class="k">in</span> use<span class="o">)</span>
+Users<span class="w"> </span>of<span class="w"> </span>abaqus:<span class="w">  </span><span class="o">(</span>Total<span class="w"> </span>of<span class="w"> </span><span class="m">1000</span><span class="w"> </span>licenses<span class="w"> </span>issued<span class="p">;</span><span class="w">  </span>Total<span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w"> </span>licenses<span class="w"> </span><span class="k">in</span><span class="w"> </span>use<span class="o">)</span>
 
-  <span class="s2">&quot;abaqus&quot;</span> v62.2, vendor: FakeLM
+<span class="w">  </span><span class="s2">&quot;abaqus&quot;</span><span class="w"> </span>v62.2,<span class="w"> </span>vendor:<span class="w"> </span>FakeLM
 
-  floating license
+<span class="w">  </span>floating<span class="w"> </span>license
 </pre></div>
 </div>
 </div>
@@ -648,7 +648,7 @@ Users of abaqus:  <span class="o">(</span>Total of <span class="m">1000</span> l
 The fake application makes a request to the <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">Simulator</span></code> API to book 42 <code class="docutils literal notranslate"><span class="pre">abaqus</span></code> licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.</p>
 <p>To run the job, use the <code class="docutils literal notranslate"><span class="pre">sbatch</span></code> command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju ssh slurmd/0 sbatch /tmp/batch.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>sbatch<span class="w"> </span>/tmp/batch.sh
 </pre></div>
 </div>
 <p>To use other licenses, change the license's name in the <code class="docutils literal notranslate"><span class="pre">application.sh</span></code> and <code class="docutils literal notranslate"><span class="pre">batch.sh</span></code> file.</p>
@@ -659,52 +659,52 @@ The batch script will be responsible for scheduling the fake application job in 
 <p>After following the steps above, you should have a working development environment.
 To validate that it is indeed working, submit a job to slurm (using the batch script) and check <code class="docutils literal notranslate"><span class="pre">License</span> <span class="pre">Manager</span> <span class="pre">API</span></code>.
 Make a request to the <code class="docutils literal notranslate"><span class="pre">features</span></code> endpoint.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X <span class="s1">&#39;GET&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
 </pre></div>
 </div>
 <p>You should see that the <code class="docutils literal notranslate"><span class="pre">used</span></code> value for the license was updated with the value used in the job (42).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;abaqus&quot;</span>,
-    <span class="s2">&quot;product&quot;</span>: <span class="o">{</span>
-      <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-      <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;abaqus&quot;</span>
-    <span class="o">}</span>,
-    <span class="s2">&quot;config_id&quot;</span>: <span class="m">10</span>
-    <span class="s2">&quot;reserved&quot;</span>: <span class="m">0</span>,
-    <span class="s2">&quot;total&quot;</span>: <span class="m">1000</span>,
-    <span class="s2">&quot;used&quot;</span>: <span class="m">42</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
+<span class="w">  </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">    </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;product&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">      </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+<span class="w">    </span><span class="o">}</span>,
+<span class="w">    </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">10</span>
+<span class="w">    </span><span class="s2">&quot;reserved&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">    </span><span class="s2">&quot;total&quot;</span>:<span class="w"> </span><span class="m">1000</span>,
+<span class="w">    </span><span class="s2">&quot;used&quot;</span>:<span class="w"> </span><span class="m">42</span>
+<span class="w">    </span><span class="o">}</span>
+<span class="w">  </span><span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
 </div>
 <p>You also should have a new job created. To verify this, make a request to the <code class="docutils literal notranslate"><span class="pre">jobs</span></code> endpoint.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X <span class="s1">&#39;GET&#39;</span> <span class="se">\</span>
-  <span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span>:7000<span class="s1">&#39;/lm/jobs&#39;</span> <span class="se">\</span>
-  -H <span class="s1">&#39;accept: application/json&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span>:7000<span class="s1">&#39;/lm/jobs&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
 </pre></div>
 </div>
 <p>The job should contain information about the job and also how many licenses were booked by the job.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-    <span class="s2">&quot;slurm_job_id&quot;</span>: <span class="s2">&quot;1&quot;</span>,
-    <span class="s2">&quot;cluster_id&quot;</span>: <span class="m">1</span>,
-    <span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;ubuntu&quot;</span>,
-    <span class="s2">&quot;lead_host&quot;</span>: <span class="s2">&quot;juju-d9201d-2&quot;</span>,
-    <span class="s2">&quot;bookings&quot;</span>: <span class="o">[</span>
-      <span class="o">{</span>
-        <span class="s2">&quot;id&quot;</span>: <span class="m">1</span>,
-        <span class="s2">&quot;job_id&quot;</span>: <span class="m">1</span>,
-        <span class="s2">&quot;feature_id&quot;</span>: <span class="m">1</span>,
-        <span class="s2">&quot;quantity&quot;</span>: <span class="m">42</span>
-      <span class="o">}</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
+<span class="w">  </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">    </span><span class="s2">&quot;slurm_job_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;1&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;cluster_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">    </span><span class="s2">&quot;username&quot;</span>:<span class="w"> </span><span class="s2">&quot;ubuntu&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;lead_host&quot;</span>:<span class="w"> </span><span class="s2">&quot;juju-d9201d-2&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;bookings&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">      </span><span class="o">{</span>
+<span class="w">        </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">        </span><span class="s2">&quot;job_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">        </span><span class="s2">&quot;feature_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">        </span><span class="s2">&quot;quantity&quot;</span>:<span class="w"> </span><span class="m">42</span>
+<span class="w">      </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>
+<span class="w">  </span><span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
 </div>

@@ -534,12 +534,12 @@ The license type identifies the provider of the license server.</p>
 </ul>
 <p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and returns the configurations that belong to the cluster.</p>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;configuration-name&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;grace_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flexlm&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;configuration-name&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;grace_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flexlm&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>After creating a configuration, the license servers and features can be added.</p>
@@ -558,11 +558,11 @@ Each configuration can have <code class="docutils literal notranslate"><span cla
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/license_servers/{id}</span></code></p></li>
 </ul>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;licserv0001&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;licserv0001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -580,9 +580,9 @@ To create a <code class="docutils literal notranslate"><span class="pre">Feature
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/products/{id}</span></code></p></li>
 </ul>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -606,12 +606,12 @@ The information stored includes the total number of licenses available and how m
 <p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and updates the feature for that cluster.</p>
 <p>This endpoint is needed since there can be multiple licenses with the same name in different clusters.</p>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;product_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;reserved&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;product_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;reserved&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -636,12 +636,12 @@ Once the job finishes, the <code class="docutils literal notranslate"><span clas
 <p>The endpoint <code class="docutils literal notranslate"><span class="pre">by_client_id</span></code> extracts the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> from the request and returns the jobs that belong to the cluster.</p>
 <p>The in the POST endpoint, the parameter <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> is optional. If it's not provided, the <code class="docutils literal notranslate"><span class="pre">cluster_client_id</span></code> is extracted from the request.</p>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;slurm_job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user123&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;lead_host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;host1&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;slurm_job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;lead_host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;host1&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -661,11 +661,11 @@ that idenfies it in the cluster.</p>
 <li><p>DEL <code class="docutils literal notranslate"><span class="pre">/lm/bookings/{id}</span></code></p></li>
 </ul>
 <p>Payload example for POST:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;feature_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;quantity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="nt">&quot;feature_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;quantity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
