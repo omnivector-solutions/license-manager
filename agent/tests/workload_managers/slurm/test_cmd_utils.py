@@ -11,6 +11,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBooking,
     SqueueParserUnexpectedInputError,
     _match_requested_license,
+    get_all_features_used_values,
     get_all_product_features_from_cluster,
     get_required_licenses_for_job,
     squeue_parser,
@@ -169,3 +170,41 @@ async def test_get_product_features_from_cluster(
 ):
     show_lic_mock.return_value = show_lic_output
     assert features_from_cluster == await get_all_product_features_from_cluster()
+
+
+@mark.asyncio
+@mark.parametrize(
+    "show_lic_output,used_features",
+    [
+        (
+            dedent(
+                """
+                LicenseName=abaqus.abaqus@flexlm
+                    Total=1000 Used=90 Free=910 Reserved=0 Remote=yes
+                LicenseName=product_name.feature_name@flexlm
+                    Total=10 Used=0 Free=10 Reserved=0 Remote=yes
+                LicenseName=converge.converge_super@rlm
+                    Total=9 Used=1 Free=9 Reserved=0 Remote=yes
+                LicenseName=converge.converge_tecplot@rlm
+                    Total=45 Used=12 Free=45 Reserved=0 Remote=yes
+                """
+            ),
+            {
+                "abaqus.abaqus": 90,
+                "product_name.feature_name": 0,
+                "converge.converge_super": 1,
+                "converge.converge_tecplot": 12,
+            },
+        ),
+        (
+            "",
+            {},
+        ),
+    ],
+)
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
+async def test_get_all_features_used_values(
+    show_lic_mock: mock.MagicMock, show_lic_output: str, used_features: dict
+):
+    show_lic_mock.return_value = show_lic_output
+    assert used_features == await get_all_features_used_values()
