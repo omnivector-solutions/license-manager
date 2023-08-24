@@ -3,7 +3,7 @@ import asyncio
 import re
 import shlex
 import subprocess
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from lm_agent.backend_utils.models import LicenseBooking
 from lm_agent.logs import logger
@@ -83,37 +83,43 @@ def get_required_licenses_for_job(job_licenses: str) -> List:
     return required_licenses
 
 
-async def get_tokens_for_license(
-    product_feature_server: str,
-    output_type: str,
-) -> Optional[int]:
+async def get_all_features_used_values() -> Optional[Dict[str, int]]:
     """
-    Return tokens from scontrol output.
+    Parse the output from `scontrol show lic` and return a dictionary of
+    product_feature: used_tokens.
+
+    Note: the line with the counters doesn't include the feature name,
+    so to find the feature it's necessary to look at the previous line.
     """
+    product_feature_line = re.compile(
+        r"LicenseName=(?P<product>[a-zA-Z0-9-_]+).(?P<feature>[a-zA-Z0-9-_]+)@(?P<license_server_type>\w+)"
+    )
 
-    def match_product_feature_server() -> Optional[str]:
-        """
-        Return the line after the matched product_feature line.
-        """
-        matched = False
-        for line in scontrol_output.split("\n"):
-            if matched:
-                return line
-            if re.fullmatch(rf"LicenseName={product_feature_server}", line) is not None:
-                matched = True
-        return None
+    used_tokens_line = re.compile(
+        r"^\s*Total=(?P<total>\d+) Used=(?P<used>\d+) Free=(?P<free>\d+) Reserved=(?P<reserved>\d+) Remote=(?P<remote>\w+)"  # noqa
+    )
 
-    # Get the scontrol output
     scontrol_output = await scontrol_show_lic()
 
-    # Match the product_feature_server
-    token_str = match_product_feature_server()
-    if token_str is not None:
-        for item in token_str.split():
-            k, v = item.split("=")
-            if k == output_type:
-                return int(v)
-    return None
+    parsed_data: dict = {}
+    product_feature_list: list = []
+
+    for line in scontrol_output.split("\n"):
+        parsed_product_feature = product_feature_line.match(line)
+        if parsed_product_feature:
+            product_feature_data = parsed_product_feature.groupdict()
+            product_feature = product_feature_data["product"] + "." + product_feature_data["feature"]
+            product_feature_list.append(product_feature)
+            continue
+
+        parsed_used_tokens = used_tokens_line.match(line)
+        if parsed_used_tokens:
+            used_data = parsed_used_tokens.groupdict()
+            product_feature = product_feature_list[-1]
+            parsed_data[product_feature] = int(used_data["used"])
+            continue
+
+    return parsed_data
 
 
 async def scontrol_show_lic():

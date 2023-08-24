@@ -20,7 +20,7 @@ from lm_agent.license_report import report
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.workload_managers.slurm.cmd_utils import (
-    get_tokens_for_license,
+    get_all_features_used_values,
     return_formatted_squeue_out,
     squeue_parser,
 )
@@ -138,6 +138,9 @@ async def reconcile():
     # Get feature bookings sum
     all_features_bookings_sum = await get_all_features_bookings_sum()
 
+    # Get license usage from the cluster
+    all_features_used_value = await get_all_features_used_values()
+
     # Delete bookings for jobs that reached the grace time
     logger.debug("Cleaning jobs by grace time")
     await clean_jobs_by_grace_time()
@@ -168,7 +171,7 @@ async def reconcile():
                     reserved = feature.reserved
 
         # Get license usage from the cluster
-        slurm_used = await get_tokens_for_license(f"{product_feature}@{license_server_type}", "Used")
+        slurm_used = all_features_used_value[product_feature]
 
         """
         The reserved amount represents how many licenses are already in use:
