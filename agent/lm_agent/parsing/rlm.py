@@ -9,7 +9,7 @@ VERSION = rf"v{INT}\.{INT}"
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTWORD2 = r"[a-zA-Z0-9-.]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD2})*"
-FEATURE_NAME = r"[a-zA-Z0-9-_]+"
+FEATURE_NAME = r"[\w-]+"
 
 FEATURE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}$"
 COUNT_LINE = r"^\s*count: (?P<count>\d+).*inuse: (?P<in_use>\d+).*$"
@@ -88,7 +88,6 @@ def parse(server_output: str) -> dict:
     feature_list: list = []
 
     for line in server_output.splitlines():
-        # breakpoint()
         feature = parse_feature_line(line)
         if feature:
             feature_list.append(feature)
