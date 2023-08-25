@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.routes.utils import find_feature_id_by_name_and_client_id
 from lm_backend.api.schemas.feature import (
@@ -16,7 +16,7 @@ from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
-crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
 
 
 @router.post(
@@ -128,26 +128,15 @@ async def bulk_update_feature(
             detail=("Couldn't find a valid client_id in the access token."),
         )
 
-    for feature_update in features:
-        feature_id = await find_feature_id_by_name_and_client_id(
-            db_session=secure_session.session,
-            feature_name=feature_update.name,
-            client_id=client_id,
-        )
+    features_dict = {feature.name: feature for feature in features}
 
-        if not feature_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=("Couldn't find a feature with the given name and client_id."),
-            )
+    await crud_feature.bulk_update(
+        db_session=secure_session.session,
+        features=features_dict,
+        cluster_client_id=client_id,
+    )
 
-        await crud_feature.update(
-            db_session=secure_session.session,
-            id=feature_id,
-            obj=feature_update,
-        )
-
-    return status.HTTP_200_OK
+    return {"message": "Features updated successfully."}
 
 
 @router.put(
