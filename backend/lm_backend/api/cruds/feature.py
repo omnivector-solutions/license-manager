@@ -1,5 +1,5 @@
 """Feature CRUD class for SQLAlchemy models."""
-from typing import Dict
+from typing import List
 
 from fastapi import HTTPException
 from loguru import logger
@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
+from lm_backend.api.models.product import Product
 from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema
 
 
@@ -16,7 +17,7 @@ class FeatureCRUD(GenericCRUD):
     """Feature CRUD module to implement feature bulk update and lookup."""
 
     async def bulk_update(
-        self, db_session: AsyncSession, features: Dict[str, FeatureUpdateByNameSchema], cluster_client_id: str
+        self, db_session: AsyncSession, features: List[FeatureUpdateByNameSchema], cluster_client_id: str
     ):
         """
         Update a list of features in the database. Since features with the same name can exist in different
@@ -24,12 +25,12 @@ class FeatureCRUD(GenericCRUD):
         """
         get_features_query = (
             select(Feature)
-            .join(Configuration)
+            .join(Product, Feature.product_id == Product.id)
+            .join(Configuration, Feature.config_id == Configuration.id)
             .where(
-                tuple_(
-                    Feature.name,
-                    Configuration.cluster_client_id,
-                ).in_([(feature, cluster_client_id) for feature in features])
+                tuple_(Product.name, Feature.name, Configuration.cluster_client_id,).in_(
+                    [(feature.product_name, feature.feature_name, cluster_client_id) for feature in features]
+                )
             )
         )
 
@@ -44,9 +45,11 @@ class FeatureCRUD(GenericCRUD):
             raise HTTPException(status_code=404, detail="Feature not found.")
 
         for db_obj in db_objs:
-            feature = features[db_obj.name]
-            db_obj.total = feature.total
-            db_obj.used = feature.used
+            for feature in features:
+                if db_obj.product.name == feature.product_name and db_obj.name == feature.feature_name:
+                    db_obj.total = feature.total
+                    db_obj.used = feature.used
+                    break
 
         try:
             await db_session.flush()

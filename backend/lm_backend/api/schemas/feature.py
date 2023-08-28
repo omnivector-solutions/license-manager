@@ -43,10 +43,12 @@ class FeatureUpdateSchema(BaseUpdateSchema):
 
 class FeatureUpdateByNameSchema(BaseUpdateSchema):
     """
-    Represents the feature usage data that will be updated using the name as a filter.
+    Represents the feature usage data that will be updated using the
+    product and feature name as a filter.
     """
 
-    name: str
+    product_name: str
+    feature_name: str
     total: int
     used: int
 
