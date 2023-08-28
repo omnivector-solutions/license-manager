@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+3.0.4 -- 2023-08-28
+-------------------
 * Improve function to get bookings sum from backend
 * Improve function to get used values from cluster
 * Updated reconciliation to update all features with one request
