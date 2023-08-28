@@ -335,16 +335,25 @@ async def test__get_all_features_bookings_sum(get_all_features_mock, parsed_feat
 @pytest.mark.respx(base_url="http://backend")
 async def test__make_feature_update__success(respx_mock):
     """
-    Test that make_feature_update updates the feature correctly.
+    Test that make_feature_update updates the features correctly.
     """
-    feature = "abaqus"
-    total = 100
-    used = 50
+    features_to_update = [
+        {
+            "name": "abaqus",
+            "total": 500,
+            "used": 50,
+        },
+        {
+            "name": "converge_super",
+            "total": 100,
+            "used": 10,
+        },
+    ]
 
-    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=200))
+    respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=200))
 
     try:
-        await make_feature_update(feature=feature, total=total, used=used)
+        await make_feature_update(features_to_update)
     except Exception as e:
         assert False, f"Exception was raised: {e}"
 
@@ -355,14 +364,23 @@ async def test__make_feature_update__raises_exception_on_non_two_hundred(respx_m
     """
     Test that make_feature_update handles a failed feature update correctly.
     """
-    feature = "abaqus"
-    total = 100
-    used = 50
+    features_to_update = [
+        {
+            "name": "abaqus",
+            "total": 500,
+            "used": 50,
+        },
+        {
+            "name": "converge_super",
+            "total": 100,
+            "used": 10,
+        },
+    ]
 
-    respx_mock.put("/lm/features/by_client_id").mock(return_value=Response(status_code=500))
+    respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=500))
 
     with pytest.raises(LicenseManagerBackendConnectionError):
-        await make_feature_update(feature=feature, total=total, used=used)
+        await make_feature_update(features_to_update)
 
 
 @pytest.mark.asyncio

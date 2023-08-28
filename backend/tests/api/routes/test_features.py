@@ -256,6 +256,47 @@ async def test_update_feature_by_client_id__fail_with_non_existing_feature(
 
 
 @mark.asyncio
+async def test_bulk_update_feature__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_features,
+    read_object,
+):
+    data_to_update = [
+        {
+            "name": create_features[0].name,
+            "total": 9876,
+            "used": 1234,
+        },
+        {
+            "name": create_features[1].name,
+            "total": 2345,
+            "used": 456,
+        },
+    ]
+    client_id = "dummy"
+
+    inject_security_header("owner1@test.com", Permissions.FEATURE_EDIT, client_id=client_id)
+    response = await backend_client.put("/lm/features/bulk", json=data_to_update)
+
+    assert response.status_code == 200
+
+    stmt = select(Feature).where(Feature.name == data_to_update[0]["name"])
+    fetch_feature = await read_object(stmt)
+
+    assert fetch_feature.name == data_to_update[0]["name"]
+    assert fetch_feature.total == data_to_update[0]["total"]
+    assert fetch_feature.used == data_to_update[0]["used"]
+
+    stmt = select(Feature).where(Feature.name == data_to_update[1]["name"])
+    fetch_feature = await read_object(stmt)
+
+    assert fetch_feature.name == data_to_update[1]["name"]
+    assert fetch_feature.total == data_to_update[1]["total"]
+    assert fetch_feature.used == data_to_update[1]["used"]
+
+
+@mark.asyncio
 async def test_delete_feature__success(
     backend_client: AsyncClient,
     inject_security_header,

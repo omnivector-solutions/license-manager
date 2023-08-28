@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Added route /features/bulk to update multiple features in a single request
 
 3.0.3 -- 2023-08-17
 -------------------
