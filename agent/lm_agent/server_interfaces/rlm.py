@@ -57,7 +57,7 @@ class RLMLicenseServer(LicenseServerInterface):
 
         (_, feature) = product_feature.split(".")
 
-        current_feature_item = self._filter_current_feature(parsed_output["total"], feature)
+        current_feature_item = parsed_output.get(feature)
 
         # raise exception if parser didn't output license information
         if current_feature_item is None:
@@ -70,13 +70,3 @@ class RLMLicenseServer(LicenseServerInterface):
         )
 
         return report_item
-
-    def _filter_current_feature(self, parsed_list, feature):
-        """
-        The output from the RLM server returns information about all the licenses
-        in the server. This function filters the output to return only the information
-        about the feature we want.
-        """
-        for feature_item in parsed_list:
-            if feature_item["feature"] == feature:
-                return feature_item

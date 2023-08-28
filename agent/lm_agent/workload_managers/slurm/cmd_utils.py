@@ -34,7 +34,9 @@ class ScontrolRetrievalFailure(Exception):
 
 
 def _match_requested_license(requested_license: str) -> Union[dict, None]:
-    license_regex = re.compile(r"(?P<product>\w+)\.(?P<feature>\w+)@(?P<server_type>\w+)(:(?P<tokens>\d+))?")
+    license_regex = re.compile(
+        r"(?P<product>[a-zA-Z0-9-_]+)\.(?P<feature>[a-zA-Z0-9-_]+)@(?P<server_type>\w+)(:(?P<tokens>\d+))?"
+    )
 
     matches = license_regex.match(requested_license)
 
@@ -208,7 +210,7 @@ async def get_all_product_features_from_cluster() -> List[str]:
     """
     show_lic_output = await scontrol_show_lic()
 
-    PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9_]+)[_\-.](?P<feature>\w+)"
+    PRODUCT_FEATURE = r"LicenseName=(?P<product>[a-zA-Z0-9-_]+).(?P<feature>[a-zA-Z0-9-_]+)"
     RX_PRODUCT_FEATURE = re.compile(PRODUCT_FEATURE)
 
     parsed_features = []

@@ -20,7 +20,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
 
 @fixture
 def job_licenses_good() -> str:
-    return "testproduct.testfeature@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"
+    return "testproduct1.test-feature1@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"
 
 
 @fixture
@@ -72,6 +72,22 @@ def test_squeue_parser_returns_correct_output_format():
                 "tokens": 1,
             },
         ),
+        (
+            "product.feature-123@flexlm",
+            {
+                "product_feature": "product.feature-123",
+                "server_type": "flexlm",
+                "tokens": 1,
+            },
+        ),
+        (
+            "product-123.feature@rlm",
+            {
+                "product_feature": "product-123.feature",
+                "server_type": "rlm",
+                "tokens": 1,
+            },
+        ),
     ],
 )
 def test_match_requested_license(license, output):
@@ -105,7 +121,7 @@ def test_get_required_licenses_for_job_good(job_licenses_good: str):
     assert len(required_licenses) == 3
     assert required_licenses == [
         LicenseBooking(
-            product_feature="testproduct.testfeature",
+            product_feature="testproduct1.test-feature1",
             quantity=11,
         ),
         LicenseBooking(
@@ -153,13 +169,22 @@ def test_get_required_licenses_for_job_bad(job_licenses_bad: None):
         (
             dedent(
                 """
-                LicenseName=converge_super@rlm
+                LicenseName=converge.converge_super@rlm
                     Total=9 Used=0 Free=9 Reserved=0 Remote=yes
-                LicenseName=converge_tecplot@rlm
+                LicenseName=converge.converge_tecplot@rlm
                     Total=45 Used=0 Free=45 Reserved=0 Remote=yes
                 """
             ),
-            ["converge.super", "converge.tecplot"],
+            ["converge.converge_super", "converge.converge_tecplot"],
+        ),
+        (
+            dedent(
+                """
+                LicenseName=powerflow.powerflow-disc@rlm
+                    Total=9 Used=0 Free=9 Reserved=0 Remote=yes
+                """
+            ),
+            ["powerflow.powerflow-disc"],
         ),
         ("", []),
     ],
