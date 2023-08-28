@@ -8,6 +8,7 @@ Unreleased
 ----------
 * Improve function to get bookings sum from backend
 * Improve function to get used values from cluster
+* Updated reconciliation to update all features with one request
 
 3.0.3 -- 2023-08-17
 -------------------

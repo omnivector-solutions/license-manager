@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.routes.utils import find_feature_id_by_name_and_client_id
 from lm_backend.api.schemas.feature import (
@@ -16,7 +16,7 @@ from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
-crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
 
 
 @router.post(
@@ -105,6 +105,38 @@ async def update_feature_by_client_id(
         id=feature_id,
         obj=feature_update,
     )
+
+
+@router.put(
+    "/bulk",
+    status_code=status.HTTP_200_OK,
+)
+async def bulk_update_feature(
+    features: List[FeatureUpdateByNameSchema],
+    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_EDIT)),
+):
+    """
+    Update a list of features in the database using the name of each feature.
+    Since the name is not unique across clusters, the client_id
+    in the token is used to identify the cluster.
+    """
+    client_id = secure_session.identity_payload.client_id
+
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=("Couldn't find a valid client_id in the access token."),
+        )
+
+    features_dict = {feature.name: feature for feature in features}
+
+    await crud_feature.bulk_update(
+        db_session=secure_session.session,
+        features=features_dict,
+        cluster_client_id=client_id,
+    )
+
+    return {"message": "Features updated successfully."}
 
 
 @router.put(
