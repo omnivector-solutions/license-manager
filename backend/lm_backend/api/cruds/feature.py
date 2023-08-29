@@ -56,3 +56,35 @@ class FeatureCRUD(GenericCRUD):
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail="Feature could not be updated.")
+
+    async def filter_by_product_feature_and_client_id(
+        self, db_session: AsyncSession, product_name: str, feature_name: str, client_id: str
+    ) -> Feature:
+        """
+        Filter features using the product name and feature name as a filter.
+        Since the name is not unique across clusters, the client_id
+        in the token is used to identify the cluster.
+        """
+        filter_features_query = (
+            select(Feature)
+            .join(Product, Feature.product_id == Product.id)
+            .join(Configuration, Feature.config_id == Configuration.id)
+            .where(
+                tuple_(
+                    Product.name,
+                    Feature.name,
+                    Configuration.cluster_client_id,
+                ).in_([(product_name, feature_name, client_id)])
+            )
+        )
+        try:
+            query = await db_session.execute(filter_features_query)
+            db_obj = query.scalars().one_or_none()
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail="Feature could not be read.")
+
+        if db_obj is None:
+            raise HTTPException(status_code=404, detail="Feature not found.")
+
+        return db_obj

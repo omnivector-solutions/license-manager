@@ -3,11 +3,13 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.booking import BookingCRUD
+from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.booking import Booking
+from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.job import Job
-from lm_backend.api.routes.utils import find_feature_id_by_name_and_client_id
 from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
+from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema
 from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
@@ -17,6 +19,7 @@ router = APIRouter()
 
 crud_job = GenericCRUD(Job, JobCreateSchema, JobUpdateSchema)
 crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
+crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
 
 
 @router.post(
@@ -48,17 +51,20 @@ async def create_job(
         try:
             for booking in job.bookings:
                 product, feature = booking.product_feature.split(".")
-                feature_id = await find_feature_id_by_name_and_client_id(
-                    db_session=secure_session.session, client_id=client_id, feature_name=feature
+                feature_obj: Feature = await crud_feature.filter_by_product_feature_and_client_id(
+                    db_session=secure_session.session,
+                    product_name=product,
+                    feature_name=feature,
+                    client_id=client_id,
                 )
-                if not feature_id:
+                if not feature:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=("Couldn't find the feature to book."),
                     )
                 obj = {
                     "job_id": job_created.id,
-                    "feature_id": feature_id,
+                    "feature_id": feature_obj.id,
                     "quantity": booking.quantity,
                 }
                 await crud_booking.create(db_session=secure_session.session, obj=BookingCreateSchema(**obj))

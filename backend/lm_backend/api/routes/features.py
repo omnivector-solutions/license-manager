@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.models.feature import Feature
-from lm_backend.api.routes.utils import find_feature_id_by_name_and_client_id
 from lm_backend.api.schemas.feature import (
     FeatureCreateSchema,
     FeatureSchema,
