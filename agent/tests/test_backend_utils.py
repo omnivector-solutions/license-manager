@@ -339,12 +339,14 @@ async def test__make_feature_update__success(respx_mock):
     """
     features_to_update = [
         {
-            "name": "abaqus",
+            "product_name": "abaqus",
+            "feature_name": "abaqus",
             "total": 500,
             "used": 50,
         },
-        {
-            "name": "converge_super",
+        {   
+            "product_name": "converge",
+            "feature_name": "converge_super",
             "total": 100,
             "used": 10,
         },
@@ -366,12 +368,14 @@ async def test__make_feature_update__raises_exception_on_non_two_hundred(respx_m
     """
     features_to_update = [
         {
-            "name": "abaqus",
+            "product_name": "abaqus",
+            "feature_name": "abaqus",
             "total": 500,
             "used": 50,
         },
         {
-            "name": "converge_super",
+            "product_name": "converge",
+            "feature_name": "converge_super",
             "total": 100,
             "used": 10,
         },

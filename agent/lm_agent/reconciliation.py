@@ -220,7 +220,8 @@ async def update_features() -> List[LicenseReportItem]:
         product, feature = license.product_feature.split(".")
 
         feature_data = {
-            "name": feature,
+            "product_name": product,
+            "feature_name": feature,
             "total": license.total,
             "used": license.used,
         }
