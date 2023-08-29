@@ -9,7 +9,6 @@ from lm_agent.reconciliation import (
     clean_jobs,
     clean_jobs_by_grace_time,
     create_or_update_reservation,
-    get_all_features_bookings_sum,
     get_greatest_grace_time_for_job,
     reconcile,
     update_features,
@@ -29,6 +28,23 @@ def test__get_greatest_grace_time_for_job(parsed_jobs):
     job_bookings = parsed_jobs[0].bookings
 
     expected_result = 20
+
+    result = get_greatest_grace_time_for_job(grace_times, job_bookings)
+    assert result == expected_result
+
+
+def test__get_greatest_grace_time_for_job__no_bookings():
+    """
+    Test if the function works when no bookings are provided.
+    """
+    grace_times = {
+        1: 10,
+        2: 20,
+    }
+
+    job_bookings = []
+
+    expected_result = -1
 
     result = get_greatest_grace_time_for_job(grace_times, job_bookings)
     assert result == expected_result

@@ -226,12 +226,14 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
 async def remove_job_by_slurm_job_id(slurm_job_id: str):
     """
     Remove the job with its bookings for the given slurm_job_id in the cluster.
+
+    If the job doesn't exist, the request will be ignored.
     """
     async with AsyncBackendClient() as backend_client:
         resp = await backend_client.delete(f"lm/jobs/slurm_job_id/{slurm_job_id}")
 
         LicenseManagerBackendConnectionError.require_condition(
-            resp.status_code == 200, f"Failed to remove job: {resp.text}"
+            resp.status_code in [200, 404], f"Failed to remove job: {resp.text}"
         )
 
     logger.debug("##### Job removed successfully #####")
@@ -239,14 +241,20 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
 
 async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
     """
-    Return the job with its bookings for the given job_id in the cluster.
+    Return the bookings for job with the given job_id in the cluster.
+
+    If the job doesn't exist, an empty list will be returned.
     """
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
 
         LicenseManagerBackendConnectionError.require_condition(
-            job_response.status_code == 200, f"Failed to get job: {job_response.text}"
+            job_response.status_code in [200, 404],
+            f"Failed to get job: {job_response.text}",
         )
+
+        if job_response.status_code == 404:
+            return []
 
         with LicenseManagerParseError.handle_errors(""):
             parsed_resp: List = job_response.json()["bookings"]
