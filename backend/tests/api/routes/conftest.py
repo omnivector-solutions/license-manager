@@ -155,6 +155,35 @@ async def create_one_feature(insert_objects, update_object, create_one_configura
 
 
 @fixture
+async def create_features_with_same_name(insert_objects, create_configurations, create_products):
+    configuration_id = create_configurations[0].id
+    product_id1 = create_products[0].id
+    product_id2 = create_products[1].id
+
+    features_to_add = [
+        {
+            "name": "abaqus",
+            "product_id": product_id1,
+            "config_id": configuration_id,
+            "reserved": 100,
+            "total": 1000,
+            "used": 250,
+        },
+        {
+            "name": "abaqus",
+            "product_id": product_id2,
+            "config_id": configuration_id,
+            "reserved": 0,
+            "total": 1000,
+            "used": 250,
+        },
+    ]
+
+    inserted_features = await insert_objects(features_to_add, Feature)
+    return inserted_features
+
+
+@fixture
 async def create_jobs(insert_objects):
     jobs_to_add = [
         {
