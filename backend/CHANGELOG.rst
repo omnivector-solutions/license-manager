@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Improved feature filtering by name and client_id by using the product name in the filter
 
 3.0.4 -- 2023-08-28
 -------------------
