@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+
+3.0.5 -- 2023-08-29
+-------------------
 * Change payload for feature update to include the product name 
 
 3.0.4 -- 2023-08-28
