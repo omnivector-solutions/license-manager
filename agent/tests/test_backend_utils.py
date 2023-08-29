@@ -344,7 +344,7 @@ async def test__make_feature_update__success(respx_mock):
             "total": 500,
             "used": 50,
         },
-        {   
+        {
             "product_name": "converge",
             "feature_name": "converge_super",
             "total": 100,
@@ -499,7 +499,7 @@ async def test__get_bookings_for_job_id__success(jobs, respx_mock):
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(respx_mock):
+async def test__get_bookings_for_job_id__return_empty_on_non_two_hundred(respx_mock):
     """
     Test that get_bookings_for_job_id handles failure to retrieve bookings for a given job ID.
     """
@@ -512,5 +512,4 @@ async def test__get_bookings_for_job_id__raises_exception_on_non_two_hundred(res
         )
     )
 
-    with pytest.raises(LicenseManagerBackendConnectionError):
-        await get_bookings_for_job_id(slurm_job_id)
+    assert await get_bookings_for_job_id(slurm_job_id) == []
