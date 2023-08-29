@@ -7,6 +7,10 @@ This file keeps track of all notable changes to license-manager-backend
 Unreleased
 ----------
 
+3.0.6 -- 2023-08-29
+-------------------
+* Bumped version to keep in sync with agent
+
 3.0.5 -- 2023-08-29
 -------------------
 * Improved feature filtering by name and client_id by using the product name in the filter
