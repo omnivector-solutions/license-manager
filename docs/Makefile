@@ -9,24 +9,9 @@ PACKAGE_NAME:=src
 install:
 	poetry install
 
-.PHONY: lint
-lint: install
-	poetry run black --check ${PACKAGE_NAME}
-	poetry run isort --check ${PACKAGE_NAME}
-	poetry run flake8 --max-line-length=120 --max-complexity=40 ${PACKAGE_NAME}
-
-.PHONY: qa
-qa: lint
-	echo "All quality checks pass!"
-
-.PHONY: format
-format: install
-	poetry run black ${PACKAGE_NAME}
-	poetry run isort ${PACKAGE_NAME}
-
 .PHONY: docs
 docs: install
-	poetry run sphinx-build ${PACKAGE_NAME} ${ROOT_DIR}/docs/
+	poetry run mkdocs build
 
 .PHONY: clean
 clean:

@@ -1,32 +1,15 @@
 [tool.poetry]
 name = "license-manager-documentation"
-version = "2.2.3"
+version = "3.0.6"
 description = "License Manager Official Documentation"
 authors = ["Omnivector Solutions <info@omnivector.solutions>"]
 license = "MIT"
 repository = "https://github.com/omnivector-solutions/license-manager"
 
-
 [tool.poetry.dependencies]
 python = "^3.8"
-sphinxcontrib-httpdomain = "^1.8.0"
-sphinx-book-theme = "^0.2.0"
-toml = "^0.10.2"
-sphinx-copybutton = "^0.5.0"
-sphinxcontrib-mermaid = "^0.9.2"
-
-[tool.poetry.dev-dependencies]
-sphinx-view = "^0.3.1"
-black = "^22.1.0"
-isort = "^5.10.1"
-
-[tool.black]
-line-length = 120
-
-[tool.isort]
-src_paths = ["src"]
-multi_line_output = 3
-include_trailing_comma = true
+mkdocs-material = "^9.1.21"
+mkdocstrings = {extras = ["python"], version = "^0.22.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
