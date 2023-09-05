@@ -21,10 +21,10 @@
     <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png" alt="Logo">
   </a>
 
-  <h3 align="center">License Manager</h3>
+  <h3 align="center">License Manager CLI</h3>
 
   <p align="center">
-    A License management middleware for HPC systems.
+    A CLI to create license configurations and check license usage.
     <br />
     <a href="https://github.com/omnivector-solutions/license-manager/issues">
         Report Bug
@@ -39,10 +39,8 @@
 
 # About the Project
 
-The License Manager is a license scheduling middleware that operates as an interface
-between an HPC cluster and one or more 3rd party license servers. The license-manager
-introduces the concept of "license bookings" which are used to provide an alternate
-source of truth for what licenses are actually available.
+The ``License Manager CLI`` is an interface to the ``License Manager API``. It can be used to create license configurations, view bookings
+and list the data in the API.
 
 
 ## Documentation

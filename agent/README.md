@@ -21,10 +21,10 @@
     <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png" alt="Logo">
   </a>
 
-  <h3 align="center">License Manager</h3>
+  <h3 align="center">License Manager Agent</h3>
 
   <p align="center">
-    A License management middleware for HPC systems.
+    A Python agent that runs in a HPC system to manage license usage and license reservations.
     <br />
     <a href="https://github.com/omnivector-solutions/license-manager/issues">
         Report Bug
@@ -39,10 +39,9 @@
 
 # About the Project
 
-The License Manager is a license scheduling middleware that operates as an interface
-between an HPC cluster and one or more 3rd party license servers. The license-manager
-introduces the concept of "license bookings" which are used to provide an alternate
-source of truth for what licenses are actually available.
+The ``License Manager Agent`` is responsible for keeping the local cluster license totals
+in sync with the the 3rd party license server totals. It's also responsible for making booking requests
+to the ``License Manager API`` when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
 
 
 ## Documentation
