@@ -28,6 +28,17 @@ class FeatureWithoutConfigIdCreateSchema(BaseCreateSchema):
     reserved: int
 
 
+class FeatureWithOptionalIdUpdateSchema(BaseUpdateSchema):
+    """
+    Feature to be updated in the database.
+    """
+
+    id: Optional[int] = None
+    name: str
+    product_id: int
+    reserved: int
+
+
 class FeatureUpdateSchema(BaseUpdateSchema):
     """
     Represents the features in a feature configuration.

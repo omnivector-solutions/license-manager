@@ -27,6 +27,16 @@ class LicenseServerWithoutConfigIdCreateSchema(BaseCreateSchema):
     port: PositiveInt
 
 
+class LicenseServerWithOptionalIdUpdateSchema(BaseUpdateSchema):
+    """
+    License server to be updated in the database.
+    """
+
+    id: Optional[int] = None
+    host: str
+    port: PositiveInt
+
+
 class LicenseServerUpdateSchema(BaseUpdateSchema):
     """
     License server to be updated in the database.

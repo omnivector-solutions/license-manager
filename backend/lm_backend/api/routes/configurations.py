@@ -9,6 +9,7 @@ from lm_backend.api.models.license_server import LicenseServer
 from lm_backend.api.models.product import Product
 from lm_backend.api.schemas.configuration import (
     ConfigurationCompleteCreateSchema,
+    ConfigurationCompleteUpdateSchema,
     ConfigurationCreateSchema,
     ConfigurationSchema,
     ConfigurationUpdateSchema,
@@ -149,14 +150,96 @@ async def read_configuration(
 )
 async def update_configuration(
     configuration_id: int,
-    configuration_update: ConfigurationUpdateSchema,
+    configuration_update: ConfigurationCompleteUpdateSchema,
     secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_EDIT)),
 ):
-    """Update a configuration in the database."""
+    """
+    Update a configuration in the database.
+
+    If there are features in the payload, they'll be updated if they have an id,
+    or will be created if the id is None.
+
+    If there are license servers in the payload, they'll updated if they have an id,
+    or will be created if the id is None.
+
+    All resources related to the configuration that aren't present in the payload
+    will be deleted.
+    """
+
+    configuration_features: List[Feature] = await crud_feature.filter(
+        db_session=secure_session.session, filter_expressions=[Feature.config_id == configuration_id]
+    )
+    configuration_license_servers: List[LicenseServer] = await crud_license_server.filter(
+        db_session=secure_session.session, filter_expressions=[LicenseServer.config_id == configuration_id]
+    )
+
+    if configuration_features:
+        try:
+            for feature in configuration_features:
+                if configuration_update.features is not None and feature.id not in [
+                    f.id for f in configuration_update.features
+                ]:
+                    await crud_feature.delete(db_session=secure_session.session, id=feature.id)
+        except HTTPException:
+            raise
+
+    if configuration_license_servers:
+        try:
+            for license_server in configuration_license_servers:
+                if configuration_update.license_servers is not None and license_server.id not in [
+                    ls.id for ls in configuration_update.license_servers
+                ]:
+                    await crud_license_server.delete(db_session=secure_session.session, id=license_server.id)
+        except HTTPException:
+            raise
+
+    if configuration_update.features:
+        try:
+            for feature_update in configuration_update.features:
+                if feature_update.id:
+                    await crud_feature.update(
+                        db_session=secure_session.session,
+                        id=feature_update.id,
+                        obj=FeatureUpdateSchema(**feature_update.dict(exclude={"id"})),
+                    )
+                else:
+                    feature_obj = {
+                        "name": feature_update.name,
+                        "product_id": feature_update.product_id,
+                        "config_id": configuration_id,
+                        "reserved": feature_update.reserved,
+                    }
+                    await crud_feature.create(
+                        db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
+                    )
+        except HTTPException:
+            raise
+
+    if configuration_update.license_servers:
+        try:
+            for license_server_update in configuration_update.license_servers:
+                if license_server_update.id:
+                    await crud_license_server.update(
+                        db_session=secure_session.session,
+                        id=license_server_update.id,
+                        obj=LicenseServerUpdateSchema(**license_server_update.dict(exclude={"id"})),
+                    )
+                else:
+                    license_server_obj = {
+                        "config_id": configuration_id,
+                        "host": license_server_update.host,
+                        "port": license_server_update.port,
+                    }
+                    await crud_license_server.create(
+                        db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
+                    )
+        except HTTPException:
+            raise
+
     return await crud_configuration.update(
         db_session=secure_session.session,
         id=configuration_id,
-        obj=configuration_update,
+        obj=ConfigurationUpdateSchema(**configuration_update.dict(exclude={"features", "license_servers"})),
     )
 
 
