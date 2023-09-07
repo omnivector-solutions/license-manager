@@ -1,6 +1,6 @@
 # License Manager CLI Changelog
 
-This file keeps track of all notable changes to ``license-manager-cli``.
+This file keeps track of all notable changes to `license-manager-cli`.
 
 ## Unreleased
 
