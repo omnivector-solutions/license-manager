@@ -448,6 +448,202 @@ async def test_update_configuration__success(
     assert fetch_configuration.name == new_configuration["name"]
 
 
+@mark.asyncio
+async def test_update_configuration__with_feature_creation__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    create_one_product,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": create_one_product[0].id,
+                "reserved": 0,
+            },
+        ],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.features) == 1
+    assert fetch_configuration.features[0].name == "abaqus1"
+    assert fetch_configuration.features[0].product.name == "Abaqus"
+
+
+@mark.asyncio
+async def test_update_configuration__with_feature_update__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    create_one_product,
+    create_one_feature,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "features": [
+            {
+                "id": create_one_feature[0].id,
+                "name": "abaqus1",
+                "product_id": create_one_product[0].id,
+                "reserved": 0,
+            },
+        ],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.features) == 1
+    assert fetch_configuration.features[0].name == "abaqus1"
+    assert fetch_configuration.features[0].product.name == "Abaqus"
+
+
+@mark.asyncio
+async def test_update_configuration__with_feature_deletion__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    create_one_product,
+    create_one_feature,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "features": [],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.features) == 0
+
+
+@mark.asyncio
+async def test_update_configuration__with_license_server_creation__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "license_servers": [
+            {
+                "host": "host1",
+                "port": 1234,
+            },
+        ],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.license_servers) == 1
+    assert fetch_configuration.license_servers[0].host == "host1"
+    assert fetch_configuration.license_servers[0].port == 1234
+
+
+@mark.asyncio
+async def test_update_configuration__with_license_server_update__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    create_one_license_server,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "license_servers": [
+            {
+                "id": create_one_license_server[0].id,
+                "host": "host2",
+                "port": 2345,
+            },
+        ],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.license_servers) == 1
+    assert fetch_configuration.license_servers[0].host == "host2"
+    assert fetch_configuration.license_servers[0].port == 2345
+
+
+@mark.asyncio
+async def test_update_configuration__with_license_server_deletion__success(
+    backend_client: AsyncClient,
+    inject_security_header,
+    create_one_configuration,
+    read_object,
+    create_one_product,
+    create_one_feature,
+):
+    new_configuration = {
+        "name": "New Abaqus",
+        "license_servers": [],
+    }
+
+    id = create_one_configuration[0].id
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.put(f"/lm/configurations/{id}", json=new_configuration)
+
+    assert response.status_code == 200
+
+    stmt = select(Configuration).where(Configuration.id == id)
+    fetch_configuration = await read_object(stmt)
+
+    assert fetch_configuration.name == new_configuration["name"]
+    assert len(fetch_configuration.license_servers) == 0
+
+
 @mark.parametrize(
     "id",
     [
