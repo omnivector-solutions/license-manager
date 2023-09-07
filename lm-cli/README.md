@@ -16,30 +16,20 @@
 
 <!-- PROJECT LOGO -->
 <br />
+> An [Omnivector](https://www.omnivector.io/) initiative
+>
+> [![omnivector-logo](https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png)](https://www.omnivector.io/)
+
+<h3 align="center">License Manager CLI</h3>
+
 <p align="center">
-  <a href="https://github.com/omnivector-solutions/license-manager">
-    <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png" alt="Logo">
-  </a>
-
-  <h3 align="center">License Manager CLI</h3>
-
-  <p align="center">
-    A CLI to create license configurations and check license usage.
-    <br />
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">
-        Report Bug
-    </a>
-    ·
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">
-        Request Feature
-    </a>
-  </p>
+  A CLI to create license configurations and check license usage.
 </p>
 
 
 # About the Project
 
-The ``License Manager CLI`` is an interface to the ``License Manager API``. It can be used to create license configurations, view bookings
+The `License Manager CLI` is an interface to the `License Manager API`. It can be used to create license configurations, view bookings
 and list the data in the API.
 
 

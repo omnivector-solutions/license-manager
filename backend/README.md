@@ -16,29 +16,19 @@
 
 <!-- PROJECT LOGO -->
 <br />
+> An [Omnivector](https://www.omnivector.io/) initiative
+>
+> [![omnivector-logo](https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png)](https://www.omnivector.io/)
+
+<h3 align="center">License Manager API</h3>
+
 <p align="center">
-  <a href="https://github.com/omnivector-solutions/license-manager">
-    <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png" alt="Logo">
-  </a>
-
-  <h3 align="center">License Manager API</h3>
-
-  <p align="center">
-    A REST API used by License Manager Agent to manage license usage in HPC clusters.
-    <br />
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">
-        Report Bug
-    </a>
-    ·
-    <a href="https://github.com/omnivector-solutions/license-manager/issues">
-        Request Feature
-    </a>
-  </p>
+A REST API used by License Manager Agent to manage license usage in HPC clusters.
 </p>
 
 
 # About the Project
-The ``License Manager API`` is responsible for managing license configurations, storing license usage and handling booking requests. The API is used by the License Manager Agent to centralize the data retrieved from the license servers and from the HPC cluster.
+The `License Manager API` is responsible for managing license configurations, storing license usage and handling booking requests. The API is used by the License Manager Agent to centralize the data retrieved from the license servers and from the HPC cluster.
 
 
 ## Documentation
