@@ -1,5 +1,5 @@
 # Development
-The ``License Manager`` application incorporates a mix of different services in docker and LXD containers.
+The `License Manager` application incorporates a mix of different services in docker and LXD containers.
 This text will attempt to define the procedure for initializing and running the different components.
 
 ## Pre-Installation
@@ -13,7 +13,7 @@ Before you get started, ensure you have the following pre-requisites installed o
 * docker-compose
 * docker
 
-Additionally, assign the host machine's primary IP address to a variable ``MY_IP``. We will use this value throughout the
+Additionally, assign the host machine's primary IP address to a variable `MY_IP`. We will use this value throughout the
 development environment setup process.
 
 ``` bash
@@ -24,7 +24,7 @@ MY_IP="$(ip route get 1 | awk '{print $(NF-2);exit}')"
 Follow the [upstream documentation](https://omnivector-solutions.github.io/osd-documentation/master/installation.html#lxd)
 to deploy a local LXD slurm cluster that we can use in development.
 
-The general idea is to run ``juju deploy slurm``, following which, you will have a local slurm cluster to
+The general idea is to run `juju deploy slurm`, following which, you will have a local slurm cluster to
 use in development.
 
 After the deployment of slurm has completed and settled, the environment should resemble the following:
@@ -72,16 +72,16 @@ $ juju ssh slurmd/0 srun -posd-slurmd hostname
 juju-b71748-2
 ```
 
-The slurm cluster is now prepared for further configuration and use in ``License Manager`` development.
+The slurm cluster is now prepared for further configuration and use in `License Manager` development.
 
 ### 2. Compose the License Manager API
-Setting up the ``License Manager API`` for development is done in three steps:
+Setting up the `License Manager API` for development is done in three steps:
 
 1. Clone the project to your local machine
-2. Run ``docker-compose``
+2. Run `docker-compose`
 3. Initialize the database with a license configuration for testing.
 
-To get started, clone the ``license-manager`` repository from GitHub and run ``make local``.
+To get started, clone the `license-manager` repository from GitHub and run `make local`.
 
 ``` bash
 git clone https://github.com/omnivector-solutions/license-manager
@@ -89,9 +89,9 @@ cd license-manager/backend/
 make local
 ```
 
-We should now see two running docker containers; ``backend_license-manager_1`` and ``backend_postgres-back_1``.
+We should now see two running docker containers; `backend_license-manager_1` and `backend_postgres-back_1`.
 
-``docker ps`` shows:
+`docker ps` shows:
 
 ``` bash
 $ docker ps
@@ -100,8 +100,8 @@ a62719b6fa65   backend_license-manager   "uvicorn lm_backend.…"   13 minutes a
 3d5abbc7ffff   postgres                  "docker-entrypoint.s…"   2 days ago       Up 13 minutes (healthy)   5432/tcp                                backend_postgres-back_1
 ```
 
-From the output above, we see that port ``7000`` on our local machine is forwarded to the listening port of the ``License Manager API``
-container (port ``80``). This means we will make requests to our local host IP address at port ``7000`` in order to access the ``License Manager API`` HTTP endpoints.
+From the output above, we see that port `7000` on our local machine is forwarded to the listening port of the `License Manager API`
+container (port `80`). This means we will make requests to our local host IP address at port `7000` in order to access the `License Manager API` HTTP endpoints.
 
 Now initialize the API with the following resources that we can use for testing:
 
@@ -195,10 +195,10 @@ curl -X 'GET' \
 ]
 ```
 
-The ``License Manager API`` is now configured and ready for use in the development environment.
+The `License Manager API` is now configured and ready for use in the development environment.
 
 ### 3. Compose the License Manager Simulator
-To run the ``License Manager Simulator`` API, clone the repository and run ``docker-compose up``.
+To run the `License Manager Simulator` API, clone the repository and run `docker-compose up`.
 
 ``` bash
 git clone https://github.com/omnivector-solutions/license-manager-simulator
@@ -207,8 +207,8 @@ docker-compose up
 ```
 
 ### 4. Add the License Manager Agent to the cluster
-The final component we need to deploy is the ``License Manager Agent``. The ``License Manager Agent`` is deployed to the
-same model as the slurm charms, and related to ``slurmctld``.
+The final component we need to deploy is the `License Manager Agent`. The `License Manager Agent` is deployed to the
+same model as the slurm charms, and related to `slurmctld`.
 
 ``` bash
 git clone git@github.com:omnivector-solutions/charm-license-manager-agent
@@ -216,11 +216,11 @@ cd charm-license-manager-agent/
 make charm
 ```
 
-The ``make charm`` command will produce a resultant charm artifact named
-``license-manager-agent.charm``. This is the charm that we will deploy.
+The `make charm` command will produce a resultant charm artifact named
+`license-manager-agent.charm`. This is the charm that we will deploy.
 
-Before deploying the charm, create a ``yaml`` configuration file that contains the needed settings for the
-``License Manager Agent Charm``. The config should look something like this:
+Before deploying the charm, create a `yaml` configuration file that contains the needed settings for the
+`License Manager Agent Charm`. The config should look something like this:
 
 ``` yaml
 license-manager-agent:
@@ -239,14 +239,14 @@ license-manager-agent:
   sentry-dsn: ""
 ```
 
-Make sure to substitute the correct values into the new ``license-manager-agent.yaml`` configuration file
+Make sure to substitute the correct values into the new `license-manager-agent.yaml` configuration file
 (especially the IP address of your host machine). You'll also need to provision an OIDC instance to authenticate
 against the backend API.
 
-Now that we have the charm artifact (``license-manager-agent.charm``) and
-the config file for the charm (``license-manager-agent.yaml``), we are ready to deploy.
+Now that we have the charm artifact (`license-manager-agent.charm`) and
+the config file for the charm (`license-manager-agent.yaml`), we are ready to deploy.
 
-Using ``juju``, deploy the ``license-manager-agent`` charm to the model, specifying the config file as an argument to the
+Using `juju`, deploy the `license-manager-agent` charm to the model, specifying the config file as an argument to the
 deploy command.
 
 ``` bash
@@ -273,16 +273,16 @@ These configurations will ensure that your slurm cluster has a fake license serv
 to be used by the fake application (which will be run as a batch script).
 
 #### Configuring the license server client
-The ``License Manager Simulator`` has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
-The script requests license information from the ``License Manager Simulator`` API and renders
-it in the template, simulating the output from the real license server. These files need to be copied to the ``License Manager Agent`` machine.
+The `License Manager Simulator` has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
+The script requests license information from the `License Manager Simulator` API and renders
+it in the template, simulating the output from the real license server. These files need to be copied to the `License Manager Agent` machine.
 
 You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
 application script, which requests a license to the simulator API, sleeps for a few seconds, and return the license. This
 application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.
 
-To set up everything needed to use the simulator, use the make setup command available in the ``License Manager Simulator`` project.
-This commands expects as an argument the ``License Manager Simulator`` API IP address.
+To set up everything needed to use the simulator, use the make setup command available in the `License Manager Simulator` project.
+This commands expects as an argument the `License Manager Simulator` API IP address.
 
 ``` bash
 cd license-manager-simulator/
@@ -298,8 +298,8 @@ With the environment configured, you'll have one simulated license for each lice
 4. hyperworks.hyperworks for LM-X
 5. cosin.ftire_adams for OLicense
 
-These licenses will be available in the simulated license servers. You can check it by executing ``lmutil``, ``rlmutil``, ``lstc_qrun``, ``lmxendutil``
-and ``olixtool.lin`` files.
+These licenses will be available in the simulated license servers. You can check it by executing `lmutil`, `rlmutil`, `lstc_qrun`, `lmxendutil`
+and `olixtool.lin` files.
 
 ``` bash
 juju ssh license-manager-agent/0
@@ -307,7 +307,7 @@ source /srv/license-manager-agent-venv/bin/activate
 /srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
 ```
 
-The output should display the "abaqus.abaqus" license that was added to the ``License Manager Simulator``:
+The output should display the "abaqus.abaqus" license that was added to the `License Manager Simulator`:
 
 ``` bash
 lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
@@ -333,22 +333,22 @@ Users of abaqus:  (Total of 1000 licenses issued;  Total of 0 licenses in use)
 ```
 
 #### Seeding the batch script and fake application
-To test the ``License Manager``, there's a fake application and a batch script. These files are available at the ``/tmp`` folder in the ``slurmd`` machine.
-The fake application makes a request to the ``License Manager Simulator`` API to book 42 ``abaqus`` licenses, sleeps for a few seconds, and then deletes the booking after.
+To test the `License Manager`, there's a fake application and a batch script. These files are available at the `/tmp` folder in the `slurmd` machine.
+The fake application makes a request to the `License Manager Simulator` API to book 42 `abaqus` licenses, sleeps for a few seconds, and then deletes the booking after.
 The batch script will be responsible for scheduling the fake application job in the slurm cluster.
 
-To run the job, use the ``sbatch`` command.
+To run the job, use the `sbatch` command.
 
 ``` bash
 juju ssh slurmd/0 sbatch /tmp/batch.sh
 ```
 
-To use other licenses, change the license's name in the ``application.sh`` and ``batch.sh`` file.
+To use other licenses, change the license's name in the `application.sh` and `batch.sh` file.
 
 ### 6. Validation
 After following the steps above, you should have a working development environment.
-To validate that it is indeed working, submit a job to slurm (using the batch script) and check ``License Manager API``.
-Make a request to the ``features`` endpoint.
+To validate that it is indeed working, submit a job to slurm (using the batch script) and check `License Manager API`.
+Make a request to the `features` endpoint.
 
 ``` bash
 curl -X 'GET' \
@@ -356,7 +356,7 @@ curl -X 'GET' \
   -H 'accept: application/json'
 ```
 
-You should see that the ``used`` value for the license was updated with the value used in the job (42).
+You should see that the `used` value for the license was updated with the value used in the job (42).
 
 ``` bash
 [
@@ -375,7 +375,7 @@ You should see that the ``used`` value for the license was updated with the valu
 ]
 ```
 
-You also should have a new job created. To verify this, make a request to the ``jobs`` endpoint.
+You also should have a new job created. To verify this, make a request to the `jobs` endpoint.
 
 ``` bash
 curl -X 'GET' \
@@ -406,4 +406,4 @@ The job should contain information about the job and also how many licenses were
 ```
 
 Wait for a few seconds (for the reconcile to run) and check again. The job and the booking should be deleted
-and the ``used`` value will return to its original quantity.
+and the `used` value will return to its original quantity.

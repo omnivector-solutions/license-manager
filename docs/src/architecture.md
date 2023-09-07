@@ -4,27 +4,27 @@ PostgreSQL database. The client consists of a timed reconcile job that runs on t
 a prolog integration to Slurm.
 
 ## License Manager Agent
-The ``License Manager Agent`` is responsible for keeping the local cluster license totals
+The `License Manager Agent` is responsible for keeping the local cluster license totals
 in sync with the the 3rd party license server totals. It's also responsible for making booking requests
-to the ``License Manager API`` when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
+to the `License Manager API` when Slurm is configured to use the `PrologSlurmctld` script provided by `License Manager Agent`.
 
 ### Reconciliation
-For each license tracked by License Manager, the ``License Manager Agent`` will periodically poll the license servers to get
-the usage information and store it in the ``License Manager API``. The ``stat-interval`` is the period of time
-between each reconciliation and can be configured in the ``License Manager Agent`` configuration file.
+For each license tracked by License Manager, the `License Manager Agent` will periodically poll the license servers to get
+the usage information and store it in the `License Manager API`. The `stat-interval` is the period of time
+between each reconciliation and can be configured in the `License Manager Agent` configuration file.
 
-The information in the ``License Manager API`` is used by the reconciliation process to update the license counters in Slurm.
+The information in the `License Manager API` is used by the reconciliation process to update the license counters in Slurm.
 This is done by creating a reservation to represent the licenses used in the license server.
 
 This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.
-The reservation is created by the user configured in the ``License Manager Agent`` configuration file. The user must
-have a user account in the Slurm cluster and have ``operator`` privilege level to manage reservations.
+The reservation is created by the user configured in the `License Manager Agent` configuration file. The user must
+have a user account in the Slurm cluster and have `operator` privilege level to manage reservations.
 
 ### Bookings
-The ``License Manager Agent`` is also responsible for making booking requests to the ``License Manager API``
-when Slurm is configured to use the ``PrologSlurmctld`` script provided by ``License Manager Agent``.
+The `License Manager Agent` is also responsible for making booking requests to the `License Manager API`
+when Slurm is configured to use the `PrologSlurmctld` script provided by `License Manager Agent`.
 
-Each job submitted to Slurm will trigger the ``PrologSlurmctld`` script that makes a request to the ``License Manager API``
+Each job submitted to Slurm will trigger the `PrologSlurmctld` script that makes a request to the `License Manager API`
 to book the needed licenses prior to the allocation of the job. The booking ensures that the licenses are available for the job
 to use by taking into consideration the licenses booked for other jobs and the license usage in the license server.
 
@@ -33,14 +33,14 @@ satisfy the booking request.
 
 ### Grace time
 A job can take some time to check out the license from the license server after it is submitted to Slurm.
-Thus, each license has a ``grace time`` period that is used to indicate how long a booking will be retained.
-After the ``grace time`` expires, the booking is deleted. This means that the license was checked out from the
+Thus, each license has a `grace time` period that is used to indicate how long a booking will be retained.
+After the `grace time` expires, the booking is deleted. This means that the license was checked out from the
 license server and doesn't need a booking anymore.
 
 ## License Manager API
-The ``License Manager API`` provides a RESTful API where licenses and bookins are tracked.
-The ``License Manager Agent`` uses this API to store the license usage information and to process the booking requests.
-The ``License Manager CLI`` interacts with this API to add new configurations and to check the usage information for each tracked license.
+The `License Manager API` provides a RESTful API where licenses and bookins are tracked.
+The `License Manager Agent` uses this API to store the license usage information and to process the booking requests.
+The `License Manager CLI` interacts with this API to add new configurations and to check the usage information for each tracked license.
 
 The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
 made and the license usage in the license server.
@@ -97,9 +97,9 @@ This means that some of the resources need to be created before others can be cr
 ```
         
 ### Configurations
-The ``Configuration`` resource holds the information for a set of features that are available on the same license server.
+The `Configuration` resource holds the information for a set of features that are available on the same license server.
 
-A configuration is attached to a cluster and can have ``n`` features attached to it.
+A configuration is attached to a cluster and can have `n` features attached to it.
 It also defines the license type, the license server host addresses and the grace time period.
 The license type identifies the provider of the license server.
 
@@ -114,14 +114,14 @@ The following license server types are supported:
 
 Endpoints available:
 
-* POST ``/lm/configurations``
-* GET ``/lm/configurations``
-* GET ``/lm/configurations/by_client_id``
-* GET ``/lm/configurations/{id}``
-* PUT ``/lm/configurations/{id}``
-* DEL ``/lm/configurations/{id}``
+* POST `/lm/configurations`
+* GET `/lm/configurations`
+* GET `/lm/configurations/by_client_id`
+* GET `/lm/configurations/{id}`
+* PUT `/lm/configurations/{id}`
+* DEL `/lm/configurations/{id}`
 
-The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and returns the configurations that belong to the cluster.
+The endpoint `by_client_id` extracts the `cluster_client_id` from the request and returns the configurations that belong to the cluster.
 
 Payload example for POST:
 
@@ -137,18 +137,18 @@ Payload example for POST:
 After creating a configuration, the license servers and features can be added.
 
 ### License Servers
-The ``License Server`` resource represents the actual license server where the license is installed.
+The `License Server` resource represents the actual license server where the license is installed.
 
 A license server has a host and a port, and needs to be attached to a configuration.
-Each configuration can have ``n`` license servers, as long as they provide the same data (mirrored for redundancy).
+Each configuration can have `n` license servers, as long as they provide the same data (mirrored for redundancy).
 
 Endpoints available:
 
-* POST ``/lm/license_servers``
-* GET ``/lm/license_servers``
-* GET ``/lm/license_servers/{id}``
-* PUT ``/lm/license_servers/{id}``
-* DEL ``/lm/license_servers/{id}``
+* POST `/lm/license_servers`
+* GET `/lm/license_servers`
+* GET `/lm/license_servers/{id}`
+* PUT `/lm/license_servers/{id}`
+* DEL `/lm/license_servers/{id}`
 
 Payload example for POST:
 
@@ -162,18 +162,18 @@ Payload example for POST:
 
 
 ### Products
-The ``Product`` resource represents the product name of the license.
+The `Product` resource represents the product name of the license.
 
-Each license is identified as ``product.feature@license_server_type``.
-To create a ``Feature``, a ``Product`` needs to be created first.
+Each license is identified as `product.feature@license_server_type`.
+To create a `Feature`, a `Product` needs to be created first.
 
 Endpoints available:
 
-* POST ``/lm/products``
-* GET ``/lm/products``
-* GET ``/lm/products/{id}``
-* PUT ``/lm/products/{id}``
-* DEL ``/lm/products/{id}``
+* POST `/lm/products`
+* GET `/lm/products`
+* GET `/lm/products/{id}`
+* PUT `/lm/products/{id}`
+* DEL `/lm/products/{id}`
 
 Payload example for POST:
 
@@ -185,26 +185,26 @@ Payload example for POST:
 
 
 ### Features
-The ``Feature`` resource represents the licenses in the cluster.
+The `Feature` resource represents the licenses in the cluster.
 
-Each ``Feature`` is attached to a ``Configuration`` and a ``Product``.
+Each `Feature` is attached to a `Configuration` and a `Product`.
 
-The feature has a ``reserved`` value, that represents how many licenses should be reserved for usage in desktop applications.
+The feature has a `reserved` value, that represents how many licenses should be reserved for usage in desktop applications.
 The amount of licenses reserved is not used by the cluster.
 
-The ``License Manager Agent`` polls the license server to populate the ``used`` and ``total`` values.
+The `License Manager Agent` polls the license server to populate the `used` and `total` values.
 The information stored includes the total number of licenses available and how many licenses are in use.
 
 Endpoints available:
 
-* POST ``/lm/features``
-* GET ``/lm/features``
-* GET ``/lm/features/{id}``
-* PUT ``/lm/features/{id}``
-* PUT ``/lm/features/by_client_id``
-* DEL ``/lm/features/{id}``
+* POST `/lm/features`
+* GET `/lm/features`
+* GET `/lm/features/{id}`
+* PUT `/lm/features/{id}`
+* PUT `/lm/features/by_client_id`
+* DEL `/lm/features/{id}`
 
-The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and updates the feature for that cluster.
+The endpoint `by_client_id` extracts the `cluster_client_id` from the request and updates the feature for that cluster.
 
 This endpoint is needed since there can be multiple licenses with the same name in different clusters.
 
@@ -221,29 +221,29 @@ Payload example for POST:
 ```
 
 ### Jobs
-The ``Job`` resource represents the jobs submitted to the cluster.
+The `Job` resource represents the jobs submitted to the cluster.
 
-When a job is intercepted by the ``PrologSlurmctld`` script, the job is created automatically.
+When a job is intercepted by the `PrologSlurmctld` script, the job is created automatically.
 
-Each ``Job`` can have ``n`` ``Bookings`` attached to it.
-If the job requires licenses, a ``Booking`` is created for each license.
-Once the job finishes, the ``EpilogSlurmctld`` deletes the job from the API, along with its bookings.
+Each `Job` can have `n` `Bookings` attached to it.
+If the job requires licenses, a `Booking` is created for each license.
+Once the job finishes, the `EpilogSlurmctld` deletes the job from the API, along with its bookings.
 
-Since the ``slurm_job_id`` is not unique across clusters, each job is identified by the ``cluster_client_id`` alongside the ``slurm_job_id``.
+Since the `slurm_job_id` is not unique across clusters, each job is identified by the `cluster_client_id` alongside the `slurm_job_id`.
 
 Endpoints available:
 
-* POST ``/lm/jobs``
-* GET ``/lm/jobs``
-* GET ``/lm/jobs/by_client_id``
-* GET ``/lm/jobs/{id}``
-* GET ``/lm/jobs/slurm_job_id/{slurm_job_id}``
-* DEL ``/lm/jobs/{id}``
-* DEL ``/lm/jobs/slurm_job_id/{slurm_job_id}``
+* POST `/lm/jobs`
+* GET `/lm/jobs`
+* GET `/lm/jobs/by_client_id`
+* GET `/lm/jobs/{id}`
+* GET `/lm/jobs/slurm_job_id/{slurm_job_id}`
+* DEL `/lm/jobs/{id}`
+* DEL `/lm/jobs/slurm_job_id/{slurm_job_id}`
 
-The endpoint ``by_client_id`` extracts the ``cluster_client_id`` from the request and returns the jobs that belong to the cluster.
+The endpoint `by_client_id` extracts the `cluster_client_id` from the request and returns the jobs that belong to the cluster.
 
-The in the POST endpoint, the parameter ``cluster_client_id`` is optional. If it's not provided, the ``cluster_client_id`` is extracted from the request.
+The in the POST endpoint, the parameter `cluster_client_id` is optional. If it's not provided, the `cluster_client_id` is extracted from the request.
 
 Payload example for POST:
 
@@ -257,21 +257,21 @@ Payload example for POST:
 ```
 
 ### Bookings
-The ``Booking`` resource is responsible for booking licenses for a specific job.
+The `Booking` resource is responsible for booking licenses for a specific job.
 
-The booking ensures the job will have enough licenses to be used when the ``grace time`` is reached.
-``License Manager Agent`` stores the information about the booking requests made by Slurm when the ``PrologSlurmctld``
+The booking ensures the job will have enough licenses to be used when the `grace time` is reached.
+`License Manager Agent` stores the information about the booking requests made by Slurm when the `PrologSlurmctld`
 script is used.
 
-Each ``Booking`` is attached to a ``Job``. The ``job_id`` parameter identifies the job in the API, and is different from the ``slurm_job_id``
+Each `Booking` is attached to a `Job`. The `job_id` parameter identifies the job in the API, and is different from the `slurm_job_id`
 that idenfies it in the cluster.
 
 Endpoints available:
 
-* POST ``/lm/bookings``
-* GET ``/lm/bookings``
-* GET ``/lm/bookings/{id}``
-* DEL ``/lm/bookings/{id}``
+* POST `/lm/bookings`
+* GET `/lm/bookings`
+* GET `/lm/bookings/{id}`
+* DEL `/lm/bookings/{id}`
 
 Payload example for POST:
 
@@ -284,11 +284,11 @@ Payload example for POST:
 ```
 
 ## License Manager CLI
-The ``License Manager CLI`` is a client to interact with the ``License Manager API``.
+The `License Manager CLI` is a client to interact with the `License Manager API`.
 
 It can be used to add new configurations to the API and to check the usage information for each tracked license.
 
-The ``Jobs`` and ``Bookings`` are read only. The remaining resources can be edited by users with permission to do so.
+The `Jobs` and `Bookings` are read only. The remaining resources can be edited by users with permission to do so.
 
 ### Global commands
 | **Command** | **Description** |
