@@ -174,24 +174,22 @@ async def update_configuration(
     )
 
     if configuration_features:
-        try:
-            for feature in configuration_features:
-                if configuration_update.features is not None and feature.id not in [
-                    f.id for f in configuration_update.features
-                ]:
-                    await crud_feature.delete(db_session=secure_session.session, id=feature.id)
-        except HTTPException:
-            raise
+        features_to_delete = [
+            feature.id
+            for feature in configuration_features
+            if feature.id not in [f.id for f in configuration_update.features]
+        ]
+        await crud_feature.bulk_delete(db_session=secure_session.session, ids=features_to_delete)
 
     if configuration_license_servers:
-        try:
-            for license_server in configuration_license_servers:
-                if configuration_update.license_servers is not None and license_server.id not in [
-                    ls.id for ls in configuration_update.license_servers
-                ]:
-                    await crud_license_server.delete(db_session=secure_session.session, id=license_server.id)
-        except HTTPException:
-            raise
+        license_servers_to_delete = [
+            license_server.id
+            for license_server in configuration_license_servers
+            if license_server.id not in [ls.id for ls in configuration_update.license_servers]
+        ]
+        await crud_license_server.bulk_delete(
+            db_session=secure_session.session, ids=license_servers_to_delete
+        )
 
     if configuration_update.features:
         try:
