@@ -34,9 +34,9 @@ class FeatureWithOptionalIdUpdateSchema(BaseUpdateSchema):
     """
 
     id: Optional[int] = None
-    name: str
-    product_id: int
-    reserved: int
+    name: Optional[str] = None
+    product_id: Optional[int] = None
+    reserved: Optional[int] = None
 
 
 class FeatureUpdateSchema(BaseUpdateSchema):

@@ -33,8 +33,8 @@ class LicenseServerWithOptionalIdUpdateSchema(BaseUpdateSchema):
     """
 
     id: Optional[int] = None
-    host: str
-    port: PositiveInt
+    host: Optional[str] = None
+    port: Optional[PositiveInt] = None
 
 
 class LicenseServerUpdateSchema(BaseUpdateSchema):
