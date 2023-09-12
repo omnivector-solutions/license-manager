@@ -174,3 +174,27 @@ class GenericCRUD:
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
 
         return {"message": f"{self.model.__name__} deleted successfully."}
+
+    async def bulk_delete(self, db_session: AsyncSession, ids: List[int]):
+        """
+        Delete multiple objects from the database.
+        """
+        try:
+            query = await db_session.execute(select(self.model).filter(self.model.id.in_(ids)))
+            db_objs = query.scalars().all()
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be deleted.")
+
+        if db_objs is None:
+            raise HTTPException(status_code=404, detail=f"{self.model.__name__}s not found.")
+
+        try:
+            for db_obj in db_objs:
+                await db_session.delete(db_obj)
+            await db_session.flush()
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be deleted.")
+
+        return {"message": f"{self.model.__name__}s deleted successfully."}
