@@ -19,7 +19,7 @@ class ConfigurationCRUD(GenericCRUD):
         """
         Delete all features that aren't in the payload.
         """
-        features_in_payload = [feature.id for feature in payload.features] if payload.features else []
+        features_in_payload = [f.id for f in payload.features if f.id is not None or []]
         delete_unused_features_query = (
             delete(Feature)
             .where(~Feature.id.in_(features_in_payload))
@@ -38,11 +38,7 @@ class ConfigurationCRUD(GenericCRUD):
         """
         Delete all license servers that aren't in the payload.
         """
-        license_servers_in_payload = (
-            [license_server.id for license_server in payload.license_servers]
-            if payload.license_servers
-            else []
-        )
+        license_servers_in_payload = [ls.id for ls in payload.license_servers if ls.id is not None or []]
         delete_unused_license_servers_query = (
             delete(LicenseServer)
             .where(~LicenseServer.id.in_(license_servers_in_payload))
