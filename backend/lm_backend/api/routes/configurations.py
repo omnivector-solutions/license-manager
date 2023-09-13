@@ -1,7 +1,9 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from loguru import logger
 
+from lm_backend.api.cruds.configuration import ConfigurationCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
@@ -23,7 +25,7 @@ from lm_backend.permissions import Permissions
 router = APIRouter()
 
 
-crud_configuration = GenericCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdateSchema)
+crud_configuration = ConfigurationCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdateSchema)
 crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
 crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
 crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
@@ -165,34 +167,14 @@ async def update_configuration(
     All resources related to the configuration that aren't present in the payload
     will be deleted.
     """
-
-    configuration_features: List[Feature] = await crud_feature.filter(
-        db_session=secure_session.session, filter_expressions=[Feature.config_id == configuration_id]
-    )
-    configuration_license_servers: List[LicenseServer] = await crud_license_server.filter(
-        db_session=secure_session.session, filter_expressions=[LicenseServer.config_id == configuration_id]
-    )
-
-    if configuration_features:
-        features_to_delete = [
-            feature.id
-            for feature in configuration_features
-            if feature.id not in [f.id for f in configuration_update.features]
-        ]
-        await crud_feature.bulk_delete(db_session=secure_session.session, ids=features_to_delete)
-
-    if configuration_license_servers:
-        license_servers_to_delete = [
-            license_server.id
-            for license_server in configuration_license_servers
-            if license_server.id not in [ls.id for ls in configuration_update.license_servers]
-        ]
-        await crud_license_server.bulk_delete(
-            db_session=secure_session.session, ids=license_servers_to_delete
-        )
-
-    if configuration_update.features:
+    if configuration_update.features is not None:
         try:
+            await crud_configuration.delete_features(
+                db_session=secure_session.session,
+                configuration_id=configuration_id,
+                payload=configuration_update,
+            )
+
             for feature_update in configuration_update.features:
                 if feature_update.id:
                     await crud_feature.update(
@@ -213,8 +195,14 @@ async def update_configuration(
         except HTTPException:
             raise
 
-    if configuration_update.license_servers:
+    if configuration_update.license_servers is not None:
         try:
+            await crud_configuration.delete_license_servers(
+                db_session=secure_session.session,
+                configuration_id=configuration_id,
+                payload=configuration_update,
+            )
+
             for license_server_update in configuration_update.license_servers:
                 if license_server_update.id:
                     await crud_license_server.update(
@@ -234,11 +222,23 @@ async def update_configuration(
         except HTTPException:
             raise
 
-    return await crud_configuration.update(
-        db_session=secure_session.session,
-        id=configuration_id,
-        obj=ConfigurationUpdateSchema(**configuration_update.dict(exclude={"features", "license_servers"})),
-    )
+    if any(value for _, value in configuration_update.dict(exclude={"features", "license_servers"}).items()):
+        return await crud_configuration.update(
+            db_session=secure_session.session,
+            id=configuration_id,
+            obj=ConfigurationUpdateSchema(
+                **configuration_update.dict(exclude={"features", "license_servers"})
+            ),
+        )
+    elif configuration_update.features or configuration_update.license_servers:
+        return await crud_configuration.read(
+            db_session=secure_session.session, id=configuration_id, force_refresh=True
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please provide a valid field to update configuration.",
+        )
 
 
 @router.delete(
