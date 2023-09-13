@@ -578,7 +578,6 @@ async def test_update_configuration__with_one_feature_deletion__success(
     assert fetch_configuration.features[0].product.name == "Abaqus"
 
 
-
 @mark.asyncio
 async def test_update_configuration__with_license_server_creation__success(
     backend_client: AsyncClient,
@@ -708,7 +707,6 @@ async def test_update_configuration__with_one_license_server_deletion__success(
     assert len(fetch_configuration.license_servers) == 1
     assert fetch_configuration.license_servers[0].host == "host1"
     assert fetch_configuration.license_servers[0].port == 1234
-
 
 
 @mark.parametrize(
