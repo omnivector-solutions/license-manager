@@ -167,59 +167,53 @@ async def update_configuration(
     will be deleted.
     """
     if configuration_update.features is not None:
-        try:
-            await crud_configuration.delete_features(
-                db_session=secure_session.session,
-                configuration_id=configuration_id,
-                payload=configuration_update,
-            )
+        await crud_configuration.delete_features(
+            db_session=secure_session.session,
+            configuration_id=configuration_id,
+            payload=configuration_update,
+        )
 
-            for feature_update in configuration_update.features:
-                if feature_update.id:
-                    await crud_feature.update(
-                        db_session=secure_session.session,
-                        id=feature_update.id,
-                        obj=FeatureUpdateSchema(**feature_update.dict(exclude={"id"})),
-                    )
-                else:
-                    feature_obj = {
-                        "name": feature_update.name,
-                        "product_id": feature_update.product_id,
-                        "config_id": configuration_id,
-                        "reserved": feature_update.reserved,
-                    }
-                    await crud_feature.create(
-                        db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
-                    )
-        except HTTPException:
-            raise
+        for feature_update in configuration_update.features:
+            if feature_update.id:
+                await crud_feature.update(
+                    db_session=secure_session.session,
+                    id=feature_update.id,
+                    obj=FeatureUpdateSchema(**feature_update.dict(exclude={"id"})),
+                )
+            else:
+                feature_obj = {
+                    "name": feature_update.name,
+                    "product_id": feature_update.product_id,
+                    "config_id": configuration_id,
+                    "reserved": feature_update.reserved,
+                }
+                await crud_feature.create(
+                    db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
+                )
 
     if configuration_update.license_servers is not None:
-        try:
-            await crud_configuration.delete_license_servers(
-                db_session=secure_session.session,
-                configuration_id=configuration_id,
-                payload=configuration_update,
-            )
+        await crud_configuration.delete_license_servers(
+            db_session=secure_session.session,
+            configuration_id=configuration_id,
+            payload=configuration_update,
+        )
 
-            for license_server_update in configuration_update.license_servers:
-                if license_server_update.id:
-                    await crud_license_server.update(
-                        db_session=secure_session.session,
-                        id=license_server_update.id,
-                        obj=LicenseServerUpdateSchema(**license_server_update.dict(exclude={"id"})),
-                    )
-                else:
-                    license_server_obj = {
-                        "config_id": configuration_id,
-                        "host": license_server_update.host,
-                        "port": license_server_update.port,
-                    }
-                    await crud_license_server.create(
-                        db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
-                    )
-        except HTTPException:
-            raise
+        for license_server_update in configuration_update.license_servers:
+            if license_server_update.id:
+                await crud_license_server.update(
+                    db_session=secure_session.session,
+                    id=license_server_update.id,
+                    obj=LicenseServerUpdateSchema(**license_server_update.dict(exclude={"id"})),
+                )
+            else:
+                license_server_obj = {
+                    "config_id": configuration_id,
+                    "host": license_server_update.host,
+                    "port": license_server_update.port,
+                }
+                await crud_license_server.create(
+                    db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
+                )
 
     if any(value for _, value in configuration_update.dict(exclude={"features", "license_servers"}).items()):
         return await crud_configuration.update(
