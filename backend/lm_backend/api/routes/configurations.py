@@ -158,10 +158,10 @@ async def update_configuration(
     Update a configuration in the database.
 
     If there are features in the payload, they'll be updated if they have an id,
-    or will be created if the id is None.
+    or they will be created if the id is None.
 
     If there are license servers in the payload, they'll updated if they have an id,
-    or will be created if the id is None.
+    or they will be created if the id is None.
 
     All resources related to the configuration that aren't present in the payload
     will be deleted.
