@@ -65,8 +65,8 @@ class ConfigurationCompleteUpdateSchema(BaseUpdateSchema):
     cluster_client_id: Optional[str] = None
     grace_time: Optional[int] = None
     type: Optional[LicenseServerType] = None
-    features: Optional[List[FeatureWithOptionalIdUpdateSchema]] = []
-    license_servers: Optional[List[LicenseServerWithOptionalIdUpdateSchema]] = []
+    features: Optional[List[FeatureWithOptionalIdUpdateSchema]] = None
+    license_servers: Optional[List[LicenseServerWithOptionalIdUpdateSchema]] = None
 
 
 class ConfigurationSchema(BaseModel):
