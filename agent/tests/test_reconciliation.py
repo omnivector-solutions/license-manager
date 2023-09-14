@@ -53,15 +53,13 @@ def test__get_greatest_grace_time_for_job__no_bookings():
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
-@mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_bookings_for_all_jobs")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__on_delete(
     clean_jobs_mock,
-    get_cluster_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
-    get_bookings_for_job_id_mock,
+    get_bookings_for_all_jobs_mock,
     get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
     parsed_jobs,
@@ -69,13 +67,15 @@ async def test__clean_jobs_by_grace_time__on_delete(
     """
     Test for cleaning jobs when running time is greater than grace_time.
     """
-    slurm_job_id = 1
-    formatted_squeue_out = "1|5:00|RUNNING"
+    slurm_job_id = "123"
+    formatted_squeue_out = "123|5:00|RUNNING"
     grace_times = {1: 10, 2: 20}
-    job_bookings = parsed_jobs[0].bookings
 
-    get_cluster_jobs_from_backend_mock.return_value = parsed_jobs
-    get_bookings_for_job_id_mock.return_value = job_bookings
+    get_bookings_for_all_jobs_mock.return_value = {
+        "123": parsed_jobs[0].bookings,
+        "456": parsed_jobs[1].bookings,
+        "789": parsed_jobs[2].bookings,
+    }
     remove_job_by_slurm_job_id_mock.return_value = True
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
     get_cluster_grace_times_mock.return_value = grace_times
@@ -83,22 +83,20 @@ async def test__clean_jobs_by_grace_time__on_delete(
     await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_awaited_once_with(slurm_job_id)
-    get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
+    get_bookings_for_all_jobs_mock.assert_called_once()
     get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
-@mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_bookings_for_all_jobs")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete(
     clean_jobs_mock,
-    get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
-    get_bookings_for_job_id_mock,
+    get_bookings_for_all_jobs_mock,
     get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
     parsed_jobs,
@@ -106,35 +104,34 @@ async def test__clean_jobs_by_grace_time__dont_delete(
     """
     Test for when the running time is smaller than the grace_time, then don't delete the booking.
     """
-    slurm_job_id = 1
-    formatted_squeue_out = "1|5:00|RUNNING"
+    formatted_squeue_out = "123|5:00|RUNNING"
     grace_times = {1: 1000, 2: 3000}
-    job_bookings = parsed_jobs[0].bookings
 
-    get_jobs_from_backend_mock.return_value = parsed_jobs
-    get_bookings_for_job_id_mock.return_value = job_bookings
+    get_bookings_for_all_jobs_mock.return_value = {
+        123: parsed_jobs[0].bookings,
+        456: parsed_jobs[1].bookings,
+        789: parsed_jobs[2].bookings,
+    }
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
     get_cluster_grace_times_mock.return_value = grace_times
 
     await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
-    get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
+    get_bookings_for_all_jobs_mock.assert_called_once()
     get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
-@mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_bookings_for_all_jobs")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete_if_grace_time_invalid(
     clean_jobs_mock,
-    get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
-    get_bookings_for_job_id_mock,
+    get_bookings_for_all_jobs_mock,
     get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
     parsed_jobs,
@@ -142,34 +139,34 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_grace_time_invalid(
     """
     Test for when the grace_time is invalid because there aren't bookings in the job.
     """
-    slurm_job_id = 1
-    formatted_squeue_out = "1|5:00|RUNNING"
+    formatted_squeue_out = "123|5:00|RUNNING"
     grace_times = {1: 10, 2: 20}
 
-    get_jobs_from_backend_mock.return_value = parsed_jobs
-    get_bookings_for_job_id_mock.return_value = []
+    get_bookings_for_all_jobs_mock.return_value = {
+        123: [],
+        456: [],
+        789: [],
+    }
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
     get_cluster_grace_times_mock.return_value = grace_times
 
     await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
-    get_bookings_for_job_id_mock.assert_awaited_once_with(slurm_job_id)
+    get_bookings_for_all_jobs_mock.assert_awaited_once()
     get_cluster_grace_times_mock.assert_called_once()
 
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.reconciliation.return_formatted_squeue_out")
 @mock.patch("lm_agent.reconciliation.get_cluster_grace_times")
-@mock.patch("lm_agent.reconciliation.get_bookings_for_job_id")
+@mock.patch("lm_agent.reconciliation.get_bookings_for_all_jobs")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.clean_jobs")
 async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
     clean_jobs_mock,
-    get_jobs_from_backend_mock,
     remove_job_by_slurm_job_id_mock,
-    get_bookings_for_job_id_mock,
+    get_bookings_for_all_jobs_mock,
     get_cluster_grace_times_mock,
     return_formatted_squeue_out_mock,
     parsed_jobs,
@@ -180,15 +177,18 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
     formatted_squeue_out = ""
     grace_times = {1: 10, 2: 20}
 
-    get_jobs_from_backend_mock.return_value = parsed_jobs
-    get_bookings_for_job_id_mock.return_value = []
+    get_bookings_for_all_jobs_mock.return_value = {
+        123: parsed_jobs[0].bookings,
+        456: parsed_jobs[1].bookings,
+        789: parsed_jobs[2].bookings,
+    }
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
     get_cluster_grace_times_mock.return_value = grace_times
 
     await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
-    get_bookings_for_job_id_mock.assert_not_awaited()
+    get_bookings_for_all_jobs_mock.assert_not_awaited()
     get_cluster_grace_times_mock.assert_not_called()
 
 
@@ -285,9 +285,8 @@ async def test__update_features__put_failed(
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-async def test__clean_jobs(remove_job_by_slurm_job_id_mock, get_jobs_from_backend_mock):
+async def test__clean_jobs(remove_job_by_slurm_job_id_mock):
     """
     Check that the jobs that aren't running are cleaned.
     """
@@ -296,30 +295,28 @@ async def test__clean_jobs(remove_job_by_slurm_job_id_mock, get_jobs_from_backen
         {"job_id": 2, "state": "COMPLETED"},
         {"job_id": 3, "state": "SUSPENDED"},
     ]
-    booking_mock_2 = mock.Mock()
-    booking_mock_2.job_id = 2
-    booking_mock_3 = mock.Mock()
-    booking_mock_3.job_id = 3
-    get_jobs_from_backend_mock.return_value = [booking_mock_2, booking_mock_3]
-    await clean_jobs(squeue_parsed)
+    cluster_jobs_bookings = {
+        "1": [mock.Mock()],
+        "2": [mock.Mock()],
+        "3": [mock.Mock()],
+    }
+    await clean_jobs(squeue_parsed, cluster_jobs_bookings)
 
     remove_job_by_slurm_job_id_mock.call_count == 2
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.reconciliation.get_cluster_jobs_from_backend")
 @mock.patch("lm_agent.reconciliation.remove_job_by_slurm_job_id")
-async def test__clean_jobs__not_in_squeue(remove_job_by_slurm_job_id_mock, get_jobs_from_backend_mock):
+async def test__clean_jobs__not_in_squeue(remove_job_by_slurm_job_id_mock):
     """
     Check that jobs that aren't in squeue are cleaned.
     """
     squeue_parsed = [{"job_id": 1, "state": "RUNNING"}]
-    booking_mock_1 = mock.Mock()
-    booking_mock_1.job_id = 1
-    booking_mock_2 = mock.Mock()
-    booking_mock_2.job_id = 2
-    get_jobs_from_backend_mock.return_value = [booking_mock_1, booking_mock_2]
-    await clean_jobs(squeue_parsed)
+    cluster_jobs_bookings = {
+        "1": [mock.Mock()],
+        "2": [mock.Mock()],
+    }
+    await clean_jobs(squeue_parsed, cluster_jobs_bookings)
 
     remove_job_by_slurm_job_id_mock.call_count == 1
 
