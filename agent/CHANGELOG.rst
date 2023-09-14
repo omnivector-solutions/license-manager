@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Update logic to fetch bookings for all jobs using one request
 
 3.0.6 -- 2023-08-29
 -------------------
