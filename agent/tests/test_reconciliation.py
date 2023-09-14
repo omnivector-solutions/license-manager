@@ -67,14 +67,14 @@ async def test__clean_jobs_by_grace_time__on_delete(
     """
     Test for cleaning jobs when running time is greater than grace_time.
     """
-    slurm_job_id = 123
+    slurm_job_id = "123"
     formatted_squeue_out = "123|5:00|RUNNING"
     grace_times = {1: 10, 2: 20}
 
     get_bookings_for_all_jobs_mock.return_value = {
-        123: parsed_jobs[0].bookings,
-        456: parsed_jobs[1].bookings,
-        789: parsed_jobs[2].bookings,
+        "123": parsed_jobs[0].bookings,
+        "456": parsed_jobs[1].bookings,
+        "789": parsed_jobs[2].bookings,
     }
     remove_job_by_slurm_job_id_mock.return_value = True
     return_formatted_squeue_out_mock.return_value = formatted_squeue_out
@@ -296,9 +296,9 @@ async def test__clean_jobs(remove_job_by_slurm_job_id_mock):
         {"job_id": 3, "state": "SUSPENDED"},
     ]
     cluster_jobs_bookings = {
-        1: [mock.Mock()],
-        2: [mock.Mock()],
-        3: [mock.Mock()],
+        "1": [mock.Mock()],
+        "2": [mock.Mock()],
+        "3": [mock.Mock()],
     }
     await clean_jobs(squeue_parsed, cluster_jobs_bookings)
 
@@ -313,13 +313,9 @@ async def test__clean_jobs__not_in_squeue(remove_job_by_slurm_job_id_mock):
     """
     squeue_parsed = [{"job_id": 1, "state": "RUNNING"}]
     cluster_jobs_bookings = {
-        1: [mock.Mock()],
-        2: [mock.Mock()],
+        "1": [mock.Mock()],
+        "2": [mock.Mock()],
     }
-    booking_mock_1 = mock.Mock()
-    booking_mock_1.job_id = 1
-    booking_mock_2 = mock.Mock()
-    booking_mock_2.job_id = 2
     await clean_jobs(squeue_parsed, cluster_jobs_bookings)
 
     remove_job_by_slurm_job_id_mock.call_count == 1

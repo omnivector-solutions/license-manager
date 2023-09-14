@@ -239,13 +239,13 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
     logger.debug("##### Job removed successfully #####")
 
 
-async def get_bookings_for_all_jobs() -> Dict[int, List[BookingSchema]]:
+async def get_bookings_for_all_jobs() -> Dict[str, List[BookingSchema]]:
     """
     Return the bookings for all jobs in the cluster.
     """
     jobs = await get_cluster_jobs_from_backend()
 
-    bookings_for_all_jobs = {int(job.slurm_job_id): job.bookings for job in jobs}
+    bookings_for_all_jobs = {job.slurm_job_id: job.bookings for job in jobs}
 
     return bookings_for_all_jobs
 

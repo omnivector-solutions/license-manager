@@ -69,7 +69,7 @@ async def clean_jobs_by_grace_time():
 
     # get the grace_time for each job
     for job in squeue_running_jobs:
-        slurm_job_id = job["job_id"]
+        slurm_job_id = str(job["job_id"])
         greatest_grace_time = get_greatest_grace_time_for_job(
             grace_times, cluster_jobs_bookings.get(slurm_job_id, [])
         )

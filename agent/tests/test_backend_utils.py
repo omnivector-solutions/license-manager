@@ -491,15 +491,15 @@ async def test__get_bookings_for_all_jobs__success(jobs, respx_mock):
     all_bookings = await get_bookings_for_all_jobs()
 
     assert all_bookings == {
-        123: [
+        "123": [
             BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
             BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
         ],
-        456: [
+        "456": [
             BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
             BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
         ],
-        789: [
+        "789": [
             BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
             BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
         ],
