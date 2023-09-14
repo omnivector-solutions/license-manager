@@ -8,10 +8,9 @@ from typing import Dict, List
 from lm_agent.backend_utils.models import BookingSchema
 from lm_agent.backend_utils.utils import (
     get_all_features_bookings_sum,
-    get_bookings_for_job_id,
+    get_bookings_for_all_jobs,
     get_cluster_configs_from_backend,
     get_cluster_grace_times,
-    get_cluster_jobs_from_backend,
     make_feature_update,
     remove_job_by_slurm_job_id,
 )
@@ -64,9 +63,7 @@ async def clean_jobs_by_grace_time():
     squeue_result = squeue_parser(formatted_squeue_output)
     squeue_running_jobs = get_running_jobs(squeue_result)
 
-    get_bookings_call = [get_bookings_for_job_id(job["job_id"]) for job in squeue_running_jobs]
-    results = await asyncio.gather(*get_bookings_call)
-    bookings_for_running_jobs = {job["job_id"]: result for job, result in zip(squeue_running_jobs, results)}
+    cluster_jobs_bookings = await get_bookings_for_all_jobs()
 
     grace_times = await get_cluster_grace_times()
 
@@ -74,21 +71,20 @@ async def clean_jobs_by_grace_time():
     for job in squeue_running_jobs:
         slurm_job_id = job["job_id"]
         greatest_grace_time = get_greatest_grace_time_for_job(
-            grace_times, bookings_for_running_jobs[slurm_job_id]
+            grace_times, cluster_jobs_bookings.get(slurm_job_id, [])
         )
         # if the running_time is greater than the greatest grace_time, delete the booking for it
         if job["run_time_in_seconds"] > greatest_grace_time and greatest_grace_time != -1:
             logger.debug(f"GRACE_TIME: {greatest_grace_time}, {slurm_job_id}")
             await remove_job_by_slurm_job_id(slurm_job_id)
 
-    await clean_jobs(squeue_result)
+    await clean_jobs(squeue_result, cluster_jobs_bookings)
 
 
-async def clean_jobs(squeue_result):
+async def clean_jobs(squeue_result, cluster_jobs_bookings):
     """Clean the jobs that aren't running along with its bookings."""
     logger.debug("CLEAN_JOBS: start")
 
-    cluster_jobs = [job.slurm_job_id for job in await get_cluster_jobs_from_backend()]
     if squeue_result is None:
         squeue_result = []
 
@@ -98,7 +94,7 @@ async def clean_jobs(squeue_result):
 
     delete_job_call = []
 
-    for slurm_job_id in cluster_jobs:
+    for slurm_job_id in cluster_jobs_bookings.keys():
         if slurm_job_id in jobs_not_running or slurm_job_id not in all_jobs_squeue:
             delete_job_call.append(remove_job_by_slurm_job_id(slurm_job_id))
 

@@ -239,32 +239,15 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
     logger.debug("##### Job removed successfully #####")
 
 
-async def get_bookings_for_job_id(slurm_job_id: str) -> List[BookingSchema]:
+async def get_bookings_for_all_jobs() -> Dict[int, List[BookingSchema]]:
     """
-    Return the bookings for job with the given job_id in the cluster.
-
-    If the job doesn't exist, an empty list will be returned.
+    Return the bookings for all jobs in the cluster.
     """
-    async with AsyncBackendClient() as backend_client:
-        job_response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
+    jobs = await get_cluster_jobs_from_backend()
 
-        LicenseManagerBackendConnectionError.require_condition(
-            job_response.status_code in [200, 404],
-            f"Failed to get job: {job_response.text}",
-        )
+    bookings_for_all_jobs = {int(job.slurm_job_id): job.bookings for job in jobs}
 
-        if job_response.status_code == 404:
-            return []
-
-        with LicenseManagerParseError.handle_errors(""):
-            parsed_resp: List = job_response.json()["bookings"]
-
-    with LicenseManagerParseError.handle_errors(
-        "Could not parse booking data returned from the backend", do_except=log_error
-    ):
-        bookings = [BookingSchema.parse_obj(booking) for booking in parsed_resp]
-
-    return bookings
+    return bookings_for_all_jobs
 
 
 async def get_all_features_from_backend() -> List[FeatureSchema]:
