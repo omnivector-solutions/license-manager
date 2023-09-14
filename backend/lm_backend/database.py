@@ -98,7 +98,7 @@ class EngineFactory:
         Gets a new session from the correct engine in the engine map.
         """
         engine = self.get_engine(override_db_name=override_db_name)
-        return AsyncSession(engine)
+        return AsyncSession(engine, expire_on_commit=False)
 
 
 engine_factory = EngineFactory()
