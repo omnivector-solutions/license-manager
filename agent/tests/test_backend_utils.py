@@ -26,7 +26,7 @@ from lm_agent.backend_utils.utils import (
     acquire_token,
     check_backend_health,
     get_all_features_bookings_sum,
-    get_bookings_for_job_id,
+    get_bookings_for_all_jobs,
     get_cluster_configs_from_backend,
     get_cluster_grace_times,
     get_cluster_jobs_from_backend,
@@ -481,35 +481,26 @@ async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
 
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
-async def test__get_bookings_for_job_id__success(jobs, respx_mock):
+async def test__get_bookings_for_all_jobs__success(jobs, respx_mock):
     """
-    Test that get_bookings_for_job_id returns the bookings for a given job ID.
+    Test that get_bookings_for_all_jobs returns the a dict with the
+    slurm_job_id as key and the bookings as value.
     """
-    slurm_job_id = "123"
+    respx_mock.get("/lm/jobs/by_client_id").mock(return_value=Response(status_code=200, json=jobs))
 
-    job_data = jobs[0]
+    all_bookings = await get_bookings_for_all_jobs()
 
-    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
-        return_value=Response(status_code=200, json=job_data)
-    )
-
-    bookings = await get_bookings_for_job_id(slurm_job_id)
-    assert bookings == job_data["bookings"]
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_bookings_for_job_id__return_empty_on_non_two_hundred(respx_mock):
-    """
-    Test that get_bookings_for_job_id handles failure to retrieve bookings for a given job ID.
-    """
-    slurm_job_id = "123"
-
-    respx_mock.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
-        return_value=Response(
-            status_code=404,
-            json={"error": "Job not found"},
-        )
-    )
-
-    assert await get_bookings_for_job_id(slurm_job_id) == []
+    assert all_bookings == {
+        123: [
+            BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
+            BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
+        ],
+        456: [
+            BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
+            BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
+        ],
+        789: [
+            BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
+            BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
+        ],
+    }
