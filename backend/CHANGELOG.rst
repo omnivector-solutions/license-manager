@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+
+3.0.7 -- 2023-09-14
+-------------------
 * Updated /configurations update endpoint to update features and license servers related to the configuration 
 
 3.0.6 -- 2023-08-29
