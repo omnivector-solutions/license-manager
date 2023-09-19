@@ -195,7 +195,7 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
 @pytest.mark.asyncio
 @pytest.mark.respx(base_url="http://backend")
 @mock.patch("lm_agent.reconciliation.create_or_update_reservation")
-@mock.patch("lm_agent.reconciliation.get_all_features_used_values")
+@mock.patch("lm_agent.reconciliation.get_all_features_cluster_values")
 @mock.patch("lm_agent.reconciliation.get_cluster_configs_from_backend")
 @mock.patch("lm_agent.reconciliation.get_all_features_bookings_sum")
 @mock.patch("lm_agent.reconciliation.update_features")
@@ -205,7 +205,7 @@ async def test__reconcile__success(
     update_features_mock,
     get_bookings_sum_mock,
     get_configs_from_backend_mock,
-    get_all_used_mock,
+    get_all_cluster_values_mock,
     create_or_update_reservation_mock,
     respx_mock,
     parsed_configurations,
@@ -243,7 +243,7 @@ async def test__reconcile__success(
     ]
     get_configs_from_backend_mock.return_value = parsed_configurations
     get_bookings_sum_mock.return_value = {"abaqus.abaqus": 103}
-    get_all_used_mock.return_value = {"abaqus.abaqus": 23}
+    get_all_cluster_values_mock.return_value = {"abaqus.abaqus": {"total": 1000, "used": 23}}
 
     await reconcile()
     create_or_update_reservation_mock.assert_called_with("abaqus.abaqus@flexlm:380")

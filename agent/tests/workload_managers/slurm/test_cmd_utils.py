@@ -11,7 +11,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     LicenseBooking,
     SqueueParserUnexpectedInputError,
     _match_requested_license,
-    get_all_features_used_values,
+    get_all_features_cluster_values,
     get_all_product_features_from_cluster,
     get_required_licenses_for_job,
     squeue_parser,
@@ -215,10 +215,10 @@ async def test_get_product_features_from_cluster(
                 """
             ),
             {
-                "abaqus.abaqus": 90,
-                "product_name.feature_name": 0,
-                "converge.converge_super": 1,
-                "converge.converge_tecplot": 12,
+                "abaqus.abaqus": {"total": 1000, "used": 90},
+                "product_name.feature_name": {"total": 10, "used": 0},
+                "converge.converge_super": {"total": 9, "used": 1},
+                "converge.converge_tecplot": {"total": 45, "used": 12},
             },
         ),
         (
@@ -228,8 +228,8 @@ async def test_get_product_features_from_cluster(
     ],
 )
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-async def test_get_all_features_used_values(
+async def test_get_all_features_cluster_values(
     show_lic_mock: mock.MagicMock, show_lic_output: str, used_features: dict
 ):
     show_lic_mock.return_value = show_lic_output
-    assert used_features == await get_all_features_used_values()
+    assert used_features == await get_all_features_cluster_values()
