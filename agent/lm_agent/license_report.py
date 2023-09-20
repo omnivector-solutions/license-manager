@@ -97,9 +97,13 @@ async def report() -> typing.List[LicenseReportItem]:
 
     for result, product_feature in zip(results, product_features_awaited):
         if isinstance(result, Exception):
-            logger.error(f"#### Report for feature {product_feature} failed with: {result} ####")
-        else:
-            report_items.append(result)
+            # If the report for a feature failed, the total will set to 0, preventing jobs from running
+            logger.error(f"#### Report for feature {product_feature} failed with: {str(result)} ####")
+
+            failed_report_item = LicenseReportItem(product_feature=product_feature, used=0, total=0)
+            report_items.append(failed_report_item)
+            continue
+        report_items.append(result)
 
     logger.debug("#### Reconciliation items:")
     logger.debug(report_items)

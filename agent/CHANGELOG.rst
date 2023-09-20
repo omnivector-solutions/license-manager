@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Change reconciliation to fully reserve licenses when the license server doesn't respond
 
 3.0.7 -- 2023-09-14
 -------------------

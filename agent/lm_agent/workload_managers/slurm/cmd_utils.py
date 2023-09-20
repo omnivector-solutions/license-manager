@@ -85,10 +85,10 @@ def get_required_licenses_for_job(job_licenses: str) -> List:
     return required_licenses
 
 
-async def get_all_features_used_values() -> Optional[Dict[str, int]]:
+async def get_all_features_cluster_values() -> Optional[Dict[str, Dict[str, int]]]:
     """
     Parse the output from `scontrol show lic` and return a dictionary of
-    product_feature: used_tokens.
+    product_feature: {"total": <total>, "used": <used>}.
 
     Note: the line with the counters doesn't include the feature name,
     so to find the feature it's necessary to look at the previous line.
@@ -118,7 +118,7 @@ async def get_all_features_used_values() -> Optional[Dict[str, int]]:
         if parsed_used_tokens:
             used_data = parsed_used_tokens.groupdict()
             product_feature = product_feature_list[-1]
-            parsed_data[product_feature] = int(used_data["used"])
+            parsed_data[product_feature] = {"total": int(used_data["total"]), "used": int(used_data["used"])}
             continue
 
     return parsed_data
