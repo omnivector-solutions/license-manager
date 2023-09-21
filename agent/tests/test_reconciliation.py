@@ -188,7 +188,7 @@ async def test__clean_jobs_by_grace_time__dont_delete_if_no_jobs(
     await clean_jobs_by_grace_time()
 
     remove_job_by_slurm_job_id_mock.assert_not_awaited()
-    get_bookings_for_all_jobs_mock.assert_not_awaited()
+    get_bookings_for_all_jobs_mock.assert_awaited_once()
     get_cluster_grace_times_mock.assert_not_called()
 
 

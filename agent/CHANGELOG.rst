@@ -6,6 +6,8 @@ This file keeps track of all notable changes to license-manager-agent
 
 Unreleased
 ----------
+* Fix issue with clean jobs arguments not being passed to the function
+
 3.0.8 -- 2023-09-20
 -------------------
 * Change reconciliation to fully reserve licenses when the license server doesn't respond
