@@ -6,6 +6,7 @@ This file keeps track of all notable changes to license-manager-backend
 
 Unreleased
 ----------
+* Add constraints to schemas to ensure the correct values are used
 
 3.0.8 -- 2023-09-20
 -------------------
