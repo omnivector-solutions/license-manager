@@ -37,6 +37,72 @@ async def test_add_configuration__success(
     assert fetched.type == "flexlm"
 
 
+@mark.parametrize(
+    "invalid_payload,expected_status_code",
+    [
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": None,  # bad cluster_client_id
+                "grace_time": 60,
+                "features": [],
+                "license_servers": [],
+                "type": "flexlm",
+            },
+            422,
+        ),
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": "dummy",
+                "grace_time": -1,  # bad grace time
+                "features": [],
+                "license_servers": [],
+                "type": "flexlm",
+            },
+            422,
+        ),
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": "dummy",
+                "grace_time": 60,
+                "features": [],
+                "license_servers": [],
+                "type": "bla",  # bad license server type
+            },
+            422,
+        ),
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": "dummy",
+                "grace_time": 60,
+                "features": [],
+                "license_servers": [
+                    {
+                        "host": "licserv0001",
+                        "port": -1,
+                    }
+                ],
+                "type": "flexlm",
+            },
+            422,
+        ),
+    ],
+)
+@mark.asyncio
+async def test_add_configuration__fail_with_bad_payload(
+    backend_client: AsyncClient,
+    inject_security_header,
+    invalid_payload,
+    expected_status_code,
+):
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=invalid_payload)
+    assert response.status_code == expected_status_code
+
+
 @mock.patch("lm_backend.api.routes.configurations.crud_configuration.create")
 @mark.asyncio
 async def test_add_configuration__fail(
@@ -103,6 +169,35 @@ async def test_add_configuration__with__features(
     assert fetched.features[0].product.name == "Abaqus"
     assert fetched.features[1].name == "abaqus2"
     assert fetched.features[1].product.name == "Abaqus"
+
+
+@mark.asyncio
+async def test_add_configuration__with_features__fail_with_bad_reserved(
+    backend_client: AsyncClient,
+    inject_security_header,
+    read_object,
+    create_one_product,
+):
+    product_id = create_one_product[0].id
+
+    data = {
+        "name": "Abaqus",
+        "cluster_client_id": "dummy",
+        "grace_time": 60,
+        "features": [
+            {
+                "name": "abaqus1",
+                "product_id": product_id,
+                "reserved": -1,
+            }
+        ],
+        "license_servers": [],
+        "type": "flexlm",
+    }
+
+    inject_security_header("owner1@test.com", Permissions.CONFIG_EDIT)
+    response = await backend_client.post("/lm/configurations", json=data)
+    assert response.status_code == 422
 
 
 @mock.patch("lm_backend.api.routes.configurations.crud_feature.create")
