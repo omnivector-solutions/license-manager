@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Query, status
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.license_server import LicenseServer
@@ -37,7 +37,7 @@ async def get_license_server_types(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_license_server(
-    license_server: LicenseServerCreateSchema,
+    license_server: LicenseServerCreateSchema = Body(..., description="License server to be created"),
     secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_EDIT)),
 ):
     """Create a new license server."""

@@ -16,6 +16,7 @@ async def test_add_job__success(
         "slurm_job_id": "123",
         "username": "user",
         "lead_host": "test-host",
+        "bookings": [],
     }
     client_id = "dummy"
 
@@ -42,6 +43,7 @@ async def test_add_job__fail_with_bad_client_id(
         "slurm_job_id": "123",
         "username": "user",
         "lead_host": "test-host",
+        "bookings": [],
     }
 
     inject_security_header("owner1@test.com", Permissions.JOB_EDIT)

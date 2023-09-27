@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Query, status
 
 from lm_backend.api.cruds.booking import BookingCRUD
 from lm_backend.api.models.booking import Booking
@@ -20,7 +20,7 @@ crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
     status_code=status.HTTP_201_CREATED,
 )
 async def create_booking(
-    booking: BookingCreateSchema,
+    booking: BookingCreateSchema = Body(..., description="Booking to be created"),
     secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_EDIT)),
 ):
     """Create a new booking."""

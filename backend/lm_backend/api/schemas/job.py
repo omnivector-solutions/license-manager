@@ -51,7 +51,7 @@ class JobWithBookingCreateSchema(BaseCreateSchema):
         ..., title="Lead host", description="The lead host of the cluster that submitted the job."
     )
     bookings: List[JobBookingCreateSchema] = Field(
-        [], title="Bookings", description="The bookings of the job."
+        ..., title="Bookings", description="The bookings of the job."
     )
 
 

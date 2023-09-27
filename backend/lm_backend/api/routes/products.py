@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Query, status
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.product import Product
@@ -20,7 +20,7 @@ crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
     status_code=status.HTTP_201_CREATED,
 )
 async def create_product(
-    product: ProductCreateSchema,
+    product: ProductCreateSchema = Body(..., description="Product to be created"),
     secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_EDIT)),
 ):
     """Create a new product."""

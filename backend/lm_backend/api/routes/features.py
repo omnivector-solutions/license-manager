@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.models.feature import Feature
@@ -24,7 +24,7 @@ crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
     status_code=status.HTTP_201_CREATED,
 )
 async def create_feature(
-    feature: FeatureCreateSchema,
+    feature: FeatureCreateSchema = Body(..., description="Feature to be created"),
     secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_EDIT)),
 ):
     """Create a new feature"""
