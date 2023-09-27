@@ -82,7 +82,7 @@ async def test_add_configuration__success(
                 "license_servers": [
                     {
                         "host": "licserv0001",
-                        "port": -1,
+                        "port": -1,  # bad license server port
                     }
                 ],
                 "type": "flexlm",
