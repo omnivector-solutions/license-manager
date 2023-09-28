@@ -7,6 +7,7 @@ This file keeps track of all notable changes to license-manager-agent
 Unreleased
 ----------
 * Fix issue with clean jobs arguments not being passed to the function
+* Remove timeout from backend client to avoid issues with long running requests
 
 3.0.8 -- 2023-09-20
 -------------------

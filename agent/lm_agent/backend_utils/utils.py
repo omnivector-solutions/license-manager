@@ -115,7 +115,7 @@ class AsyncBackendClient(httpx.AsyncClient):
 
     def __init__(self):
         self._token = None
-        super().__init__(base_url=settings.BACKEND_BASE_URL, auth=self._inject_token)
+        super().__init__(base_url=settings.BACKEND_BASE_URL, auth=self._inject_token, timeout=None)
 
     def _inject_token(self, request: httpx.Request) -> httpx.Request:
         if self._token is None:
