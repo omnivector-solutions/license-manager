@@ -89,6 +89,38 @@ async def test_add_configuration__success(
             },
             422,
         ),
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": "dummy",
+                "grace_time": 60,
+                "features": [],
+                "license_servers": [
+                    {
+                        "host": "licserv0001",
+                        "port": 700000000,  # bad license server port
+                    }
+                ],
+                "type": "flexlm",
+            },
+            422,
+        ),
+        (
+            {
+                "name": "Abaqus",
+                "cluster_client_id": "dummy",
+                "grace_time": 60,
+                "features": [],
+                "license_servers": [
+                    {
+                        "host": "not a valid host name",  # bad license server host
+                        "port": 1234,
+                    }
+                ],
+                "type": "flexlm",
+            },
+            422,
+        ),
     ],
 )
 @mark.asyncio
