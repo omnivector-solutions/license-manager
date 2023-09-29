@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.configuration import ConfigurationCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -36,7 +36,7 @@ crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, Lice
     status_code=status.HTTP_201_CREATED,
 )
 async def create_configuration(
-    configuration: ConfigurationCompleteCreateSchema,
+    configuration: ConfigurationCompleteCreateSchema = Body(..., description="Configuration to be created"),
     secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_EDIT)),
 ):
     """

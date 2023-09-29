@@ -1,7 +1,7 @@
 """Feature schemas for the License Manager API."""
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, NonNegativeInt
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.product import ProductSchema
@@ -12,10 +12,18 @@ class FeatureCreateSchema(BaseCreateSchema):
     Represents the features in a feature configuration.
     """
 
-    name: str
-    product_id: int
-    config_id: int
-    reserved: int
+    name: str = Field(
+        ..., title="Name of the feature", max_length=255, description="The name of the feature."
+    )
+    product_id: int = Field(..., title="Product ID", description="The ID of the product of the feature.")
+    config_id: int = Field(
+        ..., title="Configuration ID", description="The ID of the configuration that the feature belongs to."
+    )
+    reserved: NonNegativeInt = Field(
+        0,
+        title="Reserved quantity",
+        description="The quantity of the feature that is reserved for usage in desktop environments.",
+    )
 
 
 class FeatureWithoutConfigIdCreateSchema(BaseCreateSchema):
@@ -23,9 +31,15 @@ class FeatureWithoutConfigIdCreateSchema(BaseCreateSchema):
     Represents the features in a feature configuration.
     """
 
-    name: str
-    product_id: str
-    reserved: int
+    name: str = Field(
+        ..., title="Name of the feature", max_length=255, description="The name of the feature."
+    )
+    product_id: int = Field(..., title="Product ID", description="The ID of the product of the feature.")
+    reserved: NonNegativeInt = Field(
+        0,
+        title="Reserved quantity",
+        description="The quantity of the feature that is reserved for usage in desktop environments.",
+    )
 
 
 class FeatureWithOptionalIdUpdateSchema(BaseUpdateSchema):
@@ -33,10 +47,18 @@ class FeatureWithOptionalIdUpdateSchema(BaseUpdateSchema):
     Feature to be updated in the database.
     """
 
-    id: Optional[int] = None
-    name: Optional[str] = None
-    product_id: Optional[int] = None
-    reserved: Optional[int] = None
+    id: Optional[int] = Field(None, title="ID", description="The ID of the feature.")
+    name: Optional[str] = Field(
+        None, title="Name of the feature", max_length=255, description="The name of the feature."
+    )
+    product_id: Optional[int] = Field(
+        None, title="Product ID", description="The ID of the product of the feature."
+    )
+    reserved: Optional[NonNegativeInt] = Field(
+        None,
+        title="Reserved quantity",
+        description="The quantity of the feature that is reserved for usage in desktop environments.",
+    )
 
 
 class FeatureUpdateSchema(BaseUpdateSchema):
@@ -44,12 +66,30 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     Represents the features in a feature configuration.
     """
 
-    name: Optional[str] = None
-    product_id: Optional[int] = None
-    config_id: Optional[int] = None
-    reserved: Optional[int] = None
-    total: Optional[int] = None
-    used: Optional[int] = None
+    name: Optional[str] = Field(
+        None, title="Name of the feature", max_length=255, description="The name of the feature."
+    )
+    product_id: Optional[int] = Field(
+        None, title="Product ID", description="The ID of the product of the feature."
+    )
+    config_id: Optional[int] = Field(
+        None, title="Configuration ID", description="The ID of the configuration that the feature belongs to."
+    )
+    reserved: Optional[NonNegativeInt] = Field(
+        None,
+        title="Reserved quantity",
+        description="The quantity of the feature that is reserved for usage in desktop environments.",
+    )
+    total: Optional[NonNegativeInt] = Field(
+        None,
+        title="Total quantity",
+        description="The total quantity of licenses.",
+    )
+    used: Optional[NonNegativeInt] = Field(
+        None,
+        title="Used quantity",
+        description="The quantity of the feature that is used.",
+    )
 
 
 class FeatureUpdateByNameSchema(BaseUpdateSchema):
@@ -58,10 +98,22 @@ class FeatureUpdateByNameSchema(BaseUpdateSchema):
     product and feature name as a filter.
     """
 
-    product_name: str
-    feature_name: str
-    total: int
-    used: int
+    product_name: str = Field(
+        ..., title="Product name", max_length=255, description="The name of the product."
+    )
+    feature_name: str = Field(
+        ..., title="Feature name", max_length=255, description="The name of the feature."
+    )
+    total: NonNegativeInt = Field(
+        0,
+        title="Total quantity",
+        description="The total quantity of licenses.",
+    )
+    used: NonNegativeInt = Field(
+        0,
+        title="Used quantity",
+        description="The quantity of the feature that is used.",
+    )
 
 
 class FeatureSchema(BaseModel):
@@ -69,14 +121,36 @@ class FeatureSchema(BaseModel):
     Represents the features in a feature configuration.
     """
 
-    id: int
-    name: str
-    product: ProductSchema
-    config_id: int
-    reserved: int
-    total: int
-    used: int
-    booked_total: Optional[int] = None
+    id: int = Field(..., title="ID", description="The ID of the feature.")
+    name: str = Field(
+        ..., title="Name of the feature", max_length=255, description="The name of the feature."
+    )
+    product: ProductSchema = Field(
+        ..., title="Product of the feature", description="The product of the feature."
+    )
+    config_id: int = Field(
+        ..., title="Configuration ID", description="The ID of the configuration that the feature belongs to."
+    )
+    reserved: NonNegativeInt = Field(
+        0,
+        title="Reserved quantity",
+        description="The quantity of the feature that is reserved for usage in desktop environments.",
+    )
+    total: NonNegativeInt = Field(
+        0,
+        title="Total quantity",
+        description="The total quantity of licenses.",
+    )
+    used: NonNegativeInt = Field(
+        0,
+        title="Used quantity",
+        description="The quantity of the feature that is used.",
+    )
+    booked_total: Optional[NonNegativeInt] = Field(
+        None,
+        title="Booked total quantity",
+        description="The total quantity of licenses that are booked.",
+    )
 
     class Config:
         orm_mode = True

@@ -1,15 +1,17 @@
 """Job schemas for the License Manager API."""
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, PositiveInt
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.booking import BookingSchema
 
 
 class JobBookingCreateSchema(BaseCreateSchema):
-    product_feature: str
-    quantity: int
+    product_feature: str = Field(
+        ..., title="Product feature", description="The product.feature of the license."
+    )
+    quantity: PositiveInt = Field(..., title="Quantity", description="The quantity of booked licenses.")
 
 
 class JobCreateSchema(BaseCreateSchema):
@@ -17,10 +19,18 @@ class JobCreateSchema(BaseCreateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id: str
-    cluster_client_id: str
-    username: str
-    lead_host: str
+    slurm_job_id: str = Field(..., title="Slurm job ID", description="The ID of the job in the cluster.")
+    cluster_client_id: str = Field(
+        ...,
+        title="Client ID of the cluster",
+        description="The client ID of the cluster that submitted the job.",
+    )
+    username: str = Field(
+        ..., title="Username", description="The username of the user that submitted the job."
+    )
+    lead_host: str = Field(
+        ..., title="Lead host", description="The lead host of the cluster that submitted the job."
+    )
 
 
 class JobWithBookingCreateSchema(BaseCreateSchema):
@@ -28,11 +38,21 @@ class JobWithBookingCreateSchema(BaseCreateSchema):
     Represents the jobs submitted in a cluster with its bookings.
     """
 
-    slurm_job_id: str
-    cluster_client_id: Optional[str]
-    username: str
-    lead_host: str
-    bookings: List[JobBookingCreateSchema] = []
+    slurm_job_id: str = Field(..., title="Slurm job ID", description="The ID of the job in the cluster.")
+    cluster_client_id: Optional[str] = Field(
+        None,
+        title="Client ID of the cluster",
+        description="The client ID of the cluster that submitted the job.",
+    )
+    username: str = Field(
+        ..., title="Username", description="The username of the user that submitted the job."
+    )
+    lead_host: str = Field(
+        ..., title="Lead host", description="The lead host of the cluster that submitted the job."
+    )
+    bookings: List[JobBookingCreateSchema] = Field(
+        ..., title="Bookings", description="The bookings of the job."
+    )
 
 
 class JobUpdateSchema(BaseUpdateSchema):
@@ -40,10 +60,20 @@ class JobUpdateSchema(BaseUpdateSchema):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id: Optional[str]
-    cluster_client_id: Optional[str]
-    username: Optional[str]
-    lead_host: Optional[str]
+    slurm_job_id: Optional[str] = Field(
+        None, title="Slurm job ID", description="The ID of the job in the cluster."
+    )
+    cluster_client_id: Optional[str] = Field(
+        None,
+        title="Client ID of the cluster",
+        description="The client ID of the cluster that submitted the job.",
+    )
+    username: Optional[str] = Field(
+        None, title="Username", description="The username of the user that submitted the job."
+    )
+    lead_host: Optional[str] = Field(
+        None, title="Lead host", description="The lead host of the cluster that submitted the job."
+    )
 
 
 class JobSchema(BaseModel):
@@ -51,13 +81,23 @@ class JobSchema(BaseModel):
     Represents the jobs submitted in a cluster.
     """
 
-    id: int
-    slurm_job_id: str
-    cluster_client_id: str
-    username: str
-    lead_host: str
+    id: int = Field(..., title="ID", description="The ID of the job.")
+    slurm_job_id: str = Field(..., title="Slurm job ID", description="The ID of the job in the cluster.")
+    cluster_client_id: str = Field(
+        ...,
+        title="Client ID of the cluster",
+        description="The client ID of the cluster that submitted the job.",
+    )
+    username: str = Field(
+        ..., title="Username", description="The username of the user that submitted the job."
+    )
+    lead_host: str = Field(
+        ..., title="Lead host", description="The lead host of the cluster that submitted the job."
+    )
 
-    bookings: Optional[List[BookingSchema]] = None
+    bookings: Optional[List[BookingSchema]] = Field(
+        None, title="Bookings", description="The bookings of the job."
+    )
 
     class Config:
         orm_mode = True
