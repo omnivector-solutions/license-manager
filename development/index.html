@@ -1,0 +1,907 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.6">
+    
+    
+      
+        <title>Development - License Manager Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0e669242.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#development" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+      
+  <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            License Manager Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Development
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/omnivector-solutions/license-manager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+      
+  <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
+
+    </a>
+    License Manager Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/omnivector-solutions/license-manager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Development
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Development
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pre-installation" class="md-nav__link">
+    Pre-Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-deploy-a-local-slurm-cluster-on-lxd" class="md-nav__link">
+    1. Deploy a local SLURM cluster on LXD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compose-the-license-manager-api" class="md-nav__link">
+    2. Compose the License Manager API
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-compose-the-license-manager-simulator" class="md-nav__link">
+    3. Compose the License Manager Simulator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-add-the-license-manager-agent-to-the-cluster" class="md-nav__link">
+    4. Add the License Manager Agent to the cluster
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-additional-modifications" class="md-nav__link">
+    5. Additional Modifications
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Additional Modifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-license-server-client" class="md-nav__link">
+    Configuring the license server client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-simulated-license-servers" class="md-nav__link">
+    Using the simulated license servers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seeding-the-batch-script-and-fake-application" class="md-nav__link">
+    Seeding the batch script and fake application
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-validation" class="md-nav__link">
+    6. Validation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pre-installation" class="md-nav__link">
+    Pre-Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-deploy-a-local-slurm-cluster-on-lxd" class="md-nav__link">
+    1. Deploy a local SLURM cluster on LXD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-compose-the-license-manager-api" class="md-nav__link">
+    2. Compose the License Manager API
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-compose-the-license-manager-simulator" class="md-nav__link">
+    3. Compose the License Manager Simulator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-add-the-license-manager-agent-to-the-cluster" class="md-nav__link">
+    4. Add the License Manager Agent to the cluster
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-additional-modifications" class="md-nav__link">
+    5. Additional Modifications
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Additional Modifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-license-server-client" class="md-nav__link">
+    Configuring the license server client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-simulated-license-servers" class="md-nav__link">
+    Using the simulated license servers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seeding-the-batch-script-and-fake-application" class="md-nav__link">
+    Seeding the batch script and fake application
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-validation" class="md-nav__link">
+    6. Validation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="development">Development</h1>
+<p>The <code>License Manager</code> application incorporates a mix of different services in docker and LXD containers.
+This text will attempt to define the procedure for initializing and running the different components.</p>
+<h2 id="pre-installation">Pre-Installation</h2>
+<p>Before you get started, ensure you have the following pre-requisites installed on your machine:</p>
+<ul>
+<li>snapd</li>
+<li>charmcraft</li>
+<li>LXD (latest/stable)</li>
+<li>juju</li>
+<li>poetry</li>
+<li>docker-compose</li>
+<li>docker</li>
+</ul>
+<p>Additionally, assign the host machine's primary IP address to a variable <code>MY_IP</code>. We will use this value throughout the
+development environment setup process.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">MY_IP</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>ip<span class="w"> </span>route<span class="w"> </span>get<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $(NF-2);exit}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+</span></code></pre></div>
+<h3 id="1-deploy-a-local-slurm-cluster-on-lxd">1. Deploy a local SLURM cluster on LXD</h3>
+<p>Follow the <a href="https://omnivector-solutions.github.io/osd-documentation/master/installation.html#lxd">upstream documentation</a>
+to deploy a local LXD slurm cluster that we can use in development.</p>
+<p>The general idea is to run <code>juju deploy slurm</code>, following which, you will have a local slurm cluster to
+use in development.</p>
+<p>After the deployment of slurm has completed and settled, the environment should resemble the following:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Model<span class="w">                    </span>Controller<span class="w">           </span>Cloud/Region<span class="w">         </span>Version<span class="w">  </span>SLA<span class="w">          </span>Timestamp
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>license-manager-testing<span class="w">  </span>localhost-localhost<span class="w">  </span>localhost/localhost<span class="w">  </span><span class="m">2</span>.9.17<span class="w">   </span>unsupported<span class="w">  </span><span class="m">06</span>:46:42Z
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>App<span class="w">              </span>Version<span class="w">  </span>Status<span class="w">  </span>Scale<span class="w">  </span>Charm<span class="w">            </span>Store<span class="w">     </span>Channel<span class="w">  </span>Rev<span class="w">  </span>OS<span class="w">      </span>Message
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>percona-cluster<span class="w">  </span><span class="m">5</span>.7.20<span class="w">   </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>percona-cluster<span class="w">  </span>charmhub<span class="w">  </span>stable<span class="w">   </span><span class="m">302</span><span class="w">  </span>ubuntu<span class="w">  </span>Unit<span class="w"> </span>is<span class="w"> </span>ready
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>slurmctld<span class="w">        </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmctld<span class="w">        </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">17</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmctld<span class="w"> </span>available
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>slurmd<span class="w">           </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmd<span class="w">           </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">26</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmd<span class="w"> </span>available
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>slurmdbd<span class="w">         </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmdbd<span class="w">         </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">15</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmdbd<span class="w"> </span>available
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>slurmrestd<span class="w">       </span><span class="m">0</span>.8.1<span class="w">    </span>active<span class="w">      </span><span class="m">1</span><span class="w">  </span>slurmrestd<span class="w">       </span>charmhub<span class="w">  </span>stable<span class="w">    </span><span class="m">15</span><span class="w">  </span>ubuntu<span class="w">  </span>slurmrestd<span class="w"> </span>available
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Unit<span class="w">                </span>Workload<span class="w">  </span>Agent<span class="w">  </span>Machine<span class="w">  </span>Public<span class="w"> </span>address<span class="w">  </span>Ports<span class="w">     </span>Message
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>percona-cluster/0*<span class="w">  </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">0</span><span class="w">        </span><span class="m">10</span>.20.96.130<span class="w">    </span><span class="m">3306</span>/tcp<span class="w">  </span>Unit<span class="w"> </span>is<span class="w"> </span>ready
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>slurmctld/0*<span class="w">        </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">10</span>.20.96.57<span class="w">               </span>slurmctld<span class="w"> </span>available
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>slurmd/0*<span class="w">           </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">2</span><span class="w">        </span><span class="m">10</span>.20.96.233<span class="w">              </span>slurmd<span class="w"> </span>available
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>slurmdbd/0*<span class="w">         </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">3</span><span class="w">        </span><span class="m">10</span>.20.96.123<span class="w">              </span>slurmdbd<span class="w"> </span>available
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>slurmrestd/0*<span class="w">       </span>active<span class="w">    </span>idle<span class="w">   </span><span class="m">4</span><span class="w">        </span><span class="m">10</span>.20.96.62<span class="w">               </span>slurmrestd<span class="w"> </span>available
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>Machine<span class="w">  </span>State<span class="w">    </span>DNS<span class="w">           </span>Inst<span class="w"> </span>id<span class="w">        </span>Series<span class="w">  </span>AZ<span class="w">  </span>Message
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="m">0</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.130<span class="w">  </span>juju-b71748-0<span class="w">  </span>bionic<span class="w">      </span>Running
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="m">1</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.57<span class="w">   </span>juju-b71748-1<span class="w">  </span>focal<span class="w">       </span>Running
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="m">2</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.233<span class="w">  </span>juju-b71748-2<span class="w">  </span>focal<span class="w">       </span>Running
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="m">3</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.123<span class="w">  </span>juju-b71748-3<span class="w">  </span>focal<span class="w">       </span>Running
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="m">4</span><span class="w">        </span>started<span class="w">  </span><span class="m">10</span>.20.96.62<span class="w">   </span>juju-b71748-4<span class="w">  </span>focal<span class="w">       </span>Running
+</span></code></pre></div>
+<p>Following the deployment, run the action to enlist the <code>slurmd</code> node and set it's state to idle.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>juju<span class="w"> </span>run-action<span class="w"> </span>slurmd/0<span class="w"> </span>node-configured
+</span></code></pre></div>
+<p>Lastly, validate that the node has successfully enlisted and the cluster is operational.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>sinfo
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>PARTITION<span class="w">  </span>AVAIL<span class="w">  </span>TIMELIMIT<span class="w">  </span>NODES<span class="w">  </span>STATE<span class="w"> </span>NODELIST
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>osd-slurmd<span class="w">    </span>up<span class="w">   </span>infinite<span class="w">      </span><span class="m">1</span><span class="w">   </span>idle<span class="w"> </span>juju-b71748-2
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>$<span class="w"> </span>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>srun<span class="w"> </span>-posd-slurmd<span class="w"> </span>hostname
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>juju-b71748-2
+</span></code></pre></div>
+<p>The slurm cluster is now prepared for further configuration and use in <code>License Manager</code> development.</p>
+<h3 id="2-compose-the-license-manager-api">2. Compose the License Manager API</h3>
+<p>Setting up the <code>License Manager API</code> for development is done in three steps:</p>
+<ol>
+<li>Clone the project to your local machine</li>
+<li>Run <code>docker-compose</code></li>
+<li>Initialize the database with a license configuration for testing.</li>
+</ol>
+<p>To get started, clone the <code>license-manager</code> repository from GitHub and run <code>make local</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/omnivector-solutions/license-manager
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>license-manager/backend/
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>make<span class="w"> </span><span class="nb">local</span>
+</span></code></pre></div>
+<p>We should now see two running docker containers; <code>backend_license-manager_1</code> and <code>backend_postgres-back_1</code>.</p>
+<p><code>docker ps</code> shows:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>docker<span class="w"> </span>ps
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>CONTAINER<span class="w"> </span>ID<span class="w">   </span>IMAGE<span class="w">                     </span>COMMAND<span class="w">                  </span>CREATED<span class="w">          </span>STATUS<span class="w">                    </span>PORTS<span class="w">                                   </span>NAMES
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>a62719b6fa65<span class="w">   </span>backend_license-manager<span class="w">   </span><span class="s2">&quot;uvicorn lm_backend.…&quot;</span><span class="w">   </span><span class="m">13</span><span class="w"> </span>minutes<span class="w"> </span>ago<span class="w">   </span>Up<span class="w"> </span><span class="m">13</span><span class="w"> </span>minutes<span class="w">             </span><span class="m">0</span>.0.0.0:7000-&gt;80/tcp,<span class="w"> </span>:::7000-&gt;80/tcp<span class="w">   </span>backend_license-manager_1
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>3d5abbc7ffff<span class="w">   </span>postgres<span class="w">                  </span><span class="s2">&quot;docker-entrypoint.s…&quot;</span><span class="w">   </span><span class="m">2</span><span class="w"> </span>days<span class="w"> </span>ago<span class="w">       </span>Up<span class="w"> </span><span class="m">13</span><span class="w"> </span>minutes<span class="w"> </span><span class="o">(</span>healthy<span class="o">)</span><span class="w">   </span><span class="m">5432</span>/tcp<span class="w">                                </span>backend_postgres-back_1
+</span></code></pre></div>
+<p>From the output above, we see that port <code>7000</code> on our local machine is forwarded to the listening port of the <code>License Manager API</code>
+container (port <code>80</code>). This means we will make requests to our local host IP address at port <code>7000</code> in order to access the <code>License Manager API</code> HTTP endpoints.</p>
+<p>Now initialize the API with the following resources that we can use for testing:</p>
+<ol>
+<li>Configuration</li>
+<li>License server</li>
+<li>Product</li>
+<li>Feature</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">CONFIG_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/configurations/&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">  &quot;name&quot;: &quot;Abaqus&quot;,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="s1">  &quot;cluster_client_id&quot;: &quot;osd-cluster&quot;,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s1">  &quot;grace_time&quot;: 30,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="s1">  &quot;type&quot;: &quot;flexlm&quot;</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="s1">  }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/license_servers/&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="s1">  &quot;config_id&quot;: &#39;</span><span class="nv">$CONFIG_ID</span><span class="s1">&#39;,</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="s1">  &quot;host&quot;: &quot;myexampleflexlmhost.example.com&quot;,</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="s1">  &quot;port&quot;: 24000</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="s1">  }&#39;</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="nv">PRODUCT_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/products/&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="s1">  &quot;name&quot;: &quot;abaqus&quot;</span>
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="s1">  }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>
+</span><span id="__span-6-30"><a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-31"><a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features/&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-32"><a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-33"><a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-34"><a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+</span><span id="__span-6-35"><a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="s1">  &quot;name&quot;: &quot;abaqus&quot;,</span>
+</span><span id="__span-6-36"><a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a><span class="s1">  &quot;product_id&quot;: &#39;</span><span class="nv">$PRODUCT_ID</span><span class="s1">&#39;,</span>
+</span><span id="__span-6-37"><a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="s1">  &quot;config_id&quot;: &#39;</span><span class="nv">$CONFIG_ID</span><span class="s1">&#39;,</span>
+</span><span id="__span-6-38"><a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a><span class="s1">  &quot;reserved&quot;: 0</span>
+</span><span id="__span-6-39"><a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a><span class="s1">  }&#39;</span>
+</span></code></pre></div>
+<p>You can check that the resources were successfully added by making a request to list the configurations in the database. (this
+list should contain the license you previously added.)</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/configurations&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="o">[</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="o">{</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;Abaqus&quot;</span>,
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="s2">&quot;cluster_client_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;osd-cluster&quot;</span>,
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="s2">&quot;features&quot;</span>:<span class="w"> </span><span class="o">[</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">      </span><span class="o">{</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>,
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="s2">&quot;product&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">          </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">          </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">        </span><span class="o">}</span>,
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">        </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="s2">&quot;reserved&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="s2">&quot;total&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">        </span><span class="s2">&quot;used&quot;</span>:<span class="w"> </span><span class="m">0</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">      </span><span class="o">}</span>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="o">]</span>,
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="s2">&quot;license_servers&quot;</span>:<span class="w"> </span><span class="o">[</span>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">      </span><span class="o">{</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">        </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="s2">&quot;host&quot;</span>:<span class="w"> </span><span class="s2">&quot;myexampleflexlmhost.example.com&quot;</span>,
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">        </span><span class="s2">&quot;port&quot;</span>:<span class="w"> </span><span class="m">24000</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">      </span><span class="o">}</span>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">    </span><span class="o">]</span>,
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">    </span><span class="s2">&quot;grace_time&quot;</span>:<span class="w"> </span><span class="m">30</span>,
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">    </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;flexlm&quot;</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">  </span><span class="o">}</span>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="o">]</span>
+</span></code></pre></div>
+<p>The <code>License Manager API</code> is now configured and ready for use in the development environment.</p>
+<h3 id="3-compose-the-license-manager-simulator">3. Compose the License Manager Simulator</h3>
+<p>To run the <code>License Manager Simulator</code> API, clone the repository and run <code>docker-compose up</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/omnivector-solutions/license-manager-simulator
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">cd</span><span class="w"> </span>license-manager-simulator/
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>docker-compose<span class="w"> </span>up
+</span></code></pre></div>
+<h3 id="4-add-the-license-manager-agent-to-the-cluster">4. Add the License Manager Agent to the cluster</h3>
+<p>The final component we need to deploy is the <code>License Manager Agent</code>. The <code>License Manager Agent</code> is deployed to the
+same model as the slurm charms, and related to <code>slurmctld</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:omnivector-solutions/charm-license-manager-agent
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nb">cd</span><span class="w"> </span>charm-license-manager-agent/
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>make<span class="w"> </span>charm
+</span></code></pre></div>
+<p>The <code>make charm</code> command will produce a resultant charm artifact named
+<code>license-manager-agent.charm</code>. This is the charm that we will deploy.</p>
+<p>Before deploying the charm, create a <code>yaml</code> configuration file that contains the needed settings for the
+<code>License Manager Agent Charm</code>. The config should look something like this:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">license-manager-agent</span><span class="p">:</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">log-level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">stat-interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">license-manager-backend-base-url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://&quot;</span><span class="l l-Scalar l-Scalar-Plain">$MY_IP&quot;:7000&quot;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">lmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmutil&quot;</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nt">rlmutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/rlmutil&quot;</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nt">lsdyna-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lstc_qrun&quot;</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="nt">lmxendutil-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/lmxendutil&quot;</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="nt">olixtool-path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/olixtool&quot;</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">  </span><span class="nt">oidc-domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-domain&quot;</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">  </span><span class="nt">oidc-audience</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-audience&quot;</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">  </span><span class="nt">oidc-client-id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-id&quot;</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">  </span><span class="nt">oidc-client-secret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-oidc-client-secret&quot;</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">  </span><span class="nt">sentry-dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+</span></code></pre></div>
+<p>Make sure to substitute the correct values into the new <code>license-manager-agent.yaml</code> configuration file
+(especially the IP address of your host machine). You'll also need to provision an OIDC instance to authenticate
+against the backend API.</p>
+<p>Now that we have the charm artifact (<code>license-manager-agent.charm</code>) and
+the config file for the charm (<code>license-manager-agent.yaml</code>), we are ready to deploy.</p>
+<p>Using <code>juju</code>, deploy the <code>license-manager-agent</code> charm to the model, specifying the config file as an argument to the
+deploy command.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>juju<span class="w"> </span>deploy<span class="w"> </span>./license-manager-agent.charm<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span>--config<span class="w"> </span>./license-manager-agent.yaml<span class="w"> </span>--series<span class="w"> </span>focal
+</span></code></pre></div>
+<p>After the deploy, make sure to relate the charm to the juju-info and prolog-epilog interface.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>juju<span class="w"> </span>relate<span class="w"> </span>license-manager-agent:juju-info<span class="w"> </span>slurmctld
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>juju<span class="w"> </span>relate<span class="w"> </span>license-manager-agent:prolog-epilog<span class="w"> </span>slurmctld
+</span></code></pre></div>
+<h3 id="5-additional-modifications">5. Additional Modifications</h3>
+<p>At this point you should have 3 systems running:</p>
+<ol>
+<li>Slurm cluster in LXD</li>
+<li>License Manager Simulator</li>
+<li>License Manager Backend</li>
+</ol>
+<p>Once the systems have been successfully deployed you will need to apply the post deployment configurations.
+These configurations will ensure that your slurm cluster has a fake license server client and available licenses
+to be used by the fake application (which will be run as a batch script).</p>
+<h4 id="configuring-the-license-server-client">Configuring the license server client</h4>
+<p>The <code>License Manager Simulator</code> has a script and a template for each license server supported (FlexLM, RLM, LS-Dyna, LM-X and OLicense).
+The script requests license information from the <code>License Manager Simulator</code> API and renders
+it in the template, simulating the output from the real license server. These files need to be copied to the <code>License Manager Agent</code> machine.</p>
+<p>You also need to add licenses to the Slurm cluster and to the simulator API. To use the simulated licenses, there's an
+application script, which requests a license to the simulator API, sleeps for a few seconds, and return the license. This
+application can be submitted as a job using a batch file. These files need to be copied to the slurmd machine.</p>
+<p>To set up everything needed to use the simulator, use the make setup command available in the <code>License Manager Simulator</code> project.
+This commands expects as an argument the <code>License Manager Simulator</code> API IP address.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span>license-manager-simulator/
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>make<span class="w"> </span>setup<span class="w"> </span><span class="nv">lm_sim_ip</span><span class="o">=</span>http://<span class="nv">$MY_IP</span>:8000
+</span></code></pre></div>
+<h4 id="using-the-simulated-license-servers">Using the simulated license servers</h4>
+<p>With the environment configured, you'll have one simulated license for each license server supported:</p>
+<ol>
+<li>abaqus.abaqus for FlexLM</li>
+<li>converge.super for RLM</li>
+<li>mppdyna.mppdyna for LS-Dyna</li>
+<li>hyperworks.hyperworks for LM-X</li>
+<li>cosin.ftire_adams for OLicense</li>
+</ol>
+<p>These licenses will be available in the simulated license servers. You can check it by executing <code>lmutil</code>, <code>rlmutil</code>, <code>lstc_qrun</code>, <code>lmxendutil</code>
+and <code>olixtool.lin</code> files.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>juju<span class="w"> </span>ssh<span class="w"> </span>license-manager-agent/0
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">source</span><span class="w"> </span>/srv/license-manager-agent-venv/bin/activate
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>/srv/license-manager-agent-venv/lib/python3.8/site-packages/bin/lmutil
+</span></code></pre></div>
+<p>The output should display the "abaqus.abaqus" license that was added to the <code>License Manager Simulator</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>lmutil<span class="w"> </span>-<span class="w"> </span>Copyright<span class="w"> </span><span class="o">(</span>c<span class="o">)</span><span class="w"> </span><span class="m">1989</span>-2012<span class="w"> </span>Flexera<span class="w"> </span>Software<span class="w"> </span>LLC.<span class="w"> </span>All<span class="w"> </span>Rights<span class="w"> </span>Reserved.
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Flexible<span class="w"> </span>License<span class="w"> </span>Manager<span class="w"> </span>status<span class="w"> </span>on<span class="w"> </span>Thu<span class="w"> </span><span class="m">10</span>/29/2020<span class="w"> </span><span class="m">17</span>:44
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>License<span class="w"> </span>server<span class="w"> </span>status:<span class="w"> </span>server1,server2,server3
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span>License<span class="w"> </span>file<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>on<span class="w"> </span>server1:<span class="w"> </span>f:<span class="se">\f</span>lexlm<span class="se">\A</span>baqusLM<span class="se">\L</span>icense<span class="se">\l</span>icense.dat:
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>server1:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span>v11.13
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>server2:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span><span class="o">(</span>MASTER<span class="o">)</span><span class="w"> </span>v11.13
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>server3:<span class="w"> </span>license<span class="w"> </span>server<span class="w"> </span>UP<span class="w"> </span>v11.13
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>Vendor<span class="w"> </span>daemon<span class="w"> </span>status<span class="w"> </span><span class="o">(</span>on<span class="w"> </span>server2<span class="o">)</span>:
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">  </span>FakeLM:<span class="w"> </span>UP<span class="w"> </span>v11.13
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>Feature<span class="w"> </span>usage<span class="w"> </span>info:
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>Users<span class="w"> </span>of<span class="w"> </span>abaqus:<span class="w">  </span><span class="o">(</span>Total<span class="w"> </span>of<span class="w"> </span><span class="m">1000</span><span class="w"> </span>licenses<span class="w"> </span>issued<span class="p">;</span><span class="w">  </span>Total<span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w"> </span>licenses<span class="w"> </span><span class="k">in</span><span class="w"> </span>use<span class="o">)</span>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">  </span><span class="s2">&quot;abaqus&quot;</span><span class="w"> </span>v62.2,<span class="w"> </span>vendor:<span class="w"> </span>FakeLM
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="w">  </span>floating<span class="w"> </span>license
+</span></code></pre></div>
+<h4 id="seeding-the-batch-script-and-fake-application">Seeding the batch script and fake application</h4>
+<p>To test the <code>License Manager</code>, there's a fake application and a batch script. These files are available at the <code>/tmp</code> folder in the <code>slurmd</code> machine.
+The fake application makes a request to the <code>License Manager Simulator</code> API to book 42 <code>abaqus</code> licenses, sleeps for a few seconds, and then deletes the booking after.
+The batch script will be responsible for scheduling the fake application job in the slurm cluster.</p>
+<p>To run the job, use the <code>sbatch</code> command.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>juju<span class="w"> </span>ssh<span class="w"> </span>slurmd/0<span class="w"> </span>sbatch<span class="w"> </span>/tmp/batch.sh
+</span></code></pre></div>
+<p>To use other licenses, change the license's name in the <code>application.sh</code> and <code>batch.sh</code> file.</p>
+<h3 id="6-validation">6. Validation</h3>
+<p>After following the steps above, you should have a working development environment.
+To validate that it is indeed working, submit a job to slurm (using the batch script) and check <code>License Manager API</code>.
+Make a request to the <code>features</code> endpoint.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span><span class="s1">&#39;:7000/lm/features&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
+</span></code></pre></div>
+<p>You should see that the <code>used</code> value for the license was updated with the value used in the job (42).</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="o">[</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span><span class="o">{</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>,
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="s2">&quot;product&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">      </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">      </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">    </span><span class="o">}</span>,
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">    </span><span class="s2">&quot;config_id&quot;</span>:<span class="w"> </span><span class="m">10</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">    </span><span class="s2">&quot;reserved&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="s2">&quot;total&quot;</span>:<span class="w"> </span><span class="m">1000</span>,
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">    </span><span class="s2">&quot;used&quot;</span>:<span class="w"> </span><span class="m">42</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="o">]</span>
+</span></code></pre></div>
+<p>You also should have a new job created. To verify this, make a request to the <code>jobs</code> endpoint.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;GET&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span><span class="s1">&#39;http://&#39;</span><span class="nv">$MY_IP</span>:7000<span class="s1">&#39;/lm/jobs&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span>
+</span></code></pre></div>
+<p>The job should contain information about the job and also how many licenses were booked by the job.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="o">[</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="o">{</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="s2">&quot;slurm_job_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;1&quot;</span>,
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">    </span><span class="s2">&quot;cluster_client_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;osd-cluster&quot;</span>,
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">    </span><span class="s2">&quot;username&quot;</span>:<span class="w"> </span><span class="s2">&quot;ubuntu&quot;</span>,
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="s2">&quot;lead_host&quot;</span>:<span class="w"> </span><span class="s2">&quot;juju-d9201d-2&quot;</span>,
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="s2">&quot;bookings&quot;</span>:<span class="w"> </span><span class="o">[</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">      </span><span class="o">{</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="w">        </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a><span class="w">        </span><span class="s2">&quot;job_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="w">        </span><span class="s2">&quot;feature_id&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="w">        </span><span class="s2">&quot;quantity&quot;</span>:<span class="w"> </span><span class="m">42</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a><span class="w">      </span><span class="o">}</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a><span class="w">    </span><span class="o">]</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a><span class="w">  </span><span class="o">}</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a><span class="o">]</span>
+</span></code></pre></div>
+<p>Wait for a few seconds (for the reconcile to run) and check again. The job and the booking should be deleted
+and the <code>used</code> value will return to its original quantity.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.78eede0e.min.js"></script>
+      
+    
+  </body>
+</html>

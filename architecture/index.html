@@ -1,0 +1,1179 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../getting_started/">
+      
+      
+        <link rel="next" href="../development/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.6">
+    
+    
+      
+        <title>Architecture - License Manager Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0e669242.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#license-manager-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+      
+  <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            License Manager Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/omnivector-solutions/license-manager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+      
+  <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
+
+    </a>
+    License Manager Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/omnivector-solutions/license-manager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-agent" class="md-nav__link">
+    License Manager Agent
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reconciliation" class="md-nav__link">
+    Reconciliation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bookings" class="md-nav__link">
+    Bookings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grace-time" class="md-nav__link">
+    Grace time
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-api" class="md-nav__link">
+    License Manager API
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configurations" class="md-nav__link">
+    Configurations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    License Servers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jobs" class="md-nav__link">
+    Jobs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bookings_1" class="md-nav__link">
+    Bookings
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-cli" class="md-nav__link">
+    License Manager CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-commands" class="md-nav__link">
+    Global commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-commands" class="md-nav__link">
+    Configuration commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-server-commands" class="md-nav__link">
+    License server commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#product-commands" class="md-nav__link">
+    Product commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-commands" class="md-nav__link">
+    Feature commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-commands" class="md-nav__link">
+    Job commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#booking-commands" class="md-nav__link">
+    Booking commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-agent" class="md-nav__link">
+    License Manager Agent
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager Agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reconciliation" class="md-nav__link">
+    Reconciliation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bookings" class="md-nav__link">
+    Bookings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grace-time" class="md-nav__link">
+    Grace time
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-api" class="md-nav__link">
+    License Manager API
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configurations" class="md-nav__link">
+    Configurations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    License Servers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    Products
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jobs" class="md-nav__link">
+    Jobs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bookings_1" class="md-nav__link">
+    Bookings
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-cli" class="md-nav__link">
+    License Manager CLI
+  </a>
+  
+    <nav class="md-nav" aria-label="License Manager CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-commands" class="md-nav__link">
+    Global commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-commands" class="md-nav__link">
+    Configuration commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#license-server-commands" class="md-nav__link">
+    License server commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#product-commands" class="md-nav__link">
+    Product commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#feature-commands" class="md-nav__link">
+    Feature commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-commands" class="md-nav__link">
+    Job commands
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#booking-commands" class="md-nav__link">
+    Booking commands
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="license-manager-architecture">License Manager Architecture</h1>
+<p>The License Manager is based on a client/backend architecture. The backend consists of a RESTful API built with Python over a
+PostgreSQL database. The client consists of a timed reconcile job that runs on the control node in the cluster and
+a prolog integration to Slurm.</p>
+<h2 id="license-manager-agent">License Manager Agent</h2>
+<p>The <code>License Manager Agent</code> is responsible for keeping the local cluster license totals
+in sync with the the 3rd party license server totals. It's also responsible for making booking requests
+to the <code>License Manager API</code> when Slurm is configured to use the <code>PrologSlurmctld</code> script provided by <code>License Manager Agent</code>.</p>
+<h3 id="reconciliation">Reconciliation</h3>
+<p>For each license tracked by License Manager, the <code>License Manager Agent</code> will periodically poll the license servers to get
+the usage information and store it in the <code>License Manager API</code>. The <code>stat-interval</code> is the period of time
+between each reconciliation and can be configured in the <code>License Manager Agent</code> configuration file.</p>
+<p>The information in the <code>License Manager API</code> is used by the reconciliation process to update the license counters in Slurm.
+This is done by creating a reservation to represent the licenses used in the license server.</p>
+<p>This reservation is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.
+The reservation is created by the user configured in the <code>License Manager Agent</code> configuration file. The user must
+have a user account in the Slurm cluster and have <code>operator</code> privilege level to manage reservations.</p>
+<h3 id="bookings">Bookings</h3>
+<p>The <code>License Manager Agent</code> is also responsible for making booking requests to the <code>License Manager API</code>
+when Slurm is configured to use the <code>PrologSlurmctld</code> script provided by <code>License Manager Agent</code>.</p>
+<p>Each job submitted to Slurm will trigger the <code>PrologSlurmctld</code> script that makes a request to the <code>License Manager API</code>
+to book the needed licenses prior to the allocation of the job. The booking ensures that the licenses are available for the job
+to use by taking into consideration the licenses booked for other jobs and the license usage in the license server.</p>
+<p>If the booking cannot be made, the job will be kept in the queue until there are enough licenses available to
+satisfy the booking request.</p>
+<h3 id="grace-time">Grace time</h3>
+<p>A job can take some time to check out the license from the license server after it is submitted to Slurm.
+Thus, each license has a <code>grace time</code> period that is used to indicate how long a booking will be retained.
+After the <code>grace time</code> expires, the booking is deleted. This means that the license was checked out from the
+license server and doesn't need a booking anymore.</p>
+<h2 id="license-manager-api">License Manager API</h2>
+<p>The <code>License Manager API</code> provides a RESTful API where licenses and bookins are tracked.
+The <code>License Manager Agent</code> uses this API to store the license usage information and to process the booking requests.
+The <code>License Manager CLI</code> interacts with this API to add new configurations and to check the usage information for each tracked license.</p>
+<p>The API is also responsible for verifying if the booking requests can be satisfied by accounting for bookings already
+made and the license usage in the license server.</p>
+<p>The API contains 6 entities that have relationship among them.
+This means that some of the resources need to be created before others can be created as well.</p>
+<pre class="mermaid"><code>    erDiagram
+        Bookings {
+            int id pk
+            int job_id pk
+            int feature_id pk
+            int quantity
+        }
+        Features {
+            int id pk,fk
+            int config_id pk
+            int product_id pk
+            int reserved
+            int total
+            int used
+            str name 
+        }
+        Products {
+            int id pk
+            str name
+        }
+        Jobs {
+            int id pk, fk
+            str slurm_job_id
+            str cluster_client_id
+            str username
+            str lead_host
+        }
+        Configurations {
+            int id pk
+            str name
+            str cluster_client_id
+            int grace_time
+            enum[str] type
+        }
+        LicenseServers {
+            int id pk
+            int config_id fk
+            str host
+            int port
+        }
+        Jobs ||--o{ Bookings : ""
+        Features ||--o{ Bookings : ""
+        Products ||--o{ Features : ""
+        Configurations ||--|{ Features : ""
+        Configurations ||--|{ LicenseServers : ""</code></pre>
+<h3 id="configurations">Configurations</h3>
+<p>The <code>Configuration</code> resource holds the information for a set of features that are available on the same license server.</p>
+<p>A configuration is attached to a cluster and can have <code>n</code> features attached to it.
+It also defines the license type, the license server host addresses and the grace time period.
+The license type identifies the provider of the license server.</p>
+<p>The following license server types are supported:</p>
+<ul>
+<li>FlexLM</li>
+<li>RLM</li>
+<li>LS-Dyna</li>
+<li>LM-X</li>
+<li>OLicense</li>
+</ul>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/configurations</code></li>
+<li>GET <code>/lm/configurations</code></li>
+<li>GET <code>/lm/configurations/by_client_id</code></li>
+<li>GET <code>/lm/configurations/{id}</code></li>
+<li>PUT <code>/lm/configurations/{id}</code></li>
+<li>DEL <code>/lm/configurations/{id}</code></li>
+</ul>
+<p>The endpoint <code>by_client_id</code> extracts the <code>cluster_client_id</code> from the request and returns the configurations that belong to the cluster.</p>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;configuration-name&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&quot;grace_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flexlm&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>After creating a configuration, the license servers and features can be added.</p>
+<h3 id="license-servers">License Servers</h3>
+<p>The <code>License Server</code> resource represents the actual license server where the license is installed.</p>
+<p>A license server has a host and a port, and needs to be attached to a configuration.
+Each configuration can have <code>n</code> license servers, as long as they provide the same data (mirrored for redundancy).</p>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/license_servers</code></li>
+<li>GET <code>/lm/license_servers</code></li>
+<li>GET <code>/lm/license_servers/{id}</code></li>
+<li>PUT <code>/lm/license_servers/{id}</code></li>
+<li>DEL <code>/lm/license_servers/{id}</code></li>
+</ul>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;licserv0001&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="products">Products</h3>
+<p>The <code>Product</code> resource represents the product name of the license.</p>
+<p>Each license is identified as <code>product.feature@license_server_type</code>.
+To create a <code>Feature</code>, a <code>Product</code> needs to be created first.</p>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/products</code></li>
+<li>GET <code>/lm/products</code></li>
+<li>GET <code>/lm/products/{id}</code></li>
+<li>PUT <code>/lm/products/{id}</code></li>
+<li>DEL <code>/lm/products/{id}</code></li>
+</ul>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="features">Features</h3>
+<p>The <code>Feature</code> resource represents the licenses in the cluster.</p>
+<p>Each <code>Feature</code> is attached to a <code>Configuration</code> and a <code>Product</code>.</p>
+<p>The feature has a <code>reserved</code> value, that represents how many licenses should be reserved for usage in desktop applications.
+The amount of licenses reserved is not used by the cluster.</p>
+<p>The <code>License Manager Agent</code> polls the license server to populate the <code>used</code> and <code>total</code> values.
+The information stored includes the total number of licenses available and how many licenses are in use.</p>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/features</code></li>
+<li>GET <code>/lm/features</code></li>
+<li>GET <code>/lm/features/{id}</code></li>
+<li>PUT <code>/lm/features/{id}</code></li>
+<li>PUT <code>/lm/features/by_client_id</code></li>
+<li>DEL <code>/lm/features/{id}</code></li>
+</ul>
+<p>The endpoint <code>by_client_id</code> extracts the <code>cluster_client_id</code> from the request and updates the feature for that cluster.</p>
+<p>This endpoint is needed since there can be multiple licenses with the same name in different clusters.</p>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abaqus&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;product_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;config_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;reserved&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="jobs">Jobs</h3>
+<p>The <code>Job</code> resource represents the jobs submitted to the cluster.</p>
+<p>When a job is intercepted by the <code>PrologSlurmctld</code> script, the job is created automatically.</p>
+<p>Each <code>Job</code> can have <code>n</code> <code>Bookings</code> attached to it.
+If the job requires licenses, a <code>Booking</code> is created for each license.
+Once the job finishes, the <code>EpilogSlurmctld</code> deletes the job from the API, along with its bookings.</p>
+<p>Since the <code>slurm_job_id</code> is not unique across clusters, each job is identified by the <code>cluster_client_id</code> alongside the <code>slurm_job_id</code>.</p>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/jobs</code></li>
+<li>GET <code>/lm/jobs</code></li>
+<li>GET <code>/lm/jobs/by_client_id</code></li>
+<li>GET <code>/lm/jobs/{id}</code></li>
+<li>GET <code>/lm/jobs/slurm_job_id/{slurm_job_id}</code></li>
+<li>DEL <code>/lm/jobs/{id}</code></li>
+<li>DEL <code>/lm/jobs/slurm_job_id/{slurm_job_id}</code></li>
+</ul>
+<p>The endpoint <code>by_client_id</code> extracts the <code>cluster_client_id</code> from the request and returns the jobs that belong to the cluster.</p>
+<p>The in the POST endpoint, the parameter <code>cluster_client_id</code> is optional. If it's not provided, the <code>cluster_client_id</code> is extracted from the request.</p>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">&quot;slurm_job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;cluster_client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cluster-client-id&quot;</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user123&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">&quot;lead_host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;host1&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="bookings_1">Bookings</h3>
+<p>The <code>Booking</code> resource is responsible for booking licenses for a specific job.</p>
+<p>The booking ensures the job will have enough licenses to be used when the <code>grace time</code> is reached.
+<code>License Manager Agent</code> stores the information about the booking requests made by Slurm when the <code>PrologSlurmctld</code>
+script is used.</p>
+<p>Each <code>Booking</code> is attached to a <code>Job</code>. The <code>job_id</code> parameter identifies the job in the API, and is different from the <code>slurm_job_id</code>
+that idenfies it in the cluster.</p>
+<p>Endpoints available:</p>
+<ul>
+<li>POST <code>/lm/bookings</code></li>
+<li>GET <code>/lm/bookings</code></li>
+<li>GET <code>/lm/bookings/{id}</code></li>
+<li>DEL <code>/lm/bookings/{id}</code></li>
+</ul>
+<p>Payload example for POST:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;feature_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;quantity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="license-manager-cli">License Manager CLI</h2>
+<p>The <code>License Manager CLI</code> is a client to interact with the <code>License Manager API</code>.</p>
+<p>It can be used to add new configurations to the API and to check the usage information for each tracked license.</p>
+<p>The <code>Jobs</code> and <code>Bookings</code> are read only. The remaining resources can be edited by users with permission to do so.</p>
+<h3 id="global-commands">Global commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli login</td>
+<td>Generate a URL for logging in via browser</td>
+</tr>
+<tr>
+<td>lm-cli show-token</td>
+<td>Print your access token (created after logging in)</td>
+</tr>
+<tr>
+<td>lm-cli logout</td>
+<td>Logout and remove your access token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration-commands">Configuration commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli configurations list</td>
+<td>List all configurations</td>
+</tr>
+<tr>
+<td>lm-cli configurations list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search configurations with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli configurations list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort configurations by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli configurations list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort configurations by the specified order</td>
+</tr>
+<tr>
+<td>lm-cli configurations get-one<br>--id <strong>&lt;configuration id&gt;</strong></td>
+<td>List the configuration with the specified id</td>
+</tr>
+<tr>
+<td>lm-cli configurations create<br>--name <strong>&lt;configuration name&gt;</strong><br>--cluster-client-id <strong>&lt;OIDC client_id of the cluster where the configuration applies&gt;</strong><br>--grace-time <strong>&lt;grace time in seconds&gt;</strong><br>--license-server-type <strong>&lt;license server type&gt;</strong></td>
+<td>Create a new configuration</td>
+</tr>
+<tr>
+<td>lm-cli configurations delete<br>--id <strong>&lt;id to delete&gt;</strong></td>
+<td>Delete the configuration with the specified id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="license-server-commands">License server commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli license-servers list</td>
+<td>List all license servers</td>
+</tr>
+<tr>
+<td>lm-cli license-servers list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search license servers with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli license-servers list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort license servers by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli license-servers list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort license servers by the specified order</td>
+</tr>
+<tr>
+<td>lm-cli license-servers get-one<br>--id <strong>&lt;license server id&gt;</strong></td>
+<td>List the license server with the specified id</td>
+</tr>
+<tr>
+<td>lm-cli license-servers create<br>--config-id <strong>&lt;id of the configuration to add the license server&gt;</strong><br>--host <strong>&lt;hostname of the license server&gt;</strong><br>--port <strong>&lt;port of the license server&gt;</strong></td>
+<td>Create a new license server</td>
+</tr>
+<tr>
+<td>lm-cli license-servers delete<br>--id <strong>&lt;id to delete&gt;</strong></td>
+<td>Delete the license server with the specified id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="product-commands">Product commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli products list</td>
+<td>List all products</td>
+</tr>
+<tr>
+<td>lm-cli products list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search products with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli products list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort products by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli products list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort products by the specified order</td>
+</tr>
+<tr>
+<td>lm-cli products get-one<br>--id <strong>&lt;product id&gt;</strong></td>
+<td>List the product with the specified id</td>
+</tr>
+<tr>
+<td>lm-cli products create<br>--name <strong>&lt;product name&gt;</strong></td>
+<td>Create a new product</td>
+</tr>
+<tr>
+<td>lm-cli products delete<br>--id <strong>&lt;id to delete&gt;</strong></td>
+<td>Delete the product with the specified id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="feature-commands">Feature commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli features list</td>
+<td>List all features</td>
+</tr>
+<tr>
+<td>lm-cli features list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search features with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli features list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort features by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli features list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort features by the specified order</td>
+</tr>
+<tr>
+<td>lm-cli features get-one<br>--id <strong>&lt;feature id&gt;</strong></td>
+<td>List the feature with the specified id</td>
+</tr>
+<tr>
+<td>lm-cli features create<br>--name <strong>&lt;feature name&gt;</strong><br>--product-id <strong>&lt;id of the product of the license&gt;</strong><br>--config-id <strong>&lt;id of the configuration of the license&gt;</strong><br>--reserved <strong>&lt;how many licenses should be reserved for desktop environments&gt;</strong></td>
+<td>Create a new feature</td>
+</tr>
+<tr>
+<td>lm-cli features delete<br>--id <strong>&lt;id to delete&gt;</strong></td>
+<td>Delete the feature with the specified id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="job-commands">Job commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli jobs list</td>
+<td>List all jobs</td>
+</tr>
+<tr>
+<td>lm-cli jobs list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search jobs with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli jobs list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort jobs by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli jobs list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort jobs by the specified order</td>
+</tr>
+</tbody>
+</table>
+<h3 id="booking-commands">Booking commands</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Command</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lm-cli bookings list</td>
+<td>List all bookings</td>
+</tr>
+<tr>
+<td>lm-cli bookings list<br>--search <strong>&lt;search string&gt;</strong></td>
+<td>Search bookings with the specified string</td>
+</tr>
+<tr>
+<td>lm-cli bookings list<br>--sort-field <strong>&lt;sort field&gt;</strong></td>
+<td>Sort bookings by the specified field</td>
+</tr>
+<tr>
+<td>lm-cli bookings list<br>--sort-field <strong>&lt;sort field&gt;</strong><br>--sort-order <strong>&lt;ascending or descending&gt;</strong></td>
+<td>Sort bookings by the specified order</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.78eede0e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -9,20 +9,22 @@
       
       
       
+        <link rel="prev" href="..">
       
-        <link rel="next" href="getting_started/">
+      
+        <link rel="next" href="../architecture/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.6">
     
     
       
-        <title>License Manager Documentation</title>
+        <title>Getting Started - License Manager Documentation</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.0e669242.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0e669242.min.css">
       
       
 
@@ -41,9 +43,9 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -65,7 +67,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-the-license-manager-documentation" class="md-skip">
+        <a href="#getting-started" class="md-skip">
           Skip to content
         </a>
       
@@ -81,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href=".." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -100,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Getting Started
             
           </span>
         </div>
@@ -184,7 +186,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href=".." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -210,6 +212,25 @@
       
   
   
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -221,27 +242,18 @@
         
       
       
-      <a href="." class="md-nav__link md-nav__link--active">
-        
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
   
   <span class="md-ellipsis">
-    Home
+    Getting Started
   </span>
   
 
-      </a>
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="getting_started/" class="md-nav__link">
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -250,6 +262,47 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#slurm-cluster" class="md-nav__link">
+    Slurm cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    License servers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-api" class="md-nav__link">
+    License Manager API
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -260,7 +313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -279,7 +332,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/" class="md-nav__link">
+      <a href="../development/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -312,6 +365,35 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#slurm-cluster" class="md-nav__link">
+    Slurm cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    License servers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-api" class="md-nav__link">
+    License Manager API
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -328,15 +410,34 @@
   
 
 
-<div class="admonition example">
-<p class="admonition-title">An <a href="https://www.omnivector.io/" target="_blank">Omnivector</a> initiative</p>
-<p><a href="https://www.omnivector.io/" target="_blank"><img alt="omnivector-logo" src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo-text-black-horz.png" /></a></p>
-</div>
-<h1 id="welcome-to-the-license-manager-documentation">Welcome to the License Manager documentation!</h1>
-<p>The License Manager is a license scheduling middleware that operates as an interface between
-an HPC cluster and one or more 3rd party license servers. The License Manager
-introduces the concept of "license bookings" which are used to provide an alternate
-source of truth for what licenses are actually available.</p>
+<h1 id="getting-started">Getting Started</h1>
+<p>To run License Manager you will need three different systems:</p>
+<ol>
+<li>Slurm cluster (where <code>License Manager Agent</code> runs)</li>
+<li>License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense or License Manager Simulator)</li>
+<li>API with license information (<code>License Manager API</code>)</li>
+</ol>
+<h2 id="slurm-cluster">Slurm cluster</h2>
+<p>License Manager is designed to work with Slurm. To learn how to create a Slurm cluster, please refer to the
+<a href="https://omnivector-solutions.github.io/osd-documentation/master/index.html">Omnivector Slurm Distribution documentation</a>.</p>
+<h2 id="license-servers">License servers</h2>
+<p>License Manager supports the following license servers:</p>
+<ul>
+<li>FlexLM</li>
+<li>RLM</li>
+<li>LS-Dyna</li>
+<li>LM-X</li>
+<li>OLicense</li>
+</ul>
+<p>You need to have the license server installed and working on a path that is accessible to the <code>License Manager Agent</code>.
+The path for each license server binary is configurable in the <code>License Manager Agent</code> charm.
+In case you don't have a license server, you can use the <code>License Manager Simulator</code> to simulate the output of a license server.</p>
+<h2 id="license-manager-api">License Manager API</h2>
+<p>The <code>License Manager API</code> is an API that stores license usage information gathered from the license servers by the agent's reconciliation
+process. This data is used to update the license counters in the cluster to reflect the actual usage of the licenses.
+For each license tracked by License Manager, you need to create a configuration in the API. This includes the license name, the license
+features, the license server type and location, and the grace time (how long it takes for the license to be checked out after the job starts).</p>
+<p>To learn how to set up each system needed, please refer to the <a href="../development/">Development</a> section.</p>
 
 
 
@@ -374,10 +475,10 @@ source of truth for what licenses are actually available.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.expand", "content.code.copy"], "search": "assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.78eede0e.min.js"></script>
+      <script src="../assets/javascripts/bundle.78eede0e.min.js"></script>
       
     
   </body>
