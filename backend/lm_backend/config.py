@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     # Sentry settings
     SENTRY_DSN: Optional[str] = None
     SENTRY_SAMPLE_RATE: Optional[float] = Field(1.0, gt=0.0, le=1.0)
+    SENTRY_PROFILING_SAMPLE_RATE: float = Field(1.0, gt=0.0, le=1.0)
+    SENTRY_TRACING_SAMPLE_RATE: float = Field(1.0, gt=0.0, le=1.0)
 
     # vv should be specified as something like /staging
     # to match where the API is deployed in API Gateway
