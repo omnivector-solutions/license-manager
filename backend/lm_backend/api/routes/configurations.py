@@ -95,7 +95,7 @@ async def read_all_configurations(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW, commit=False)),
 ):
     """Return all configurations with the associated license servers and features."""
     return await crud_configuration.read_all(
@@ -113,7 +113,7 @@ async def read_all_configurations(
     status_code=status.HTTP_200_OK,
 )
 async def read_configurations_by_client_id(
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW, commit=False)),
 ):
     """Return the configurations with the specified client_id."""
     client_id = secure_session.identity_payload.client_id
@@ -136,7 +136,7 @@ async def read_configurations_by_client_id(
 )
 async def read_configuration(
     configuration_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW, commit=False)),
 ):
     """Return a configuration with the associated license severs and features with a given id."""
     return await crud_configuration.read(

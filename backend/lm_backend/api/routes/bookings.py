@@ -35,7 +35,7 @@ async def create_booking(
 async def read_all_bookings(
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW, commit=False)),
 ):
     """Return all bookings."""
     return await crud_booking.read_all(
@@ -52,7 +52,7 @@ async def read_all_bookings(
 )
 async def read_booking(
     booking_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW, commit=False)),
 ):
     """Return a booking with associated bookings with the given id."""
     return await crud_booking.read(db_session=secure_session.session, id=booking_id)

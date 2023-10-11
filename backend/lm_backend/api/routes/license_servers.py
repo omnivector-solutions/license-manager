@@ -25,7 +25,7 @@ crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, Lice
     response_model=List[LicenseServerType],
 )
 async def get_license_server_types(
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW, commit=False)),
 ):
     """Return a list of the available license server types."""
     return list(LicenseServerType)
@@ -53,7 +53,7 @@ async def read_all_license_servers(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW, commit=False)),
 ):
     """Return all license servers."""
     return await crud_license_server.read_all(
@@ -68,7 +68,7 @@ async def read_all_license_servers(
 )
 async def read_license_server(
     license_server_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_VIEW, commit=False)),
 ):
     """Return a license server with the given id."""
     return await crud_license_server.read(db_session=secure_session.session, id=license_server_id)

@@ -36,7 +36,7 @@ async def read_all_products(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_VIEW, commit=False)),
 ):
     """Return all products with associated features."""
     return await crud_product.read_all(
@@ -51,7 +51,7 @@ async def read_all_products(
 )
 async def read_product(
     product_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_VIEW, commit=False)),
 ):
     """Return a product with associated features with the given id."""
     return await crud_product.read(db_session=secure_session.session, id=product_id)

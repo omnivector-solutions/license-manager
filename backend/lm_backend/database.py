@@ -114,7 +114,7 @@ class SecureSession:
     session: AsyncSession
 
 
-def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMode.ALL):
+def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMode.ALL, commit: bool = True):
     """
     Provide an injectable for FastAPI that checks permissions and returns a database session for this request.
 
@@ -146,7 +146,7 @@ def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMod
             if settings.DEPLOY_ENV.lower() == "test":
                 logger.debug("Flushing session due to test mode")
                 await session.flush()
-            else:
+            elif commit is True:
                 logger.debug("Committing session")
                 await session.commit()
         except Exception as err:

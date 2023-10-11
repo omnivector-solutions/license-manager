@@ -81,7 +81,7 @@ async def create_job(
     status_code=status.HTTP_200_OK,
 )
 async def read_jobs_by_client_id(
-    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW, commit=False)),
 ):
     """Return the jobs with the specified OIDC client_id retrieved from the request."""
     client_id = secure_session.identity_payload.client_id
@@ -106,7 +106,7 @@ async def read_all_jobs(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW, commit=False)),
 ):
     """Return all jobs."""
     return await crud_job.read_all(
@@ -125,7 +125,7 @@ async def read_all_jobs(
 )
 async def read_job(
     job_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW, commit=False)),
 ):
     """Return a job with associated bookings with the given id."""
     return await crud_job.read(db_session=secure_session.session, id=job_id, force_refresh=True)
@@ -184,7 +184,7 @@ async def delete_job_by_slurm_id(
 )
 async def read_job_by_slurm_id(
     slurm_job_id: str,
-    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.JOB_VIEW, commit=False)),
 ):
     """
     Read a job from the database and associated bookings.

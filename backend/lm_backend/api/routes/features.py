@@ -40,7 +40,7 @@ async def read_all_features(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW, commit=False)),
 ):
     """Return all features with associated bookings."""
     return await crud_feature.read_all(
@@ -59,7 +59,7 @@ async def read_all_features(
 )
 async def read_feature(
     feature_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW, commit=False)),
 ):
     """Return a feature with associated bookings with the given id."""
     return await crud_feature.read(db_session=secure_session.session, id=feature_id, force_refresh=True)
