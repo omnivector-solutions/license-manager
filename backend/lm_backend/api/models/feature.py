@@ -39,13 +39,12 @@ class Feature(Base):
         """
         return sum(b.quantity for b in self.bookings)
 
-    @booked_total.inplace.expression
-    @classmethod
-    def _booked_total_expression(cls) -> SQLColumnExpression[int]:
+    @hybrid_property
+    def product_name(self) -> int:
         """
-        Provide a sql expression for computing the total bookings for each feature in a subquery.
+        Get the linked product's name.
         """
-        return select(func.sum(Booking.quantity)).where(Booking.feature_id == cls.id).label("booked_total")
+        return self.product.name
 
     def __repr__(self):
         return (

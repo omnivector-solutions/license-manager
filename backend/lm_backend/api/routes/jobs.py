@@ -114,7 +114,6 @@ async def read_all_jobs(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,
     )
 
 

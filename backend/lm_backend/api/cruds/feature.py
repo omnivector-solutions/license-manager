@@ -1,16 +1,18 @@
 """Feature CRUD class for SQLAlchemy models."""
-from typing import List
+from typing import List, Optional
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select, tuple_
+from sqlalchemy import select, tuple_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.product import Product
-from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema
+from lm_backend.api.models.booking import Booking
+from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema, FlatFeatureSchema
+from lm_backend.database import search_clause, sort_clause
 
 
 class FeatureCRUD(GenericCRUD):
@@ -88,3 +90,38 @@ class FeatureCRUD(GenericCRUD):
             raise HTTPException(status_code=404, detail="Feature not found.")
 
         return db_obj
+
+
+    async def read_all(
+        self,
+        db_session: AsyncSession,
+        search: Optional[str] = None,
+        sort_field: Optional[str] = None,
+        sort_ascending: bool = True,
+    ) -> List[FlatFeatureSchema]:
+        """
+        Read all objects.
+        Returns a list of objects.
+        """
+        try:
+            stmt = (
+                select(
+                    *(Feature.__table__.c),
+                    Product.id.label("product_id"),
+                    Product.name.label("product_name"),
+                    func.sum(Booking.quantity).label("booked_total")
+                )
+                .join(Product, Feature.product_id == Product.id)
+                .join(Booking, Feature.id == Booking.feature_id, isouter=True)
+            )
+            if search is not None:
+                stmt = stmt.where(search_clause(search, self.model.searchable_fields))
+            stmt = stmt.group_by(Feature.id, Product.id)
+            if sort_field is not None:
+                stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
+            query = await db_session.execute(stmt)
+            features = [FlatFeatureSchema.from_orm(r) for r in query.all()]
+            return features
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")

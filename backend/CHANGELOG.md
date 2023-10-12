@@ -4,6 +4,7 @@ This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
 * Add constraints to schemas to ensure the correct values are used
+* Optimized queries for feature list
 
 ## 3.0.9 -- 2023-09-28
 * Bumped version to keep in sync with agent
@@ -12,7 +13,7 @@ This file keeps track of all notable changes to `license-manager-backend`.
 * Bumped version to keep in sync with agent
 
 ## 3.0.7 -- 2023-09-14
-* Updated /configurations update endpoint to update features and license servers related to the configuration 
+* Updated /configurations update endpoint to update features and license servers related to the configuration
 
 ## 3.0.6 -- 2023-08-29
 * Bumped version to keep in sync with agent

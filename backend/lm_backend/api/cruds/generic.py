@@ -4,7 +4,8 @@ from typing import List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import Column, ColumnElement, and_, select
+from sqlalchemy import Column, ColumnElement, and_, select, inspect
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
@@ -90,25 +91,21 @@ class GenericCRUD:
         search: str = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
-        force_refresh: bool = False,
     ) -> List[ModelType]:
         """
         Read all objects.
         Returns a list of objects.
-
-        Note: The ``force_refresh`` parameter may be useful to force the gathered results to lazily load
-              relationships or other computed fields like column properties or hybrid attributes.
         """
         try:
             stmt = select(self.model)
+            for relationship in inspect(self.model).relationships:
+                stmt = stmt.options(selectinload(relationship))
             if search is not None:
                 stmt = stmt.where(search_clause(search, self.model.searchable_fields))
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
             query = await db_session.scalars(stmt)
             db_objs = list(query.all())
-            if force_refresh:
-                await gather(*(db_session.refresh(db_obj) for db_obj in db_objs))
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")

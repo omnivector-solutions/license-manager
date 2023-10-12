@@ -7,6 +7,7 @@ from lm_backend.api.models.feature import Feature
 from lm_backend.api.schemas.feature import (
     FeatureCreateSchema,
     FeatureSchema,
+    FlatFeatureSchema,
     FeatureUpdateByNameSchema,
     FeatureUpdateSchema,
 )
@@ -33,7 +34,7 @@ async def create_feature(
 
 @router.get(
     "",
-    response_model=List[FeatureSchema],
+    response_model=List[FlatFeatureSchema],
     status_code=status.HTTP_200_OK,
 )
 async def read_all_features(
@@ -48,7 +49,6 @@ async def read_all_features(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,  # To lazy load relationships and hybrid properties
     )
 
 

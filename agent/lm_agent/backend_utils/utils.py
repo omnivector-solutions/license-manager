@@ -11,6 +11,7 @@ from lm_agent.backend_utils.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
+    FlatFeatureSchema,
     JobSchema,
     LicenseBookingRequest,
 )
@@ -250,7 +251,7 @@ async def get_bookings_for_all_jobs() -> Dict[str, List[BookingSchema]]:
     return bookings_for_all_jobs
 
 
-async def get_all_features_from_backend() -> List[FeatureSchema]:
+async def get_all_features_from_backend() -> List[FlatFeatureSchema]:
     """
     Return the job with its bookings for the given job_id in the cluster.
     """
@@ -267,7 +268,7 @@ async def get_all_features_from_backend() -> List[FeatureSchema]:
     with LicenseManagerParseError.handle_errors(
         "Could not parse feature data returned from the backend", do_except=log_error
     ):
-        features = [FeatureSchema.parse_obj(feature) for feature in parsed_resp]
+        features = [FlatFeatureSchema.parse_obj(feature) for feature in parsed_resp]
 
     return features
 
@@ -283,14 +284,14 @@ async def get_all_features_bookings_sum() -> Dict[str, int]:
     """
     # get all features
     features = await get_all_features_from_backend()
-    all_product_features = [f"{feature.product.name}.{feature.name}" for feature in features]
+    all_product_features = [f"{feature.product_name}.{feature.name}" for feature in features]
 
     # sum bookings for each feature with the same name
     bookings_sum = {
         product_feature: sum(
             feature.booked_total
             for feature in features
-            if f"{feature.product.name}.{feature.name}" == product_feature
+            if f"{feature.product_name}.{feature.name}" == product_feature
         )
         for product_feature in all_product_features
     }

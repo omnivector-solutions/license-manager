@@ -103,7 +103,6 @@ async def read_all_configurations(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,
     )
 
 
