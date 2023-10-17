@@ -39,13 +39,6 @@ class Feature(Base):
         """
         return sum(b.quantity for b in self.bookings)
 
-    @hybrid_property
-    def product_name(self) -> int:
-        """
-        Get the linked product's name.
-        """
-        return self.product.name
-
     def __repr__(self):
         return (
             f"Feature(id={self.id}, "
