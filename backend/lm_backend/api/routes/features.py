@@ -34,7 +34,7 @@ async def create_feature(
 
 @router.get(
     "",
-    response_model=List[FlatFeatureSchema],
+    response_model=List[FeatureSchema],
     status_code=status.HTTP_200_OK,
 )
 async def read_all_features(

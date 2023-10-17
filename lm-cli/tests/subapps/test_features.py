@@ -9,7 +9,7 @@ from lm_cli.text_tools import unwrap
 def test_list_all__makes_request_and_renders_results(
     respx_mock,
     make_test_app,
-    dummy_flat_feature_data,
+    dummy_feature_data,
     dummy_feature_data_for_printing,
     dummy_domain,
     cli_runner,
@@ -21,7 +21,7 @@ def test_list_all__makes_request_and_renders_results(
     respx_mock.get(f"{dummy_domain}/lm/features").mock(
         return_value=httpx.Response(
             httpx.codes.OK,
-            json=dummy_flat_feature_data,
+            json=dummy_feature_data,
         ),
     )
     test_app = make_test_app("list-all", list_all)

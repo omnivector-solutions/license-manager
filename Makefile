@@ -5,6 +5,11 @@ install:
 	$(MAKE) -C agent install
 	$(MAKE) -C lm-cli install
 
+test:
+	$(MAKE) -C backend test
+	$(MAKE) -C agent test
+	$(MAKE) -C lm-cli test
+
 qa:
 	$(MAKE) -C backend qa
 	$(MAKE) -C agent qa

@@ -41,22 +41,6 @@ class FeatureSchema(BaseModel):
     booked_total: int
 
 
-class FlatFeatureSchema(BaseModel):
-    """
-    Represents the features in a feature configuration.
-    """
-
-    id: int
-    name: str
-    product_id: int
-    product_name: str
-    config_id: int
-    reserved: int
-    total: int
-    used: int
-    booked_total: int
-
-
 class ConfigurationSchema(BaseModel):
     """
     Represents the configuration for a set of features.

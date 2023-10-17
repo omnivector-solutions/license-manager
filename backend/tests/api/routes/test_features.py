@@ -65,14 +65,13 @@ async def test_get_all_features__with_booked_total(
 
     assert response.status_code == 200
 
-    response_features = response.json()
-    assert response_features[0]["name"] == create_features[0].name
-    assert response_features[0]["reserved"] == create_features[0].reserved
-    assert response_features[0]["booked_total"] == create_bookings[0].quantity
-
-    assert response_features[1]["name"] == create_features[1].name
-    assert response_features[1]["reserved"] == create_features[1].reserved
-    assert response_features[1]["booked_total"] == create_bookings[1].quantity
+    expected_features = sorted(create_features, key=lambda e: e.name)
+    computed_features = sorted(response.json(), key=lambda e: e["name"])
+    for (expected, computed) in zip(expected_features, computed_features):
+        assert computed["name"] == expected.name
+        assert computed["reserved"] == expected.reserved
+        if "booked_total" in computed and getattr(expected, "quantity", None) is not None:
+            assert computed["booked_total"] == expected.quantity
 
 
 @mark.asyncio

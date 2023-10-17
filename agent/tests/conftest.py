@@ -13,7 +13,6 @@ from lm_agent.backend_utils.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
-    FlatFeatureSchema,
     JobSchema,
     LicenseServerSchema,
     LicenseServerType,
@@ -291,35 +290,6 @@ def parsed_features():
             id=2,
             name="abaqus",
             product=ProductSchema(id=1, name="abaqus"),
-            config_id=2,
-            reserved=100,
-            total=123,
-            used=12,
-            booked_total=50,
-        ),
-    ]
-
-
-@fixture
-def parsed_flat_features():
-    """Some parsed flat features response examples."""
-    return [
-        FlatFeatureSchema(
-            id=1,
-            name="abaqus",
-            product_id=1,
-            product_name="abaqus",
-            config_id=1,
-            reserved=100,
-            total=123,
-            used=12,
-            booked_total=12,
-        ),
-        FlatFeatureSchema(
-            id=2,
-            name="abaqus",
-            product_id=1,
-            product_name="abaqus",
             config_id=2,
             reserved=100,
             total=123,

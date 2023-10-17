@@ -155,6 +155,16 @@ class FeatureSchema(BaseModel):
     class Config:
         orm_mode = True
 
+    @classmethod
+    def from_flat_dict(cls, d):
+        return cls(
+            product=ProductSchema(
+                id=d["product_id"],
+                name=d["product_name"],
+            ),
+            **{k: v for (k, v) in d.items() if not k.startswith("product")},
+        )
+
 
 class FlatFeatureSchema(BaseModel):
     """

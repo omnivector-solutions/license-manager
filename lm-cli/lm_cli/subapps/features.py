@@ -29,7 +29,7 @@ style_mapper = StyleMapper(
 app = typer.Typer(help="Commands to interact with features.")
 
 
-def format_data(feature_data, flat=False):
+def format_data(feature_data):
     """Return data in the correct format for printing."""
     formatted_data = []
 
@@ -38,10 +38,7 @@ def format_data(feature_data, flat=False):
 
         new_data["id"] = feature["id"]
         new_data["config_id"] = feature["config_id"]
-        if flat:
-            new_data["product"] = feature["product_name"]
-        else:
-            new_data["product"] = feature["product"]["name"]
+        new_data["product"] = feature["product"]["name"]
         new_data["feature"] = feature["name"]
         new_data["reserved"] = feature["reserved"]
         new_data["total"] = feature["total"]
@@ -86,7 +83,7 @@ def list_all(
         ),
     )
 
-    formatted_data = format_data(feature_data, flat=True)
+    formatted_data = format_data(feature_data)
 
     render_list_results(
         formatted_data,

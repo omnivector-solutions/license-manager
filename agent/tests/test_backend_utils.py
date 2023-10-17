@@ -322,11 +322,11 @@ async def test__get_cluster_grace_times(get_cluster_configs_mock, parsed_configu
 
 @pytest.mark.asyncio
 @mock.patch("lm_agent.backend_utils.utils.get_all_features_from_backend")
-async def test__get_all_features_bookings_sum(get_all_features_mock, parsed_flat_features):
+async def test__get_all_features_bookings_sum(get_all_features_mock, parsed_features):
     """
     Test that get_bookings_sum_per_cluster returns the booking sum per cluster for a given product_feature.
     """
-    get_all_features_mock.return_value = parsed_flat_features
+    get_all_features_mock.return_value = parsed_features
     bookings_sum = await get_all_features_bookings_sum()
     assert bookings_sum["abaqus.abaqus"] == 62
 

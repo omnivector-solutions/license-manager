@@ -160,34 +160,6 @@ def dummy_feature_data():
 
 
 @pytest.fixture
-def dummy_flat_feature_data():
-    return [
-        {
-            "id": 1,
-            "name": "abaqus",
-            "product_id": 1,
-            "product_name": "abaqus",
-            "config_id": 1,
-            "reserved": 100,
-            "total": 1000,
-            "used": 500,
-            "booked_total": 50,
-        },
-        {
-            "id": 2,
-            "name": "converge_super",
-            "product_id": 2,
-            "product_name": "converge",
-            "config_id": 2,
-            "reserved": 50,
-            "total": 600,
-            "used": 300,
-            "booked_total": 35,
-        },
-    ]
-
-
-@pytest.fixture
 def dummy_feature_data_for_printing():
     return [
         {

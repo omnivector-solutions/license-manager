@@ -11,7 +11,7 @@ from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.product import Product
 from lm_backend.api.models.booking import Booking
-from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema, FlatFeatureSchema
+from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema, FeatureSchema
 from lm_backend.database import search_clause, sort_clause
 
 
@@ -98,7 +98,7 @@ class FeatureCRUD(GenericCRUD):
         search: Optional[str] = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
-    ) -> List[FlatFeatureSchema]:
+    ) -> List[FeatureSchema]:
         """
         Read all objects.
         Returns a list of objects.
@@ -120,8 +120,8 @@ class FeatureCRUD(GenericCRUD):
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
             query = await db_session.execute(stmt)
-            features = [FlatFeatureSchema.from_orm(r) for r in query.all()]
-            return features
+            return [FeatureSchema.from_flat_dict(r._asdict()) for r in query.all()]
         except Exception as e:
+            raise
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
