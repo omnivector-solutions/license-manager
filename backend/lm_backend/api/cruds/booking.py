@@ -4,7 +4,7 @@ from loguru import logger
 from sqlalchemy import func, insert, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_backend.api.cruds.generic import GenericCRUD, ModelType
+from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.schemas.booking import BookingCreateSchema
@@ -13,7 +13,7 @@ from lm_backend.api.schemas.booking import BookingCreateSchema
 class BookingCRUD(GenericCRUD):
     """Booking CRUD module to overload create method, preventing the overbooking issue."""
 
-    async def create(self, db_session: AsyncSession, obj=BookingCreateSchema) -> ModelType:
+    async def create(self, db_session: AsyncSession, obj=BookingCreateSchema) -> Booking:
         """
         Create a new booking.
 

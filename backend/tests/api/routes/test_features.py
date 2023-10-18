@@ -81,7 +81,7 @@ async def test_get_all_features__with_search(
     create_features,
 ):
     inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
-    response = await backend_client.get(f"/lm/features/?search={create_features[0].name}")
+    response = await backend_client.get(f"/lm/features?search={create_features[0].name}")
 
     assert response.status_code == 200
 
@@ -97,7 +97,7 @@ async def test_get_all_features__with_sort(
     create_features,
 ):
     inject_security_header("owner1@test.com", Permissions.FEATURE_VIEW)
-    response = await backend_client.get("/lm/features/?sort_field=name&sort_ascending=false")
+    response = await backend_client.get("/lm/features?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
 

@@ -16,7 +16,7 @@ from lm_backend.permissions import Permissions
 router = APIRouter()
 
 
-crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
+crud_license_server = GenericCRUD(LicenseServer)
 
 
 @router.get(

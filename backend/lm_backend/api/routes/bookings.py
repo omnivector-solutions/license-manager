@@ -4,14 +4,14 @@ from fastapi import APIRouter, Body, Depends, Query, status
 
 from lm_backend.api.cruds.booking import BookingCRUD
 from lm_backend.api.models.booking import Booking
-from lm_backend.api.schemas.booking import BookingCreateSchema, BookingSchema, BookingUpdateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema, BookingSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
 
-crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
+crud_booking = BookingCRUD(Booking)
 
 
 @router.post(

@@ -8,18 +8,17 @@ from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.job import Job
-from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
-from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema
-from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema
+from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobWithBookingCreateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
 
-crud_job = GenericCRUD(Job, JobCreateSchema, JobUpdateSchema)
-crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
-crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_job = GenericCRUD(Job)
+crud_booking = BookingCRUD(Booking)
+crud_feature = FeatureCRUD(Feature)
 
 
 @router.post(
@@ -46,6 +45,9 @@ async def create_job(
     job_created: Job = await crud_job.create(
         db_session=secure_session.session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
     )
+
+    # Appease static type checkers
+    assert job_created.id is not None
 
     if job.bookings:
         try:
@@ -171,6 +173,10 @@ async def delete_job_by_slurm_id(
     )
 
     for job in jobs:
+
+        # Appease static type checkers
+        assert job.id is not None
+
         return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")

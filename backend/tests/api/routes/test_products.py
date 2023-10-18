@@ -48,7 +48,7 @@ async def test_get_all_products__with_search(
     create_products,
 ):
     inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
-    response = await backend_client.get(f"/lm/products/?search{create_products[0].name}")
+    response = await backend_client.get(f"/lm/products?search{create_products[0].name}")
 
     assert response.status_code == 200
 
@@ -63,7 +63,7 @@ async def test_get_all_products__with_sort(
     create_products,
 ):
     inject_security_header("owner1@test.com", Permissions.PRODUCT_VIEW)
-    response = await backend_client.get("/lm/products/?sort_field=name&sort_ascending=false")
+    response = await backend_client.get("/lm/products?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
 

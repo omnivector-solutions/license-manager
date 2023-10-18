@@ -1,9 +1,19 @@
 """Database model for Configurations."""
+
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql.schema import CheckConstraint
 
 from lm_backend.database import Base
+
+if TYPE_CHECKING:
+    from lm_backend.api.models.feature import Feature
+    from lm_backend.api.models.license_server import LicenseServer
+else:
+    Feature = "Feature"
+    LicenseServer = "LicenseServer"
 
 
 class Configuration(Base):
@@ -18,11 +28,19 @@ class Configuration(Base):
     grace_time = Column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
     type = Column(String, nullable=False)
 
-    license_servers = relationship(
-        "LicenseServer", back_populates="configurations", lazy="selectin", cascade="all, delete-orphan"
+    license_servers: Mapped[List[LicenseServer]] = relationship(
+        LicenseServer,
+        back_populates="configurations",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        uselist=True,
     )
-    features = relationship(
-        "Feature", back_populates="configurations", lazy="selectin", cascade="all, delete-orphan"
+    features: Mapped[List[Feature]] = relationship(
+        Feature,
+        back_populates="configurations",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        uselist=True,
     )
 
     searchable_fields = [name]

@@ -1,8 +1,16 @@
 """Database model for Jobs."""
+
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from lm_backend.database import Base
+
+if TYPE_CHECKING:
+    from lm_backend.api.models.booking import Booking
+else:
+    Booking = "Booking"
 
 
 class Job(Base):
@@ -17,7 +25,12 @@ class Job(Base):
     username = Column(String, nullable=False)
     lead_host = Column(String, nullable=False)
 
-    bookings = relationship("Booking", back_populates="job", lazy="selectin", cascade="all, delete-orphan")
+    bookings: Mapped[List[Booking]] = relationship(
+        Booking,
+        back_populates="job",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
 
     searchable_fields = [slurm_job_id, username, lead_host]
     sortable_fields = [slurm_job_id, cluster_client_id, username, lead_host]

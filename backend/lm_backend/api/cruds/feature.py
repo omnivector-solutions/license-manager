@@ -3,15 +3,15 @@ from typing import List, Optional
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select, tuple_, func
+from sqlalchemy import func, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
+from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.product import Product
-from lm_backend.api.models.booking import Booking
-from lm_backend.api.schemas.feature import FeatureUpdateByNameSchema, FeatureSchema
+from lm_backend.api.schemas.feature import FeatureSchema, FeatureUpdateByNameSchema
 from lm_backend.database import search_clause, sort_clause
 
 
@@ -91,7 +91,6 @@ class FeatureCRUD(GenericCRUD):
 
         return db_obj
 
-
     async def read_all(
         self,
         db_session: AsyncSession,
@@ -109,7 +108,7 @@ class FeatureCRUD(GenericCRUD):
                     *(Feature.__table__.c),
                     Product.id.label("product_id"),
                     Product.name.label("product_name"),
-                    func.sum(Booking.quantity).label("booked_total")
+                    func.sum(Booking.quantity).label("booked_total"),
                 )
                 .join(Product, Feature.product_id == Product.id)
                 .join(Booking, Feature.id == Booking.feature_id, isouter=True)
@@ -122,6 +121,5 @@ class FeatureCRUD(GenericCRUD):
             query = await db_session.execute(stmt)
             return [FeatureSchema.from_flat_dict(r._asdict()) for r in query.all()]
         except Exception as e:
-            raise
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")

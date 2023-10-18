@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.configuration import ConfigurationCRUD
+from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
@@ -17,17 +18,16 @@ from lm_backend.api.schemas.configuration import (
 )
 from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema
 from lm_backend.api.schemas.license_server import LicenseServerCreateSchema, LicenseServerUpdateSchema
-from lm_backend.api.schemas.product import ProductCreateSchema, ProductUpdateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
 
-crud_configuration = ConfigurationCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdateSchema)
-crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
-crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
-crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
+crud_configuration = ConfigurationCRUD(Configuration)
+crud_product = GenericCRUD(Product)
+crud_feature = FeatureCRUD(Feature)
+crud_license_server = GenericCRUD(LicenseServer)
 
 
 @router.post(
@@ -50,6 +50,9 @@ async def create_configuration(
         obj=ConfigurationCreateSchema(**configuration.dict(exclude={"features", "license_servers"})),
     )
 
+    # Appease static type checkers
+    assert configuration_created.id is not None
+
     if configuration.features:
         try:
             for feature in configuration.features:
@@ -63,6 +66,10 @@ async def create_configuration(
                     db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
                 )
         except HTTPException:
+
+            # Appease static type checkers
+            assert configuration_created.id is not None
+
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 
@@ -78,6 +85,7 @@ async def create_configuration(
                     db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
                 )
         except HTTPException:
+
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 

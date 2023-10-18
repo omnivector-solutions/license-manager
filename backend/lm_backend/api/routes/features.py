@@ -7,7 +7,6 @@ from lm_backend.api.models.feature import Feature
 from lm_backend.api.schemas.feature import (
     FeatureCreateSchema,
     FeatureSchema,
-    FlatFeatureSchema,
     FeatureUpdateByNameSchema,
     FeatureUpdateSchema,
 )
@@ -16,7 +15,7 @@ from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
-crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_feature = FeatureCRUD(Feature)
 
 
 @router.post(

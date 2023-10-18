@@ -1,36 +1,34 @@
 """Generic CRUD class for SQLAlchemy models."""
-from asyncio import gather
-from typing import List, Optional, Type, TypeVar, Union
+from typing import Any, Generic, List, Optional, Protocol, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import Column, ColumnElement, and_, select, inspect
-from sqlalchemy.orm import selectinload
+from sqlalchemy import Column, ColumnElement, and_, inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, selectinload
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base, search_clause, sort_clause
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseUpdateSchema)
+from lm_backend.database import search_clause, sort_clause
 
 
-class GenericCRUD:
+class CrudModelProto(Protocol):
+    id: Mapped[int]
+    searchable_fields: List[Column[Any]]
+    sortable_fields: List[Column[Any]]
+    __name__: str
+
+
+CrudModel = TypeVar("CrudModel", bound=CrudModelProto)
+
+
+class _GenericCRUD(Generic[CrudModel]):
     """Generic CRUD module to interface with database, to be utilized by all models."""
 
-    def __init__(
-        self,
-        model: Type[ModelType],
-        create_schema: Type[CreateSchemaType],
-        update_schema: Type[UpdateSchemaType],
-    ):
+    def __init__(self, model: Type[CrudModel]):
         """Initializes the CRUD class with the model to be used."""
         self.model = model
-        self.create_schema = create_schema
-        self.update_schema = update_schema
 
-    async def create(self, db_session: AsyncSession, obj: CreateSchemaType) -> ModelType:
+    async def create(self, db_session: AsyncSession, obj: BaseCreateSchema) -> CrudModel:
         """Creates a new object in the database."""
         db_obj = self.model(**obj.dict())
         try:
@@ -46,7 +44,7 @@ class GenericCRUD:
 
     async def filter(
         self, db_session: AsyncSession, filter_expressions: List[ColumnElement[bool]]
-    ) -> List[ModelType]:
+    ) -> List[CrudModel]:
         """
         Filter objects using a filter field and filter term.
         Returns the list of objects or raise an exception if it does not exist.
@@ -65,7 +63,7 @@ class GenericCRUD:
 
     async def read(
         self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
-    ) -> Optional[ModelType]:
+    ) -> Optional[CrudModel]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -88,17 +86,17 @@ class GenericCRUD:
     async def read_all(
         self,
         db_session: AsyncSession,
-        search: str = None,
+        search: Optional[str] = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
-    ) -> List[ModelType]:
+    ) -> List[CrudModel]:
         """
         Read all objects.
         Returns a list of objects.
         """
         try:
             stmt = select(self.model)
-            for relationship in inspect(self.model).relationships:
+            for relationship in inspect(self.model, raiseerr=True).relationships:
                 stmt = stmt.options(selectinload(relationship))
             if search is not None:
                 stmt = stmt.where(search_clause(search, self.model.searchable_fields))
@@ -115,8 +113,8 @@ class GenericCRUD:
         self,
         db_session: AsyncSession,
         id: Union[Column[int], int],
-        obj: UpdateSchemaType,
-    ) -> Optional[ModelType]:
+        obj: BaseUpdateSchema,
+    ) -> Optional[CrudModel]:
         """
         Update an object in the database.
         Returns the updated object.
@@ -171,3 +169,15 @@ class GenericCRUD:
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
 
         return {"message": f"{self.model.__name__} deleted successfully."}
+
+
+class GenericCRUD(_GenericCRUD):
+    """
+    For some reason, Mypy does not allow you to use the _GenericCRUD class directly without a bunch of type
+    errors like this:
+
+    lm_backend/api/routes/license_servers.py:19: error: Value of type variable "CrudModel" of "GenericCRUD" cannot be "LicenseServer"  [type-var]  # noqa
+        crud_license_server = GenericCRUD(LicenseServer)
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    Adding a single additional level of inheritance with an empty derived class fixes the issue. ¯\_(ツ)_/¯
+    """

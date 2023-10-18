@@ -11,7 +11,11 @@ from lm_backend.permissions import Permissions
 router = APIRouter()
 
 
-crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
+class MagicCRUD(GenericCRUD):
+    pass
+
+
+crud_product = MagicCRUD(Product)
 
 
 @router.post(
