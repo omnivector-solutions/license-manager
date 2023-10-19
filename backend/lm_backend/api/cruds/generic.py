@@ -159,15 +159,3 @@ class GenericCRUD:
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
 
         return {"message": f"{self.model.__name__} deleted successfully."}
-
-
-class BlahGenericCRUD(GenericCRUD):
-    """
-    For some reason, Mypy does not allow you to use the _GenericCRUD class directly without a bunch of type
-    errors like this:
-
-    lm_backend/api/routes/license_servers.py:19: error: Value of type variable "CrudModel" of "GenericCRUD" cannot be "LicenseServer"  [type-var]  # noqa
-        crud_license_server = GenericCRUD(LicenseServer)
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
-    Adding a single additional level of inheritance with an empty derived class fixes the issue. ¯\_(ツ)_/¯
-    """
