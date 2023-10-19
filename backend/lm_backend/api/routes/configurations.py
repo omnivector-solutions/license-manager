@@ -45,13 +45,10 @@ async def create_configuration(
     The features for the configuration will be specified in the request body.
     If the feature's product doesn't exist, it will be created.
     """
-    configuration_created: Configuration = await crud_configuration.create(
+    configuration_created = await crud_configuration.create(
         db_session=secure_session.session,
         obj=ConfigurationCreateSchema(**configuration.dict(exclude={"features", "license_servers"})),
     )
-
-    # Appease static type checkers
-    assert configuration_created.id is not None
 
     if configuration.features:
         try:
@@ -66,9 +63,6 @@ async def create_configuration(
                     db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
                 )
         except HTTPException:
-
-            # Appease static type checkers
-            assert configuration_created.id is not None
 
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise

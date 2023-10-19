@@ -25,6 +25,7 @@ py-buzz = "^3.2.1"
 psycopg2 = "^2.9.5"
 yarl = "^1.9.2"
 pydantic = {version = "^1", extras = ["email"]}
+inflection = "^0.5.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^6.2.4"

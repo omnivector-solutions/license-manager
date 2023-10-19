@@ -1,34 +1,27 @@
 """Generic CRUD class for SQLAlchemy models."""
-from typing import Any, Generic, List, Optional, Protocol, Type, TypeVar, Union
+from __future__ import annotations
+
+from typing import List, Optional, Sequence, Type, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import Column, ColumnElement, and_, inspect, select
+from pydantic import BaseModel
+from sqlalchemy import Column, ColumnElement, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, selectinload
 
+from lm_backend.api.models.crud_base import CrudBase
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.database import search_clause, sort_clause
 
 
-class CrudModelProto(Protocol):
-    id: Mapped[int]
-    searchable_fields: List[Column[Any]]
-    sortable_fields: List[Column[Any]]
-    __name__: str
-
-
-CrudModel = TypeVar("CrudModel", bound=CrudModelProto)
-
-
-class _GenericCRUD(Generic[CrudModel]):
+class GenericCRUD:
     """Generic CRUD module to interface with database, to be utilized by all models."""
 
-    def __init__(self, model: Type[CrudModel]):
+    def __init__(self, model: Type[CrudBase]):
         """Initializes the CRUD class with the model to be used."""
         self.model = model
 
-    async def create(self, db_session: AsyncSession, obj: BaseCreateSchema) -> CrudModel:
+    async def create(self, db_session: AsyncSession, obj: BaseCreateSchema) -> CrudBase:
         """Creates a new object in the database."""
         db_obj = self.model(**obj.dict())
         try:
@@ -44,7 +37,7 @@ class _GenericCRUD(Generic[CrudModel]):
 
     async def filter(
         self, db_session: AsyncSession, filter_expressions: List[ColumnElement[bool]]
-    ) -> List[CrudModel]:
+    ) -> List[CrudBase]:
         """
         Filter objects using a filter field and filter term.
         Returns the list of objects or raise an exception if it does not exist.
@@ -63,7 +56,7 @@ class _GenericCRUD(Generic[CrudModel]):
 
     async def read(
         self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
-    ) -> Optional[CrudModel]:
+    ) -> Optional[CrudBase]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -89,32 +82,29 @@ class _GenericCRUD(Generic[CrudModel]):
         search: Optional[str] = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
-    ) -> List[CrudModel]:
+    ) -> Sequence[Union[CrudBase, BaseModel]]:
         """
         Read all objects.
         Returns a list of objects.
         """
         try:
             stmt = select(self.model)
-            for relationship in inspect(self.model, raiseerr=True).relationships:
-                stmt = stmt.options(selectinload(relationship))
             if search is not None:
                 stmt = stmt.where(search_clause(search, self.model.searchable_fields))
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
             query = await db_session.scalars(stmt)
-            db_objs = list(query.all())
+            return query.all()
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
-        return db_objs
 
     async def update(
         self,
         db_session: AsyncSession,
         id: Union[Column[int], int],
         obj: BaseUpdateSchema,
-    ) -> Optional[CrudModel]:
+    ) -> Optional[CrudBase]:
         """
         Update an object in the database.
         Returns the updated object.
@@ -171,7 +161,7 @@ class _GenericCRUD(Generic[CrudModel]):
         return {"message": f"{self.model.__name__} deleted successfully."}
 
 
-class GenericCRUD(_GenericCRUD):
+class BlahGenericCRUD(GenericCRUD):
     """
     For some reason, Mypy does not allow you to use the _GenericCRUD class directly without a bunch of type
     errors like this:

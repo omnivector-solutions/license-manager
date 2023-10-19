@@ -1,11 +1,11 @@
 """Database model for Features."""
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import CheckConstraint, ForeignKey
 
-from lm_backend.database import Base
+from lm_backend.api.models.crud_base import CrudBase
 
 if TYPE_CHECKING:
     from lm_backend.api.models.booking import Booking
@@ -17,21 +17,19 @@ else:
     Product = "Product"
 
 
-class Feature(Base):
+class Feature(CrudBase):
     """
     Represents a feature.
     """
 
-    __tablename__ = "features"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-    config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
-    total = Column(Integer, CheckConstraint("total>=0"), default=0, nullable=False)
-    used = Column(Integer, CheckConstraint("used>=0"), default=0, nullable=False)
-    reserved = Column(Integer, CheckConstraint("reserved>=0"), nullable=False)
+    name = mapped_column(String, nullable=False)
+    product_id = mapped_column(Integer, ForeignKey("products.id"), nullable=False)
+    config_id = mapped_column(Integer, ForeignKey("configs.id"), nullable=False)
+    total = mapped_column(Integer, CheckConstraint("total>=0"), default=0, nullable=False)
+    used = mapped_column(Integer, CheckConstraint("used>=0"), default=0, nullable=False)
+    reserved = mapped_column(Integer, CheckConstraint("reserved>=0"), nullable=False)
 
-    product: Mapped[Product] = relationship(Product, back_populates="features", lazy="selectin")
+    product = relationship(Product, back_populates="features", lazy="selectin")
 
     bookings: Mapped[List[Booking]] = relationship(
         Booking,

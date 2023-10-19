@@ -42,7 +42,7 @@ async def create_job(
     if job.cluster_client_id is None:
         job.cluster_client_id = client_id
 
-    job_created: Job = await crud_job.create(
+    job_created = await crud_job.create(
         db_session=secure_session.session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
     )
 
@@ -167,7 +167,7 @@ async def delete_job_by_slurm_id(
             detail=("Couldn't find a valid client_id in the access token."),
         )
 
-    jobs: List[Job] = await crud_job.filter(
+    jobs = await crud_job.filter(
         db_session=secure_session.session,
         filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )
@@ -206,7 +206,7 @@ async def read_job_by_slurm_id(
             detail=("Couldn't find a valid client_id in the access token."),
         )
 
-    jobs: List[Job] = await crud_job.filter(
+    jobs = await crud_job.filter(
         db_session=secure_session.session,
         filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )

@@ -2,10 +2,10 @@
 
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from lm_backend.database import Base
+from lm_backend.api.models.crud_base import CrudBase
 
 if TYPE_CHECKING:
     from lm_backend.api.models.feature import Feature
@@ -13,14 +13,12 @@ else:
     Feature = "Feature"
 
 
-class Product(Base):
+class Product(CrudBase):
     """
     Represents a feature's product.
     """
 
-    __tablename__ = "products"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
+    name = mapped_column(String, nullable=False, unique=True)
 
     features: Mapped[List[Feature]] = relationship(
         Feature,

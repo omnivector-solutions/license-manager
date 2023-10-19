@@ -7,17 +7,15 @@ from dataclasses import dataclass
 from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from loguru import logger
-from sqlalchemy import Column, or_
+from sqlalchemy import or_
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import Mapped, MappedColumn
 from sqlalchemy.sql.expression import ColumnElement, UnaryExpression
 from starlette import status
 from yarl import URL
 
 from lm_backend.config import settings
 from lm_backend.security import IdentityPayload, PermissionMode, lockdown_with_identity
-
-Base = declarative_base()
 
 
 def build_db_url(
@@ -172,7 +170,7 @@ def render_sql(query) -> str:
 
 def search_clause(
     search_terms: str,
-    searchable_fields: typing.List[Column],
+    searchable_fields: typing.List[MappedColumn[typing.Any]],
 ) -> ColumnElement[bool]:
     """
     Create search clause across searchable fields with search terms.
@@ -182,9 +180,9 @@ def search_clause(
 
 def sort_clause(
     sort_field: str,
-    sortable_fields: typing.List[Column],
+    sortable_fields: typing.List[MappedColumn[typing.Any]],
     sort_ascending: bool,
-) -> typing.Union[Column, UnaryExpression]:
+) -> typing.Union[Mapped[typing.Any], UnaryExpression]:
     """
     Create a sort clause given a sort field, the list of sortable fields, and a sort_ascending flag.
     """
@@ -196,7 +194,7 @@ def sort_clause(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid sorting column requested: {sort_field}. Must be one of {sort_field_names}",
         )
-    sort_column: typing.Union[Column, UnaryExpression] = sortable_fields[index]
+    sort_column: typing.Union[Mapped[typing.Any], UnaryExpression] = sortable_fields[index]
     if not sort_ascending:
         sort_column = sort_column.desc()
     return sort_column

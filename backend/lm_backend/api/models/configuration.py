@@ -2,11 +2,11 @@
 
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from sqlalchemy.sql.schema import CheckConstraint
 
-from lm_backend.database import Base
+from lm_backend.api.models.crud_base import CrudBase
 
 if TYPE_CHECKING:
     from lm_backend.api.models.feature import Feature
@@ -16,17 +16,19 @@ else:
     LicenseServer = "LicenseServer"
 
 
-class Configuration(Base):
+class Configuration(CrudBase):
     """
     Represents the feature configurations.
     """
 
-    __tablename__ = "configs"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    cluster_client_id = Column(String, nullable=False)
-    grace_time = Column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
-    type = Column(String, nullable=False)
+    @declared_attr.directive
+    def __tablename__(cls) -> str:
+        return "configs"
+
+    name = mapped_column(String, nullable=False)
+    cluster_client_id = mapped_column(String, nullable=False)
+    grace_time = mapped_column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
+    type = mapped_column(String, nullable=False)
 
     license_servers: Mapped[List[LicenseServer]] = relationship(
         LicenseServer,

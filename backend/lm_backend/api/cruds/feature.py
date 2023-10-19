@@ -1,5 +1,5 @@
 """Feature CRUD class for SQLAlchemy models."""
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from fastapi import HTTPException
 from loguru import logger
@@ -38,7 +38,7 @@ class FeatureCRUD(GenericCRUD):
 
         try:
             result = await db_session.execute(get_features_query)
-            db_objs = result.scalars().all()
+            db_objs: Sequence[Feature] = result.scalars().all()
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail="Feature could not be read.")

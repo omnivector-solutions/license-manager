@@ -2,10 +2,10 @@
 
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from lm_backend.database import Base
+from lm_backend.api.models.crud_base import CrudBase
 
 if TYPE_CHECKING:
     from lm_backend.api.models.booking import Booking
@@ -13,17 +13,15 @@ else:
     Booking = "Booking"
 
 
-class Job(Base):
+class Job(CrudBase):
     """
     Represents the jobs submitted in a cluster.
     """
 
-    __tablename__ = "jobs"
-    id = Column(Integer, primary_key=True)
-    slurm_job_id = Column(String, nullable=False)
-    cluster_client_id = Column(String, nullable=False)
-    username = Column(String, nullable=False)
-    lead_host = Column(String, nullable=False)
+    slurm_job_id = mapped_column(String, nullable=False)
+    cluster_client_id = mapped_column(String, nullable=False)
+    username = mapped_column(String, nullable=False)
+    lead_host = mapped_column(String, nullable=False)
 
     bookings: Mapped[List[Booking]] = relationship(
         Booking,
