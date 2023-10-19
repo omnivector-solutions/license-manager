@@ -46,9 +46,6 @@ async def create_job(
         db_session=secure_session.session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
     )
 
-    # Appease static type checkers
-    assert job_created.id is not None
-
     if job.bookings:
         try:
             for booking in job.bookings:
@@ -173,9 +170,6 @@ async def delete_job_by_slurm_id(
     )
 
     for job in jobs:
-
-        # Appease static type checkers
-        assert job.id is not None
 
         return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
