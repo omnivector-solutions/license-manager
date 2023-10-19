@@ -475,7 +475,7 @@ async def test_get_all_configurations__with_search(
     create_configurations,
 ):
     inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
-    response = await backend_client.get(f"/lm/configurations/?search={create_configurations[0].name}")
+    response = await backend_client.get(f"/lm/configurations?search={create_configurations[0].name}")
 
     assert response.status_code == 200
 
@@ -494,7 +494,7 @@ async def test_get_all_configurations__with_sort(
 ):
 
     inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
-    response = await backend_client.get("/lm/configurations/?sort_field=name&sort_ascending=false")
+    response = await backend_client.get("/lm/configurations?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
 

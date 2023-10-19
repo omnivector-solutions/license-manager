@@ -15,7 +15,7 @@ from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
-crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_feature = FeatureCRUD(Feature)
 
 
 @router.post(
@@ -48,7 +48,6 @@ async def read_all_features(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,  # To lazy load relationships and hybrid properties
     )
 
 

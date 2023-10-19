@@ -54,7 +54,7 @@ async def clean_jobs_by_grace_time():
     logger.debug("GRACE_TIME START")
 
     cluster_jobs_bookings = await get_bookings_for_all_jobs()
-    
+
     formatted_squeue_output = return_formatted_squeue_out()
     if not formatted_squeue_output:
         logger.debug("GRACE_TIME no squeue")

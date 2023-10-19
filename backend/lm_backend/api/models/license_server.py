@@ -1,23 +1,33 @@
 """Database model for License Servers."""
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+
+from typing import TYPE_CHECKING, List
+
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import CheckConstraint, ForeignKey
 
-from lm_backend.database import Base
+from lm_backend.api.models.crud_base import CrudBase
+
+if TYPE_CHECKING:
+    from lm_backend.api.models.configuration import Configuration
+else:
+    Configuration = "Configuration"
 
 
-class LicenseServer(Base):
+class LicenseServer(CrudBase):
     """
     Represents the license servers in a feature configuration.
     """
 
-    __tablename__ = "license_servers"
-    id = Column(Integer, primary_key=True)
-    config_id = Column(Integer, ForeignKey("configs.id"), nullable=False)
-    host = Column(String, nullable=False)
-    port = Column(Integer, CheckConstraint("port>0"), nullable=False)
+    config_id = mapped_column(Integer, ForeignKey("configs.id"), nullable=False)
+    host = mapped_column(String, nullable=False)
+    port = mapped_column(Integer, CheckConstraint("port>0"), nullable=False)
 
-    configurations = relationship("Configuration", back_populates="license_servers", lazy="selectin")
+    configurations: Mapped[List[Configuration]] = relationship(
+        Configuration,
+        back_populates="license_servers",
+        lazy="selectin",
+    )
 
     searchable_fields = [host]
     sortable_fields = [config_id, host]

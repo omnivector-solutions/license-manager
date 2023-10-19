@@ -14,26 +14,26 @@ python = ">=3.8,<3.9"
 fastapi = "^0.68.0"
 sentry-sdk = "1.18.0"
 jwt = {version = "^1.2.0", optional = true}
-SQLAlchemy-Utils = "^0.37.8"
 loguru = "^0.5.3"
-asyncpg = "^0.24.0"
+asyncpg = "^0.28"
 uvicorn = "^0.15.0"
 python-dotenv = "^0.19.0"
 armasec = "^0.11"
-SQLAlchemy = {extras = ["asyncio"], version = "^2.0.7"}
+SQLAlchemy = {extras = ["mypy"], version = "^2.0.22"}
 toml = "^0.10.2"
 py-buzz = "^3.2.1"
 psycopg2 = "^2.9.5"
 yarl = "^1.9.2"
 pydantic = {version = "^1", extras = ["email"]}
+inflection = "^0.5.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^6.2.4"
 pytest-asyncio = "^0.15.1"
 pytest-cov = "^2.12.1"
 pytest-env = "^0.6.2"
 pytest-freezegun = "^0.4.2"
-respx = "^0.17.1"
+respx = "^0.20"
 flake8 = "^3.9.2"
 isort = "^5.9.3"
 pytest-random-order = "^1.0.4"
@@ -43,7 +43,8 @@ ipython = "^8.10.0"
 asgi-lifespan = "^1.0.1"
 black = "^22.3"
 alembic = "^1.6.5"
-mypy = "^0.910"
+mypy = "^1.6"
+types-aioboto3 = {extras = ["essential"], version = "^11.3.1"}
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -68,11 +69,15 @@ src_paths = ["lm_backend", "tests"]
 multi_line_output = 3
 include_trailing_comma = true
 
+[tool.mypy]
+plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"
+
 [[tool.mypy.overrides]]
 module = [
     "asyncpg.*",
     "pkg_resources",
     "toml",
+    "pendulum",
 ]
 ignore_missing_imports = true
 

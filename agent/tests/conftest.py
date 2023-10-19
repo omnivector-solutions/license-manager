@@ -900,12 +900,12 @@ def lmx_output():
         40000 of 1000003 license(s) used:
 
         15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
-        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29 
-        Shared on custom string: VRAAFG:RD0082879 
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29
+        Shared on custom string: VRAAFG:RD0082879
 
         25000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
-        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
-        Shared on custom string: VRAAFG:RD0082879 
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26
+        Shared on custom string: VRAAFG:RD0082879
         ----------------------------------------
         Feature: HWAIFPBS Version: 21.0 Vendor: ALTAIR
         Start date: 2022-02-17 Expire date: 2023-01-31
@@ -932,12 +932,12 @@ def lmx_output():
         30000 of 2147483647 license(s) used:
 
         15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
-        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29 
-        Shared on custom string: VRAAFG:RD0082879:27164_23514544_1645091752_138525 
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:29
+        Shared on custom string: VRAAFG:RD0082879:27164_23514544_1645091752_138525
 
         15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]
-        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
-        Shared on custom string: VRAAFG:RD0082879:18896_1081950704_1645017269_309963 
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26
+        Shared on custom string: VRAAFG:RD0082879:18896_1081950704_1645017269_309963
         ----------------------------------------
         Feature: HyperWorks Version: 21.0 Vendor: ALTAIR
         Start date: 2022-02-17 Expire date: 2023-01-31
@@ -946,8 +946,8 @@ def lmx_output():
         25000 of 1000000 license(s) used:
 
         25000 license(s) used by sssaah@RD0082406 [138.106.154.220]
-        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26 
-        Shared on custom string: sssaah:RD0082406 
+        Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26
+        Shared on custom string: sssaah:RD0082406
         """
     )
 
@@ -1088,7 +1088,7 @@ def olicense_output_no_licenses():
         Modules:
           Name; LicenseType; FloatCount; Expiration
           --------------------------------------------
-          ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;	
+          ftire_adams;         	FreeFloating;	3;	2022-12-31 23:59:59;
 
         ==============================================
         Application:	cosin
@@ -1099,6 +1099,6 @@ def olicense_output_no_licenses():
         Modules:
           Name; LicenseType; FloatCount; Expiration
           --------------------------------------------
-          ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;	
+          ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;
         """
     )

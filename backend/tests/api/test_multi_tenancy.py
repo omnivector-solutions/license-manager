@@ -8,9 +8,10 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy import select
 
+from lm_backend.api.models.crud_base import CrudBase
 from lm_backend.api.models.product import Product
 from lm_backend.config import settings
-from lm_backend.database import Base, engine_factory
+from lm_backend.database import engine_factory
 from lm_backend.permissions import Permissions
 
 
@@ -24,12 +25,12 @@ async def alt_engine():
     engine = engine_factory.get_engine("alt-test-db")
     try:
         async with engine.begin() as connection:
-            await connection.run_sync(Base.metadata.create_all, checkfirst=True)
+            await connection.run_sync(CrudBase.metadata.create_all, checkfirst=True)
         try:
             yield engine
         finally:
             async with engine.begin() as connection:
-                await connection.run_sync(Base.metadata.drop_all)
+                await connection.run_sync(CrudBase.metadata.drop_all)
     except asyncpg.exceptions.InvalidCatalogNameError:
         pytest.skip(
             "Skipping multi-tenancy tests as alternative test database is not available",

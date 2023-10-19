@@ -8,18 +8,17 @@ from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.booking import Booking
 from lm_backend.api.models.feature import Feature
 from lm_backend.api.models.job import Job
-from lm_backend.api.schemas.booking import BookingCreateSchema, BookingUpdateSchema
-from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema
-from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobUpdateSchema, JobWithBookingCreateSchema
+from lm_backend.api.schemas.booking import BookingCreateSchema
+from lm_backend.api.schemas.job import JobCreateSchema, JobSchema, JobWithBookingCreateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
 
-crud_job = GenericCRUD(Job, JobCreateSchema, JobUpdateSchema)
-crud_booking = BookingCRUD(Booking, BookingCreateSchema, BookingUpdateSchema)
-crud_feature = FeatureCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
+crud_job = GenericCRUD(Job)
+crud_booking = BookingCRUD(Booking)
+crud_feature = FeatureCRUD(Feature)
 
 
 @router.post(
@@ -43,7 +42,7 @@ async def create_job(
     if job.cluster_client_id is None:
         job.cluster_client_id = client_id
 
-    job_created: Job = await crud_job.create(
+    job_created = await crud_job.create(
         db_session=secure_session.session, obj=JobCreateSchema(**job.dict(exclude={"bookings"}))
     )
 
@@ -114,7 +113,6 @@ async def read_all_jobs(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,
     )
 
 
@@ -166,12 +164,13 @@ async def delete_job_by_slurm_id(
             detail=("Couldn't find a valid client_id in the access token."),
         )
 
-    jobs: List[Job] = await crud_job.filter(
+    jobs = await crud_job.filter(
         db_session=secure_session.session,
         filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )
 
     for job in jobs:
+
         return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")
@@ -201,7 +200,7 @@ async def read_job_by_slurm_id(
             detail=("Couldn't find a valid client_id in the access token."),
         )
 
-    jobs: List[Job] = await crud_job.filter(
+    jobs = await crud_job.filter(
         db_session=secure_session.session,
         filter_expressions=[Job.slurm_job_id == slurm_job_id, Job.cluster_client_id == client_id],
     )

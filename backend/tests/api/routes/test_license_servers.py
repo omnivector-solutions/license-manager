@@ -59,7 +59,7 @@ async def test_get_all_license_servers__with_search(
     create_license_servers,
 ):
     inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
-    response = await backend_client.get(f"/lm/license_servers/?search={create_license_servers[0].host}")
+    response = await backend_client.get(f"/lm/license_servers?search={create_license_servers[0].host}")
 
     assert response.status_code == 200
 
@@ -76,7 +76,7 @@ async def test_get_all_license_servers__with_sort(
 ):
 
     inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
-    response = await backend_client.get("/lm/license_servers/?sort_field=host&sort_ascending=false")
+    response = await backend_client.get("/lm/license_servers?sort_field=host&sort_ascending=false")
 
     assert response.status_code == 200
 

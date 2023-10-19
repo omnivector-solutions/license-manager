@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from lm_backend.api.cruds.configuration import ConfigurationCRUD
+from lm_backend.api.cruds.feature import FeatureCRUD
 from lm_backend.api.cruds.generic import GenericCRUD
 from lm_backend.api.models.configuration import Configuration
 from lm_backend.api.models.feature import Feature
@@ -17,17 +18,16 @@ from lm_backend.api.schemas.configuration import (
 )
 from lm_backend.api.schemas.feature import FeatureCreateSchema, FeatureUpdateSchema
 from lm_backend.api.schemas.license_server import LicenseServerCreateSchema, LicenseServerUpdateSchema
-from lm_backend.api.schemas.product import ProductCreateSchema, ProductUpdateSchema
 from lm_backend.database import SecureSession, secure_session
 from lm_backend.permissions import Permissions
 
 router = APIRouter()
 
 
-crud_configuration = ConfigurationCRUD(Configuration, ConfigurationCreateSchema, ConfigurationUpdateSchema)
-crud_product = GenericCRUD(Product, ProductCreateSchema, ProductUpdateSchema)
-crud_feature = GenericCRUD(Feature, FeatureCreateSchema, FeatureUpdateSchema)
-crud_license_server = GenericCRUD(LicenseServer, LicenseServerCreateSchema, LicenseServerUpdateSchema)
+crud_configuration = ConfigurationCRUD(Configuration)
+crud_product = GenericCRUD(Product)
+crud_feature = FeatureCRUD(Feature)
+crud_license_server = GenericCRUD(LicenseServer)
 
 
 @router.post(
@@ -45,7 +45,7 @@ async def create_configuration(
     The features for the configuration will be specified in the request body.
     If the feature's product doesn't exist, it will be created.
     """
-    configuration_created: Configuration = await crud_configuration.create(
+    configuration_created = await crud_configuration.create(
         db_session=secure_session.session,
         obj=ConfigurationCreateSchema(**configuration.dict(exclude={"features", "license_servers"})),
     )
@@ -63,6 +63,7 @@ async def create_configuration(
                     db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
                 )
         except HTTPException:
+
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 
@@ -78,6 +79,7 @@ async def create_configuration(
                     db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
                 )
         except HTTPException:
+
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 
@@ -103,7 +105,6 @@ async def read_all_configurations(
         search=search,
         sort_field=sort_field,
         sort_ascending=sort_ascending,
-        force_refresh=True,
     )
 
 

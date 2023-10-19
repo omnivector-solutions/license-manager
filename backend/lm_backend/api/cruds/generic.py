@@ -1,35 +1,27 @@
 """Generic CRUD class for SQLAlchemy models."""
-from asyncio import gather
-from typing import List, Optional, Type, TypeVar, Union
+from __future__ import annotations
+
+from typing import List, Optional, Sequence, Type, Union
 
 from fastapi import HTTPException
 from loguru import logger
+from pydantic import BaseModel
 from sqlalchemy import Column, ColumnElement, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lm_backend.api.models.crud_base import CrudBase
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
-from lm_backend.database import Base, search_clause, sort_clause
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseCreateSchema)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseUpdateSchema)
+from lm_backend.database import search_clause, sort_clause
 
 
 class GenericCRUD:
     """Generic CRUD module to interface with database, to be utilized by all models."""
 
-    def __init__(
-        self,
-        model: Type[ModelType],
-        create_schema: Type[CreateSchemaType],
-        update_schema: Type[UpdateSchemaType],
-    ):
+    def __init__(self, model: Type[CrudBase]):
         """Initializes the CRUD class with the model to be used."""
         self.model = model
-        self.create_schema = create_schema
-        self.update_schema = update_schema
 
-    async def create(self, db_session: AsyncSession, obj: CreateSchemaType) -> ModelType:
+    async def create(self, db_session: AsyncSession, obj: BaseCreateSchema) -> CrudBase:
         """Creates a new object in the database."""
         db_obj = self.model(**obj.dict())
         try:
@@ -45,7 +37,7 @@ class GenericCRUD:
 
     async def filter(
         self, db_session: AsyncSession, filter_expressions: List[ColumnElement[bool]]
-    ) -> List[ModelType]:
+    ) -> List[CrudBase]:
         """
         Filter objects using a filter field and filter term.
         Returns the list of objects or raise an exception if it does not exist.
@@ -64,7 +56,7 @@ class GenericCRUD:
 
     async def read(
         self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
-    ) -> Optional[ModelType]:
+    ) -> Optional[CrudBase]:
         """
         Read an object from the database with the given id.
         Returns the object or raise an exception if it does not exist.
@@ -87,17 +79,13 @@ class GenericCRUD:
     async def read_all(
         self,
         db_session: AsyncSession,
-        search: str = None,
+        search: Optional[str] = None,
         sort_field: Optional[str] = None,
         sort_ascending: bool = True,
-        force_refresh: bool = False,
-    ) -> List[ModelType]:
+    ) -> Sequence[Union[CrudBase, BaseModel]]:
         """
         Read all objects.
         Returns a list of objects.
-
-        Note: The ``force_refresh`` parameter may be useful to force the gathered results to lazily load
-              relationships or other computed fields like column properties or hybrid attributes.
         """
         try:
             stmt = select(self.model)
@@ -106,20 +94,17 @@ class GenericCRUD:
             if sort_field is not None:
                 stmt = stmt.order_by(sort_clause(sort_field, self.model.sortable_fields, sort_ascending))
             query = await db_session.scalars(stmt)
-            db_objs = list(query.all())
-            if force_refresh:
-                await gather(*(db_session.refresh(db_obj) for db_obj in db_objs))
+            return query.all()
         except Exception as e:
             logger.error(e)
             raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
-        return db_objs
 
     async def update(
         self,
         db_session: AsyncSession,
         id: Union[Column[int], int],
-        obj: UpdateSchemaType,
-    ) -> Optional[ModelType]:
+        obj: BaseUpdateSchema,
+    ) -> Optional[CrudBase]:
         """
         Update an object in the database.
         Returns the updated object.

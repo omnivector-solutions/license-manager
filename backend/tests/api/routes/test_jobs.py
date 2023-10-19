@@ -142,7 +142,7 @@ async def test_get_all_jobs__with_search(
     create_jobs,
 ):
     inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
-    response = await backend_client.get(f"/lm/jobs/?search={create_jobs[0].slurm_job_id}")
+    response = await backend_client.get(f"/lm/jobs?search={create_jobs[0].slurm_job_id}")
 
     assert response.status_code == 200
 
@@ -161,7 +161,7 @@ async def test_get_all_jobs__with_sort(
 ):
 
     inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
-    response = await backend_client.get("/lm/jobs/?sort_field=slurm_job_id&sort_ascending=false")
+    response = await backend_client.get("/lm/jobs?sort_field=slurm_job_id&sort_ascending=false")
 
     assert response.status_code == 200
 
