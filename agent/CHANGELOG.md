@@ -4,6 +4,9 @@ This file keeps track of all notable changes to `license-manager-agent`.
 
 ## Unreleased
 
+## 3.0.10 -- 2023-11-07
+* Bumped version to keep in sync with backend
+
 ## 3.0.9 -- 2023-09-28
 * Fix issue with clean jobs arguments not being passed to the function
 * Remove timeout from backend client to avoid issues with long running requests
