@@ -163,7 +163,7 @@ async def reconcile():
         for configuration in configurations:
             for feature in configuration.features:
                 if f"{feature.product.name}.{feature.name}" == product_feature:
-                    license_server_type = configuration.type
+                    license_server_type = configuration.type.value
                     reserved = feature.reserved
 
         # Get license usage from the cluster
