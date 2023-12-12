@@ -20,7 +20,7 @@ loguru = "^0.6.0"
 py-buzz = "^3.2.1"
 typer = "^0.4.1"
 pendulum = "3.0.0b1"
-httpx = "^0.22.0"
+httpx = ">=0.22,<0.24"
 importlib-metadata = "<5.0"
 python-dotenv = "^0.20.0"
 
