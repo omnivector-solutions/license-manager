@@ -63,4 +63,4 @@ def test_handle_abort__does_not_include_subject_message_if_subject_is_None(mocke
     with pytest.raises(typer.Exit):
         dummy_handled_function(message="Bang!", subject=None)
 
-    assert mocked_panel.called_once_with("Bang!")
+    mocked_panel.assert_called_once()
