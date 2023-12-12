@@ -4,6 +4,9 @@ This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
 
+## 3.0.11 -- 2023-12-12
+* Add support to Python 3.12
+
 ## 3.0.10 -- 2023-11-07
 * Add constraints to schemas to ensure the correct values are used
 * Optimized queries for feature list
