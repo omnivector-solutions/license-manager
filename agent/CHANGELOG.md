@@ -4,6 +4,9 @@ This file keeps track of all notable changes to `license-manager-agent`.
 
 ## Unreleased
 
+## 3.0.11 -- 2023-12-12
+* Add support to Python 3.12
+
 ## 3.0.10 -- 2023-11-07
 * Bumped version to keep in sync with backend
 
