@@ -11,23 +11,24 @@ packages = [ { include = "lm_cli" } ]
 
 
 [tool.poetry.dependencies]
-python = "^3.6.2"
+python = "^3.8.1"
 pydantic = "^1.9.1"
 rich = "^11.2.0"
 pyperclip = "^1.8.2"
 python-jose = "^3.3.0"
 loguru = "^0.6.0"
-py-buzz = "^3.1.1"
+py-buzz = "^3.2.1"
 typer = "^0.4.1"
-pendulum = "^2.1.2"
+pendulum = "3.0.0b1"
 httpx = "^0.22.0"
-importlib-metadata = "^4.2"
+importlib-metadata = "<5.0"
 python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 isort = "^5.10.1"
 mypy = "^0.961"
+flake8 = "^6.1.0"
 plummet = "^1.1.0"
 pytest-random-order = "^1.0.4"
 pytest-cov = "^3.0.0"
@@ -35,7 +36,6 @@ pytest-responsemock = "^1.0.1"
 pytest-env = "^0.6.2"
 pytest-mock = "^3.6.0"
 respx = "^0.19.2"
-pyproject-flake8 = "^0.0.1-alpha.4"
 
 [tool.poetry.scripts]
 lm-cli = "lm_cli.main:app"
@@ -62,14 +62,11 @@ line-length = 120
 
 [tool.isort]
 line_length = 120
-lines_after_imports = "2"
-profile = "black"
+src_paths = ["lm_cli", "tests"]
 multi_line_output = 3
+lines_after_imports = 2
 include_trailing_comma = true
-
-[tool.flake8]
-max-line-length = 120
-max-complexity = 40
+profile = "black"
 
 [[tool.mypy.overrides]]
 module = [
