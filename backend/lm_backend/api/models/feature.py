@@ -56,6 +56,5 @@ class Feature(CrudBase):
             f"config_id={self.config_id}, "
             f"total={self.total}, "
             f"used={self.used}, "
-            f"reserved={self.reserved}, "
-            f"booked_total={self.booked_total})"
+            f"reserved={self.reserved})"
         )

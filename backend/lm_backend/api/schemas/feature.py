@@ -147,7 +147,7 @@ class FeatureSchema(BaseModel):
         description="The quantity of the feature that is used.",
     )
     booked_total: Optional[NonNegativeInt] = Field(
-        None,
+        0,
         title="Booked total quantity",
         description="The total quantity of licenses that are booked.",
     )
