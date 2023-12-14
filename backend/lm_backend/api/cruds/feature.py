@@ -1,9 +1,9 @@
 """Feature CRUD class for SQLAlchemy models."""
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Union
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import func, select, tuple_
+from sqlalchemy import Column, func, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_backend.api.cruds.generic import GenericCRUD
@@ -17,6 +17,38 @@ from lm_backend.database import search_clause, sort_clause
 
 class FeatureCRUD(GenericCRUD):
     """Feature CRUD module to implement feature bulk update and lookup."""
+
+    async def read(
+        self, db_session: AsyncSession, id: Union[Column[int], int], force_refresh: bool = False
+    ) -> Optional[Feature]:
+        """
+        Read a Feature object from the database with the given id.
+        Returns the object or raise an exception if it does not exist.
+        """
+        stmt = (
+            select(
+                *(Feature.__table__.c),
+                Product.id.label("product_id"),
+                Product.name.label("product_name"),
+                func.coalesce(func.sum(Booking.quantity), 0).label("booked_total"),
+            )
+            .join(Product, Feature.product_id == Product.id)
+            .join(Booking, Feature.id == Booking.feature_id, isouter=True)
+            .where(Feature.id == id)
+            .group_by(Feature.id, Product.id)
+        )
+
+        try:
+            query = await db_session.execute(stmt)
+            db_obj = query.first()
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
+
+        if db_obj is None:
+            raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
+
+        return FeatureSchema.from_flat_dict(db_obj._asdict())
 
     async def bulk_update(
         self, db_session: AsyncSession, features: List[FeatureUpdateByNameSchema], cluster_client_id: str
@@ -108,7 +140,7 @@ class FeatureCRUD(GenericCRUD):
                     *(Feature.__table__.c),
                     Product.id.label("product_id"),
                     Product.name.label("product_name"),
-                    func.sum(Booking.quantity).label("booked_total"),
+                    func.coalesce(func.sum(Booking.quantity), 0).label("booked_total"),
                 )
                 .join(Product, Feature.product_id == Product.id)
                 .join(Booking, Feature.id == Booking.feature_id, isouter=True)

@@ -61,7 +61,7 @@ async def read_feature(
     secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_VIEW, commit=False)),
 ):
     """Return a feature with associated bookings with the given id."""
-    return await crud_feature.read(db_session=secure_session.session, id=feature_id, force_refresh=True)
+    return await crud_feature.read(db_session=secure_session.session, id=feature_id)
 
 
 @router.put(
