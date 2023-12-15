@@ -3,6 +3,8 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
+
+## 3.0.12 -- 2023-12-15
 * Fix bug in Feature read method that was returning None for the booked_total field
 
 ## 3.0.11 -- 2023-12-12
