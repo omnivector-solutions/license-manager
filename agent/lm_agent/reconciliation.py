@@ -164,7 +164,6 @@ async def reconcile():
             for feature in configuration.features:
                 if f"{feature.product.name}.{feature.name}" == product_feature:
                     license_server_type = configuration.type.value
-                    reserved = feature.reserved
 
         # Get license usage from the cluster
         slurm_used = all_features_cluster_value[product_feature]["used"]
@@ -175,7 +174,8 @@ async def reconcile():
         Either in the license server or booked for a job (bookings from other cluster as well).
 
         If the license has a reserved value (licenses exclusive for usage in desktop environments),
-        it should be added to the reservation too.
+        the value will be decreased from the Slurm counter and will be checked at booking creation
+        time. This implies that the value won't need to be added to the reservation.
 
         The reservation is not meant to be used by any user, it's a way to block usage of licenses.
 
@@ -186,7 +186,7 @@ async def reconcile():
         if report_total == 0:
             reservation_amount = slurm_total
         else:
-            reservation_amount = report_used - slurm_used + booking_sum + reserved
+            reservation_amount = report_used - slurm_used + booking_sum
 
         if reservation_amount < 0:
             reservation_amount = 0

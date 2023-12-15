@@ -221,18 +221,23 @@ async def test__reconcile__success(
     Used in cluster: 23
 
     Overview of the license:
-    ________________________________________________________________________________
-    |    200   |    15     |     17    |    71    |     100     ||       597       |
-    |   used   |   booked  |   booked  |  booked  |   reserved  ||      free       |
-    | Lic serv | cluster 1 | cluster 2 | cluster3 | not to use  ||     to use      |
-    --------------------------------------------------------------------------------
+    _________________________________________________________________
+    |    200   |    15     |     17    |    71    |       697       |
+    |   used   |   booked  |   booked  |  booked  |      free       |
+    | Lic serv | cluster 1 | cluster 2 | cluster3 |     to use      |
+    -----------------------------------------------------------------
 
-    Since we have 303 licenses in use (booked or license server) and 100 that should
-    not be used (past the limit), the amount of licenses available is 597.
+    Since we have 303 licenses in use (booked or license server), the
+    amount of licenses available is 697.
 
-    This way, we need to block the remaing 403 licenses. But considering that Slurm
-    is already "blocking" 23 licenses that are in use in the cluster, the reservation
-    should block 380 licenses.
+    This way, we need to block the 303 licenses that are in use.
+    But considering that Slurm is already "blocking" 23 licenses
+    that are in use in the cluster, the reservation should block 280 licenses.
+
+    Formula to calculate the reservation:
+    reservation = lic serv used - slurm used + booked sum
+    reservation = 200 - 23 + 103 = 280
+
     """
     update_features_mock.return_value = [
         LicenseReportItem(
@@ -246,7 +251,7 @@ async def test__reconcile__success(
     get_all_cluster_values_mock.return_value = {"abaqus.abaqus": {"total": 1000, "used": 23}}
 
     await reconcile()
-    create_or_update_reservation_mock.assert_called_with("abaqus.abaqus@flexlm:380")
+    create_or_update_reservation_mock.assert_called_with("abaqus.abaqus@flexlm:280")
 
 
 @pytest.mark.asyncio
