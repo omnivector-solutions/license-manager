@@ -205,6 +205,11 @@ async def reconcile():
     else:
         logger.debug("No reservation needed")
 
+        existing_reservation = await scontrol_show_reservation()
+        if existing_reservation:
+            logger.debug("Deleting existing reservation")
+            await scontrol_delete_reservation()
+
     logger.debug("Reconciliation done")
 
 
