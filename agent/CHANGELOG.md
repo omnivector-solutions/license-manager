@@ -3,6 +3,7 @@
 This file keeps track of all notable changes to `license-manager-agent`.
 
 ## Unreleased
+* Update reservation calculation to remove the reserved (limit) value [ASP-4349]
 
 ## 3.0.11 -- 2023-12-12
 * Add support to Python 3.12
