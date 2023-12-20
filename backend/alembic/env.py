@@ -19,7 +19,8 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from lm_backend.database import Base, build_db_url
+from lm_backend.database import build_db_url
+from lm_backend.api.models.crud_base import CrudBase as Base
 from lm_backend.api.models import *
 target_metadata = [Base.metadata]
 
