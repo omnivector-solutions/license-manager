@@ -31,7 +31,6 @@ pytest-env = "^0.6.2"
 respx = "^0.17.1"
 pytest-random-order = "^1.0.4"
 pytest-sugar = "^0.9.4"
-pytest-freezegun = "^0.4.2"
 types-click = "^7.1.5"
 
 [tool.pytest.ini_options]
