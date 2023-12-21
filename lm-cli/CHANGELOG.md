@@ -4,6 +4,8 @@ This file keeps track of all notable changes to `license-manager-cli`.
 
 ## Unreleased
 
+
+## 3.0.13a0 -- 2023-12-21
 ## 3.0.12 -- 2023-12-15
 * Bumped version to keep in sync with backend and agent
 

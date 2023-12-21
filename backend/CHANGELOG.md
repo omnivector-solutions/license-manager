@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
+
+
+## 3.0.13a0 -- 2023-12-21
 * Change minimum Python version to 3.12
 * Update Dockerfile to use image python:3.12-slim-bullseye
 
