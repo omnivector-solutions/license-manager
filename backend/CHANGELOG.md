@@ -3,6 +3,8 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
+* Change minimum Python version to 3.12
+* Update Dockerfile to use image python:3.12-slim-bullseye
 
 ## 3.0.12 -- 2023-12-15
 * Fix bug in Feature read method that was returning None for the booked_total field

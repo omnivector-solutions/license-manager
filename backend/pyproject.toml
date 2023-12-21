@@ -10,10 +10,11 @@ documentation = "https://omnivector-solutions.github.io/license-manager/"
 packages = [{ include = "lm_backend" }]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.12"
 fastapi = "^0.68.0"
 sentry-sdk = "1.18.0"
 jwt = {version = "^1.2.0", optional = true}
+SQLAlchemy-Utils = "^0.37.8"
 loguru = "^0.5.3"
 asyncpg = "^0.28"
 uvicorn = "^0.15.0"
@@ -40,11 +41,9 @@ pytest-freezegun = "^0.4.2"
 respx = "^0.20"
 pytest-random-order = "^1.0.4"
 pytest-sugar = "^0.9.4"
-aiosqlite = "^0.17.0"
 ipython = "^8.10.0"
 asgi-lifespan = "^1.0.1"
 alembic = "^1.6.5"
-types-aioboto3 = {extras = ["essential"], version = "^11.3.1"}
 
 [tool.pytest.ini_options]
 minversion = "6.0"
