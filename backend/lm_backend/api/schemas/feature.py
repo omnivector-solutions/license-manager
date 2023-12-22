@@ -19,8 +19,10 @@ class FeatureCreateSchema(BaseCreateSchema):
     config_id: int = Field(
         ..., title="Configuration ID", description="The ID of the configuration that the feature belongs to."
     )
-    reserved: NonNegativeInt = Field(
+    reserved: int = Field(
         0,
+        ge=0,
+        le=2**31 - 1,
         title="Reserved quantity",
         description="The quantity of the feature that is reserved for usage in desktop environments.",
     )
@@ -35,8 +37,10 @@ class FeatureWithoutConfigIdCreateSchema(BaseCreateSchema):
         ..., title="Name of the feature", max_length=255, description="The name of the feature."
     )
     product_id: int = Field(..., title="Product ID", description="The ID of the product of the feature.")
-    reserved: NonNegativeInt = Field(
+    reserved: int = Field(
         0,
+        ge=0,
+        le=2**31 - 1,
         title="Reserved quantity",
         description="The quantity of the feature that is reserved for usage in desktop environments.",
     )
@@ -54,8 +58,10 @@ class FeatureWithOptionalIdUpdateSchema(BaseUpdateSchema):
     product_id: Optional[int] = Field(
         None, title="Product ID", description="The ID of the product of the feature."
     )
-    reserved: Optional[NonNegativeInt] = Field(
+    reserved: Optional[int] = Field(
         None,
+        ge=0,
+        le=2**31 - 1,
         title="Reserved quantity",
         description="The quantity of the feature that is reserved for usage in desktop environments.",
     )
@@ -75,18 +81,24 @@ class FeatureUpdateSchema(BaseUpdateSchema):
     config_id: Optional[int] = Field(
         None, title="Configuration ID", description="The ID of the configuration that the feature belongs to."
     )
-    reserved: Optional[NonNegativeInt] = Field(
+    reserved: Optional[int] = Field(
         None,
+        ge=0,
+        le=2**31 - 1,
         title="Reserved quantity",
         description="The quantity of the feature that is reserved for usage in desktop environments.",
     )
-    total: Optional[NonNegativeInt] = Field(
+    total: Optional[int] = Field(
         None,
+        ge=0,
+        le=2**31 - 1,
         title="Total quantity",
         description="The total quantity of licenses.",
     )
-    used: Optional[NonNegativeInt] = Field(
+    used: Optional[int] = Field(
         None,
+        ge=0,
+        le=2**31 - 1,
         title="Used quantity",
         description="The quantity of the feature that is used.",
     )
@@ -104,13 +116,17 @@ class FeatureUpdateByNameSchema(BaseUpdateSchema):
     feature_name: str = Field(
         ..., title="Feature name", max_length=255, description="The name of the feature."
     )
-    total: NonNegativeInt = Field(
+    total: int = Field(
         0,
+        ge=0,
+        le=2**31 - 1,
         title="Total quantity",
         description="The total quantity of licenses.",
     )
-    used: NonNegativeInt = Field(
+    used: int = Field(
         0,
+        ge=0,
+        le=2**31 - 1,
         title="Used quantity",
         description="The quantity of the feature that is used.",
     )

@@ -31,11 +31,14 @@ class ConfigurationCreateSchema(BaseCreateSchema):
         max_length=255,
         description="The client ID of the cluster that will use this configuration.",
     )
-    grace_time: PositiveInt = Field(
-        ...,
+    grace_time: int = Field(
+        60,
+        gt=0,
+        le=2**31 - 1,
         title="Grace time",
         description="The grace time in seconds for the license's bookings to be retained.",
     )
+
     type: LicenseServerType = Field(
         ...,
         title="Type of license server",
@@ -59,8 +62,10 @@ class ConfigurationCompleteCreateSchema(BaseCreateSchema):
         max_length=255,
         description="The client ID of the cluster that will use this configuration.",
     )
-    grace_time: PositiveInt = Field(
-        ...,
+    grace_time: int = Field(
+        60,
+        gt=0,
+        le=2**31 - 1,
         title="Grace time",
         description="The grace time in seconds for the license's bookings to be retained.",
     )
@@ -98,8 +103,10 @@ class ConfigurationUpdateSchema(BaseUpdateSchema):
         max_length=255,
         description="The client ID of the cluster that will use this configuration.",
     )
-    grace_time: Optional[PositiveInt] = Field(
+    grace_time: Optional[int] = Field(
         None,
+        gt=0,
+        le=2**31 - 1,
         title="Grace time",
         description="The grace time in seconds for the license's bookings to be retained.",
     )
@@ -129,8 +136,10 @@ class ConfigurationCompleteUpdateSchema(BaseUpdateSchema):
         max_length=255,
         description="The client ID of the cluster that will use this configuration.",
     )
-    grace_time: Optional[PositiveInt] = Field(
+    grace_time: Optional[int] = Field(
         None,
+        gt=0,
+        le=2**31 - 1,
         title="Grace time",
         description="The grace time in seconds for the license's bookings to be retained.",
     )

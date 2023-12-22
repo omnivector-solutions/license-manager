@@ -1,7 +1,7 @@
 """Job schemas for the License Manager API."""
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Field
 
 from lm_backend.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_backend.api.schemas.booking import BookingSchema
@@ -11,7 +11,9 @@ class JobBookingCreateSchema(BaseCreateSchema):
     product_feature: str = Field(
         ..., title="Product feature", description="The product.feature of the license."
     )
-    quantity: PositiveInt = Field(..., title="Quantity", description="The quantity of booked licenses.")
+    quantity: int = Field(
+        ..., gt=0, le=2**31 - 1, title="Quantity", description="The quantity of booked licenses."
+    )
 
 
 class JobCreateSchema(BaseCreateSchema):
