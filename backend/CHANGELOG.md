@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
-
+* Update constraints to limit int fields to 2**31-1
 
 ## 3.0.13a0 -- 2023-12-21
 * Change minimum Python version to 3.12
