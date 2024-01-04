@@ -13,8 +13,12 @@ class BookingCreateSchema(BaseCreateSchema):
 
     job_id: int = Field(..., title="Job ID", description="The ID of the job that booked the feature.")
     feature_id: int = Field(..., title="Feature ID", description="The ID of the feature that was booked.")
-    quantity: PositiveInt = Field(
-        ..., title="Quantity", description="The quantity of the feature that was booked."
+    quantity: int = Field(
+        ...,
+        gt=0,
+        le=2**31 - 1,
+        title="Quantity",
+        description="The quantity of the feature that was booked.",
     )
 
 
@@ -29,8 +33,12 @@ class BookingUpdateSchema(BaseUpdateSchema):
     feature_id: Optional[int] = Field(
         None, title="Feature ID", description="The ID of the feature that was booked."
     )
-    quantity: Optional[PositiveInt] = Field(
-        None, title="Quantity", description="The quantity of the feature that was booked."
+    quantity: Optional[int] = Field(
+        None,
+        gt=0,
+        le=2**31 - 1,
+        title="Quantity",
+        description="The quantity of the feature that was booked.",
     )
 
 
