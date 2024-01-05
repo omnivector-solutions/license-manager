@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
+
+
+## 3.0.13a1 -- 2024-01-05
 * Update constraints to limit int fields to 2**31-1
 
 ## 3.0.13a0 -- 2023-12-21
