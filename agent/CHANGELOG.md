@@ -5,6 +5,7 @@ This file keeps track of all notable changes to `license-manager-agent`.
 ## Unreleased
 
 
+## 3.0.13a1 -- 2024-01-05
 ## 3.0.13a0 -- 2023-12-21
 ## 3.0.12 -- 2023-12-15
 * Update reservation calculation to remove the reserved (limit) value [ASP-4349]
