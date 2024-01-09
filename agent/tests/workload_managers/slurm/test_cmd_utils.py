@@ -110,7 +110,7 @@ def test_match_requested_license(license, output):
     ],
 )
 def test_match_requested_license_wrong_string(requested_license):
-    assert _match_requested_license(requested_license) == None
+    assert _match_requested_license(requested_license) is None
 
 
 def test_get_required_licenses_for_job_good(job_licenses_good: str):

@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 from httpx import Response
-from pytest import mark, raises
+from pytest import mark
 
 from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.reconciliation import (

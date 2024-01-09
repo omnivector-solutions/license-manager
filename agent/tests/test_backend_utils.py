@@ -35,7 +35,7 @@ from lm_agent.backend_utils.utils import (
     remove_job_by_slurm_job_id,
 )
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerParseError
+from lm_agent.exceptions import LicenseManagerBackendConnectionError
 
 
 def test__write_token_to_cache__caches_a_token(mock_cache_dir):

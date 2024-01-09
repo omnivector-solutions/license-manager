@@ -1,5 +1,4 @@
 """Test the RLM license server interface."""
-import shlex
 from unittest import mock
 
 from pytest import fixture, mark, raises
