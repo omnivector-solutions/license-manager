@@ -29,10 +29,7 @@ pydantic = {version = "^1", extras = ["email"]}
 inflection = "^0.5.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.3"
-isort = "^5.9.3"
 mypy = "^1.6"
-flake8 = "^6.1.0"
 pytest = "^6.2.4"
 pytest-asyncio = "^0.15.1"
 pytest-cov = "^2.12.1"
@@ -44,6 +41,7 @@ pytest-sugar = "^0.9.4"
 ipython = "^8.10.0"
 asgi-lifespan = "^1.0.1"
 alembic = "^1.6.5"
+ruff = "^0.1.11"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -58,15 +56,8 @@ env = [
 [tool.coverage.run]
 concurrency = ["greenlet", "thread"]
 
-[tool.black]
+[tool.ruff]
 line-length = 110
-src = ["lm_backend", "tests"]
-
-[tool.isort]
-line_length = 110
-src_paths = ["lm_backend", "tests"]
-multi_line_output = 3
-include_trailing_comma = true
 
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"

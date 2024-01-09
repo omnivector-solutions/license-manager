@@ -74,7 +74,6 @@ async def test_get_all_license_servers__with_sort(
     inject_security_header,
     create_license_servers,
 ):
-
     inject_security_header("owner1@test.com", Permissions.LICENSE_SERVER_VIEW)
     response = await backend_client.get("/lm/license_servers?sort_field=host&sort_ascending=false")
 

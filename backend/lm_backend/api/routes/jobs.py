@@ -170,7 +170,6 @@ async def delete_job_by_slurm_id(
     )
 
     for job in jobs:
-
         return await crud_job.delete(db_session=secure_session.session, id=job.id)
 
     raise HTTPException(status_code=404, detail="The job doesn't exist in this cluster.")

@@ -150,7 +150,6 @@ async def test_products_router_with_multi_tenancy(
 
     with tweak_settings(MULTI_TENANCY_ENABLED=True):
         async with get_synth_sessions() as (default_session, alt_session):
-
             inject_security_header(
                 "owner1@test.com", Permissions.PRODUCT_EDIT, organization_id=default_organization_id
             )

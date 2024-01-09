@@ -492,7 +492,6 @@ async def test_get_all_configurations__with_sort(
     inject_security_header,
     create_configurations,
 ):
-
     inject_security_header("owner1@test.com", Permissions.CONFIG_VIEW)
     response = await backend_client.get("/lm/configurations?sort_field=name&sort_ascending=false")
 

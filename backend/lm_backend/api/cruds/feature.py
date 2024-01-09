@@ -62,7 +62,11 @@ class FeatureCRUD(GenericCRUD):
             .join(Product, Feature.product_id == Product.id)
             .join(Configuration, Feature.config_id == Configuration.id)
             .where(
-                tuple_(Product.name, Feature.name, Configuration.cluster_client_id,).in_(
+                tuple_(
+                    Product.name,
+                    Feature.name,
+                    Configuration.cluster_client_id,
+                ).in_(
                     [(feature.product_name, feature.feature_name, cluster_client_id) for feature in features]
                 )
             )
