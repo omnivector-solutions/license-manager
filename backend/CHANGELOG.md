@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `license-manager-backend`.
 
 ## Unreleased
-
+* Updated linter and checker to use ruff [ASP-4293]
 
 ## 3.0.13a1 -- 2024-01-05
 * Update constraints to limit int fields to 2**31-1
