@@ -69,8 +69,8 @@ def test_parse_usage_line():
         "lead_host": "server1",
         "booked": 1,
     }
-    assert parse_usage_line("aaaaa") == None
-    assert parse_usage_line("") == None
+    assert parse_usage_line("aaaaa") is None
+    assert parse_usage_line("") is None
 
 
 @mark.parametrize(

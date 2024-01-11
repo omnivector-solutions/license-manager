@@ -5,7 +5,6 @@ from lm_backend.security import IdentityPayload, get_domain_configs
 
 
 def test_get_domain_configs__loads_only_base_settings(tweak_settings):
-
     with tweak_settings(
         ARMASEC_DOMAIN="foo.io",
         ARMASEC_AUDIENCE="https://bar.dev",

@@ -91,7 +91,7 @@ def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = Permi
     """
 
     def dependency(
-        token_payload: TokenPayload = Depends(guard.lockdown(*scopes, permission_mode=permission_mode))
+        token_payload: TokenPayload = Depends(guard.lockdown(*scopes, permission_mode=permission_mode)),
     ) -> IdentityPayload:
         """
         Provide an injectable function to lockdown a route and extract the identity payload.

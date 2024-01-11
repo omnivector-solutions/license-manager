@@ -159,7 +159,6 @@ async def test_get_all_jobs__with_sort(
     inject_security_header,
     create_jobs,
 ):
-
     inject_security_header("owner1@test.com", Permissions.JOB_VIEW)
     response = await backend_client.get("/lm/jobs?sort_field=slurm_job_id&sort_ascending=false")
 

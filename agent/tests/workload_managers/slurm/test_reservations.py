@@ -3,7 +3,7 @@ Test Slurm reservations.
 """
 from unittest import mock
 
-from pytest import fixture, mark, raises
+from pytest import fixture, mark
 
 from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute
@@ -62,7 +62,7 @@ async def test__scontrol_create_reservation__fail(
 @mock.patch("lm_agent.workload_managers.slurm.reservations.run_command")
 async def test__scontrol_show_reservation__success(run_command_mock: mock.MagicMock, reservation_show_output):
     """Test if reservation is fetched succesfully."""
-    run = run_command_mock.return_value = reservation_show_output
+    run_command_mock.return_value = reservation_show_output
     read_reservation = await scontrol_show_reservation()
     assert read_reservation == reservation_show_output
 
@@ -82,7 +82,7 @@ async def test__scontrol_update_reservation__success(
     run_command_mock: mock.MagicMock, reservation_license_data, reservation_duration
 ):
     """Test if reservation is updated succesfully."""
-    run_command_mock.return_value = f"Reservation updated."
+    run_command_mock.return_value = "Reservation updated."
     update_reservation = await scontrol_update_reservation(reservation_license_data, reservation_duration)
     assert update_reservation
 

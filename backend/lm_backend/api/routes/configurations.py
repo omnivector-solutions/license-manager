@@ -63,7 +63,6 @@ async def create_configuration(
                     db_session=secure_session.session, obj=FeatureCreateSchema(**feature_obj)
                 )
         except HTTPException:
-
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 
@@ -79,7 +78,6 @@ async def create_configuration(
                     db_session=secure_session.session, obj=LicenseServerCreateSchema(**license_server_obj)
                 )
         except HTTPException:
-
             await crud_configuration.delete(db_session=secure_session.session, id=configuration_created.id)
             raise
 

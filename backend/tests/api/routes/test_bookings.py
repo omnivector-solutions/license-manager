@@ -109,7 +109,6 @@ async def test_get_all_bookings__with_sort(
     inject_security_header,
     create_bookings,
 ):
-
     inject_security_header("owner1@test.com", Permissions.BOOKING_VIEW)
     response = await backend_client.get("/lm/bookings?sort_field=job_id&sort_ascending=false")
 

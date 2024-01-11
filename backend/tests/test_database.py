@@ -1,11 +1,8 @@
 import re
-import shutil
 from typing import Any
-from unittest.mock import patch
 
-import sqlalchemy
 from fastapi.exceptions import HTTPException
-from pytest import fixture, raises
+from pytest import raises
 from sqlalchemy import select
 
 from lm_backend import database

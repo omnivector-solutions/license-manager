@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `license-manager-cli`.
 
 ## Unreleased
-
+* Updated linter and checker to use ruff [ASP-4293]
 
 ## 3.0.13a1 -- 2024-01-05
 ## 3.0.13a0 -- 2023-12-21

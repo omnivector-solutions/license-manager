@@ -10,7 +10,6 @@ from lm_backend.api.models.product import Product
 
 @fixture
 async def create_configurations(insert_objects):
-
     configurations_to_add = [
         {
             "name": "Abaqus",

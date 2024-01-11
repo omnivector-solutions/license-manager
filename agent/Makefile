@@ -19,9 +19,8 @@ mypy: install
 
 .PHONY: lint
 lint: install
-	poetry run flake8 ${PACKAGE_NAME} --max-line-length=110
-	poetry run black --check ${PACKAGE_NAME} tests
-	poetry run isort --check ${PACKAGE_NAME} tests
+	poetry run ruff check ${PACKAGE_NAME}
+	poetry run ruff check tests
 
 .PHONY: qa
 qa: test mypy lint
@@ -29,8 +28,8 @@ qa: test mypy lint
 
 .PHONY: format
 format: install
-	poetry run black ${PACKAGE_NAME} tests
-	poetry run isort ${PACKAGE_NAME} tests
+	poetry run ruff format ${PACKAGE_NAME}
+	poetry run ruff format tests
 
 .PHONY: release-%
 release-%:

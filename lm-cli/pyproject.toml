@@ -25,17 +25,15 @@ importlib-metadata = "<5.0"
 python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3.0"
-isort = "^5.10.1"
 mypy = "^0.961"
-flake8 = "^6.1.0"
 plummet = "^1.1.0"
 pytest-random-order = "^1.0.4"
 pytest-cov = "^3.0.0"
 pytest-responsemock = "^1.0.1"
 pytest-env = "^0.6.2"
 pytest-mock = "^3.6.0"
-respx = "^0.19.2"
+respx = ">=0.20.1"
+ruff = "^0.1.11"
 
 [tool.poetry.scripts]
 lm-cli = "lm_cli.main:app"
@@ -57,16 +55,8 @@ env = [
     "IDENTITY_CLAIMS_KEY = email",
 ]
 
-[tool.black]
-line-length = 120
-
-[tool.isort]
-line_length = 120
-src_paths = ["lm_cli", "tests"]
-multi_line_output = 3
-lines_after_imports = 2
-include_trailing_comma = true
-profile = "black"
+[tool.ruff]
+line-length = 110
 
 [[tool.mypy.overrides]]
 module = [
