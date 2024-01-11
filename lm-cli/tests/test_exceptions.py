@@ -43,7 +43,9 @@ def test_handle_abort__with_all_options(capsys, caplog, dummy_handled_function, 
     assert f"Original exception: {dummy_exception}" in caplog.text
 
 
-def test_handle_abort__does_not_log_if_log_message_and_original_error_are_None(caplog, dummy_handled_function):
+def test_handle_abort__does_not_log_if_log_message_and_original_error_are_None(
+    caplog, dummy_handled_function
+):
     with pytest.raises(typer.Exit):
         dummy_handled_function(log_message=None, original_error=None)
 

@@ -144,7 +144,7 @@ def render_single_result(
     table.add_column("Key", header_style="bold yellow", style="yellow")
     table.add_column("Value", header_style="bold white", style="white")
 
-    for (key, value) in data.items():
+    for key, value in data.items():
         table.add_row(key, str(value))
 
     console = Console()

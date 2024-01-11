@@ -29,7 +29,9 @@ LOGIN_DOMAIN = "https://dummy-auth.com"
 def dummy_context():
     return LicenseManagerContext(
         persona=None,
-        client=httpx.Client(base_url=LOGIN_DOMAIN, headers={"content-type": "application/x-www-form-urlencoded"}),
+        client=httpx.Client(
+            base_url=LOGIN_DOMAIN, headers={"content-type": "application/x-www-form-urlencoded"}
+        ),
     )
 
 
@@ -203,7 +205,9 @@ def test_save_tokens_to_cache__success(make_token, tmp_path, mocker):
     assert refresh_token_path.read_text() == refresh_token
 
 
-def test_save_tokens_to_cache__only_saves_access_token_if_refresh_token_is_not_defined(make_token, tmp_path, mocker):
+def test_save_tokens_to_cache__only_saves_access_token_if_refresh_token_is_not_defined(
+    make_token, tmp_path, mocker
+):
     """
     Validate that the ``save_tokens_to_cache()`` function will only write an access token to the cache if the
     ``TokenSet`` instance does not carry a refresh token.
@@ -407,7 +411,9 @@ def test_fetch_auth_tokens__success(respx_mock, dummy_context):
     assert token_set.refresh_token == refresh_token
 
 
-def test_fetch_auth_tokens__raises_Abort_when_it_times_out_waiting_for_the_user(respx_mock, dummy_context, mocker):
+def test_fetch_auth_tokens__raises_Abort_when_it_times_out_waiting_for_the_user(
+    respx_mock, dummy_context, mocker
+):
     """
     Validate that the ``fetch_auth_tokens()`` function will raise an Abort if the time runs out before a user
     completes the login process.
@@ -425,7 +431,9 @@ def test_fetch_auth_tokens__raises_Abort_when_it_times_out_waiting_for_the_user(
     respx_mock.post(f"{LOGIN_DOMAIN}/protocol/openid-connect/token").mock(
         return_value=httpx.Response(httpx.codes.BAD_REQUEST, json=dict(error="authorization_pending")),
     )
-    one_tick = Tick(counter=1, elapsed=pendulum.Duration(seconds=1), total_elapsed=pendulum.Duration(seconds=1))
+    one_tick = Tick(
+        counter=1, elapsed=pendulum.Duration(seconds=1), total_elapsed=pendulum.Duration(seconds=1)
+    )
     mocker.patch("lm_cli.auth.TimeLoop", return_value=[one_tick])
     with pytest.raises(Abort, match="not completed in time"):
         fetch_auth_tokens(dummy_context)

@@ -139,7 +139,12 @@ def test_make_request__raises_Abort_if_client_request_raises_exception(respx_moc
 
     with pytest.raises(Abort, match="There was a big problem: Communication with the API failed") as err_info:
         make_request(
-            client, req_path, "GET", abort_message="There was a big problem", abort_subject="BIG PROBLEM", support=True
+            client,
+            req_path,
+            "GET",
+            abort_message="There was a big problem",
+            abort_subject="BIG PROBLEM",
+            support=True,
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True
@@ -221,7 +226,9 @@ def test_make_request__returns_the_response_status_code_if_expect_response_is_Fa
     assert make_request(client, req_path, "POST", expect_response=False) == httpx.codes.BAD_REQUEST
 
 
-def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_with_JSON(respx_mock, dummy_client):
+def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_with_JSON(
+    respx_mock, dummy_client
+):
     """
     Validate that the ``make_request()`` function will raise an Abort if the response is not JSON de-serializable.
     """
@@ -237,7 +244,12 @@ def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_wi
 
     with pytest.raises(Abort, match="There was a big problem: Response carried no data") as err_info:
         make_request(
-            client, req_path, "GET", abort_message="There was a big problem", abort_subject="BIG PROBLEM", support=True
+            client,
+            req_path,
+            "GET",
+            abort_message="There was a big problem",
+            abort_subject="BIG PROBLEM",
+            support=True,
         )
     assert err_info.value.subject == "BIG PROBLEM"
     assert err_info.value.support is True

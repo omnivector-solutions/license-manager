@@ -68,7 +68,10 @@ def list_all(
         new_data["username"] = job["username"]
         new_data["lead_host"] = job["lead_host"]
         new_data["bookings"] = " | ".join(
-            [f"feature_id: {booking['feature_id']}, quantity: {booking['quantity']}" for booking in job["bookings"]]
+            [
+                f"feature_id: {booking['feature_id']}, quantity: {booking['quantity']}"
+                for booking in job["bookings"]
+            ]
         )
 
         formatted_data.append(new_data)

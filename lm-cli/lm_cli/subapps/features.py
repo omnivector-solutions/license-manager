@@ -44,7 +44,9 @@ def format_data(feature_data):
         new_data["total"] = feature["total"]
         new_data["used"] = feature["used"]
         new_data["booked"] = feature["booked_total"]
-        new_data["available"] = new_data["total"] - new_data["used"] - new_data["reserved"] - new_data["booked"]
+        new_data["available"] = (
+            new_data["total"] - new_data["used"] - new_data["reserved"] - new_data["booked"]
+        )
 
         formatted_data.append(new_data)
 
