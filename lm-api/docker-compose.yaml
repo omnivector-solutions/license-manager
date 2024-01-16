@@ -1,0 +1,93 @@
+version: "3.9"
+services:
+
+  license-manager:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./lm_api:/app/lm_api
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:-pgsql}
+      DATABASE_USER: ${DATABASE_USER:-compose-db-user}
+      DATABASE_PSWD: ${DATABASE_PSWD:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
+      DATABASE_PORT: 5432
+      ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
+      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
+      ARMASEC_DEBUG: ${ARMASEC_DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+    ports:
+      - "7000:8000"
+    command: uvicorn lm_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  unittest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-ci
+    environment:
+      TEST_DATABASE_HOST: test-db
+      TEST_DATABASE_USER: test-db-user
+      TEST_DATABASE_PSWD: test-db-pswd
+      TEST_DATABASE_NAME: test-db-name
+      TEST_DATABASE_PORT: 5432
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      LOG_LEVEL: DEBUG
+      DEPLOY_ENV: TEST
+    command: poetry run pytest -s
+    depends_on:
+      test-db:
+        condition: service_healthy
+    volumes:
+      - ./tests:/app/tests
+
+  migration:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-ci
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:-pgsql}
+      DATABASE_USER: ${DATABASE_USER:-compose-db-user}
+      DATABASE_PSWD: ${DATABASE_PSWD:-compose-db-pswd}
+      DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      LOG_LEVEL: DEBUG
+    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+
+  pgsql:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: compose-db-user
+      POSTGRES_PASSWORD: compose-db-pswd
+      POSTGRES_DB: compose-db-name
+    ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test-db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=test-db-user
+      - POSTGRES_PASSWORD=test-db-pswd
+      - POSTGRES_MULTIPLE_DATABASES="test-db-name","alt-test-db"
+    volumes:
+      - ./docker-postgres-multiple-databases:/docker-entrypoint-initdb.d
+    ports: ["5433:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
