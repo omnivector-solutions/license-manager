@@ -1,13 +1,13 @@
 # License Manager CLI Changelog
 
-This file keeps track of all notable changes to `license-manager-cli`.
+This file keeps track of all notable changes to `License Manager CLI`.
 
 ## Unreleased
+
+## 3.1.0 -- 2024-01-24
 * Updated linter and checker to use ruff [ASP-4293]
 * Change minimum Python version to 3.12 [ASP-4295]
 
-## 3.0.13a1 -- 2024-01-05
-## 3.0.13a0 -- 2023-12-21
 ## 3.0.12 -- 2023-12-15
 * Bumped version to keep in sync with backend and agent
 

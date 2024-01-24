@@ -3,16 +3,14 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+
+## 3.1.0 -- 2024-01-24
+* Update constraints to limit int fields to 2**31-1 [PENG-1438]
+* Change minimum Python version to 3.12 [ASP-4290]
+* Update Dockerfile to use image python:3.12-slim-bullseye [ASP-4290]
 * Updated linter and checker to use ruff [ASP-4293]
 * Rename `backend` project to `lm-api` [ASP-4291]
 * Modernize the Dockerfile to use multi-stage builds [ASP-4292]
-
-## 3.0.13a1 -- 2024-01-05
-* Update constraints to limit int fields to 2**31-1
-
-## 3.0.13a0 -- 2023-12-21
-* Change minimum Python version to 3.12
-* Update Dockerfile to use image python:3.12-slim-bullseye
 
 ## 3.0.12 -- 2023-12-15
 * Fix bug in Feature read method that was returning None for the booked_total field
