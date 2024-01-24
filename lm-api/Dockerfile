@@ -1,34 +1,25 @@
-FROM ubuntu AS builder
-ENV PYTHONUNBUFFERED 1
+FROM python:3.12-slim-bullseye as builder
 
 WORKDIR /app
 
-RUN apt update \
-    && apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
-       libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev libpq-dev -y \
-    && wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz \
-    && tar -xf Python-3.12.0.tgz \
-    && cd Python-3.12.*/ \
-    && ./configure --enable-optimizations \
-    && make \
-    && make altinstall
+RUN apt-get update && apt-get install -y curl libpq-dev gcc
+RUN pip install poetry==1.4.0
 
-ENV PATH="/opt/venv/bin:$PATH"
+COPY ./pyproject.toml ./poetry.lock /app
 
-COPY ./README.md ./pyproject.toml ./poetry.lock* /app/
-COPY ./lm_api /app/lm_api
+RUN poetry config virtualenvs.in-project true && poetry install --no-root
+RUN poetry install --no-root --no-dev && rm -rf "$POETRY_CACHE_DIR"
 
-RUN pip3.12 install .
 
-FROM ubuntu AS runner
+FROM python:3.12-slim-bullseye as runner
+
 WORKDIR /app
 
-COPY --from=builder /opt/venv /opt/venv
-COPY --from=builder /usr/local/bin/python3.12 /usr/local/bin/
+COPY --from=builder /app /app
 
-COPY ./lm_api /app/lm_api
+ENV PATH="/app/.venv/bin:$PATH"
+
 COPY ./alembic /app/alembic
-
-ENV PATH="/opt/venv/bin:$PATH"
+COPY ./lm_api /app/lm_api
 
 CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
