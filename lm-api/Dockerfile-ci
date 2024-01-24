@@ -7,7 +7,7 @@ RUN pip install poetry==1.4.0
 
 COPY ./pyproject.toml ./poetry.lock /app/
 
-RUN poetry install --no-root
+RUN poetry install --no-root && rm -rf "$POETRY_CACHE_DIR"
 
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
