@@ -11,7 +11,7 @@ packages = [{ include = "lm_agent" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-httpx = "^0.18.2"
+httpx = ">=0.18.2,<0.24.0"
 PyJWT = "^2.4.0"
 pydantic = {version = "^1.8.2", extras = ["dotenv"]}
 requests = "^2.26.0"
