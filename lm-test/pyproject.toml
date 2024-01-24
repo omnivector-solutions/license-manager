@@ -12,7 +12,7 @@ packages = [{include = "lm_test"}]
 python = "^3.11"
 license-manager-cli = {path = "../lm-cli"}
 py-buzz = "^3.2.1"
-httpx = "^0.22.0"
+httpx = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
