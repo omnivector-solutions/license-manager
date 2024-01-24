@@ -5,6 +5,7 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 * Updated linter and checker to use ruff [ASP-4293]
 * Rename `backend` project to `lm-api` [ASP-4291]
+* Modernize the Dockerfile to use multi-stage builds [ASP-4292]
 
 ## 3.0.13a1 -- 2024-01-05
 * Update constraints to limit int fields to 2**31-1

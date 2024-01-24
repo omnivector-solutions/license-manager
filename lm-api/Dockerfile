@@ -1,18 +1,24 @@
-FROM python:3.12-slim-bullseye
+FROM python:3.12-slim-bullseye as builder
 
 WORKDIR /app
 
 RUN apt update && apt install -y curl libpq-dev gcc
+RUN pip install poetry==1.4.0
 
-RUN curl -sSL https://install.python-poetry.org | \
-    POETRY_HOME=/opt/poetry POETRY_VERSION=1.4.0 python && \
-    cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
+COPY ./pyproject.toml ./poetry.lock /app
 
-COPY ./pyproject.toml ./poetry.lock* /app/
+RUN poetry config virtualenvs.in-project true \
+    && poetry install --no-root --no-dev \
+    && rm -rf "$POETRY_CACHE_DIR"
 
-RUN poetry install --no-root --no-dev
+
+FROM python:3.12-slim-bullseye as runner
+
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
