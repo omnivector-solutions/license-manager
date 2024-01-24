@@ -2,7 +2,7 @@ FROM python:3.12-slim-bullseye as builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl libpq-dev gcc
+RUN apt update && apt install -y curl libpq-dev gcc
 RUN pip install poetry==1.4.0
 
 COPY ./pyproject.toml ./poetry.lock /app
