@@ -1,14 +1,14 @@
 # License Manager Agent Changelog
 
-This file keeps track of all notable changes to `license-manager-agent`.
+This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+## 3.1.0 -- 2024-01-24
 * Updated linter and checker to use ruff [ASP-4293]
 * Change minimum Python version to 3.12 [ASP-4294]
 * Rename `agent` project to `lm-agent`
 
-## 3.0.13a1 -- 2024-01-05
-## 3.0.13a0 -- 2023-12-21
 ## 3.0.12 -- 2023-12-15
 * Update reservation calculation to remove the reserved (limit) value [ASP-4349]
 
