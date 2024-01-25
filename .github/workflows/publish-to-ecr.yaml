@@ -39,7 +39,7 @@ jobs:
 
       - id: poetry-package-version
         name: Get version of project from poetry
-        working-directory: backend
+        working-directory: lm-api
         run: |
           echo "Poetry version is: $(poetry version --short)"
           echo "::set-output name=version::$(poetry version --short)"

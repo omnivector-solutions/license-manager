@@ -40,15 +40,15 @@ jobs:
 
       - id: agent-package
         name: Bump version on the agent
-        working-directory: agent
+        working-directory: lm-agent
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
           echo "Poetry version is: $(poetry version --short)"
           echo "::set-output name=version::$(poetry version --short)"
 
       - id: backend-package
-        name: Bump version on the backend
-        working-directory: backend
+        name: Bump version on the API
+        working-directory: lm-api
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
           echo "Poetry version is: $(poetry version --short)"

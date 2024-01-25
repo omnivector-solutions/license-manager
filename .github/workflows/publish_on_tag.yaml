@@ -19,7 +19,7 @@ jobs:
   build-publish:
     runs-on: ubuntu-latest
     strategy:
-      matrix: { sub_project: ['agent', 'backend', 'lm-cli']}
+      matrix: { sub_project: ['lm-agent', 'lm-api', 'lm-cli']}
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
