@@ -17,7 +17,7 @@ from lm_agent.backend_utils.models import (
     "output,reconciliation",
     [
         (
-            "lmstat_output",
+            "flexlm_output",
             [
                 {
                     "product_feature": "testproduct.testfeature",

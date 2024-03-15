@@ -3,29 +3,160 @@ Test the flexlm parser
 """
 from pytest import mark
 
-from lm_agent.parsing.flexlm import parse
+from lm_agent.parsing.flexlm import parse, parse_feature_line, parse_usage_line
+
+
+def test_parse_feature_line():
+    """
+    Does the regex for the feature line match the lines in the output?
+
+    The line contains:
+    - feature
+    - total
+    - used
+    """
+    assert parse_feature_line(
+        "Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 93 licenses in use)"
+    ) == {
+        "feature": "testfeature",
+        "total": 1000,
+        "used": 93,
+    }
+    assert parse_feature_line("not a feature line") is None
+    assert parse_feature_line("") is None
+
+
+def test_parse_usage_line():
+    """
+    Does the regex for the usage line match the line in the output?
+
+    The line contains:
+    - user name
+    - lead host
+    - booked
+    """
+    assert parse_usage_line(
+        "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses"
+    ) == {
+        "user_name": "user1",
+        "lead_host": "myserver.example.com",
+        "booked": 29,
+    }
+    assert parse_usage_line(
+        "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses"
+    ) == {
+        "user_name": "user2",
+        "lead_host": "another.server.com",
+        "booked": 100,
+    }
+    assert parse_usage_line(
+        "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses"
+    ) == {
+        "user_name": "user3",
+        "lead_host": "ER1234",
+        "booked": 5,
+    }
+    assert parse_usage_line(
+        "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25"
+    ) == {
+        "user_name": "user3",
+        "lead_host": "ER1234",
+        "booked": 1,
+    }
+    assert parse_usage_line("aaaaa") is None
 
 
 @mark.parametrize(
     "fixture,result",
     [
         (
-            "lmstat_output",
+            "flexlm_output",
             {
-                "total": {"feature": "testfeature", "total": 1000, "used": 93},
+                "feature": "testfeature",
+                "total": 1000,
+                "used": 93,
                 "uses": [
-                    {"booked": 29, "lead_host": "myserver.example.com", "user_name": "jbemfv"},
-                    {"booked": 27, "lead_host": "myserver.example.com", "user_name": "cdxfdn"},
-                    {"booked": 37, "lead_host": "myserver.example.com", "user_name": "jbemfv"},
+                    {"booked": 29, "lead_host": "myserver.example.com", "user_name": "sdmfva"},
+                    {"booked": 27, "lead_host": "myserver.example.com", "user_name": "adfdna"},
+                    {"booked": 37, "lead_host": "myserver.example.com", "user_name": "sdmfva"},
                 ],
             },
         ),
-        ("lmstat_output_bad", {"total": None, "uses": []}),
+        (
+            "flexlm_output_2",
+            {
+                "feature": "test_feature",
+                "total": 42800,
+                "used": 1600,
+                "uses": [
+                    {"booked": 100, "lead_host": "p-c94.com", "user_name": "usbn12"},
+                    {"booked": 1400, "lead_host": "p-c94.com", "user_name": "usbn12"},
+                    {"booked": 100, "lead_host": "p-c94.com", "user_name": "usbn12"},
+                ],
+            },
+        ),
+        (
+            "flexlm_output_3",
+            {
+                "feature": "ccmppower",
+                "total": 40,
+                "used": 3,
+                "uses": [
+                    {"booked": 1, "lead_host": "dcv033.com", "user_name": "1nou7p"},
+                    {"booked": 1, "lead_host": "n-c41.com", "user_name": "1nou7p"},
+                    {"booked": 1, "lead_host": "nid001234", "user_name": "1nou7p"},
+                ],
+            },
+        ),
+        (
+            "flexlm_output_4",
+            {
+                "feature": "mscone",
+                "total": 750,
+                "used": 18,
+                "uses": [
+                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
+                ],
+            },
+        ),
     ],
 )
-def test_parse(request, fixture, result):
+def test_parse__correct_output(request, fixture, result):
     """
-    Can we parse good and bad output?
+    Does the parser return the correct data for this output?
+
+    - flexlm_output: expected output from the license server,
+    which contain licenses and usage information.
     """
-    text = request.getfixturevalue(fixture)
-    assert parse(text) == result
+    output = request.getfixturevalue(fixture)
+    assert parse(output) == result
+
+
+def test_parse__bad_output(flexlm_output_bad):
+    """
+    Does the parser return the correct data for this output?
+
+    - flexlm_output_bad: unparseable output from the license server,
+    which can happen when a connection error occours.
+    """
+    assert parse(flexlm_output_bad) == {}
+
+
+def test_parse__not_licenses_output(flexlm_output_no_licenses):
+    """
+    Does the parser return the correct data for this output?
+
+    - flexlm_output_no_licenses: expected output from the license server,
+    when none of the licenses are in use by users.
+    """
+    assert parse(flexlm_output_no_licenses) == {
+        "feature": "testfeature",
+        "total": 1000,
+        "used": 0,
+        "uses": [],
+    }
