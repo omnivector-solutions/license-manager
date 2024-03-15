@@ -18,7 +18,7 @@ FEATURE_LINE = (
     rf"\s+(?P<expiration_date>{EXPIRATION_DATE});"
 )
 
-IN_USE_LINE = rf"^\s+(?P<in_use>{INT})\s+FloatsLockedBy:$"
+IN_USE_LINE = rf"^\s+(?P<in_use>{INT})\s+FloatsLockedBy"
 
 USAGE_LINE = rf"^\s+(?P<user>\S+)@(?P<lead_host>{HOSTNAME})\s+#(?P<booked>{INT})$"
 

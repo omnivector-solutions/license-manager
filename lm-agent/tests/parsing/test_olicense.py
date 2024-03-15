@@ -35,8 +35,10 @@ def test_parse_in_use_line():
     - in_use
     """
     assert parse_in_use_line("    2 FloatsLockedBy:") == 2
+    assert parse_in_use_line("    1 FloatsLockedBy 'unknown clients'") == 1
     assert parse_in_use_line("not a in use license") is None
     assert parse_in_use_line("") is None
+
 
 
 def test_parse_usage_line():
