@@ -2,6 +2,8 @@
 Test the LM-X parser
 """
 
+from pytest import mark
+
 from lm_agent.parsing.lmx import parse, parse_feature_line, parse_in_use_line, parse_usage_line
 
 
@@ -64,45 +66,78 @@ def test_parse_usage_line():
         "lead_host": "p-g2.maas.rnd.com",
         "booked": 15000,
     }
+    assert parse_usage_line("1 license(s) used by mbrzy5@dcv046.com_ver2023 [10.123.321.20]") == {
+        "user_name": "mbrzy5",
+        "lead_host": "dcv046.com",
+        "booked": 1,
+    }
+    assert parse_usage_line("1 license(s) used by k12dca@ms0904_ver5.4.1 [10.123.321.156]") == {
+        "user_name": "k12dca",
+        "lead_host": "ms0904",
+        "booked": 1,
+    }
     assert parse_usage_line("0 license(s) used by v-c54.aaa.aa") is None
     assert parse_usage_line("") is None
 
 
-def test_parse__correct_output(lmx_output):
+@mark.parametrize(
+    "fixture,result",
+    [
+        (
+            "lmx_output",
+            {
+                "catiav5reader": {"total": 3, "used": 0, "uses": []},
+                "globalzoneeu": {
+                    "total": 1000003,
+                    "used": 40000,
+                    "uses": [
+                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
+                    ],
+                },
+                "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
+                "hwawpf": {"total": 2147483647, "used": 0, "uses": []},
+                "hwactivate": {"total": 2147483647, "used": 0, "uses": []},
+                "hwflux2d": {
+                    "total": 2147483647,
+                    "used": 30000,
+                    "uses": [
+                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                    ],
+                },
+                "hyperworks": {
+                    "total": 1000000,
+                    "used": 25000,
+                    "uses": [
+                        {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+                    ],
+                },
+            }
+        ),
+        (
+            "lmx_output_2",
+            {
+                "femfat_visualizer": {
+                    "total": 2,
+                    "used": 2,
+                    "uses": [
+                        {"booked": 1, "lead_host": "dcv046.com", "user_name": "fdsva1"},
+                        {"booked": 1, "lead_host": "dcv048.com", "user_name": "asdsc1"},
+                    ],
+                },
+            }
+        ),
+    ],
+)
+def test_parse__correct_output(request, fixture, result):
     """
     Does the parser return the correct data for this output?
     - lmx_output: expected output from the license server,
     which contain licenses and usage information.
     """
-    assert parse(lmx_output) == {
-        "catiav5reader": {"total": 3, "used": 0, "uses": []},
-        "globalzoneeu": {
-            "total": 1000003,
-            "used": 40000,
-            "uses": [
-                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
-            ],
-        },
-        "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
-        "hwawpf": {"total": 2147483647, "used": 0, "uses": []},
-        "hwactivate": {"total": 2147483647, "used": 0, "uses": []},
-        "hwflux2d": {
-            "total": 2147483647,
-            "used": 30000,
-            "uses": [
-                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-            ],
-        },
-        "hyperworks": {
-            "total": 1000000,
-            "used": 25000,
-            "uses": [
-                {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
-            ],
-        },
-    }
+    output = request.getfixturevalue(fixture)
+    assert parse(output) == result
 
 
 def test_parse__bad_output(lmx_output_bad):

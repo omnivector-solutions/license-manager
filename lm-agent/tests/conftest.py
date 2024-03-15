@@ -1001,6 +1001,34 @@ def lmx_output():
         """
     )
 
+@fixture
+def lmx_output_2():
+    return dedent(
+        """
+        LM-X End-user Utility v3.32
+        Copyright (C) 2002-2010 X-Formation. All rights reserved.
+
+        ++++++++++++++++++++++++++++++++++++++++
+        LM-X License Server on 6300@licserv0003.scom:
+
+        Server version: v4.9.3 Uptime: 10 day(s) 16 hour(s) 54 min(s) 21 sec(s)
+        ----------------------------------------
+        Feature: FEMFAT_VISUALIZER Version: 2024.0 Vendor: abc
+        Start date: NONE Expire date: 2024-06-30
+        Key type: EXCLUSIVE License sharing: HOST USER VIRTUAL
+
+        2 of 2 license(s) used:
+
+        1 license(s) used by fdsva1@dcv046.com_ver2023 [10.123.321.20]
+            Login time: 2024-03-11 12:50   Checkout time: 2024-03-11 12:50 
+            Shared on username: fdsva1   Shared on hostname: dcv046.com_ver2023 
+
+        1 license(s) used by asdsc1@dcv048.com_ver2022a [10.123.321.10]
+            Login time: 2024-03-11 17:29   Checkout time: 2024-03-11 17:29 
+            Shared on username: asdsc1   Shared on hostname: dcv048.com_ver2022a 
+        """
+    )
+
 
 @fixture
 def lmx_output_no_licenses():
