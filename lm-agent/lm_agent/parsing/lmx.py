@@ -19,7 +19,7 @@ USAGE_LINE_1 = (
 USAGE_LINE_2 = (
     rf"^(?P<in_use>{INT}) license\(s\) "
     rf"used by (?P<user>\S+)@(?P<lead_host>{HOSTNAME})_\S+ "
-    rf"\[{INT}\.{INT}\.{INT}\.{INT}\]" 
+    rf"\[{INT}\.{INT}\.{INT}\.{INT}\]"
 )
 RX_FEATURE = re.compile(FEATURE_LINE)
 RX_IN_USE = re.compile(IN_USE_LINE)

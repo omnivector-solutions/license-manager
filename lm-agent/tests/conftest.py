@@ -1001,6 +1001,7 @@ def lmx_output():
         """
     )
 
+
 @fixture
 def lmx_output_2():
     return dedent(

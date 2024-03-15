@@ -2,7 +2,7 @@
 Parser for FlexLM
 """
 import re
-from typing import Optional
+from typing import Optional, Dict
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
@@ -120,7 +120,7 @@ RX_USAGE_LINE_5 = re.compile(USAGE_LINE_5)
 USAGE_LINES = [RX_USAGE_LINE_1, RX_USAGE_LINE_2, RX_USAGE_LINE_3, RX_USAGE_LINE_4, RX_USAGE_LINE_5]
 
 
-def parse_feature_line(line: str) -> Optional[str]:
+def parse_feature_line(line: str) -> Optional[Dict]:
     """
     Parse the feature line in the FlexLM output.
     Data we need:
@@ -140,7 +140,7 @@ def parse_feature_line(line: str) -> Optional[str]:
     }
 
 
-def parse_usage_line(line: str) -> Optional[dict]:
+def parse_usage_line(line: str) -> Optional[Dict]:
     """
     Parse the usage line in the FlexLM output.
     Data we need:
@@ -168,7 +168,7 @@ def parse_usage_line(line: str) -> Optional[dict]:
     }
 
 
-def parse(server_output: str) -> dict:
+def parse(server_output: str) -> Dict:
     """
     Parse the FlexLM Output, using regext to match the lines we need:
     - ``feature line``: info about the license

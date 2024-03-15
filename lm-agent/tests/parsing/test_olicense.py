@@ -40,7 +40,6 @@ def test_parse_in_use_line():
     assert parse_in_use_line("") is None
 
 
-
 def test_parse_usage_line():
     """
     Does the regex for the usage line match the line in the output?

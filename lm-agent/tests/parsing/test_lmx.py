@@ -113,7 +113,7 @@ def test_parse_usage_line():
                         {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
                     ],
                 },
-            }
+            },
         ),
         (
             "lmx_output_2",
@@ -126,7 +126,7 @@ def test_parse_usage_line():
                         {"booked": 1, "lead_host": "dcv048.com", "user_name": "asdsc1"},
                     ],
                 },
-            }
+            },
         ),
     ],
 )
