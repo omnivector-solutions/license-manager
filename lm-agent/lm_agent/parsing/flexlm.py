@@ -126,7 +126,7 @@ def parse_feature_line(line: str) -> Optional[Dict]:
     Data we need:
     - ``feature``: license name
     - ``total``: total amount of licenses
-    - ``used``: quantity of licenses being use
+    - ``used``: quantity of licenses being used
     """
     parsed_feature = RX_FEATURE.match(line)
     if parsed_feature is None:
@@ -152,8 +152,7 @@ def parse_usage_line(line: str) -> Optional[Dict]:
     """
 
     for RX in USAGE_LINES:
-        parsed_data = RX.match(line)
-        if parsed_data:
+        if parsed_data := RX.match(line):
             break
 
     if parsed_data is None:
