@@ -6,7 +6,28 @@ from pytest import mark
 from lm_agent.parsing.flexlm import parse, parse_feature_line, parse_usage_line
 
 
-def test_parse_feature_line():
+@mark.parametrize(
+    "line,result",
+    [
+        (
+            "Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 93 licenses in use)",
+            {
+                "feature": "testfeature",
+                "total": 1000,
+                "used": 93,
+            },
+        ),
+        (
+            "not a feature line",
+            None,
+        ),
+        (
+            "",
+            None,
+        ),
+    ],
+)
+def test_parse_feature_line(line, result):
     """
     Does the regex for the feature line match the lines in the output?
 
@@ -15,18 +36,48 @@ def test_parse_feature_line():
     - total
     - used
     """
-    assert parse_feature_line(
-        "Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 93 licenses in use)"
-    ) == {
-        "feature": "testfeature",
-        "total": 1000,
-        "used": 93,
-    }
-    assert parse_feature_line("not a feature line") is None
-    assert parse_feature_line("") is None
+    assert parse_feature_line(line) == result
 
 
-def test_parse_usage_line():
+@mark.parametrize(
+    "line,result",
+    [
+        (
+            "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses",
+            {
+                "user_name": "user1",
+                "lead_host": "myserver.example.com",
+                "booked": 29,
+            },
+        ),
+        (
+            "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses",
+            {
+                "user_name": "user2",
+                "lead_host": "another.server.com",
+                "booked": 100,
+            },
+        ),
+        (
+            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses",
+            {
+                "user_name": "user3",
+                "lead_host": "ER1234",
+                "booked": 5,
+            },
+        ),
+        (
+            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25",
+            {
+                "user_name": "user3",
+                "lead_host": "ER1234",
+                "booked": 1,
+            },
+        ),
+        ("aaaaa", None),
+    ],
+)
+def test_parse_usage_line(line, result):
     """
     Does the regex for the usage line match the line in the output?
 
@@ -35,35 +86,7 @@ def test_parse_usage_line():
     - lead host
     - booked
     """
-    assert parse_usage_line(
-        "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses"
-    ) == {
-        "user_name": "user1",
-        "lead_host": "myserver.example.com",
-        "booked": 29,
-    }
-    assert parse_usage_line(
-        "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses"
-    ) == {
-        "user_name": "user2",
-        "lead_host": "another.server.com",
-        "booked": 100,
-    }
-    assert parse_usage_line(
-        "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses"
-    ) == {
-        "user_name": "user3",
-        "lead_host": "ER1234",
-        "booked": 5,
-    }
-    assert parse_usage_line(
-        "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25"
-    ) == {
-        "user_name": "user3",
-        "lead_host": "ER1234",
-        "booked": 1,
-    }
-    assert parse_usage_line("aaaaa") is None
+    assert parse_usage_line(line) == result
 
 
 @mark.parametrize(
