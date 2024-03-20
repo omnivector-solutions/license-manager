@@ -35,26 +35,26 @@ def test_get_flexlm_commands_list(flexlm_server: FlexLMLicenseServer):
 async def test_flexlm_get_output_from_server(
     run_command_mock: mock.MagicMock,
     flexlm_server: FlexLMLicenseServer,
-    lmstat_output: str,
+    flexlm_output: str,
 ):
     """
     Do the license server interface return the output from the license server?
     """
-    run_command_mock.return_value = lmstat_output
+    run_command_mock.return_value = flexlm_output
 
     output = await flexlm_server.get_output_from_server("testproduct.testfeature")
-    assert output == lmstat_output
+    assert output == flexlm_output
 
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 async def test_flexlm_get_report_item(
-    get_output_from_server_mock: mock.MagicMock, flexlm_server: FlexLMLicenseServer, lmstat_output: str
+    get_output_from_server_mock: mock.MagicMock, flexlm_server: FlexLMLicenseServer, flexlm_output: str
 ):
     """
     Do the FlexLM server interface generate a report item for the product?
     """
-    get_output_from_server_mock.return_value = lmstat_output
+    get_output_from_server_mock.return_value = flexlm_output
 
     assert await flexlm_server.get_report_item("testproduct.testfeature") == LicenseReportItem(
         product_feature="testproduct.testfeature",
@@ -71,12 +71,12 @@ async def test_flexlm_get_report_item(
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 async def test_flexlm_get_report_item_with_bad_output(
-    get_output_from_server_mock: mock.MagicMock, flexlm_server: FlexLMLicenseServer, lmstat_output_bad: str
+    get_output_from_server_mock: mock.MagicMock, flexlm_server: FlexLMLicenseServer, flexlm_output_bad: str
 ):
     """
     Do the FlexLM server interface raise an exception when the server returns an unparseable output?
     """
-    get_output_from_server_mock.return_value = lmstat_output_bad
+    get_output_from_server_mock.return_value = flexlm_output_bad
 
     with raises(LicenseManagerBadServerOutput):
         await flexlm_server.get_report_item("testproduct.testfeature")
@@ -87,12 +87,12 @@ async def test_flexlm_get_report_item_with_bad_output(
 async def test_flexlm_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock,
     flexlm_server: FlexLMLicenseServer,
-    lmstat_output_no_licenses: str,
+    flexlm_output_no_licenses: str,
 ):
     """
     Do the FlexLM server interface generate a report item when no licenses are in use?
     """
-    get_output_from_server_mock.return_value = lmstat_output_no_licenses
+    get_output_from_server_mock.return_value = flexlm_output_no_licenses
 
     assert await flexlm_server.get_report_item("testproduct.testfeature") == LicenseReportItem(
         product_feature="testproduct.testfeature",

@@ -11,14 +11,21 @@ VERSION = rf"{INT}\.{INT}"
 
 FEATURE_LINE = rf"^Feature: (?P<feature>\w+) Version: (?P<version>{VERSION}) Vendor: (?P<vendor>\S+)$"
 IN_USE_LINE = rf"^(?P<in_use>{INT}) of (?P<total>{INT}) license\(s\) used(:)?$"
-USAGE_LINE = (
+USAGE_LINE_1 = (
     rf"^(?P<in_use>{INT}) license\(s\) "
     rf"used by (?P<user>\S+)@(?P<lead_host>{HOSTNAME}) "
     rf"\[{INT}\.{INT}\.{INT}\.{INT}\]"
 )
+USAGE_LINE_2 = (
+    rf"^(?P<in_use>{INT}) license\(s\) "
+    rf"used by (?P<user>\S+)@(?P<lead_host>{HOSTNAME})_\S+ "
+    rf"\[{INT}\.{INT}\.{INT}\.{INT}\]"
+)
 RX_FEATURE = re.compile(FEATURE_LINE)
 RX_IN_USE = re.compile(IN_USE_LINE)
-RX_USAGE = re.compile(USAGE_LINE)
+RX_USAGE_1 = re.compile(USAGE_LINE_1)
+RX_USAGE_2 = re.compile(USAGE_LINE_2)
+USAGE_LINES = [RX_USAGE_1, RX_USAGE_2]
 
 
 def parse_feature_line(line: str) -> Optional[str]:
@@ -68,7 +75,11 @@ def parse_usage_line(line: str) -> Optional[dict]:
     Obs: this line also doesn't incluse the license name.
     The license in use is the last one parsed before this line.
     """
-    parsed_usage = RX_USAGE.match(line)
+    for RX in USAGE_LINES:
+        parsed_usage = RX.match(line)
+        if parsed_usage:
+            break
+
     if parsed_usage is None:
         return None
     usage_data = parsed_usage.groupdict()

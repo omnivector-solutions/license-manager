@@ -485,7 +485,7 @@ def scontrol_show_lic_output_olicense():
 
 
 @fixture
-def lmstat_output_bad():
+def flexlm_output_bad():
     """Some unparseable lmstat output."""
     return dedent(
         """\
@@ -498,30 +498,80 @@ def lmstat_output_bad():
 
 
 @fixture
-def lmstat_output():
-    """Some lmstat output to parse."""
+def flexlm_output():
+    """Some FlexLM output to parse."""
     return dedent(
         """\
         lmstat - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
         ...
-
         Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 93 licenses in use)
-
         ...
-
-
+            sdmfva myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses
+            adfdna myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 27 licenses
+            sdmfva myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 37 licenses
         """
-        "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
-        "start Thu 10/29 8:09, 29 licenses\n"
-        "           cdxfdn myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
-        "start Thu 10/29 8:09, 27 licenses\n"
-        "           jbemfv myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), "
-        "start Thu 10/29 8:09, 37 licenses\n"
     )
 
 
 @fixture
-def lmstat_output_no_licenses():
+def flexlm_output_2():
+    """Some FlexLM output to parse."""
+    return dedent(
+        """\
+        lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+        ...
+        Users of TEST_FEATURE:  (Total of 42800 licenses issued;  Total of 1600 licenses in use)
+        ...
+            usbn12 p-c94.com /dev/tty feature=test_feature (v2023.0) (myserver.example.com/41020 10223), start Mon 3/11 13:16, 100 licenses
+            usbn12 p-c94.com /dev/tty feature=test_feature_2 (v2023.0) (myserver.example.com/41020 626), start Mon 3/11 13:16, 1400 licenses
+            usbn12 p-c94.com /dev/tty feature=test_feature_3 (v2023.0) (myserver.example.com/41020 10110), start Mon 3/11 13:16, 100 licenses
+        """
+    )
+
+
+@fixture
+def flexlm_output_3():
+    """Some FlexLM output to parse."""
+    return dedent(
+        """\
+        lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+        ...
+        Users of ccmppower:  (Total of 40 licenses issued;  Total of 3 licenses in use)
+        ...
+        "ccmppower" v2025.09, vendor: abc
+        floating license
+            1nou7p dcv033.com /dev/tty (v2023.06) (myserver.example.com/27012 3457), start Mon 3/11 12:17
+
+        "ccmppower" v2024.09, vendor: abc
+        floating license
+
+            1nou7p n-c41.com /dev/tty (v2023.06) (myserver.example.com/27012 2541), start Mon 3/11 22:36
+            1nou7p nid001234 /dev/tty (v2022.10) (myserver.example.com/27012 3331), start Sun 3/10 10:41
+        """
+    )
+
+
+@fixture
+def flexlm_output_4():
+    """Some FlexLM output to parse."""
+    return dedent(
+        """\
+        lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+        ...
+        Users of MSCONE:  (Total of 750 licenses issued;  Total of 18 licenses in use)
+        ...
+            ABCDKK ER0037 SESOR045 MSCONE:ADAMS_View (v2023.0331) (myserver.example.com/29065 2639), start Fri 3/8 13:25, 5 licenses
+            ABCDKK ER0037 SESOR045 MSCONE:ADAMS_Car_Plugin (v2023.0331) (myserver.example.com/29065 8195), start Fri 3/8 13:25
+            ABCDKK ER0037 SESOR045 MSCONE:ADAMS_View (v2023.0331) (myserver.example.com/29065 2474), start Fri 3/8 13:25, 5 licenses
+            ABCDKK ER0037 SESOR045 MSCONE:ADAMS_Car_Plugin (v2023.0331) (myserver.example.com/29065 4903), start Fri 3/8 13:25
+            ABCDKK ER0037 SESOR100 MSCONE:ADAMS_View (v2021.0630) (myserver.example.com/29065 11260), start Mon 3/11 10:49, 5 licenses
+            ABCDKK ER0037 SESOR100 MSCONE:ADAMS_Car_Plugin (v2021.0630) (myserver.example.com/29065 7727), start Mon 3/11 10:49
+        """
+    )
+
+
+@fixture
+def flexlm_output_no_licenses():
     """Some lmstat output with no licenses in use to parse."""
     return dedent(
         """\
@@ -948,6 +998,35 @@ def lmx_output():
         25000 license(s) used by sssaah@RD0082406 [138.106.154.220]
         Login time: 2022-02-18 09:26   Checkout time: 2022-02-18 09:26
         Shared on custom string: sssaah:RD0082406
+        """
+    )
+
+
+@fixture
+def lmx_output_2():
+    return dedent(
+        """
+        LM-X End-user Utility v3.32
+        Copyright (C) 2002-2010 X-Formation. All rights reserved.
+
+        ++++++++++++++++++++++++++++++++++++++++
+        LM-X License Server on 6300@licserv0003.scom:
+
+        Server version: v4.9.3 Uptime: 10 day(s) 16 hour(s) 54 min(s) 21 sec(s)
+        ----------------------------------------
+        Feature: FEMFAT_VISUALIZER Version: 2024.0 Vendor: abc
+        Start date: NONE Expire date: 2024-06-30
+        Key type: EXCLUSIVE License sharing: HOST USER VIRTUAL
+
+        2 of 2 license(s) used:
+
+        1 license(s) used by fdsva1@dcv046.com_ver2023 [10.123.321.20]
+            Login time: 2024-03-11 12:50   Checkout time: 2024-03-11 12:50 
+            Shared on username: fdsva1   Shared on hostname: dcv046.com_ver2023 
+
+        1 license(s) used by asdsc1@dcv048.com_ver2022a [10.123.321.10]
+            Login time: 2024-03-11 17:29   Checkout time: 2024-03-11 17:29 
+            Shared on username: asdsc1   Shared on hostname: dcv048.com_ver2022a 
         """
     )
 

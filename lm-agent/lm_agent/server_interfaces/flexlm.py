@@ -57,18 +57,15 @@ class FlexLMLicenseServer(LicenseServerInterface):
         parsed_output = self.parser(server_output)
 
         # raise exception if parser didn't output license information
-        if parsed_output.get("total") is None or any(
-            [
-                parsed_output.get("total", {}).get("used") is None,
-                parsed_output.get("total", {}).get("total") is None,
-            ]
+        if any(
+            [parsed_output is None, parsed_output.get("total") is None, parsed_output.get("used") is None]
         ):
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
             product_feature=product_feature,
-            used=parsed_output["total"]["used"],
-            total=parsed_output["total"]["total"],
+            used=parsed_output["used"],
+            total=parsed_output["total"],
         )
 
         return report_item
