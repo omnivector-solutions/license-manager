@@ -3,6 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+* Fix LS-Dyna parser to parse the queue value when it's represented as a dash instead of a zero
 
 ## 3.1.0 -- 2024-01-24
 * Updated linter and checker to use ruff [ASP-4293]
