@@ -10,15 +10,15 @@ NONWS = r"\S+"
 INT = r"\d+"
 PROGRAM = r"[A-Z0-9\-_]+"
 EXPIRATION_DATE = r"((0[1-9]|1[012])[\/](0[1-9]|[12][0-9]|3[01])[\/](19|20)\d\d)"
-CPUS_USED = r"[\d|-]"
+INT_OR_DASH = r"[\d|-]"
 
 PROGRAM_LINE = (
     rf"(?P<program>{PROGRAM})\s+"
     rf"(?P<expiration_date>{EXPIRATION_DATE})\s+"
-    rf"(?P<used>{CPUS_USED})\s+ "
+    rf"(?P<used>{INT_OR_DASH})\s+ "
     rf"(?P<free>{INT})\s+ "
     rf"(?P<max>{INT})\s+\|\s+"
-    rf"(?P<queue>{INT})"
+    rf"(?P<queue>{INT_OR_DASH})"
 )
 
 USAGE_LINE = (
