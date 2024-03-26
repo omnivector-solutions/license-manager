@@ -4,6 +4,8 @@ This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
 
+
+## 3.1.1 -- 2024-03-26
 ## 3.1.0 -- 2024-01-24
 * Update constraints to limit int fields to 2**31-1 [PENG-1438]
 * Change minimum Python version to 3.12 [ASP-4290]
