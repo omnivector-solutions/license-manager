@@ -33,6 +33,10 @@ def test_parse_program_line():
         "program": "ls-dyna_971",
         "total": 500,
     }
+    assert parse_program_line("MPPDYNA          06/30/2024          -     60   2420 |     -") == {
+        "program": "mppdyna",
+        "total": 2420,
+    }
     assert parse_program_line("not a program line") is None
     assert parse_program_line("MPPDYNA          12/30/2022          0") is None
     assert parse_program_line("") is None
