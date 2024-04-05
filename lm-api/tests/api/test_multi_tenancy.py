@@ -151,7 +151,7 @@ async def test_products_router_with_multi_tenancy(
     with tweak_settings(MULTI_TENANCY_ENABLED=True):
         async with get_synth_sessions() as (default_session, alt_session):
             inject_security_header(
-                "owner1@test.com", Permissions.PRODUCT_EDIT, organization_id=default_organization_id
+                "owner1@test.com", Permissions.PRODUCT_CREATE, organization_id=default_organization_id
             )
             default_response = await backend_client.post(
                 "/lm/products",
@@ -164,7 +164,7 @@ async def test_products_router_with_multi_tenancy(
             assert default_data["name"] == "default-product"
 
             inject_security_header(
-                "owner2@test.com", Permissions.PRODUCT_EDIT, organization_id=alt_organization_id
+                "owner2@test.com", Permissions.PRODUCT_CREATE, organization_id=alt_organization_id
             )
             alt_response = await backend_client.post(
                 "/lm/products",
