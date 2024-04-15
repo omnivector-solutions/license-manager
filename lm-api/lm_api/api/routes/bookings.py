@@ -21,7 +21,7 @@ crud_booking = BookingCRUD(Booking)
 )
 async def create_booking(
     booking: BookingCreateSchema = Body(..., description="Booking to be created"),
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_EDIT)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_CREATE)),
 ):
     """Create a new booking."""
     return await crud_booking.create(db_session=secure_session.session, obj=booking)
@@ -35,7 +35,7 @@ async def create_booking(
 async def read_all_bookings(
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW, commit=False)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_READ, commit=False)),
 ):
     """Return all bookings."""
     return await crud_booking.read_all(
@@ -52,7 +52,7 @@ async def read_all_bookings(
 )
 async def read_booking(
     booking_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_VIEW, commit=False)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_READ, commit=False)),
 ):
     """Return a booking with associated bookings with the given id."""
     return await crud_booking.read(db_session=secure_session.session, id=booking_id)
@@ -64,7 +64,7 @@ async def read_booking(
 )
 async def delete_booking(
     booking_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_EDIT)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.BOOKING_DELETE)),
 ):
     """Delete a booking from the database."""
     return await crud_booking.delete(db_session=secure_session.session, id=booking_id)

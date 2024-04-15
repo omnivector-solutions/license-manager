@@ -6,23 +6,32 @@ class Permissions(str, Enum):
     Describe the permissions that may be used for protecting LM Backend routes.
     """
 
-    LICENSE_SERVER_VIEW = "license-manager:license-server:view"
-    LICENSE_SERVER_EDIT = "license-manager:license-server:edit"
+    LICENSE_SERVER_CREATE = "license-manager:license-server:create"
+    LICENSE_SERVER_READ = "license-manager:license-server:read"
+    LICENSE_SERVER_UPDATE = "license-manager:license-server:update"
+    LICENSE_SERVER_DELETE = "license-manager:license-server:delete"
 
-    CLUSTER_VIEW = "license-manager:cluster:view"
-    CLUSTER_EDIT = "license-manager:cluster:edit"
+    CONFIG_CREATE = "license-manager:config:create"
+    CONFIG_READ = "license-manager:config:read"
+    CONFIG_UPDATE = "license-manager:config:update"
+    CONFIG_DELETE = "license-manager:config:delete"
 
-    CONFIG_VIEW = "license-manager:config:view"
-    CONFIG_EDIT = "license-manager:config:edit"
+    PRODUCT_CREATE = "license-manager:product:create"
+    PRODUCT_READ = "license-manager:product:read"
+    PRODUCT_UPDATE = "license-manager:product:update"
+    PRODUCT_DELETE = "license-manager:product:delete"
 
-    PRODUCT_VIEW = "license-manager:product:view"
-    PRODUCT_EDIT = "license-manager:product:edit"
+    FEATURE_CREATE = "license-manager:feature:create"
+    FEATURE_READ = "license-manager:feature:read"
+    FEATURE_UPDATE = "license-manager:feature:update"
+    FEATURE_DELETE = "license-manager:feature:delete"
 
-    FEATURE_VIEW = "license-manager:feature:view"
-    FEATURE_EDIT = "license-manager:feature:edit"
+    JOB_CREATE = "license-manager:job:create"
+    JOB_READ = "license-manager:job:read"
+    JOB_UPDATE = "license-manager:job:update"
+    JOB_DELETE = "license-manager:job:delete"
 
-    JOB_VIEW = "license-manager:job:view"
-    JOB_EDIT = "license-manager:job:edit"
-
-    BOOKING_VIEW = "license-manager:booking:view"
-    BOOKING_EDIT = "license-manager:booking:edit"
+    BOOKING_CREATE = "license-manager:booking:create"
+    BOOKING_READ = "license-manager:booking:read"
+    BOOKING_UPDATE = "license-manager:booking:update"
+    BOOKING_DELETE = "license-manager:booking:delete"
