@@ -11,11 +11,6 @@ class Permissions(str, Enum):
     LICENSE_SERVER_UPDATE = "license-manager:license-server:update"
     LICENSE_SERVER_DELETE = "license-manager:license-server:delete"
 
-    CLUSTER_CREATE = "license-manager:cluster:create"
-    CLUSTER_READ = "license-manager:cluster:read"
-    CLUSTER_UPDATE = "license-manager:cluster:update"
-    CLUSTER_DELETE = "license-manager:cluster:delete"
-
     CONFIG_CREATE = "license-manager:config:create"
     CONFIG_READ = "license-manager:config:read"
     CONFIG_UPDATE = "license-manager:config:update"
