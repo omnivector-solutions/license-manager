@@ -250,12 +250,15 @@ async def clean_jobs_and_bookings(
     license_report: List[LicenseReportItem],
 ):
     """
-    Clean the jobs that are no longer needed.
+    Clean the jobs and bookings that are no longer needed.
 
     The jobs can be deleted by:
     * Deleting the jobs that don't have any bookings.
     * Deleting the jobs that are no longer running.
     * Deleting the jobs that are running longer than the grace time.
+
+    The bookings can be deleted by:
+    * Deleting the bookings that have checked out their licenses from the license server.
     """
     logger.debug("##### Start cleaning jobs and bookings")
 

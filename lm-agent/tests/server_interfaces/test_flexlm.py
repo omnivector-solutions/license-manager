@@ -100,5 +100,5 @@ async def test_flexlm_get_report_item_with_no_used_licenses(
         product_feature="testproduct.testfeature",
         used=0,
         total=1000,
-        usess=[],
+        uses=[],
     )
