@@ -1,5 +1,6 @@
 """Module for license server interface abstract base class."""
 import abc
+from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field
 
@@ -38,7 +39,7 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
         """Return output from license server for the indicated features."""
 
     @abc.abstractclassmethod
-    def get_report_item(self, product_feature: str):
+    def get_report_item(self, feature_id: int, product_feature: str):
         """Parse license server output into a report item for the indicated feature."""
 
 
@@ -47,6 +48,8 @@ class LicenseReportItem(BaseModel):
     An item in a LicenseReport, a count of tokens for one product/feature.
     """
 
+    feature_id: int
     product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
     used: int
     total: int
+    uses: List[Dict[str, Union[int, str]]] = []
