@@ -55,17 +55,18 @@ async def test_lsdyna_get_report_item(
     """
     get_output_from_server_mock.return_value = lsdyna_output
 
-    assert await lsdyna_server.get_report_item("mppdyna.mppdyna") == LicenseReportItem(
+    assert await lsdyna_server.get_report_item(1, "mppdyna.mppdyna") == LicenseReportItem(
+        feature_id=1,
         product_feature="mppdyna.mppdyna",
         used=440,
         total=500,
-        used_licenses=[
-            {"user_name": "fane8y", "lead_host": "n-c13.maas.rnd.com", "booked": 80},
-            {"user_name": "ssskmj", "lead_host": "n-c52.maas.rnd.com", "booked": 80},
-            {"user_name": "ssskmj", "lead_host": "n-c15.maas.rnd.com", "booked": 80},
-            {"user_name": "ywazrn", "lead_host": "n-c53.maas.rnd.com", "booked": 80},
-            {"user_name": "ywazrn", "lead_host": "n-c51.maas.rnd.com", "booked": 80},
-            {"user_name": "ndhtw9", "lead_host": "n-c55.maas.rnd.com", "booked": 40},
+        uses=[
+            {"user_name": "dvds3g", "lead_host": "n-c13.com", "booked": 80},
+            {"user_name": "ssss1d", "lead_host": "n-c52.com", "booked": 80},
+            {"user_name": "ssss1d", "lead_host": "n-c15.com", "booked": 80},
+            {"user_name": "ywap0o", "lead_host": "n-c53.com", "booked": 80},
+            {"user_name": "ywap0o", "lead_host": "n-c51.com", "booked": 80},
+            {"user_name": "ndha1a", "lead_host": "n-c55.com", "booked": 40},
         ],
     )
 
@@ -81,7 +82,7 @@ async def test_lsdyna_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = lsdyna_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await lsdyna_server.get_report_item("mppdyna.mppdyna")
+        await lsdyna_server.get_report_item(1, "mppdyna.mppdyna")
 
 
 @mark.asyncio
@@ -96,7 +97,8 @@ async def test_lsdyna_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = lsdyna_output_no_licenses
 
-    assert await lsdyna_server.get_report_item("mppdyna.mppdyna") == LicenseReportItem(
+    assert await lsdyna_server.get_report_item(1, "mppdyna.mppdyna") == LicenseReportItem(
+        feature_id=1,
         product_feature="mppdyna.mppdyna",
         used=0,
         total=500,

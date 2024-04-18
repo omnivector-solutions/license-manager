@@ -50,7 +50,7 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         raise RuntimeError("None of the checks for FlexLM succeeded!")
 
-    async def get_report_item(self, product_feature: str):
+    async def get_report_item(self, feature_id: int, product_feature: str):
         """Override abstract method to parse FlexLM license server output into License Report Item."""
 
         server_output = await self.get_output_from_server(product_feature)
@@ -58,14 +58,21 @@ class FlexLMLicenseServer(LicenseServerInterface):
 
         # raise exception if parser didn't output license information
         if any(
-            [parsed_output is None, parsed_output.get("total") is None, parsed_output.get("used") is None]
+            [
+                parsed_output is None,
+                parsed_output.get("total") is None,
+                parsed_output.get("used") is None,
+                parsed_output.get("uses") is None,
+            ]
         ):
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
+            feature_id=feature_id,
             product_feature=product_feature,
             used=parsed_output["used"],
             total=parsed_output["total"],
+            uses=parsed_output["uses"],
         )
 
         return report_item

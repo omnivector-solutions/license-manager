@@ -48,7 +48,7 @@ class LSDynaLicenseServer(LicenseServerInterface):
 
         raise RuntimeError("None of the checks for LS-Dyna succeeded!")
 
-    async def get_report_item(self, product_feature: str):
+    async def get_report_item(self, feature_id: int, product_feature: str):
         """Override abstract method to parse LS-Dyna license server output into License Report Item."""
 
         server_output = await self.get_output_from_server()
@@ -63,9 +63,11 @@ class LSDynaLicenseServer(LicenseServerInterface):
             raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
 
         report_item = LicenseReportItem(
+            feature_id=feature_id,
             product_feature=product_feature,
             used=current_feature_item["used"],
             total=current_feature_item["total"],
+            uses=current_feature_item["uses"],
         )
 
         return report_item

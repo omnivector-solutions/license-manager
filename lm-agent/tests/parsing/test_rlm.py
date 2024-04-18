@@ -56,10 +56,10 @@ def test_parse_usage_line():
     - booked
     """
     assert parse_usage_line(
-        "converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)"
+        "converge_super v3.0: asdj13@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)"
     ) == {
         "license_feature": "converge_super",
-        "user_name": "jbemfv",
+        "user_name": "asdj13",
         "lead_host": "myserver.example.com",
         "booked": 29,
     }
@@ -93,17 +93,17 @@ def test_parse_usage_line():
                         {
                             "booked": 29,
                             "lead_host": "myserver.example.com",
-                            "user_name": "jbemfv",
+                            "user_name": "asdj13",
                         },
                         {
                             "booked": 27,
                             "lead_host": "myserver.example.com",
-                            "user_name": "cdxfdn",
+                            "user_name": "cddcp2",
                         },
                         {
                             "booked": 37,
                             "lead_host": "myserver.example.com",
-                            "user_name": "jbemfv",
+                            "user_name": "asdj13",
                         },
                     ],
                 },

@@ -54,11 +54,12 @@ async def test_olicense_get_report_item(
     """
     get_output_from_server_mock.return_value = olicense_output
 
-    assert await olicense_server.get_report_item("cosin.ftire_adams") == LicenseReportItem(
+    assert await olicense_server.get_report_item(1, "cosin.ftire_adams") == LicenseReportItem(
+        feature_id=1,
         product_feature="cosin.ftire_adams",
         used=3,
         total=4,
-        used_licenses=[
+        uses=[
             {"user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1},
             {"user_name": "sbhyma", "lead_host": "RD0087713", "booked": 1},
             {"user_name": "user22", "lead_host": "RD0087713", "booked": 1},
@@ -79,7 +80,7 @@ async def test_olicense_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = olicense_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await olicense_server.get_report_item("cosin.ftire_adams")
+        await olicense_server.get_report_item(1, "cosin.ftire_adams")
 
 
 @mark.asyncio
@@ -94,7 +95,8 @@ async def test_olicense_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = olicense_output_no_licenses
 
-    assert await olicense_server.get_report_item("cosin.ftire_adams") == LicenseReportItem(
+    assert await olicense_server.get_report_item(1, "cosin.ftire_adams") == LicenseReportItem(
+        feature_id=1,
         product_feature="cosin.ftire_adams",
         used=0,
         total=4,

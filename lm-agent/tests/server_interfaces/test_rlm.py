@@ -57,14 +57,15 @@ async def test_rlm_get_report_item(
     """
     get_output_from_server_mock.return_value = rlm_output
 
-    assert await rlm_server.get_report_item("converge.converge_super") == LicenseReportItem(
+    assert await rlm_server.get_report_item(1, "converge.converge_super") == LicenseReportItem(
+        feature_id=1,
         product_feature="converge.converge_super",
         used=93,
         total=1000,
-        used_licenses=[
-            {"booked": 29, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-            {"booked": 27, "user_name": "cdxfdn", "lead_host": "myserver.example.com"},
-            {"booked": 37, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
+        uses=[
+            {"user_name": "asdj13", "lead_host": "myserver.example.com", "booked": 29},
+            {"user_name": "cddcp2", "lead_host": "myserver.example.com", "booked": 27},
+            {"user_name": "asdj13", "lead_host": "myserver.example.com", "booked": 37},
         ],
     )
 
@@ -80,7 +81,7 @@ async def test_rlm_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = lsdyna_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await rlm_server.get_report_item("converge.converge_super")
+        await rlm_server.get_report_item(1, "converge.converge_super")
 
 
 @mark.asyncio
@@ -93,7 +94,8 @@ async def test_rlm_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = rlm_output_no_licenses
 
-    assert await rlm_server.get_report_item("converge.converge_super") == LicenseReportItem(
+    assert await rlm_server.get_report_item(1, "converge.converge_super") == LicenseReportItem(
+        feature_id=1,
         product_feature="converge.converge_super",
         used=0,
         total=1000,
