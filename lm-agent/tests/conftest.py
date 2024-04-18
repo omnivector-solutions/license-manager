@@ -19,6 +19,7 @@ from lm_agent.backend_utils.models import (
     ProductSchema,
 )
 from lm_agent.config import settings
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 
 MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
 
@@ -103,7 +104,7 @@ def parsed_jobs():
             username="user1",
             lead_host="host1",
             bookings=[
-                BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
+                BookingSchema(id=1, job_id=1, feature_id=1, quantity=100),
                 BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
             ],
         ),
@@ -114,8 +115,8 @@ def parsed_jobs():
             username="user2",
             lead_host="host2",
             bookings=[
-                BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
-                BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
+                BookingSchema(id=3, job_id=2, feature_id=1, quantity=15),
+                BookingSchema(id=4, job_id=2, feature_id=2, quantity=25),
             ],
         ),
         JobSchema(
@@ -125,11 +126,56 @@ def parsed_jobs():
             username="user3",
             lead_host="host3",
             bookings=[
-                BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
-                BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
+                BookingSchema(id=14, job_id=6, feature_id=1, quantity=5),
+                BookingSchema(id=15, job_id=6, feature_id=2, quantity=17),
             ],
         ),
     ]
+
+
+@fixture
+def one_parsed_job():
+    """One parsed job response example."""
+    return JobSchema(
+        id=1,
+        slurm_job_id="123",
+        cluster_client_id="dummy",
+        username="user1",
+        lead_host="host1",
+        bookings=[
+            BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
+            BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
+        ],
+    )
+
+
+@fixture
+def another_parsed_job():
+    """Another parsed job response example."""
+    return JobSchema(
+        id=2,
+        slurm_job_id="456",
+        cluster_client_id="dummy",
+        username="user2",
+        lead_host="host2",
+        bookings=[
+            BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
+            BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
+        ],
+    )
+
+
+@fixture
+def parsed_job_without_bookings():
+    """One parsed job response example without bookings."""
+    return JobSchema(
+        id=1,
+        slurm_job_id="789",
+        cluster_client_id="dummy",
+        username="user1",
+        lead_host="host1",
+        bookings=[],
+    )
 
 
 @fixture
@@ -295,6 +341,59 @@ def parsed_features():
             total=123,
             used=12,
             booked_total=50,
+        ),
+    ]
+
+
+@fixture
+def one_report_item():
+    """Report item from a feature."""
+    return LicenseReportItem(
+        feature_id=1,
+        product_feature="product.feature",
+        used=100,
+        total=1000,
+        uses=[
+            {"username": "user1", "lead_host": "host1", "booked": 100},
+        ],
+    )
+
+
+@fixture
+def another_report_item():
+    """Another report item from a feature."""
+    return LicenseReportItem(
+        feature_id=2,
+        product_feature="product2.feature2",
+        used=10,
+        total=100,
+        uses=[
+            {"username": "user2", "lead_host": "host2", "booked": 10},
+        ],
+    )
+
+
+@fixture
+def parsed_report_items():
+    """Some parsed report items."""
+    return [
+        LicenseReportItem(
+            feature_id=1,
+            product_feature="abaqus.abaqus",
+            used=100,
+            total=1000,
+            uses=[
+                {"username": "user1", "lead_host": "host1", "booked": 100},
+            ],
+        ),
+        LicenseReportItem(
+            feature_id=2,
+            product_feature="converge.converge_super",
+            used=10,
+            total=100,
+            uses=[
+                {"username": "user2", "lead_host": "host2", "booked": 10},
+            ],
         ),
     ]
 
@@ -675,9 +774,9 @@ def rlm_output():
 
             csci license usage status on licser.server.com (port 63133)
 
-            converge_super v3.0: jbemfv@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)
-            converge_super v3.0: cdxfdn@myserver.example.com 27/0 at 11/03 10:38  (handle: 128)
-            converge_super v3.0: jbemfv@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
+            converge_super v3.0: asdj13@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)
+            converge_super v3.0: cddcp2@myserver.example.com 27/0 at 11/03 10:38  (handle: 128)
+            converge_super v3.0: asdj13@myserver.example.com 37/0 at 11/01 09:01  (handle: 15a)
         """
     )
 
@@ -866,12 +965,12 @@ def lsdyna_output():
         PROGRAM          EXPIRATION CPUS  USED   FREE    MAX | QUEUE
         ---------------- ----------      ----- ------ ------ | -----
         MPPDYNA          12/30/2022          -     60    500 |     0
-         fane8y     59005@n-c13.maas.rnd.com  80
-         ssskmj     10274@n-c52.maas.rnd.com  80
-         ssskmj     47568@n-c15.maas.rnd.com  80
-         ywazrn    239793@n-c53.maas.rnd.com  80
-         ywazrn     91665@n-c51.maas.rnd.com  80
-         ndhtw9     91626@n-c55.maas.rnd.com  40
+         dvds3g     59005@n-c13.com  80
+         ssss1d     10274@n-c52.com  80
+         ssss1d     47568@n-c15.com  80
+         ywap0o    239793@n-c53.com  80
+         ywap0o     91665@n-c51.com  80
+         ndha1a     91626@n-c55.com  40
         MPPDYNA_971      12/30/2022          0     60    500 |     0
         MPPDYNA_970      12/30/2022          0     60    500 |     0
         MPPDYNA_960      12/30/2022          0     60    500 |     0
