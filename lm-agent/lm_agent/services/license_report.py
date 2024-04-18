@@ -76,8 +76,8 @@ async def report() -> typing.List[LicenseReportItem]:
     for entry in filtered_entries:
         product_features_to_check = []
         for feature in entry.features:
-            product_feature = f"{feature.product.name}.{feature.name}"
-            product_features_to_check.append(product_feature)
+            feature_info = (feature.id, f"{feature.product.name}.{feature.name}")
+            product_features_to_check.append(feature_info)
 
         logger.debug("### Features to check: ")
         logger.debug(product_features_to_check)
@@ -89,18 +89,30 @@ async def report() -> typing.List[LicenseReportItem]:
 
         license_server_interface = server_type(entry.license_servers)
 
-        for product_feature in product_features_to_check:
-            get_report_awaitables.append(license_server_interface.get_report_item(product_feature))
-            product_features_awaited.append(product_feature)
+        for feature_info_to_check in product_features_to_check:
+            feature_id, product_feature = feature_info_to_check
+
+            get_report_awaitables.append(
+                license_server_interface.get_report_item(feature_id, product_feature)
+            )
+            product_features_awaited.append(feature_info)
 
     results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
 
-    for result, product_feature in zip(results, product_features_awaited):
+    for result, feature_info in zip(results, product_features_awaited):
+        feature_id, product_feature = feature_info
+
         if isinstance(result, Exception):
             # If the report for a feature failed, the total will set to 0, preventing jobs from running
             logger.error(f"#### Report for feature {product_feature} failed with: {str(result)} ####")
 
-            failed_report_item = LicenseReportItem(product_feature=product_feature, used=0, total=0)
+            failed_report_item = LicenseReportItem(
+                feature_id=feature_id,
+                product_feature=product_feature,
+                used=0,
+                total=0,
+                uses=[],
+            )
             report_items.append(failed_report_item)
             continue
         report_items.append(result)

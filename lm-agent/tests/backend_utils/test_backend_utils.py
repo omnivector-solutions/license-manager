@@ -26,9 +26,7 @@ from lm_agent.backend_utils.utils import (
     acquire_token,
     check_backend_health,
     get_all_features_bookings_sum,
-    get_bookings_for_all_jobs,
     get_cluster_configs_from_backend,
-    get_cluster_grace_times,
     get_cluster_jobs_from_backend,
     make_booking_request,
     make_feature_update,
@@ -310,17 +308,6 @@ async def test__get_cluster_configs_from_backend(configurations, respx_mock):
 
 
 @pytest.mark.asyncio
-@mock.patch("lm_agent.backend_utils.utils.get_cluster_configs_from_backend")
-async def test__get_cluster_grace_times(get_cluster_configs_mock, parsed_configurations):
-    """Test that get_cluster_grace_times generates a dict with the grace time for each feature_id."""
-    get_cluster_configs_mock.return_value = parsed_configurations
-    expected_grace_times = {1: 60, 2: 123}
-
-    grace_times = await get_cluster_grace_times()
-    assert grace_times == expected_grace_times
-
-
-@pytest.mark.asyncio
 @mock.patch("lm_agent.backend_utils.utils.get_all_features_from_backend")
 async def test__get_all_features_bookings_sum(get_all_features_mock, parsed_features):
     """
@@ -477,30 +464,3 @@ async def test__remove_job_by_slurm_job_id__raises_exception_on_non_two_hundred(
 
     with pytest.raises(LicenseManagerBackendConnectionError):
         await remove_job_by_slurm_job_id(slurm_job_id)
-
-
-@pytest.mark.asyncio
-@pytest.mark.respx(base_url="http://backend")
-async def test__get_bookings_for_all_jobs__success(jobs, respx_mock):
-    """
-    Test that get_bookings_for_all_jobs returns the a dict with the
-    slurm_job_id as key and the bookings as value.
-    """
-    respx_mock.get("/lm/jobs/by_client_id").mock(return_value=Response(status_code=200, json=jobs))
-
-    all_bookings = await get_bookings_for_all_jobs()
-
-    assert all_bookings == {
-        "123": [
-            BookingSchema(id=1, job_id=1, feature_id=1, quantity=12),
-            BookingSchema(id=2, job_id=1, feature_id=2, quantity=50),
-        ],
-        "456": [
-            BookingSchema(id=3, job_id=2, feature_id=4, quantity=15),
-            BookingSchema(id=4, job_id=2, feature_id=7, quantity=25),
-        ],
-        "789": [
-            BookingSchema(id=14, job_id=6, feature_id=4, quantity=5),
-            BookingSchema(id=15, job_id=6, feature_id=7, quantity=17),
-        ],
-    }
