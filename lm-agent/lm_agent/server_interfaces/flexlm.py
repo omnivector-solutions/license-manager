@@ -7,6 +7,7 @@ from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import flexlm
 from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
 from lm_agent.utils import run_command
+from buzz import check_expressions
 
 
 class FlexLMLicenseServer(LicenseServerInterface):
@@ -57,15 +58,13 @@ class FlexLMLicenseServer(LicenseServerInterface):
         parsed_output = self.parser(server_output)
 
         # raise exception if parser didn't output license information
-        if any(
-            [
-                parsed_output is None,
-                parsed_output.get("total") is None,
-                parsed_output.get("used") is None,
-                parsed_output.get("uses") is None,
-            ]
-        ):
-            raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
+        with check_expressions(
+            "Invalid data returned from parser.", raise_exc_class=LicenseManagerBadServerOutput
+        ) as check:
+            check(parsed_output is not None)
+            check(parsed_output.get("total") is not None)
+            check(parsed_output.get("used") is not None)
+            check(parsed_output.get("uses") is not None)
 
         report_item = LicenseReportItem(
             feature_id=feature_id,
