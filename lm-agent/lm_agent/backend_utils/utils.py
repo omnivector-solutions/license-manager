@@ -8,7 +8,6 @@ import httpx
 import jwt
 
 from lm_agent.backend_utils.models import (
-    BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
     JobSchema,
@@ -177,21 +176,6 @@ async def get_cluster_configs_from_backend() -> List[ConfigurationSchema]:
     return configurations
 
 
-async def get_cluster_grace_times() -> Dict[int, int]:
-    """
-    Get the grace time for each feature_id in the cluster.
-    """
-    cluster_configurations = await get_cluster_configs_from_backend()
-
-    grace_times = {
-        feature.id: configuration.grace_time
-        for configuration in cluster_configurations
-        for feature in configuration.features
-    }
-
-    return grace_times
-
-
 async def make_feature_update(features_to_update: List[Dict]):
     """
     Update the feature with its current counters.
@@ -239,15 +223,18 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
     logger.debug("##### Job removed successfully #####")
 
 
-async def get_bookings_for_all_jobs() -> Dict[str, List[BookingSchema]]:
+async def remove_booking(booking_id: int):
     """
-    Return the bookings for all jobs in the cluster.
+    Remove the booking with the given id.
     """
-    jobs = await get_cluster_jobs_from_backend()
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.delete(f"lm/bookings/{booking_id}")
 
-    bookings_for_all_jobs = {job.slurm_job_id: job.bookings for job in jobs}
+    LicenseManagerBackendConnectionError.require_condition(
+        resp.status_code == 200, f"Failed to remove booking: {resp.text}"
+    )
 
-    return bookings_for_all_jobs
+    logger.debug(f"##### Booking {booking_id} removed successfully")
 
 
 async def get_all_features_from_backend() -> List[FeatureSchema]:

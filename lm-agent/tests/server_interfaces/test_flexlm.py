@@ -56,14 +56,15 @@ async def test_flexlm_get_report_item(
     """
     get_output_from_server_mock.return_value = flexlm_output
 
-    assert await flexlm_server.get_report_item("testproduct.testfeature") == LicenseReportItem(
+    assert await flexlm_server.get_report_item(1, "testproduct.testfeature") == LicenseReportItem(
+        feature_id=1,
         product_feature="testproduct.testfeature",
         used=93,
         total=1000,
-        used_licenses=[
-            {"booked": 29, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
-            {"booked": 27, "user_name": "cdxfdn", "lead_host": "myserver.example.com"},
-            {"booked": 37, "user_name": "jbemfv", "lead_host": "myserver.example.com"},
+        uses=[
+            {"user_name": "sdmfva", "lead_host": "myserver.example.com", "booked": 29},
+            {"user_name": "adfdna", "lead_host": "myserver.example.com", "booked": 27},
+            {"user_name": "sdmfva", "lead_host": "myserver.example.com", "booked": 37},
         ],
     )
 
@@ -79,7 +80,7 @@ async def test_flexlm_get_report_item_with_bad_output(
     get_output_from_server_mock.return_value = flexlm_output_bad
 
     with raises(LicenseManagerBadServerOutput):
-        await flexlm_server.get_report_item("testproduct.testfeature")
+        await flexlm_server.get_report_item(1, "testproduct.testfeature")
 
 
 @mark.asyncio
@@ -94,9 +95,10 @@ async def test_flexlm_get_report_item_with_no_used_licenses(
     """
     get_output_from_server_mock.return_value = flexlm_output_no_licenses
 
-    assert await flexlm_server.get_report_item("testproduct.testfeature") == LicenseReportItem(
+    assert await flexlm_server.get_report_item(1, "testproduct.testfeature") == LicenseReportItem(
+        feature_id=1,
         product_feature="testproduct.testfeature",
         used=0,
         total=1000,
-        used_licenses=[],
+        uses=[],
     )

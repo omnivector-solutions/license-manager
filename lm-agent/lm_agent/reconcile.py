@@ -8,7 +8,7 @@ import sentry_sdk
 from lm_agent.backend_utils.utils import check_backend_health
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
-from lm_agent.reconciliation import reconcile
+from lm_agent.services.reconciliation import reconcile
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(

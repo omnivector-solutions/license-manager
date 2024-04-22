@@ -2,7 +2,7 @@
 Parser for FlexLM
 """
 import re
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"

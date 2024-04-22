@@ -2,7 +2,6 @@ from unittest import mock
 
 from pytest import mark
 
-from lm_agent import license_report
 from lm_agent.backend_utils.models import (
     ConfigurationSchema,
     FeatureSchema,
@@ -10,6 +9,8 @@ from lm_agent.backend_utils.models import (
     LicenseServerType,
     ProductSchema,
 )
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
+from lm_agent.services import license_report
 
 
 @mark.asyncio
@@ -20,9 +21,15 @@ from lm_agent.backend_utils.models import (
             "flexlm_output",
             [
                 {
+                    "feature_id": 1,
                     "product_feature": "testproduct.testfeature",
                     "used": 93,
                     "total": 1000,
+                    "uses": [
+                        {"booked": 29, "user_name": "sdmfva", "lead_host": "myserver.example.com"},
+                        {"booked": 27, "user_name": "adfdna", "lead_host": "myserver.example.com"},
+                        {"booked": 37, "user_name": "sdmfva", "lead_host": "myserver.example.com"},
+                    ],
                 },
             ],
         ),
@@ -30,7 +37,7 @@ from lm_agent.backend_utils.models import (
 )
 @mock.patch("lm_agent.server_interfaces.flexlm.FlexLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_flexlm_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -62,9 +69,15 @@ async def test_flexlm_get_report(
             "rlm_output",
             [
                 {
+                    "feature_id": 1,
                     "product_feature": "converge.converge_super",
                     "used": 93,
                     "total": 1000,
+                    "uses": [
+                        {"booked": 29, "user_name": "asdj13", "lead_host": "myserver.example.com"},
+                        {"booked": 27, "user_name": "cddcp2", "lead_host": "myserver.example.com"},
+                        {"booked": 37, "user_name": "asdj13", "lead_host": "myserver.example.com"},
+                    ],
                 },
             ],
         ),
@@ -72,9 +85,11 @@ async def test_flexlm_get_report(
             "rlm_output_no_licenses",
             [
                 {
+                    "feature_id": 1,
                     "product_feature": "converge.converge_super",
                     "used": 0,
                     "total": 1000,
+                    "uses": [],
                 },
             ],
         ),
@@ -82,7 +97,7 @@ async def test_flexlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.rlm.RLMLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_rlm_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -114,9 +129,18 @@ async def test_rlm_get_report(
             "lsdyna_output",
             [
                 {
+                    "feature_id": 1,
                     "product_feature": "mppdyna.mppdyna",
                     "used": 440,
                     "total": 500,
+                    "uses": [
+                        {"booked": 80, "user_name": "dvds3g", "lead_host": "n-c13.com"},
+                        {"booked": 80, "user_name": "ssss1d", "lead_host": "n-c52.com"},
+                        {"booked": 80, "user_name": "ssss1d", "lead_host": "n-c15.com"},
+                        {"booked": 80, "user_name": "ywap0o", "lead_host": "n-c53.com"},
+                        {"booked": 80, "user_name": "ywap0o", "lead_host": "n-c51.com"},
+                        {"booked": 40, "user_name": "ndha1a", "lead_host": "n-c55.com"},
+                    ],
                 },
             ],
         ),
@@ -124,9 +148,11 @@ async def test_rlm_get_report(
             "lsdyna_output_no_licenses",
             [
                 {
+                    "feature_id": 1,
                     "product_feature": "mppdyna.mppdyna",
                     "used": 0,
                     "total": 500,
+                    "uses": [],
                 },
             ],
         ),
@@ -134,7 +160,7 @@ async def test_rlm_get_report(
 )
 @mock.patch("lm_agent.server_interfaces.lsdyna.LSDynaLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_lsdyna_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -165,28 +191,38 @@ async def test_lsdyna_get_report(
         (
             "lmx_output",
             [
-                {
-                    "product_feature": "hyperworks.hyperworks",
-                    "used": 25000,
-                    "total": 1000000,
-                }
+                LicenseReportItem(
+                    feature_id=1,
+                    product_feature="hyperworks.hyperworks",
+                    used=25000,
+                    total=1000000,
+                    uses=[
+                        {
+                            "booked": 25000,
+                            "user_name": "sssaah",
+                            "lead_host": "RD0082406",
+                        }
+                    ],
+                ),
             ],
         ),
         (
             "lmx_output_no_licenses",
             [
-                {
-                    "product_feature": "hyperworks.hyperworks",
-                    "used": 0,
-                    "total": 1000000,
-                },
+                LicenseReportItem(
+                    feature_id=1,
+                    product_feature="hyperworks.hyperworks",
+                    used=0,
+                    total=1000000,
+                    uses=[],
+                ),
             ],
         ),
     ],
 )
 @mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_lmx_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -217,28 +253,36 @@ async def test_lmx_get_report(
         (
             "olicense_output",
             [
-                {
-                    "product_feature": "cosin.ftire_adams",
-                    "used": 3,
-                    "total": 4,
-                },
+                LicenseReportItem(
+                    feature_id=1,
+                    product_feature="cosin.ftire_adams",
+                    used=3,
+                    total=4,
+                    uses=[
+                        {"user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1},
+                        {"user_name": "sbhyma", "lead_host": "RD0087713", "booked": 1},
+                        {"user_name": "user22", "lead_host": "RD0087713", "booked": 1},
+                    ],
+                ),
             ],
         ),
         (
             "olicense_output_no_licenses",
             [
-                {
-                    "product_feature": "cosin.ftire_adams",
-                    "used": 0,
-                    "total": 4,
-                },
+                LicenseReportItem(
+                    feature_id=1,
+                    product_feature="cosin.ftire_adams",
+                    used=0,
+                    total=4,
+                    uses=[],
+                ),
             ],
         ),
     ],
 )
 @mock.patch("lm_agent.server_interfaces.olicense.OLicenseLicenseServer.get_output_from_server")
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_olicense_get_report(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -257,14 +301,13 @@ async def test_olicense_get_report(
 
     output = request.getfixturevalue(output)
     get_output_from_server_mock.return_value = output
-
     reconcile_list = await license_report.report()
     assert reconcile_list == reconciliation
 
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_flexlm_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -282,7 +325,7 @@ async def test_flexlm_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_rlm_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -300,7 +343,7 @@ async def test_rlm_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_lsdyna_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -318,7 +361,7 @@ async def test_lsdyna_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_lmx_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -336,7 +379,7 @@ async def test_lmx_report_with_empty_backend(
 
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 async def test_olicense_report_with_empty_backend(
     get_configs_from_backend_mock: mock.MagicMock,
     show_lic_mock: mock.MagicMock,
@@ -410,9 +453,9 @@ def test_get_local_license_configurations():
 
 
 @mark.asyncio
-@mock.patch("lm_agent.license_report.get_cluster_configs_from_backend")
-@mock.patch("lm_agent.license_report.get_local_license_configurations")
-@mock.patch("lm_agent.license_report.RLMLicenseServer.get_report_item")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_local_license_configurations")
+@mock.patch("lm_agent.services.license_report.RLMLicenseServer.get_report_item")
 async def test_license_report_empty_on_exception_raised(
     get_report_item_mock: mock.MagicMock,
     get_local_license_configurations_mock: mock.MagicMock,
@@ -451,8 +494,10 @@ async def test_license_report_empty_on_exception_raised(
 
     assert await license_report.report() == [
         {
+            "feature_id": 1,
             "product_feature": "converge.converge_super",
             "used": 0,
             "total": 0,
+            "uses": [],
         }
     ]

@@ -52,19 +52,19 @@ def test_parse_usage_line():
     - used CPUs
     From these, we only need to extract ``user``, ``host``, ``used CPUs``.
     """
-    assert parse_usage_line(" ywazrn     91665@n-c51.maas.rnd.com  80") == {
-        "user_name": "ywazrn",
-        "lead_host": "n-c51.maas.rnd.com",
+    assert parse_usage_line(" ywap0o     91665@n-c51.com  80") == {
+        "user_name": "ywap0o",
+        "lead_host": "n-c51.com",
         "booked": 80,
     }
-    assert parse_usage_line(" ndhtw9     91665@n-c55.maas.rnd.com  40") == {
-        "user_name": "ndhtw9",
-        "lead_host": "n-c55.maas.rnd.com",
+    assert parse_usage_line(" ndha1a     91665@n-c55.com  40") == {
+        "user_name": "ndha1a",
+        "lead_host": "n-c55.com",
         "booked": 40,
     }
-    assert parse_usage_line(" ywazrn     not-a-host  80") is None
-    assert parse_usage_line(" ndhtw9     91665@n-c55.maas.rnd.com") is None
-    assert parse_usage_line("91665@n-c55.maas.rnd.com  20") is None
+    assert parse_usage_line(" ywap0o     not-a-host  80") is None
+    assert parse_usage_line(" ndha1a     91665@n-c55.com") is None
+    assert parse_usage_line("91665@n-c55.com  20") is None
     assert parse_usage_line("") is None
 
 
@@ -97,12 +97,12 @@ def test_parse__correct_output(lsdyna_output):
             "total": 500,
             "used": 440,
             "uses": [
-                {"user_name": "fane8y", "lead_host": "n-c13.maas.rnd.com", "booked": 80},
-                {"user_name": "ssskmj", "lead_host": "n-c52.maas.rnd.com", "booked": 80},
-                {"user_name": "ssskmj", "lead_host": "n-c15.maas.rnd.com", "booked": 80},
-                {"user_name": "ywazrn", "lead_host": "n-c53.maas.rnd.com", "booked": 80},
-                {"user_name": "ywazrn", "lead_host": "n-c51.maas.rnd.com", "booked": 80},
-                {"user_name": "ndhtw9", "lead_host": "n-c55.maas.rnd.com", "booked": 40},
+                {"user_name": "dvds3g", "lead_host": "n-c13.com", "booked": 80},
+                {"user_name": "ssss1d", "lead_host": "n-c52.com", "booked": 80},
+                {"user_name": "ssss1d", "lead_host": "n-c15.com", "booked": 80},
+                {"user_name": "ywap0o", "lead_host": "n-c53.com", "booked": 80},
+                {"user_name": "ywap0o", "lead_host": "n-c51.com", "booked": 80},
+                {"user_name": "ndha1a", "lead_host": "n-c55.com", "booked": 40},
             ],
         },
         "mppdyna_971": {"total": 500, "used": 440, "uses": []},
