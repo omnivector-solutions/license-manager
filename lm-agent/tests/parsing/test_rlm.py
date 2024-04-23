@@ -59,13 +59,13 @@ def test_parse_usage_line():
         "converge_super v3.0: asdj13@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)"
     ) == {
         "license_feature": "converge_super",
-        "user_name": "asdj13",
+        "username": "asdj13",
         "lead_host": "myserver.example.com",
         "booked": 29,
     }
     assert parse_usage_line("powercase v1.0: dfsdgv@server1 1/0 at 08/15 09:34  (handle: 182)") == {
         "license_feature": "powercase",
-        "user_name": "dfsdgv",
+        "username": "dfsdgv",
         "lead_host": "server1",
         "booked": 1,
     }
@@ -93,17 +93,17 @@ def test_parse_usage_line():
                         {
                             "booked": 29,
                             "lead_host": "myserver.example.com",
-                            "user_name": "asdj13",
+                            "username": "asdj13",
                         },
                         {
                             "booked": 27,
                             "lead_host": "myserver.example.com",
-                            "user_name": "cddcp2",
+                            "username": "cddcp2",
                         },
                         {
                             "booked": 37,
                             "lead_host": "myserver.example.com",
-                            "user_name": "asdj13",
+                            "username": "asdj13",
                         },
                     ],
                 },
@@ -117,9 +117,9 @@ def test_parse_usage_line():
                     "used": 3,
                     "total": 5,
                     "uses": [
-                        {"user_name": "dfsdgv", "lead_host": "server1", "booked": 1},
-                        {"user_name": "addvbh", "lead_host": "server2", "booked": 1},
-                        {"user_name": "wrtgb3", "lead_host": "server3", "booked": 1},
+                        {"username": "dfsdgv", "lead_host": "server1", "booked": 1},
+                        {"username": "addvbh", "lead_host": "server2", "booked": 1},
+                        {"username": "wrtgb3", "lead_host": "server3", "booked": 1},
                     ],
                 },
                 "powerexport": {"used": 0, "total": 5, "uses": []},
@@ -135,7 +135,7 @@ def test_parse_usage_line():
                 "powerdelta": {
                     "used": 1,
                     "total": 1,
-                    "uses": [{"user_name": "ghnds2", "lead_host": "server4", "booked": 1}],
+                    "uses": [{"username": "ghnds2", "lead_host": "server4", "booked": 1}],
                 },
                 "powerdelta-meshunion": {"used": 0, "total": 1, "uses": []},
                 "powerdelta-translate2": {"used": 0, "total": 1000000, "uses": []},

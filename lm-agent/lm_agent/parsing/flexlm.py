@@ -144,7 +144,7 @@ def parse_usage_line(line: str) -> Optional[Dict]:
     """
     Parse the usage line in the FlexLM output.
     Data we need:
-    - ``user_name``: user who booked the license
+    - ``username``: user who booked the license
     - ``lead_host``: host using the license
     - ``booked``: quantity of licenses being used
 
@@ -161,7 +161,7 @@ def parse_usage_line(line: str) -> Optional[Dict]:
     data = parsed_data.groupdict()
 
     return {
-        "user_name": data["user"].lower(),
+        "username": data["user"].lower(),
         "lead_host": data["user_host"],
         "booked": int(data.get("tokens", 1)),
     }

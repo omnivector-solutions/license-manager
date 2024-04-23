@@ -45,7 +45,7 @@ def test_parse_feature_line(line, result):
         (
             "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses",
             {
-                "user_name": "user1",
+                "username": "user1",
                 "lead_host": "myserver.example.com",
                 "booked": 29,
             },
@@ -53,7 +53,7 @@ def test_parse_feature_line(line, result):
         (
             "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses",
             {
-                "user_name": "user2",
+                "username": "user2",
                 "lead_host": "another.server.com",
                 "booked": 100,
             },
@@ -61,7 +61,7 @@ def test_parse_feature_line(line, result):
         (
             "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses",
             {
-                "user_name": "user3",
+                "username": "user3",
                 "lead_host": "ER1234",
                 "booked": 5,
             },
@@ -69,7 +69,7 @@ def test_parse_feature_line(line, result):
         (
             "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25",
             {
-                "user_name": "user3",
+                "username": "user3",
                 "lead_host": "ER1234",
                 "booked": 1,
             },
@@ -99,9 +99,9 @@ def test_parse_usage_line(line, result):
                 "total": 1000,
                 "used": 93,
                 "uses": [
-                    {"booked": 29, "lead_host": "myserver.example.com", "user_name": "sdmfva"},
-                    {"booked": 27, "lead_host": "myserver.example.com", "user_name": "adfdna"},
-                    {"booked": 37, "lead_host": "myserver.example.com", "user_name": "sdmfva"},
+                    {"booked": 29, "lead_host": "myserver.example.com", "username": "sdmfva"},
+                    {"booked": 27, "lead_host": "myserver.example.com", "username": "adfdna"},
+                    {"booked": 37, "lead_host": "myserver.example.com", "username": "sdmfva"},
                 ],
             },
         ),
@@ -112,9 +112,9 @@ def test_parse_usage_line(line, result):
                 "total": 42800,
                 "used": 1600,
                 "uses": [
-                    {"booked": 100, "lead_host": "p-c94.com", "user_name": "usbn12"},
-                    {"booked": 1400, "lead_host": "p-c94.com", "user_name": "usbn12"},
-                    {"booked": 100, "lead_host": "p-c94.com", "user_name": "usbn12"},
+                    {"booked": 100, "lead_host": "p-c94.com", "username": "usbn12"},
+                    {"booked": 1400, "lead_host": "p-c94.com", "username": "usbn12"},
+                    {"booked": 100, "lead_host": "p-c94.com", "username": "usbn12"},
                 ],
             },
         ),
@@ -125,9 +125,9 @@ def test_parse_usage_line(line, result):
                 "total": 40,
                 "used": 3,
                 "uses": [
-                    {"booked": 1, "lead_host": "dcv033.com", "user_name": "1nou7p"},
-                    {"booked": 1, "lead_host": "n-c41.com", "user_name": "1nou7p"},
-                    {"booked": 1, "lead_host": "nid001234", "user_name": "1nou7p"},
+                    {"booked": 1, "lead_host": "dcv033.com", "username": "1nou7p"},
+                    {"booked": 1, "lead_host": "n-c41.com", "username": "1nou7p"},
+                    {"booked": 1, "lead_host": "nid001234", "username": "1nou7p"},
                 ],
             },
         ),
@@ -138,12 +138,12 @@ def test_parse_usage_line(line, result):
                 "total": 750,
                 "used": 18,
                 "uses": [
-                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
-                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
-                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
-                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
-                    {"booked": 5, "lead_host": "ER0037", "user_name": "abcdkk"},
-                    {"booked": 1, "lead_host": "ER0037", "user_name": "abcdkk"},
+                    {"booked": 5, "lead_host": "ER0037", "username": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "username": "abcdkk"},
+                    {"booked": 5, "lead_host": "ER0037", "username": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "username": "abcdkk"},
+                    {"booked": 5, "lead_host": "ER0037", "username": "abcdkk"},
+                    {"booked": 1, "lead_host": "ER0037", "username": "abcdkk"},
                 ],
             },
         ),

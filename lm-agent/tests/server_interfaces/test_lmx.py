@@ -63,7 +63,7 @@ async def test_lmx_get_report_item(
         used=25000,
         total=1000000,
         uses=[
-            {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+            {"username": "sssaah", "lead_host": "RD0082406", "booked": 25000},
         ],
     )
 

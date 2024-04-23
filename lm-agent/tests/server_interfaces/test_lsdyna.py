@@ -61,12 +61,12 @@ async def test_lsdyna_get_report_item(
         used=440,
         total=500,
         uses=[
-            {"user_name": "dvds3g", "lead_host": "n-c13.com", "booked": 80},
-            {"user_name": "ssss1d", "lead_host": "n-c52.com", "booked": 80},
-            {"user_name": "ssss1d", "lead_host": "n-c15.com", "booked": 80},
-            {"user_name": "ywap0o", "lead_host": "n-c53.com", "booked": 80},
-            {"user_name": "ywap0o", "lead_host": "n-c51.com", "booked": 80},
-            {"user_name": "ndha1a", "lead_host": "n-c55.com", "booked": 40},
+            {"username": "dvds3g", "lead_host": "n-c13.com", "booked": 80},
+            {"username": "ssss1d", "lead_host": "n-c52.com", "booked": 80},
+            {"username": "ssss1d", "lead_host": "n-c15.com", "booked": 80},
+            {"username": "ywap0o", "lead_host": "n-c53.com", "booked": 80},
+            {"username": "ywap0o", "lead_host": "n-c51.com", "booked": 80},
+            {"username": "ndha1a", "lead_host": "n-c55.com", "booked": 40},
         ],
     )
 

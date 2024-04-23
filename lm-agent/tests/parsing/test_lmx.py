@@ -52,27 +52,27 @@ def test_parse_usage_line():
     - booked
     """
     assert parse_usage_line("15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]") == {
-        "user_name": "VRAAFG",
+        "username": "VRAAFG",
         "lead_host": "RD0082879",
         "booked": 15000,
     }
     assert parse_usage_line("25000 license(s) used by sbak8y@p-c39.maas.rnd.com [10.104.193.54]") == {
-        "user_name": "sbak8y",
+        "username": "sbak8y",
         "lead_host": "p-c39.maas.rnd.com",
         "booked": 25000,
     }
     assert parse_usage_line("15000 license(s) used by sssegm@p-g2.maas.rnd.com [10.104.192.204]") == {
-        "user_name": "sssegm",
+        "username": "sssegm",
         "lead_host": "p-g2.maas.rnd.com",
         "booked": 15000,
     }
     assert parse_usage_line("1 license(s) used by mbrzy5@dcv046.com_ver2023 [10.123.321.20]") == {
-        "user_name": "mbrzy5",
+        "username": "mbrzy5",
         "lead_host": "dcv046.com",
         "booked": 1,
     }
     assert parse_usage_line("1 license(s) used by k12dca@ms0904_ver5.4.1 [10.123.321.156]") == {
-        "user_name": "k12dca",
+        "username": "k12dca",
         "lead_host": "ms0904",
         "booked": 1,
     }
@@ -91,8 +91,8 @@ def test_parse_usage_line():
                     "total": 1000003,
                     "used": 40000,
                     "uses": [
-                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
+                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
                     ],
                 },
                 "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
@@ -102,15 +102,15 @@ def test_parse_usage_line():
                     "total": 2147483647,
                     "used": 30000,
                     "uses": [
-                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                        {"user_name": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
                     ],
                 },
                 "hyperworks": {
                     "total": 1000000,
                     "used": 25000,
                     "uses": [
-                        {"user_name": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+                        {"username": "sssaah", "lead_host": "RD0082406", "booked": 25000},
                     ],
                 },
             },
@@ -122,8 +122,8 @@ def test_parse_usage_line():
                     "total": 2,
                     "used": 2,
                     "uses": [
-                        {"booked": 1, "lead_host": "dcv046.com", "user_name": "fdsva1"},
-                        {"booked": 1, "lead_host": "dcv048.com", "user_name": "asdsc1"},
+                        {"booked": 1, "lead_host": "dcv046.com", "username": "fdsva1"},
+                        {"booked": 1, "lead_host": "dcv048.com", "username": "asdsc1"},
                     ],
                 },
             },

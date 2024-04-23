@@ -62,7 +62,7 @@ def parse_usage_line(line: str):
     """
     Parse the usage line in the LS-Dyna output.
     Data we need:
-    - ``user_name``: user who booked the license
+    - ``username``: user who booked the license
     - ``lead_host``: host using the license
     - ``booked``: quantity of licenses being used
 
@@ -75,7 +75,7 @@ def parse_usage_line(line: str):
     usage_data = parsed_usage.groupdict()
 
     return {
-        "user_name": usage_data["user"],
+        "username": usage_data["user"],
         "lead_host": usage_data["lead_host"],
         "booked": int(usage_data["used"]),
     }

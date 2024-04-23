@@ -60,9 +60,9 @@ async def test_olicense_get_report_item(
         used=3,
         total=4,
         uses=[
-            {"user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1},
-            {"user_name": "sbhyma", "lead_host": "RD0087713", "booked": 1},
-            {"user_name": "user22", "lead_host": "RD0087713", "booked": 1},
+            {"username": "sbhyma", "lead_host": "RD0087712", "booked": 1},
+            {"username": "sbhyma", "lead_host": "RD0087713", "booked": 1},
+            {"username": "user22", "lead_host": "RD0087713", "booked": 1},
         ],
     )
 

@@ -62,9 +62,9 @@ async def test_flexlm_get_report_item(
         used=93,
         total=1000,
         uses=[
-            {"user_name": "sdmfva", "lead_host": "myserver.example.com", "booked": 29},
-            {"user_name": "adfdna", "lead_host": "myserver.example.com", "booked": 27},
-            {"user_name": "sdmfva", "lead_host": "myserver.example.com", "booked": 37},
+            {"username": "sdmfva", "lead_host": "myserver.example.com", "booked": 29},
+            {"username": "adfdna", "lead_host": "myserver.example.com", "booked": 27},
+            {"username": "sdmfva", "lead_host": "myserver.example.com", "booked": 37},
         ],
     )
 

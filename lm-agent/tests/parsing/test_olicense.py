@@ -49,12 +49,12 @@ def test_parse_usage_line():
     - booked
     """
     assert parse_usage_line("        sbhyma@RD0087712 #1") == {
-        "user_name": "sbhyma",
+        "username": "sbhyma",
         "lead_host": "RD0087712",
         "booked": 1,
     }
     assert parse_usage_line("        sbhyma@p-c39.maas.rnd.com #1") == {
-        "user_name": "sbhyma",
+        "username": "sbhyma",
         "lead_host": "p-c39.maas.rnd.com",
         "booked": 1,
     }
@@ -73,9 +73,9 @@ def test_parse__correct_output(olicense_output):
             "total": 4,
             "used": 3,
             "uses": [
-                {"user_name": "sbhyma", "lead_host": "RD0087712", "booked": 1},
-                {"user_name": "sbhyma", "lead_host": "RD0087713", "booked": 1},
-                {"user_name": "user22", "lead_host": "RD0087713", "booked": 1},
+                {"username": "sbhyma", "lead_host": "RD0087712", "booked": 1},
+                {"username": "sbhyma", "lead_host": "RD0087713", "booked": 1},
+                {"username": "user22", "lead_host": "RD0087713", "booked": 1},
             ],
         }
     }
