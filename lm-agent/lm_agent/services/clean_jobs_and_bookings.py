@@ -67,7 +67,7 @@ def extract_usages_from_report(report_item: LicenseReportItem) -> List[Extracted
         ExtractedUsageSchema(
             feature_id=report_item.feature_id,
             username=usage["username"],
-            lead_host=usage["lead_host"],
+            lead_host=usage["lead_host"].split(".")[0],
             quantity=usage["booked"],
         )
         for usage in report_item.uses
