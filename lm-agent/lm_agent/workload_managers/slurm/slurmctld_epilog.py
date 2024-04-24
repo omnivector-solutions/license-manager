@@ -36,12 +36,13 @@ async def epilog():
         sys.exit(1)
 
     if not required_licenses:
-        logger.debug("No licenses required, exiting!")
+        logger.debug(f"No licenses required for job {job_id}, exiting!")
         sys.exit(0)
 
     if len(required_licenses) > 0:
         # Attempt to remove the job with its bookings.
         await remove_job_by_slurm_job_id(job_id)
+        logger.debug(f"Job {job_id} removed successfully")
 
 
 def main():

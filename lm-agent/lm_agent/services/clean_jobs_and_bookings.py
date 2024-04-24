@@ -117,10 +117,12 @@ async def clean_jobs_without_bookings(cluster_jobs: List[JobSchema]) -> List[Job
     logger.debug("##### Cleaning jobs without bookings")
 
     jobs_to_delete_call = []
+    jobs_to_delete = []
 
     for job in cluster_jobs[:]:
         if not job.bookings:
             jobs_to_delete_call.append(remove_job_by_slurm_job_id(job.slurm_job_id))
+            jobs_to_delete.append(job.slurm_job_id)
             cluster_jobs.remove(job)
 
     if not jobs_to_delete_call:
@@ -129,6 +131,7 @@ async def clean_jobs_without_bookings(cluster_jobs: List[JobSchema]) -> List[Job
 
     await asyncio.gather(*jobs_to_delete_call)
 
+    logger.debug(f"##### Jobs cleaned: {jobs_to_delete}")
     logger.debug("##### Cleaned jobs without bookings")
     return cluster_jobs
 
@@ -145,11 +148,13 @@ async def clean_jobs_no_longer_running(
     all_jobs_squeue = [str(job["job_id"]) for job in squeue_result]
 
     jobs_to_delete_call = []
+    jobs_to_delete = []
 
     for job in cluster_jobs[:]:
         slurm_job_id = job.slurm_job_id
         if slurm_job_id in jobs_not_running or slurm_job_id not in all_jobs_squeue:
             jobs_to_delete_call.append(remove_job_by_slurm_job_id(slurm_job_id))
+            jobs_to_delete.append(slurm_job_id)
             cluster_jobs.remove(job)
 
     if not jobs_to_delete_call:
@@ -158,6 +163,7 @@ async def clean_jobs_no_longer_running(
 
     await asyncio.gather(*jobs_to_delete_call)
 
+    logger.debug(f"##### Jobs cleaned: {jobs_to_delete}")
     logger.debug("##### Cleaned jobs that are no longer running")
     return cluster_jobs
 
@@ -176,6 +182,7 @@ async def clean_jobs_by_grace_time(
     running_jobs = {str(job["job_id"]): job for job in squeue_result if job["state"] == "RUNNING"}
 
     jobs_to_delete_call = []
+    jobs_to_delete = []
 
     for job in cluster_jobs[:]:
         greatest_grace_time = get_greatest_grace_time_for_job(grace_times, job.bookings)
@@ -185,6 +192,7 @@ async def clean_jobs_by_grace_time(
         running_job = running_jobs.get(slurm_job_id)
         if running_job and running_job["run_time_in_seconds"] > greatest_grace_time:
             jobs_to_delete_call.append(remove_job_by_slurm_job_id(slurm_job_id))
+            jobs_to_delete.append(slurm_job_id)
             cluster_jobs.remove(job)
 
     if not jobs_to_delete_call:
@@ -193,6 +201,7 @@ async def clean_jobs_by_grace_time(
 
     await asyncio.gather(*jobs_to_delete_call)
 
+    logger.debug(f"##### Jobs cleaned: {jobs_to_delete}")
     logger.debug("##### Cleaned jobs by grace time")
     return cluster_jobs
 
@@ -230,16 +239,19 @@ async def clean_bookings_by_usage(cluster_jobs: List[JobSchema], license_report:
     usages_mapping = get_usages_mapping(license_report)
 
     bookings_to_delete_call = []
+    bookings_to_delete = []
 
     for key, bookings in bookings_mapping.items():
         if len(usages_mapping.get(key, [])) == len(bookings):
             bookings_to_delete_call.extend([remove_booking(booking.booking_id) for booking in bookings])
+            bookings_to_delete.extend([booking.booking_id for booking in bookings])
 
     if not bookings_to_delete_call:
         logger.debug("##### No bookings to clean by matching")
         return
 
     await asyncio.gather(*bookings_to_delete_call)
+    logger.debug(f"##### Bookings cleaned: {bookings_to_delete}")
     logger.debug("##### Cleaned bookings by matching")
 
 

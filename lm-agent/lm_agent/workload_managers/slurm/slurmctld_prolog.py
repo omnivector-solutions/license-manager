@@ -42,10 +42,10 @@ async def prolog():
         sys.exit(1)
 
     if not required_licenses:
-        logger.debug("No licenses required, exiting!")
+        logger.debug(f"No licenses required for job {job_id}, exiting!")
         sys.exit(0)
 
-    logger.debug(f"Required licenses: {required_licenses}")
+    logger.debug(f"Required licenses for job {job_id}: {required_licenses}")
 
     tracked_licenses = list()
 
@@ -61,7 +61,6 @@ async def prolog():
         for entry in entries:
             for feature in entry.features:
                 tracked_licenses.append(f"{feature.product.name}.{feature.name}")
-    logger.debug(f"Tracked licenses: {tracked_licenses}")
 
     # Create a tracked LicenseBookingRequest for licenses that we actually
     # track. These tracked licenses are what we will check feature token
@@ -75,7 +74,7 @@ async def prolog():
     for booking in required_licenses:
         if booking.product_feature in tracked_licenses:
             tracked_license_booking_request.bookings.append(booking)
-    logger.debug(f"Tracked license bookings: {tracked_license_booking_request}")
+    logger.debug(f"Tracked licenses bookings for job {job_id}: {tracked_license_booking_request}")
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Check if reconciliation should be triggered.
@@ -89,10 +88,11 @@ async def prolog():
 
         booking_request = await make_booking_request(tracked_license_booking_request)
         if not booking_request:
-            logger.debug("Booking request unsuccessful, not enough licenses.")
+            logger.debug(f"Booking request for job {job_id} unsuccessful, not enough licenses.")
             sys.exit(1)
-        logger.debug(f"License booking sucessful, job id: {job_id}.")
-        logger.debug(f"Licenses booked: {repr(tracked_license_booking_request.bookings)}")
+        logger.debug(
+            f"Booking request for job {job_id} sucessful, licenses booked: {repr(tracked_license_booking_request.bookings)}"
+        )
     sys.exit(0)
 
 
