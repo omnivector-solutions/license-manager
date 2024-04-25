@@ -22,7 +22,7 @@ async def run_command(command_line_parts: List[str]) -> str:
 
     # block until the command succeeds
     stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
-    output = str(stdout, encoding=ENCODING)
+    output = str(stdout, encoding=ENCODING, errors="replace")
 
     if proc.returncode != 0:
         error_message = shlex.join(
