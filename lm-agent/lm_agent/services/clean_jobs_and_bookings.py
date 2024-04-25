@@ -62,6 +62,10 @@ def extract_bookings_from_job(job: JobSchema) -> List[ExtractedBookingSchema]:
 def extract_usages_from_report(report_item: LicenseReportItem) -> List[ExtractedUsageSchema]:
     """
     Extract all the the usage information from a feature report
+
+    Note that the lead_host from the license server comes with the full domain,
+    but the lead_host from the job comes without the domain. This is why the
+    lead_host is split by the dot and only the first part is used.
     """
     return [
         ExtractedUsageSchema(
