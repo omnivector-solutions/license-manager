@@ -3,6 +3,8 @@ Parser for LM-X
 """
 import re
 from typing import Optional
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
@@ -64,7 +66,7 @@ def parse_in_use_line(line: str) -> Optional[dict]:
     }
 
 
-def parse_usage_line(line: str) -> Optional[dict]:
+def parse_usage_line(line: str) -> Optional[LicenseUsesItem]:
     """
     Parse the usage line in the LS-Dyna output.
     Data we need:
@@ -84,11 +86,11 @@ def parse_usage_line(line: str) -> Optional[dict]:
         return None
     usage_data = parsed_usage.groupdict()
 
-    return {
-        "username": usage_data["user"],
-        "lead_host": usage_data["lead_host"],
-        "booked": int(usage_data["in_use"]),
-    }
+    return LicenseUsesItem(
+        username=usage_data["user"].lower(),
+        lead_host=usage_data["lead_host"],
+        booked=int(usage_data["in_use"]),
+    )
 
 
 def parse(server_output: str) -> dict:

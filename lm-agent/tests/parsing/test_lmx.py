@@ -5,6 +5,7 @@ Test the LM-X parser
 from pytest import mark
 
 from lm_agent.parsing.lmx import parse, parse_feature_line, parse_in_use_line, parse_usage_line
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
 
 
 def test_parse_feature_line():
@@ -51,31 +52,49 @@ def test_parse_usage_line():
     - lead host
     - booked
     """
-    assert parse_usage_line("15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]") == {
-        "username": "VRAAFG",
-        "lead_host": "RD0082879",
-        "booked": 15000,
-    }
-    assert parse_usage_line("25000 license(s) used by sbak8y@p-c39.maas.rnd.com [10.104.193.54]") == {
-        "username": "sbak8y",
-        "lead_host": "p-c39.maas.rnd.com",
-        "booked": 25000,
-    }
-    assert parse_usage_line("15000 license(s) used by sssegm@p-g2.maas.rnd.com [10.104.192.204]") == {
-        "username": "sssegm",
-        "lead_host": "p-g2.maas.rnd.com",
-        "booked": 15000,
-    }
-    assert parse_usage_line("1 license(s) used by mbrzy5@dcv046.com_ver2023 [10.123.321.20]") == {
-        "username": "mbrzy5",
-        "lead_host": "dcv046.com",
-        "booked": 1,
-    }
-    assert parse_usage_line("1 license(s) used by k12dca@ms0904_ver5.4.1 [10.123.321.156]") == {
-        "username": "k12dca",
-        "lead_host": "ms0904",
-        "booked": 1,
-    }
+    assert parse_usage_line("15000 license(s) used by VRAAFG@RD0082879 [138.106.159.158]") == LicenseUsesItem(
+        **{
+            "username": "vraafg",
+            "lead_host": "RD0082879",
+            "booked": 15000,
+        }
+    )
+    assert parse_usage_line(
+        "25000 license(s) used by sbak8y@p-c39.maas.rnd.com [10.104.193.54]"
+    ) == LicenseUsesItem(
+        **{
+            "username": "sbak8y",
+            "lead_host": "p-c39.maas.rnd.com",
+            "booked": 25000,
+        }
+    )
+    assert parse_usage_line(
+        "15000 license(s) used by sssegm@p-g2.maas.rnd.com [10.104.192.204]"
+    ) == LicenseUsesItem(
+        **{
+            "username": "sssegm",
+            "lead_host": "p-g2.maas.rnd.com",
+            "booked": 15000,
+        }
+    )
+    assert parse_usage_line(
+        "1 license(s) used by mbrzy5@dcv046.com_ver2023 [10.123.321.20]"
+    ) == LicenseUsesItem(
+        **{
+            "username": "mbrzy5",
+            "lead_host": "dcv046.com",
+            "booked": 1,
+        }
+    )
+    assert parse_usage_line(
+        "1 license(s) used by k12dca@ms0904_ver5.4.1 [10.123.321.156]"
+    ) == LicenseUsesItem(
+        **{
+            "username": "k12dca",
+            "lead_host": "ms0904",
+            "booked": 1,
+        }
+    )
     assert parse_usage_line("0 license(s) used by v-c54.aaa.aa") is None
     assert parse_usage_line("") is None
 
@@ -91,8 +110,8 @@ def test_parse_usage_line():
                     "total": 1000003,
                     "used": 40000,
                     "uses": [
-                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 25000},
+                        LicenseUsesItem(**{"username": "vraafg", "lead_host": "RD0082879", "booked": 15000}),
+                        LicenseUsesItem(**{"username": "vraafg", "lead_host": "RD0082879", "booked": 25000}),
                     ],
                 },
                 "hwaifpbs": {"total": 2147483647, "used": 0, "uses": []},
@@ -102,15 +121,15 @@ def test_parse_usage_line():
                     "total": 2147483647,
                     "used": 30000,
                     "uses": [
-                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
-                        {"username": "VRAAFG", "lead_host": "RD0082879", "booked": 15000},
+                        LicenseUsesItem(**{"username": "vraafg", "lead_host": "RD0082879", "booked": 15000}),
+                        LicenseUsesItem(**{"username": "vraafg", "lead_host": "RD0082879", "booked": 15000}),
                     ],
                 },
                 "hyperworks": {
                     "total": 1000000,
                     "used": 25000,
                     "uses": [
-                        {"username": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+                        LicenseUsesItem(**{"username": "sssaah", "lead_host": "RD0082406", "booked": 25000}),
                     ],
                 },
             },
@@ -122,8 +141,8 @@ def test_parse_usage_line():
                     "total": 2,
                     "used": 2,
                     "uses": [
-                        {"booked": 1, "lead_host": "dcv046.com", "username": "fdsva1"},
-                        {"booked": 1, "lead_host": "dcv048.com", "username": "asdsc1"},
+                        LicenseUsesItem(**{"booked": 1, "lead_host": "dcv046.com", "username": "fdsva1"}),
+                        LicenseUsesItem(**{"booked": 1, "lead_host": "dcv048.com", "username": "asdsc1"}),
                     ],
                 },
             },

@@ -70,9 +70,9 @@ def extract_usages_from_report(report_item: LicenseReportItem) -> List[Extracted
     return [
         ExtractedUsageSchema(
             feature_id=report_item.feature_id,
-            username=usage["username"],
-            lead_host=usage["lead_host"].split(".")[0],
-            quantity=usage["booked"],
+            username=usage.username,
+            lead_host=usage.lead_host.split(".")[0],
+            quantity=usage.booked,
         )
         for usage in report_item.uses
     ]
@@ -120,7 +120,6 @@ async def clean_jobs_without_bookings(cluster_jobs: List[JobSchema]) -> List[Job
     """
     logger.debug("##### Cleaning jobs without bookings")
 
-    jobs_to_delete_call = []
     jobs_to_delete = []
 
     for job in cluster_jobs[:]:

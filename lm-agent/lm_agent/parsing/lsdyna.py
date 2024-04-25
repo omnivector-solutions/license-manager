@@ -3,6 +3,8 @@ Parser for LS-Dyna
 """
 
 import re
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
@@ -74,11 +76,11 @@ def parse_usage_line(line: str):
         return None
     usage_data = parsed_usage.groupdict()
 
-    return {
-        "username": usage_data["user"],
-        "lead_host": usage_data["lead_host"],
-        "booked": int(usage_data["used"]),
-    }
+    return LicenseUsesItem(
+        username=usage_data["user"].lower(),
+        lead_host=usage_data["lead_host"],
+        booked=int(usage_data["used"]),
+    )
 
 
 def parse_total_line(line: str):

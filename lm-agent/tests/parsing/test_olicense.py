@@ -3,6 +3,7 @@ Test the OLicense parser
 """
 
 from lm_agent.parsing.olicense import parse, parse_feature_line, parse_in_use_line, parse_usage_line
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
 
 
 def test_parse_feature_line():
@@ -48,16 +49,20 @@ def test_parse_usage_line():
     - lead host
     - booked
     """
-    assert parse_usage_line("        sbhyma@RD0087712 #1") == {
-        "username": "sbhyma",
-        "lead_host": "RD0087712",
-        "booked": 1,
-    }
-    assert parse_usage_line("        sbhyma@p-c39.maas.rnd.com #1") == {
-        "username": "sbhyma",
-        "lead_host": "p-c39.maas.rnd.com",
-        "booked": 1,
-    }
+    assert parse_usage_line("        sbhyma@RD0087712 #1") == LicenseUsesItem(
+        **{
+            "username": "sbhyma",
+            "lead_host": "RD0087712",
+            "booked": 1,
+        }
+    )
+    assert parse_usage_line("        sbhyma@p-c39.maas.rnd.com #1") == LicenseUsesItem(
+        **{
+            "username": "sbhyma",
+            "lead_host": "p-c39.maas.rnd.com",
+            "booked": 1,
+        }
+    )
     assert parse_usage_line("not a usage line") is None
     assert parse_usage_line("") is None
 
@@ -73,9 +78,9 @@ def test_parse__correct_output(olicense_output):
             "total": 4,
             "used": 3,
             "uses": [
-                {"username": "sbhyma", "lead_host": "RD0087712", "booked": 1},
-                {"username": "sbhyma", "lead_host": "RD0087713", "booked": 1},
-                {"username": "user22", "lead_host": "RD0087713", "booked": 1},
+                LicenseUsesItem(**{"username": "sbhyma", "lead_host": "RD0087712", "booked": 1}),
+                LicenseUsesItem(**{"username": "sbhyma", "lead_host": "RD0087713", "booked": 1}),
+                LicenseUsesItem(**{"username": "user22", "lead_host": "RD0087713", "booked": 1}),
             ],
         }
     }
