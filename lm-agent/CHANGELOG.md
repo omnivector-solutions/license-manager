@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+
+## 3.2.0 -- 2024-04-29
 * Improve FlexLM, LM-X and OLicense parsers to parse multiple versions of the license server output [ASP-4670]
 * Fix LS-Dyna parser to parse the queue value when it's represented as a dash instead of a zero
 * Fix bug with output parsing when there's non UTF-8 characters in the output [ASP-5160]
