@@ -112,7 +112,7 @@ class SecureSession:
     session: AsyncSession
 
 
-def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMode.ALL, commit: bool = True):
+def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMode.SOME, commit: bool = True):
     """
     Provide an injectable for FastAPI that checks permissions and returns a database session for this request.
 

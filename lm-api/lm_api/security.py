@@ -85,7 +85,7 @@ class IdentityPayload(TokenPayload):
         }
 
 
-def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = PermissionMode.ALL):
+def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = PermissionMode.SOME):
     """
     Provide a wrapper to be used with dependency injection to extract identity on a secured route.
     """
