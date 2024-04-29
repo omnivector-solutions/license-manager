@@ -6,6 +6,8 @@ class Permissions(str, Enum):
     Describe the permissions that may be used for protecting LM Backend routes.
     """
 
+    ADMIN = "license-manager:admin"
+
     LICENSE_SERVER_CREATE = "license-manager:license-server:create"
     LICENSE_SERVER_READ = "license-manager:license-server:read"
     LICENSE_SERVER_UPDATE = "license-manager:license-server:update"
