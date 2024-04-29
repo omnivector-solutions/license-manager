@@ -47,41 +47,33 @@ def test_parse_feature_line(line, result):
         (
             "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses",
             LicenseUsesItem(
-                **{
-                    "username": "user1",
-                    "lead_host": "myserver.example.com",
-                    "booked": 29,
-                }
+                username="user1",
+                lead_host="myserver.example.com",
+                booked=29,
             ),
         ),
         (
             "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses",
             LicenseUsesItem(
-                **{
-                    "username": "user2",
-                    "lead_host": "another.server.com",
-                    "booked": 100,
-                }
+                username="user2",
+                lead_host="another.server.com",
+                booked=100,
             ),
         ),
         (
             "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses",
             LicenseUsesItem(
-                **{
-                    "username": "user3",
-                    "lead_host": "ER1234",
-                    "booked": 5,
-                }
+                username="user3",
+                lead_host="ER1234",
+                booked=5,
             ),
         ),
         (
             "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25",
             LicenseUsesItem(
-                **{
-                    "username": "user3",
-                    "lead_host": "ER1234",
-                    "booked": 1,
-                }
+                username="user3",
+                lead_host="ER1234",
+                booked=1,
             ),
         ),
         ("aaaaa", None),
@@ -110,13 +102,13 @@ def test_parse_usage_line(line, result):
                 "used": 93,
                 "uses": [
                     LicenseUsesItem(
-                        **{"booked": 29, "lead_host": "myserver.example.com", "username": "sdmfva"}
+                        booked=29, lead_host="myserver.example.com", username="sdmfva"
                     ),
                     LicenseUsesItem(
-                        **{"booked": 27, "lead_host": "myserver.example.com", "username": "adfdna"}
+                        booked=27, lead_host="myserver.example.com", username="adfdna"
                     ),
                     LicenseUsesItem(
-                        **{"booked": 37, "lead_host": "myserver.example.com", "username": "sdmfva"}
+                        booked=37, lead_host="myserver.example.com", username="sdmfva"
                     ),
                 ],
             },
@@ -128,9 +120,9 @@ def test_parse_usage_line(line, result):
                 "total": 42800,
                 "used": 1600,
                 "uses": [
-                    LicenseUsesItem(**{"booked": 100, "lead_host": "p-c94.com", "username": "usbn12"}),
-                    LicenseUsesItem(**{"booked": 1400, "lead_host": "p-c94.com", "username": "usbn12"}),
-                    LicenseUsesItem(**{"booked": 100, "lead_host": "p-c94.com", "username": "usbn12"}),
+                    LicenseUsesItem(booked=100, lead_host="p-c94.com", username="usbn12"),
+                    LicenseUsesItem(booked=1400, lead_host="p-c94.com", username="usbn12"),
+                    LicenseUsesItem(booked=100, lead_host="p-c94.com", username="usbn12"),
                 ],
             },
         ),
@@ -141,9 +133,9 @@ def test_parse_usage_line(line, result):
                 "total": 40,
                 "used": 3,
                 "uses": [
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "dcv033.com", "username": "1nou7p"}),
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "n-c41.com", "username": "1nou7p"}),
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "nid001234", "username": "1nou7p"}),
+                    LicenseUsesItem(booked=1, lead_host="dcv033.com", username="1nou7p"),
+                    LicenseUsesItem(booked=1, lead_host="n-c41.com", username="1nou7p"),
+                    LicenseUsesItem(booked=1, lead_host="nid001234", username="1nou7p"),
                 ],
             },
         ),
@@ -154,12 +146,12 @@ def test_parse_usage_line(line, result):
                 "total": 750,
                 "used": 18,
                 "uses": [
-                    LicenseUsesItem(**{"booked": 5, "lead_host": "ER0037", "username": "abcdkk"}),
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "ER0037", "username": "abcdkk"}),
-                    LicenseUsesItem(**{"booked": 5, "lead_host": "ER0037", "username": "abcdkk"}),
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "ER0037", "username": "abcdkk"}),
-                    LicenseUsesItem(**{"booked": 5, "lead_host": "ER0037", "username": "abcdkk"}),
-                    LicenseUsesItem(**{"booked": 1, "lead_host": "ER0037", "username": "abcdkk"}),
+                    LicenseUsesItem(booked=5, lead_host="ER0037", username="abcdkk"),
+                    LicenseUsesItem(booked=1, lead_host="ER0037", username="abcdkk"),
+                    LicenseUsesItem(booked=5, lead_host="ER0037", username="abcdkk"),
+                    LicenseUsesItem(booked=1, lead_host="ER0037", username="abcdkk"),
+                    LicenseUsesItem(booked=5, lead_host="ER0037", username="abcdkk"),
+                    LicenseUsesItem(booked=1, lead_host="ER0037", username="abcdkk"),
                 ],
             },
         ),

@@ -50,18 +50,14 @@ def test_parse_usage_line():
     - booked
     """
     assert parse_usage_line("        sbhyma@RD0087712 #1") == LicenseUsesItem(
-        **{
-            "username": "sbhyma",
-            "lead_host": "RD0087712",
-            "booked": 1,
-        }
+        username="sbhyma",
+        lead_host="RD0087712",
+        booked=1,
     )
     assert parse_usage_line("        sbhyma@p-c39.maas.rnd.com #1") == LicenseUsesItem(
-        **{
-            "username": "sbhyma",
-            "lead_host": "p-c39.maas.rnd.com",
-            "booked": 1,
-        }
+        username="sbhyma",
+        lead_host="p-c39.maas.rnd.com",
+        booked=1,
     )
     assert parse_usage_line("not a usage line") is None
     assert parse_usage_line("") is None
@@ -78,9 +74,9 @@ def test_parse__correct_output(olicense_output):
             "total": 4,
             "used": 3,
             "uses": [
-                LicenseUsesItem(**{"username": "sbhyma", "lead_host": "RD0087712", "booked": 1}),
-                LicenseUsesItem(**{"username": "sbhyma", "lead_host": "RD0087713", "booked": 1}),
-                LicenseUsesItem(**{"username": "user22", "lead_host": "RD0087713", "booked": 1}),
+                LicenseUsesItem(username="sbhyma", lead_host="RD0087712", booked=1),
+                LicenseUsesItem(username="sbhyma", lead_host="RD0087713", booked=1),
+                LicenseUsesItem(username="user22", lead_host="RD0087713", booked=1),
             ],
         }
     }

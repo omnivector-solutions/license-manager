@@ -61,21 +61,17 @@ def test_parse_usage_line():
     ) == {
         "license_feature": "converge_super",
         "use": LicenseUsesItem(
-            **{
-                "username": "asdj13",
-                "lead_host": "myserver.example.com",
-                "booked": 29,
-            }
+            username="asdj13",
+            lead_host="myserver.example.com",
+            booked=29,
         ),
     }
     assert parse_usage_line("powercase v1.0: dfsdgv@server1 1/0 at 08/15 09:34  (handle: 182)") == {
         "license_feature": "powercase",
         "use": LicenseUsesItem(
-            **{
-                "username": "dfsdgv",
-                "lead_host": "server1",
-                "booked": 1,
-            }
+            username="dfsdgv",
+            lead_host="server1",
+            booked=1,
         ),
     }
     assert parse_usage_line("aaaaa") is None
@@ -100,26 +96,20 @@ def test_parse_usage_line():
                     "used": 93,
                     "uses": [
                         LicenseUsesItem(
-                            **{
-                                "booked": 29,
-                                "lead_host": "myserver.example.com",
-                                "username": "asdj13",
-                            }
+                            booked=29,
+                            lead_host="myserver.example.com",
+                            username="asdj13",
                         ),
                         LicenseUsesItem(
-                            **{
-                                "booked": 27,
-                                "lead_host": "myserver.example.com",
-                                "username": "cddcp2",
-                            }
+                            booked=27,
+                            lead_host="myserver.example.com",
+                            username="cddcp2",
                         ),
                         LicenseUsesItem(
-                            **{
-                                "booked": 37,
-                                "lead_host": "myserver.example.com",
-                                "username": "asdj13",
-                            }
-                        ),
+                            booked=37,
+                            lead_host="myserver.example.com",
+                            username="asdj13",
+                                                    ),
                     ],
                 },
                 "converge_tecplot": {"total": 45, "used": 0, "uses": []},
@@ -132,9 +122,9 @@ def test_parse_usage_line():
                     "used": 3,
                     "total": 5,
                     "uses": [
-                        LicenseUsesItem(**{"username": "dfsdgv", "lead_host": "server1", "booked": 1}),
-                        LicenseUsesItem(**{"username": "addvbh", "lead_host": "server2", "booked": 1}),
-                        LicenseUsesItem(**{"username": "wrtgb3", "lead_host": "server3", "booked": 1}),
+                        LicenseUsesItem(username="dfsdgv", lead_host="server1", booked=1),
+                        LicenseUsesItem(username="addvbh", lead_host="server2", booked=1),
+                        LicenseUsesItem(username="wrtgb3", lead_host="server3", booked=1),
                     ],
                 },
                 "powerexport": {"used": 0, "total": 5, "uses": []},

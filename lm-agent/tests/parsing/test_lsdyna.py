@@ -54,18 +54,14 @@ def test_parse_usage_line():
     From these, we only need to extract ``user``, ``host``, ``used CPUs``.
     """
     assert parse_usage_line(" ywap0o     91665@n-c51.com  80") == LicenseUsesItem(
-        **{
-            "username": "ywap0o",
-            "lead_host": "n-c51.com",
-            "booked": 80,
-        }
+        username="ywap0o",
+        lead_host="n-c51.com",
+        booked=80,
     )
     assert parse_usage_line(" ndha1a     91665@n-c55.com  40") == LicenseUsesItem(
-        **{
-            "username": "ndha1a",
-            "lead_host": "n-c55.com",
-            "booked": 40,
-        }
+        username="ndha1a",
+        lead_host="n-c55.com",
+        booked=40,
     )
     assert parse_usage_line(" ywap0o     not-a-host  80") is None
     assert parse_usage_line(" ndha1a     91665@n-c55.com") is None
@@ -102,12 +98,12 @@ def test_parse__correct_output(lsdyna_output):
             "total": 500,
             "used": 440,
             "uses": [
-                LicenseUsesItem(**{"username": "dvds3g", "lead_host": "n-c13.com", "booked": 80}),
-                LicenseUsesItem(**{"username": "ssss1d", "lead_host": "n-c52.com", "booked": 80}),
-                LicenseUsesItem(**{"username": "ssss1d", "lead_host": "n-c15.com", "booked": 80}),
-                LicenseUsesItem(**{"username": "ywap0o", "lead_host": "n-c53.com", "booked": 80}),
-                LicenseUsesItem(**{"username": "ywap0o", "lead_host": "n-c51.com", "booked": 80}),
-                LicenseUsesItem(**{"username": "ndha1a", "lead_host": "n-c55.com", "booked": 40}),
+                LicenseUsesItem(username="dvds3g", lead_host="n-c13.com", booked=80),
+                LicenseUsesItem(username="ssss1d", lead_host="n-c52.com", booked=80),
+                LicenseUsesItem(username="ssss1d", lead_host="n-c15.com", booked=80),
+                LicenseUsesItem(username="ywap0o", lead_host="n-c53.com", booked=80),
+                LicenseUsesItem(username="ywap0o", lead_host="n-c51.com", booked=80),
+                LicenseUsesItem(username="ndha1a", lead_host="n-c55.com", booked=40),
             ],
         },
         "mppdyna_971": {"total": 500, "used": 440, "uses": []},
