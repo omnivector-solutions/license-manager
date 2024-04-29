@@ -203,7 +203,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
             logger.error(f"Failed to create booking: {job_response.text}")
             return False
 
-    logger.debug("##### Booking completed successfully #####")
+    logger.debug(f"##### Job {lbr.slurm_job_id} created successfully #####")
     return True
 
 
@@ -220,7 +220,7 @@ async def remove_job_by_slurm_job_id(slurm_job_id: str):
             resp.status_code in [200, 404], f"Failed to remove job: {resp.text}"
         )
 
-    logger.debug("##### Job removed successfully #####")
+    logger.debug(f"##### Job {slurm_job_id} removed successfully #####")
 
 
 async def remove_booking(booking_id: int):

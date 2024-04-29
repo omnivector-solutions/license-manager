@@ -4,6 +4,7 @@ Test the RLM parser
 from pytest import mark
 
 from lm_agent.parsing.rlm import parse, parse_count_line, parse_feature_line, parse_usage_line
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
 
 
 def test_parse_feature_line():
@@ -59,15 +60,19 @@ def test_parse_usage_line():
         "converge_super v3.0: asdj13@myserver.example.com 29/0 at 11/01 09:01  (handle: 15a)"
     ) == {
         "license_feature": "converge_super",
-        "user_name": "asdj13",
-        "lead_host": "myserver.example.com",
-        "booked": 29,
+        "use": LicenseUsesItem(
+            username="asdj13",
+            lead_host="myserver.example.com",
+            booked=29,
+        ),
     }
     assert parse_usage_line("powercase v1.0: dfsdgv@server1 1/0 at 08/15 09:34  (handle: 182)") == {
         "license_feature": "powercase",
-        "user_name": "dfsdgv",
-        "lead_host": "server1",
-        "booked": 1,
+        "use": LicenseUsesItem(
+            username="dfsdgv",
+            lead_host="server1",
+            booked=1,
+        ),
     }
     assert parse_usage_line("aaaaa") is None
     assert parse_usage_line("") is None
@@ -90,21 +95,21 @@ def test_parse_usage_line():
                     "total": 1000,
                     "used": 93,
                     "uses": [
-                        {
-                            "booked": 29,
-                            "lead_host": "myserver.example.com",
-                            "user_name": "asdj13",
-                        },
-                        {
-                            "booked": 27,
-                            "lead_host": "myserver.example.com",
-                            "user_name": "cddcp2",
-                        },
-                        {
-                            "booked": 37,
-                            "lead_host": "myserver.example.com",
-                            "user_name": "asdj13",
-                        },
+                        LicenseUsesItem(
+                            booked=29,
+                            lead_host="myserver.example.com",
+                            username="asdj13",
+                        ),
+                        LicenseUsesItem(
+                            booked=27,
+                            lead_host="myserver.example.com",
+                            username="cddcp2",
+                        ),
+                        LicenseUsesItem(
+                            booked=37,
+                            lead_host="myserver.example.com",
+                            username="asdj13",
+                                                    ),
                     ],
                 },
                 "converge_tecplot": {"total": 45, "used": 0, "uses": []},
@@ -117,9 +122,9 @@ def test_parse_usage_line():
                     "used": 3,
                     "total": 5,
                     "uses": [
-                        {"user_name": "dfsdgv", "lead_host": "server1", "booked": 1},
-                        {"user_name": "addvbh", "lead_host": "server2", "booked": 1},
-                        {"user_name": "wrtgb3", "lead_host": "server3", "booked": 1},
+                        LicenseUsesItem(username="dfsdgv", lead_host="server1", booked=1),
+                        LicenseUsesItem(username="addvbh", lead_host="server2", booked=1),
+                        LicenseUsesItem(username="wrtgb3", lead_host="server3", booked=1),
                     ],
                 },
                 "powerexport": {"used": 0, "total": 5, "uses": []},
@@ -135,7 +140,7 @@ def test_parse_usage_line():
                 "powerdelta": {
                     "used": 1,
                     "total": 1,
-                    "uses": [{"user_name": "ghnds2", "lead_host": "server4", "booked": 1}],
+                    "uses": [{"username": "ghnds2", "lead_host": "server4", "booked": 1}],
                 },
                 "powerdelta-meshunion": {"used": 0, "total": 1, "uses": []},
                 "powerdelta-translate2": {"used": 0, "total": 1000000, "uses": []},

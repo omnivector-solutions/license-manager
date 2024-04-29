@@ -3,6 +3,8 @@ Parser for FlexLM
 """
 import re
 from typing import Dict, Optional
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"
@@ -140,11 +142,11 @@ def parse_feature_line(line: str) -> Optional[Dict]:
     }
 
 
-def parse_usage_line(line: str) -> Optional[Dict]:
+def parse_usage_line(line: str) -> Optional[LicenseUsesItem]:
     """
     Parse the usage line in the FlexLM output.
     Data we need:
-    - ``user_name``: user who booked the license
+    - ``username``: user who booked the license
     - ``lead_host``: host using the license
     - ``booked``: quantity of licenses being used
 
@@ -160,11 +162,11 @@ def parse_usage_line(line: str) -> Optional[Dict]:
 
     data = parsed_data.groupdict()
 
-    return {
-        "user_name": data["user"].lower(),
-        "lead_host": data["user_host"],
-        "booked": int(data.get("tokens", 1)),
-    }
+    return LicenseUsesItem(
+        username=data["user"].lower(),
+        lead_host=data["user_host"],
+        booked=int(data.get("tokens", 1)),
+    )
 
 
 def parse(server_output: str) -> Dict:

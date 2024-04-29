@@ -3,6 +3,8 @@ Parser for RLM
 """
 import re
 from typing import Optional
+from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+
 
 INT = r"\d+"
 VERSION = rf"v{INT}\.{INT}"
@@ -59,7 +61,7 @@ def parse_usage_line(line: str) -> Optional[dict]:
     Parse the usage line in the RLM output.
     Data we need:
     - ``feature``: license name
-    - ``user_name``: user name
+    - ``username``: user name
     - ``lead_host``: lead host
     - ``license_used_by_host``: quantity of licenses being use
     """
@@ -70,9 +72,11 @@ def parse_usage_line(line: str) -> Optional[dict]:
 
     return {
         "license_feature": usage_data["license_feature"].lower(),
-        "user_name": usage_data["user_name"],
-        "lead_host": usage_data["lead_host"],
-        "booked": int(usage_data["license_used_by_host"]),
+        "use": LicenseUsesItem(
+            username=usage_data["user_name"].lower(),
+            lead_host=usage_data["lead_host"],
+            booked=int(usage_data["license_used_by_host"]),
+        ),
     }
 
 
@@ -108,7 +112,7 @@ def parse(server_output: str) -> dict:
         if usage:
             feature = usage["license_feature"]
             del usage["license_feature"]
-            parsed_data[feature]["uses"].append(usage)
+            parsed_data[feature]["uses"].append(usage["use"])
             continue
 
         else:

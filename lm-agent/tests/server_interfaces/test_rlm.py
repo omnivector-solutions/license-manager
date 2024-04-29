@@ -63,9 +63,9 @@ async def test_rlm_get_report_item(
         used=93,
         total=1000,
         uses=[
-            {"user_name": "asdj13", "lead_host": "myserver.example.com", "booked": 29},
-            {"user_name": "cddcp2", "lead_host": "myserver.example.com", "booked": 27},
-            {"user_name": "asdj13", "lead_host": "myserver.example.com", "booked": 37},
+            {"username": "asdj13", "lead_host": "myserver.example.com", "booked": 29},
+            {"username": "cddcp2", "lead_host": "myserver.example.com", "booked": 27},
+            {"username": "asdj13", "lead_host": "myserver.example.com", "booked": 37},
         ],
     )
 
