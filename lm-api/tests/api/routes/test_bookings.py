@@ -6,8 +6,16 @@ from lm_api.api.models.booking import Booking
 from lm_api.permissions import Permissions
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_booking__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
@@ -23,7 +31,7 @@ async def test_add_booking__success(
         "quantity": 150,
     }
 
-    inject_security_header("owner1@test.com", Permissions.BOOKING_CREATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 201
@@ -38,8 +46,16 @@ async def test_add_booking__success(
     assert fetched.quantity == data["quantity"]
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_booking__fail_with_overbooking(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
@@ -54,14 +70,22 @@ async def test_add_booking__fail_with_overbooking(
         "quantity": 1500,
     }
 
-    inject_security_header("owner1@test.com", Permissions.BOOKING_CREATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 409
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_booking__fail_with_overbooking_when_reserved(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
@@ -76,19 +100,27 @@ async def test_add_booking__fail_with_overbooking_when_reserved(
         "quantity": 750,
     }
 
-    inject_security_header("owner1@test.com", Permissions.BOOKING_CREATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.post("/lm/bookings", json=data)
 
     assert response.status_code == 409
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_bookings__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_bookings,
 ):
-    inject_security_header("owner1@test.com", Permissions.BOOKING_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/bookings")
 
     assert response.status_code == 200
@@ -103,13 +135,21 @@ async def test_get_all_bookings__success(
     assert response_bookings[1]["quantity"] == create_bookings[1].quantity
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_bookings__with_sort(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_bookings,
 ):
-    inject_security_header("owner1@test.com", Permissions.BOOKING_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/bookings?sort_field=job_id&sort_ascending=false")
 
     assert response.status_code == 200
@@ -124,15 +164,23 @@ async def test_get_all_bookings__with_sort(
     assert response_bookings[1]["quantity"] == create_bookings[0].quantity
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_booking__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
 ):
     id = create_one_booking[0].id
 
-    inject_security_header("owner1@test.com", Permissions.BOOKING_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/bookings/{id}")
 
     assert response.status_code == 200
@@ -144,28 +192,40 @@ async def test_get_booking__success(
 
 
 @mark.parametrize(
-    "id",
+    "id, permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.BOOKING_READ),
+        (-1, Permissions.BOOKING_READ),
+        (999999999, Permissions.BOOKING_READ),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_get_booking__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.BOOKING_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/bookings/{id}")
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.BOOKING_DELETE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_delete_booking__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
@@ -173,7 +233,7 @@ async def test_delete_booking__success(
 ):
     id = create_one_booking[0].id
 
-    inject_security_header("owner1@test.com", Permissions.BOOKING_DELETE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.delete(f"/lm/bookings/{id}")
 
     assert response.status_code == 200
@@ -184,22 +244,26 @@ async def test_delete_booking__success(
 
 
 @mark.parametrize(
-    "id",
+    "id, permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.BOOKING_DELETE),
+        (-1, Permissions.BOOKING_DELETE),
+        (999999999, Permissions.BOOKING_DELETE),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_delete_booking__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_booking,
     read_object,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.BOOKING_DELETE)
+    inject_security_header("owner1@test.com", permission.BOOKING_DELETE)
     response = await backend_client.delete(f"/lm/bookings/{id}")
 
     assert response.status_code == 404

@@ -6,8 +6,16 @@ from lm_api.api.models.feature import Feature
 from lm_api.permissions import Permissions
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_feature__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
@@ -19,7 +27,7 @@ async def test_add_feature__success(
 
     data = {"name": "abaqus", "product_id": product_id, "config_id": configuration_id, "reserved": 0}
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_CREATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.post("/lm/features", json=data)
     assert response.status_code == 201
 
@@ -34,13 +42,21 @@ async def test_add_feature__success(
     assert feature_fetched.used == 0
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_features__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/features")
 
     assert response.status_code == 200
@@ -52,14 +68,22 @@ async def test_get_all_features__success(
         assert computed["reserved"] == expected.reserved
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_features__with_booked_total(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features,
     create_bookings,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
 
     response = await backend_client.get("/lm/features?include_bookings=true")
 
@@ -74,13 +98,21 @@ async def test_get_all_features__with_booked_total(
             assert computed["booked_total"] == expected.quantity
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_features__with_search(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/features?search={create_features[0].name}")
 
     assert response.status_code == 200
@@ -90,13 +122,21 @@ async def test_get_all_features__with_search(
     assert response_features[0]["reserved"] == create_features[0].reserved
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_features__with_sort(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/features?sort_field=name&sort_ascending=false")
 
     assert response.status_code == 200
@@ -109,15 +149,23 @@ async def test_get_all_features__with_sort(
     assert response_features[1]["reserved"] == create_features[0].reserved
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_feature__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
 ):
     id = create_one_feature[0].id
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/features/{id}")
 
     assert response.status_code == 200
@@ -128,28 +176,40 @@ async def test_get_feature__success(
 
 
 @mark.parametrize(
-    "id",
+    "id,permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.FEATURE_READ),
+        (-1, Permissions.FEATURE_READ),
+        (999999999, Permissions.FEATURE_READ),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_get_feature__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/features/{id}")
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_UPDATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_update_feature__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
@@ -159,7 +219,7 @@ async def test_update_feature__success(
 
     id = create_one_feature[0].id
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_UPDATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 200
@@ -171,30 +231,42 @@ async def test_update_feature__success(
 
 
 @mark.parametrize(
-    "id",
+    "id,permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.FEATURE_UPDATE),
+        (-1, Permissions.FEATURE_UPDATE),
+        (999999999, Permissions.FEATURE_UPDATE),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_update_feature__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
-    id,
 ):
     new_feature = {"name": "abaqus_2"}
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_UPDATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_UPDATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_update_feature__fail_with_bad_data(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
@@ -203,14 +275,22 @@ async def test_update_feature__fail_with_bad_data(
 
     id = create_one_feature[0].id
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_UPDATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.put(f"/lm/features/{id}", json=new_feature)
 
     assert response.status_code == 400
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_UPDATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_bulk_update_feature__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features,
@@ -232,7 +312,7 @@ async def test_bulk_update_feature__success(
     ]
     client_id = "dummy"
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_UPDATE, client_id=client_id)
+    inject_security_header("owner1@test.com", permission, client_id=client_id)
     response = await backend_client.put("/lm/features/bulk", json=data_to_update)
 
     assert response.status_code == 200
@@ -258,8 +338,16 @@ async def test_bulk_update_feature__success(
     assert fetch_feature.used == data_to_update[1]["used"]
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_UPDATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_bulk_update_feature__features_with_same_name(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_features_with_same_name,
@@ -281,7 +369,7 @@ async def test_bulk_update_feature__features_with_same_name(
     ]
     client_id = "dummy"
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_UPDATE, client_id=client_id)
+    inject_security_header("owner1@test.com", permission, client_id=client_id)
     response = await backend_client.put("/lm/features/bulk", json=data_to_update)
 
     assert response.status_code == 200
@@ -309,8 +397,16 @@ async def test_bulk_update_feature__features_with_same_name(
     assert fetch_feature.used == data_to_update[1]["used"]
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.FEATURE_DELETE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_delete_feature__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
@@ -318,7 +414,7 @@ async def test_delete_feature__success(
 ):
     id = create_one_feature[0].id
 
-    inject_security_header("owner1@test.com", Permissions.FEATURE_DELETE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.delete(f"/lm/features/{id}")
 
     assert response.status_code == 200
@@ -329,21 +425,25 @@ async def test_delete_feature__success(
 
 
 @mark.parametrize(
-    "id",
+    "id,permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.FEATURE_DELETE),
+        (-1, Permissions.FEATURE_DELETE),
+        (999999999, Permissions.FEATURE_DELETE),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_delete_feature__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_feature,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.FEATURE_DELETE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.delete(f"/lm/features/{id}")
 
     assert response.status_code == 404
