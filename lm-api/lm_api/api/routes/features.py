@@ -25,7 +25,7 @@ crud_feature = FeatureCRUD(Feature)
 )
 async def create_feature(
     feature: FeatureCreateSchema = Body(..., description="Feature to be created"),
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_CREATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.FEATURE_CREATE)),
 ):
     """Create a new feature"""
     return await crud_feature.create(db_session=secure_session.session, obj=feature)
@@ -40,7 +40,9 @@ async def read_all_features(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.FEATURE_READ, commit=False)
+    ),
 ):
     """Return all features with associated bookings."""
     return await crud_feature.read_all(
@@ -58,7 +60,9 @@ async def read_all_features(
 )
 async def read_feature(
     feature_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.FEATURE_READ, commit=False)
+    ),
 ):
     """Return a feature with associated bookings with the given id."""
     return await crud_feature.read(db_session=secure_session.session, id=feature_id)
@@ -70,7 +74,7 @@ async def read_feature(
 )
 async def bulk_update_feature(
     features: List[FeatureUpdateByNameSchema],
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_UPDATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.FEATURE_UPDATE)),
 ):
     """
     Update a list of features in the database using the name of each feature.
@@ -102,7 +106,7 @@ async def bulk_update_feature(
 async def update_feature(
     feature_id: int,
     feature_update: FeatureUpdateSchema,
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_UPDATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.FEATURE_UPDATE)),
 ):
     """Update a feature in the database."""
     return await crud_feature.update(
@@ -118,7 +122,7 @@ async def update_feature(
 )
 async def delete_feature(
     feature_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.FEATURE_DELETE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.FEATURE_DELETE)),
 ):
     """
     Delete a feature from the database.
