@@ -25,7 +25,9 @@ crud_license_server = GenericCRUD(LicenseServer)
     response_model=List[LicenseServerType],
 )
 async def get_license_server_types(
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_READ, commit=False)
+    ),
 ):
     """Return a list of the available license server types."""
     return list(LicenseServerType)
@@ -38,7 +40,9 @@ async def get_license_server_types(
 )
 async def create_license_server(
     license_server: LicenseServerCreateSchema = Body(..., description="License server to be created"),
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_CREATE)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_CREATE)
+    ),
 ):
     """Create a new license server."""
     return await crud_license_server.create(db_session=secure_session.session, obj=license_server)
@@ -53,7 +57,9 @@ async def read_all_license_servers(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_READ, commit=False)
+    ),
 ):
     """Return all license servers."""
     return await crud_license_server.read_all(
@@ -68,7 +74,9 @@ async def read_all_license_servers(
 )
 async def read_license_server(
     license_server_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_READ, commit=False)
+    ),
 ):
     """Return a license server with the given id."""
     return await crud_license_server.read(db_session=secure_session.session, id=license_server_id)
@@ -82,7 +90,9 @@ async def read_license_server(
 async def update_license_server(
     license_server_id: int,
     license_server_update: LicenseServerUpdateSchema,
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_UPDATE)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_UPDATE)
+    ),
 ):
     """Update a license server in the database."""
     return await crud_license_server.update(
@@ -98,7 +108,9 @@ async def update_license_server(
 )
 async def delete_license_server(
     license_server_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.LICENSE_SERVER_DELETE)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.LICENSE_SERVER_DELETE)
+    ),
 ):
     """Delete a license server from the database."""
     return await crud_license_server.delete(db_session=secure_session.session, id=license_server_id)

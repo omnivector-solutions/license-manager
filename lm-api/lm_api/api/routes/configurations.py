@@ -37,7 +37,7 @@ crud_license_server = GenericCRUD(LicenseServer)
 )
 async def create_configuration(
     configuration: ConfigurationCompleteCreateSchema = Body(..., description="Configuration to be created"),
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_CREATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.CONFIG_CREATE)),
 ):
     """
     Create a new configuration.
@@ -95,7 +95,9 @@ async def read_all_configurations(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.CONFIG_READ, commit=False)
+    ),
 ):
     """Return all configurations with the associated license servers and features."""
     return await crud_configuration.read_all(
@@ -112,7 +114,9 @@ async def read_all_configurations(
     status_code=status.HTTP_200_OK,
 )
 async def read_configurations_by_client_id(
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.CONFIG_READ, commit=False)
+    ),
 ):
     """Return the configurations with the specified client_id."""
     client_id = secure_session.identity_payload.client_id
@@ -135,7 +139,9 @@ async def read_configurations_by_client_id(
 )
 async def read_configuration(
     configuration_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.CONFIG_READ, commit=False)
+    ),
 ):
     """Return a configuration with the associated license severs and features with a given id."""
     return await crud_configuration.read(
@@ -151,7 +157,7 @@ async def read_configuration(
 async def update_configuration(
     configuration_id: int,
     configuration_update: ConfigurationCompleteUpdateSchema,
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_UPDATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.CONFIG_UPDATE)),
 ):
     """
     Update a configuration in the database.
@@ -239,7 +245,7 @@ async def update_configuration(
 )
 async def delete_configuration(
     configuration_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_DELETE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.CONFIG_DELETE)),
 ):
     """
     Delete a configuration from the database.

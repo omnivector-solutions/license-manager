@@ -6,8 +6,16 @@ from lm_api.api.models.job import Job
 from lm_api.permissions import Permissions
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_job__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
@@ -20,7 +28,7 @@ async def test_add_job__success(
     }
     client_id = "dummy"
 
-    inject_security_header("owner1@test.com", Permissions.JOB_CREATE, client_id=client_id)
+    inject_security_header("owner1@test.com", permission, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -34,8 +42,16 @@ async def test_add_job__success(
     assert fetched.bookings == []
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_job__fail_with_bad_client_id(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
 ):
@@ -46,13 +62,21 @@ async def test_add_job__fail_with_bad_client_id(
         "bookings": [],
     }
 
-    inject_security_header("owner1@test.com", Permissions.JOB_CREATE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 400
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_job__with_bookings(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
@@ -69,7 +93,7 @@ async def test_add_job__with_bookings(
         "bookings": [{"product_feature": f"{product_name}.{feature_name}", "quantity": 50}],
     }
 
-    inject_security_header("owner1@test.com", Permissions.JOB_CREATE, client_id=client_id)
+    inject_security_header("owner1@test.com", permission, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 201
 
@@ -84,8 +108,16 @@ async def test_add_job__with_bookings(
     assert fetched.bookings[0].quantity == data["bookings"][0]["quantity"]
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_CREATE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_add_job__with_bookings__fail_with_overbooking(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     read_object,
@@ -102,7 +134,7 @@ async def test_add_job__with_bookings__fail_with_overbooking(
         "bookings": [{"product_feature": f"{product_name}.{feature_name}", "quantity": 9999}],
     }
 
-    inject_security_header("owner1@test.com", Permissions.JOB_CREATE, client_id=client_id)
+    inject_security_header("owner1@test.com", permission, client_id=client_id)
     response = await backend_client.post("/lm/jobs", json=data)
     assert response.status_code == 409
 
@@ -112,13 +144,21 @@ async def test_add_job__with_bookings__fail_with_overbooking(
     assert fetched is None
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_jobs__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_jobs,
 ):
-    inject_security_header("owner1@test.com", Permissions.JOB_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/jobs")
 
     assert response.status_code == 200
@@ -135,13 +175,21 @@ async def test_get_all_jobs__success(
     assert response_jobs[1]["lead_host"] == create_jobs[1].lead_host
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_jobs__with_search(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_jobs,
 ):
-    inject_security_header("owner1@test.com", Permissions.JOB_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/jobs?search={create_jobs[0].slurm_job_id}")
 
     assert response.status_code == 200
@@ -153,13 +201,21 @@ async def test_get_all_jobs__with_search(
     assert response_jobs[0]["lead_host"] == create_jobs[0].lead_host
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_all_jobs__with_sort(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_jobs,
 ):
-    inject_security_header("owner1@test.com", Permissions.JOB_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get("/lm/jobs?sort_field=slurm_job_id&sort_ascending=false")
 
     assert response.status_code == 200
@@ -176,15 +232,23 @@ async def test_get_all_jobs__with_sort(
     assert response_jobs[1]["lead_host"] == create_jobs[0].lead_host
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_get_job__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
 ):
     id = create_one_job[0].id
 
-    inject_security_header("owner1@test.com", Permissions.JOB_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/jobs/{id}")
 
     assert response.status_code == 200
@@ -197,28 +261,40 @@ async def test_get_job__success(
 
 
 @mark.parametrize(
-    "id",
+    "id,permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.JOB_READ),
+        (-1, Permissions.JOB_READ),
+        (999999999, Permissions.JOB_READ),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_get_job__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.JOB_READ)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.get(f"/lm/jobs/{id}")
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_DELETE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_delete_job__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
@@ -226,7 +302,7 @@ async def test_delete_job__success(
 ):
     id = create_one_job[0].id
 
-    inject_security_header("owner1@test.com", Permissions.JOB_DELETE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.delete(f"/lm/jobs/{id}")
 
     assert response.status_code == 200
@@ -237,28 +313,40 @@ async def test_delete_job__success(
 
 
 @mark.parametrize(
-    "id",
+    "id,permission",
     [
-        0,
-        -1,
-        999999999,
+        (0, Permissions.JOB_DELETE),
+        (-1, Permissions.JOB_DELETE),
+        (999999999, Permissions.JOB_DELETE),
+        (0, Permissions.ADMIN),
+        (-1, Permissions.ADMIN),
+        (999999999, Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_delete_job__fail_with_bad_parameter(
+    id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    id,
 ):
-    inject_security_header("owner1@test.com", Permissions.JOB_DELETE)
+    inject_security_header("owner1@test.com", permission)
     response = await backend_client.delete(f"/lm/jobs/{id}")
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_DELETE,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_delete_job_by_slurm_id__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
@@ -266,7 +354,7 @@ async def test_delete_job_by_slurm_id__success(
 ):
     slurm_job_id = create_one_job[0].slurm_job_id
     cluster_client_id = create_one_job[0].cluster_client_id
-    inject_security_header("owner@test1.com", Permissions.JOB_DELETE, client_id=cluster_client_id)
+    inject_security_header("owner@test1.com", permission, client_id=cluster_client_id)
     response = await backend_client.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
 
     assert response.status_code == 200
@@ -277,30 +365,42 @@ async def test_delete_job_by_slurm_id__success(
 
 
 @mark.parametrize(
-    "slurm_job_id",
+    "slurm_job_id,permission",
     [
-        ("12345"),
-        ("not-a-job-id"),
-        ("non-existant-job-id"),
+        ("12345", Permissions.JOB_DELETE),
+        ("not-a-job-id", Permissions.JOB_DELETE),
+        ("non-existant-job-id", Permissions.JOB_DELETE),
+        ("12345", Permissions.ADMIN),
+        ("not-a-job-id", Permissions.ADMIN),
+        ("non-existant-job-id", Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_delete_job_by_slurm_id__fail_with_bad_parameter(
+    slurm_job_id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    slurm_job_id,
 ):
     cluster_client_id = create_one_job[0].cluster_client_id
 
-    inject_security_header("owner1@test.com", Permissions.JOB_DELETE, client_id=cluster_client_id)
+    inject_security_header("owner1@test.com", permission, client_id=cluster_client_id)
     response = await backend_client.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
 
     assert response.status_code == 404
 
 
+@mark.parametrize(
+    "permission",
+    [
+        Permissions.JOB_READ,
+        Permissions.ADMIN,
+    ],
+)
 @mark.asyncio
 async def test_read_job_by_slurm_id__success(
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
@@ -308,7 +408,7 @@ async def test_read_job_by_slurm_id__success(
     slurm_job_id = create_one_job[0].slurm_job_id
     cluster_client_id = create_one_job[0].cluster_client_id
 
-    inject_security_header("owner1@test.com", Permissions.JOB_READ, client_id=cluster_client_id)
+    inject_security_header("owner1@test.com", permission, client_id=cluster_client_id)
     response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
 
     assert response.status_code == 200
@@ -321,23 +421,27 @@ async def test_read_job_by_slurm_id__success(
 
 
 @mark.parametrize(
-    "slurm_job_id",
+    "slurm_job_id,permission",
     [
-        ("12345"),
-        ("not-a-job-id"),
-        ("non-existant-job-id"),
+        ("12345", Permissions.JOB_READ),
+        ("not-a-job-id", Permissions.JOB_READ),
+        ("non-existant-job-id", Permissions.JOB_READ),
+        ("12345", Permissions.ADMIN),
+        ("not-a-job-id", Permissions.ADMIN),
+        ("non-existant-job-id", Permissions.ADMIN),
     ],
 )
 @mark.asyncio
 async def test_read_job_by_slurm_id__fail_with_bad_parameter(
+    slurm_job_id,
+    permission,
     backend_client: AsyncClient,
     inject_security_header,
     create_one_job,
-    slurm_job_id,
 ):
     cluster_client_id = create_one_job[0].cluster_client_id
 
-    inject_security_header("owner1@test.com", Permissions.JOB_READ, client_id=cluster_client_id)
+    inject_security_header("owner1@test.com", permission, client_id=cluster_client_id)
     response = await backend_client.get(f"/lm/jobs/slurm_job_id/{slurm_job_id}")
 
     assert response.status_code == 404

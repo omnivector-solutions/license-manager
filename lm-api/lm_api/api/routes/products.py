@@ -21,7 +21,7 @@ crud_product = GenericCRUD(Product)
 )
 async def create_product(
     product: ProductCreateSchema = Body(..., description="Product to be created"),
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_CREATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.PRODUCT_CREATE)),
 ):
     """Create a new product."""
     return await crud_product.create(db_session=secure_session.session, obj=product)
@@ -36,7 +36,9 @@ async def read_all_products(
     search: Optional[str] = Query(None),
     sort_field: Optional[str] = Query(None),
     sort_ascending: bool = Query(True),
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.PRODUCT_READ, commit=False)
+    ),
 ):
     """Return all products with associated features."""
     return await crud_product.read_all(
@@ -51,7 +53,9 @@ async def read_all_products(
 )
 async def read_product(
     product_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_READ, commit=False)),
+    secure_session: SecureSession = Depends(
+        secure_session(Permissions.ADMIN, Permissions.PRODUCT_READ, commit=False)
+    ),
 ):
     """Return a product with associated features with the given id."""
     return await crud_product.read(db_session=secure_session.session, id=product_id)
@@ -65,7 +69,7 @@ async def read_product(
 async def update_product(
     product_id: int,
     product_update: ProductUpdateSchema,
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_UPDATE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.PRODUCT_UPDATE)),
 ):
     """Update a product in the database."""
     return await crud_product.update(
@@ -81,7 +85,7 @@ async def update_product(
 )
 async def delete_product(
     product_id: int,
-    secure_session: SecureSession = Depends(secure_session(Permissions.PRODUCT_DELETE)),
+    secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.PRODUCT_DELETE)),
 ):
     """Delete a product from the database and associated features."""
     return await crud_product.delete(db_session=secure_session.session, id=product_id)

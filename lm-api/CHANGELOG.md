@@ -4,6 +4,7 @@ This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
 * Expanded permission sets from view/edit to create/read/update/delete [PENG-2160]
+* Added admin permission to allow for full access to all resources [PENG-2207]
 
 ## 3.1.0 -- 2024-01-24
 * Update constraints to limit int fields to 2**31-1 [PENG-1438]
