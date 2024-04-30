@@ -16,7 +16,7 @@ from lm_agent.workload_managers.slurm.common import get_job_context
 async def epilog():
     # Initialize the logger
     init_logging("slurmctld-epilog")
-    job_context = get_job_context()
+    job_context = await get_job_context()
     job_id = job_context["job_id"]
     job_licenses = job_context["job_licenses"]
 

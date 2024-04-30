@@ -5,7 +5,7 @@ from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 from lm_agent.utils import run_command
-from lm_agent.workload_managers.slurm.common import SCONTROL_PATH
+from lm_agent.workload_managers.slurm.cmd_utils import SCONTROL_PATH
 
 
 async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
