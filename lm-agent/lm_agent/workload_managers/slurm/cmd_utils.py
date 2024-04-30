@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Union
 
 from lm_agent.backend_utils.models import LicenseBooking
 from lm_agent.logs import logger
+from buzz import require_condition
 
 
 SCONTROL_PATH = "/usr/bin/scontrol"
@@ -166,7 +167,13 @@ async def get_lead_host(nodelist):
     stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
     output = str(stdout, encoding=ENCODING)
 
-    return output.split("\n")[0]
+    lead_host = output.split("\n")[0]
+
+    require_condition(
+        lead_host != "", "Could not get lead host from nodelist.", raise_exc_class=ScontrolRetrievalFailure
+    )
+
+    return lead_host
 
 
 async def get_cluster_name() -> str:

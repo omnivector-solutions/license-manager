@@ -16,6 +16,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     get_required_licenses_for_job,
     squeue_parser,
     get_lead_host,
+    ScontrolRetrievalFailure,
 )
 
 
@@ -250,7 +251,7 @@ async def test_get_all_features_cluster_values(
 )
 @mark.asyncio
 @mock.patch("lm_agent.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
-async def test_get_lead_host(
+async def test_get_lead_host__success(
     subprocess_mock: mock.MagicMock, nodelist: str, scontrol_output: bytes, actual_lead_host: str
 ):
     """
@@ -260,3 +261,15 @@ async def test_get_lead_host(
 
     parsed_lead_host = await get_lead_host(nodelist)
     assert parsed_lead_host == actual_lead_host
+
+
+@mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
+async def test_get_lead_host__raise_exception_when_empty(subprocess_mock: mock.MagicMock):
+    """
+    Do I raise an exception when the scontrol show hostnames command returns an empty string?
+    """
+    subprocess_mock.return_value.communicate.return_value = (b"", None)
+
+    with raises(ScontrolRetrievalFailure):
+        await get_lead_host("host1")
