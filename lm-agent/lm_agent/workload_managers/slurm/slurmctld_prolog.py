@@ -27,7 +27,7 @@ async def prolog():
     # Initialize the logger
     init_logging("slurmctld-prolog")
     # Acqure the job context
-    job_context = get_job_context()
+    job_context = await get_job_context()
     job_id = job_context.get("job_id", "")
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")
