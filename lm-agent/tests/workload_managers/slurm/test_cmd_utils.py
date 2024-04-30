@@ -15,6 +15,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_product_features_from_cluster,
     get_required_licenses_for_job,
     squeue_parser,
+    get_lead_host,
 )
 
 
@@ -233,3 +234,29 @@ async def test_get_all_features_cluster_values(
 ):
     show_lic_mock.return_value = show_lic_output
     assert used_features == await get_all_features_cluster_values()
+
+
+@mark.parametrize(
+    "nodelist,scontrol_output,actual_lead_host",
+    [
+        ("host[1,2,3,4]", b"host1\nhost2\nhost3\nhost4\n", "host1"),
+        ("host1", b"host1", "host1"),
+        (
+            "host-1-[1-3,5],host-2-[1,4]",
+            b"host-1-1\nhost-1-2\nhost-1-3\nhost-1-5\nhost-2-1\nhost-2-4\n",
+            "host-1-1",
+        ),
+    ],
+)
+@mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
+async def test_get_lead_host(
+    subprocess_mock: mock.MagicMock, nodelist: str, scontrol_output: bytes, actual_lead_host: str
+):
+    """
+    Do I return the correct lead host from the scontrol show hostnames command?
+    """
+    subprocess_mock.return_value.communicate.return_value = (scontrol_output, None)
+
+    parsed_lead_host = await get_lead_host(nodelist)
+    assert parsed_lead_host == actual_lead_host

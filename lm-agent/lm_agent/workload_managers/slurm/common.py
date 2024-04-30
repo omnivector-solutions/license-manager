@@ -4,25 +4,23 @@ Common utilities for slurm commands.
 import os
 
 from lm_agent.logs import logger
-
-SCONTROL_PATH = "/usr/bin/scontrol"
-SACCTMGR_PATH = "/usr/bin/sacctmgr"
-SQUEUE_PATH = "/usr/bin/squeue"
-CMD_TIMEOUT = 5
-ENCODING = "UTF8"
+from lm_agent.workload_managers.slurm.cmd_utils import get_lead_host
 
 
-def get_job_context():
-    """Get and return variables from the job environment."""
+async def get_job_context():
+    """
+    Get and return variables from the job environment.
+    """
     ctxt = dict()
     try:
         ctxt = {
             "cluster_name": os.environ["SLURM_CLUSTER_NAME"],
             "job_id": os.environ["SLURM_JOB_ID"],
-            "lead_host": os.environ["SLURM_JOB_NODELIST"].split(",")[0],
+            "lead_host": await get_lead_host(os.environ["SLURM_JOB_NODELIST"]),
             "user_name": os.environ["SLURM_JOB_USER"],
             "job_licenses": os.environ.get("SLURM_JOB_LICENSES", ""),
         }
+
     except KeyError as e:
         # If not all keys could be assigned, then return non 0 exit status
         logger.error(

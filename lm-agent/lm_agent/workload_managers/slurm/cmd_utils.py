@@ -7,13 +7,13 @@ from typing import Dict, List, Optional, Union
 
 from lm_agent.backend_utils.models import LicenseBooking
 from lm_agent.logs import logger
-from lm_agent.workload_managers.slurm.common import (
-    CMD_TIMEOUT,
-    ENCODING,
-    SACCTMGR_PATH,
-    SCONTROL_PATH,
-    SQUEUE_PATH,
-)
+
+
+SCONTROL_PATH = "/usr/bin/scontrol"
+SACCTMGR_PATH = "/usr/bin/sacctmgr"
+SQUEUE_PATH = "/usr/bin/squeue"
+CMD_TIMEOUT = 5
+ENCODING = "UTF8"
 
 
 class SqueueParserUnexpectedInputError(ValueError):
@@ -143,6 +143,30 @@ async def scontrol_show_lic():
     output = str(stdout, encoding=ENCODING)
     logger.debug("##### scontrol show lic #####")
     return output
+
+
+async def get_lead_host(nodelist):
+    """
+    Get the job's lead host from the nodelist.
+
+    The lead host is the first node in the nodelist.
+    The nodelist can contain multiple lists of nodes inside square brackets.
+    """
+    cmd = [
+        SCONTROL_PATH,
+        "show",
+        "hostnames",
+        nodelist,
+    ]
+
+    proc = await asyncio.create_subprocess_shell(
+        shlex.join(cmd), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+    )
+
+    stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
+    output = str(stdout, encoding=ENCODING)
+
+    return output.split("\n")[0]
 
 
 async def get_cluster_name() -> str:
