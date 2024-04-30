@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+
+## 3.2.1 -- 2024-04-30
 * Fix bug in extraction of the lead host when the job runs in multiple nodes [ASP-5048]
 
 ## 3.2.0 -- 2024-04-29
