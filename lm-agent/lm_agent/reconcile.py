@@ -5,7 +5,7 @@ import typing
 
 import sentry_sdk
 
-from lm_agent.backend_utils.utils import check_backend_health
+from lm_agent.backend_utils.utils import check_backend_health, report_cluster_status
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
 from lm_agent.services.reconciliation import reconcile
@@ -32,6 +32,7 @@ async def run_reconcile():
     begin_logging()
     logger.info("Starting reconcile script")
     await check_backend_health()
+    await report_cluster_status()
     await reconcile()
     logger.info("Reconcile completed successfully")
 
