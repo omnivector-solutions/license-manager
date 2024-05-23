@@ -8,12 +8,16 @@ class Permissions(str, Enum):
 
     ADMIN = "license-manager:admin"
 
+    STATUS_UPDATE = "license-manager:status:update"
+    STATUS_READ = "license-manager:status:read"
+
     LICENSE_SERVER_CREATE = "license-manager:license-server:create"
     LICENSE_SERVER_READ = "license-manager:license-server:read"
     LICENSE_SERVER_UPDATE = "license-manager:license-server:update"
     LICENSE_SERVER_DELETE = "license-manager:license-server:delete"
 
     CONFIG_CREATE = "license-manager:config:create"
+    CONFIG_VIEW = "license-manager:config:view"
     CONFIG_READ = "license-manager:config:read"
     CONFIG_UPDATE = "license-manager:config:update"
     CONFIG_DELETE = "license-manager:config:delete"
