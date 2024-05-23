@@ -23,7 +23,6 @@ crud_cluster_status = ClusterStatusCRUD(ClusterStatus)
 async def report_cluster_status(
     interval: int = Query(description="The interval in seconds between pings.", gt=0),
     secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.STATUS_UPDATE)),
-    # secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.CONFIG_VIEW)),
 ):
     """
     Report the status of the cluster.
@@ -54,7 +53,6 @@ async def read_all_cluster_statuses(
     secure_session: SecureSession = Depends(
         secure_session(Permissions.ADMIN, Permissions.STATUS_READ, commit=False)
     ),
-    # secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW, commit=False)),
 ):
     """
     Get the status of the cluster.
@@ -74,7 +72,6 @@ async def read_cluster_status_by_client_id(
     secure_session: SecureSession = Depends(
         secure_session(Permissions.ADMIN, Permissions.STATUS_READ, commit=False)
     ),
-    # secure_session: SecureSession = Depends(secure_session(Permissions.CONFIG_VIEW, commit=False)),
 ):
     """
     Get the status of a specific cluster.
