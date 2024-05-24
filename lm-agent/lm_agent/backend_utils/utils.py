@@ -134,6 +134,20 @@ async def check_backend_health():
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
 
 
+async def report_cluster_status():
+    """
+    Report the cluster status to the backend.
+    """
+    interval = settings.STAT_INTERVAL
+
+    async with AsyncBackendClient() as backend_client:
+        resp = await backend_client.put("/lm/cluster_statuses", params={"interval": interval})
+
+    LicenseManagerBackendConnectionError.require_condition(
+        resp.status_code == 202, f"Failed to report cluster status: {resp.text}"
+    )
+
+
 async def get_cluster_jobs_from_backend() -> List[JobSchema]:
     """
     Get all jobs for the cluster with its bookings from the backend.

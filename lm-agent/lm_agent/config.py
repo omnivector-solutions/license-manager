@@ -94,6 +94,9 @@ class Settings(BaseSettings):
     # If set to `True`, reconcile will be triggered by Prolog/Epilog. Set to `False` to disable this.
     USE_RECONCILE_IN_PROLOG_EPILOG: bool = True
 
+    # Stat interval used to report the cluster status to the API
+    STAT_INTERVAL: int = 60
+
     class Config:
         env_prefix = "LM2_AGENT_"
         if DEFAULT_DOTENV_PATH.is_file():

@@ -31,6 +31,7 @@ from lm_agent.backend_utils.utils import (
     make_booking_request,
     make_feature_update,
     remove_job_by_slurm_job_id,
+    report_cluster_status,
 )
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBackendConnectionError
@@ -202,6 +203,22 @@ async def test__get_license_manager_backend_version__raises_exception_on_non_two
     respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(500))
     with raises(LicenseManagerBackendConnectionError, match="Could not connect"):
         await check_backend_health()
+
+
+@mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__report_cluster_status__success_on_202(respx_mock):
+    respx_mock.put("/lm/cluster_statuses?interval=60").mock(return_value=Response(202))
+    await report_cluster_status()
+
+
+@mark.asyncio
+@pytest.mark.respx(base_url="http://backend")
+async def test__report_cluster_status__raises_exception_on_non_202(respx_mock):
+    respx_mock.put("/lm/cluster_statuses?interval=60").mock(return_value=Response(400))
+
+    with raises(LicenseManagerBackendConnectionError, match="Failed to report cluster status"):
+        await report_cluster_status()
 
 
 @mark.asyncio
