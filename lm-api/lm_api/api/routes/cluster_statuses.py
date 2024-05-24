@@ -9,6 +9,7 @@ from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.api.schemas.cluster_status import ClusterStatusSchema
 from lm_api.database import SecureSession, secure_session
 from lm_api.permissions import Permissions
+from buzz import require_condition
 
 
 router = APIRouter()
@@ -83,7 +84,12 @@ async def read_cluster_status_by_client_id(
         filter_expressions=[ClusterStatus.cluster_client_id == cluster_client_id],
     )
 
-    assert len(cluster_statuses) <= 1
+    require_condition(
+        len(cluster_statuses) <= 1,
+        "There should only be one status per cluster.",
+        raise_exc_class=HTTPException,
+        raise_args=(status.HTTP_400_BAD_REQUEST),
+    )
 
     if not cluster_statuses:
         raise HTTPException(
