@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.permissions import Permissions
+import pendulum
 
 
 @mark.parametrize(
@@ -24,6 +25,7 @@ async def test_add_cluster_status(
 
     inject_security_header("owner1@test.com", permission, client_id=cluster_client_id)
 
+    pendulum.travel_to(pendulum.datetime(2024, 1, 1, 0, 0, 0), freeze=True)
     response = await backend_client.put("/lm/cluster_statuses", params={"interval": interval})
     assert response.status_code == status.HTTP_202_ACCEPTED
 
@@ -32,6 +34,7 @@ async def test_add_cluster_status(
 
     assert cluster_status_fetched.cluster_client_id == cluster_client_id
     assert cluster_status_fetched.interval == interval
+    assert cluster_status_fetched.last_reported == pendulum.datetime(2024, 1, 1, 0, 0, 0)
 
 
 @mark.parametrize(
