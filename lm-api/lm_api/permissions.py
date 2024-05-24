@@ -17,7 +17,6 @@ class Permissions(str, Enum):
     LICENSE_SERVER_DELETE = "license-manager:license-server:delete"
 
     CONFIG_CREATE = "license-manager:config:create"
-    CONFIG_VIEW = "license-manager:config:view"
     CONFIG_READ = "license-manager:config:read"
     CONFIG_UPDATE = "license-manager:config:update"
     CONFIG_DELETE = "license-manager:config:delete"
