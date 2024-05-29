@@ -27,6 +27,7 @@ psycopg2 = "^2.9.5"
 yarl = "^1.9.2"
 pydantic = {version = "^1", extras = ["email"]}
 inflection = "^0.5.1"
+pendulum = {extras = ["test"], version = "^3.0.0"}
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.6"

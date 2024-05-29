@@ -6,6 +6,9 @@ from lm_api.api.models.feature import Feature
 from lm_api.api.models.job import Job
 from lm_api.api.models.license_server import LicenseServer
 from lm_api.api.models.product import Product
+from lm_api.api.models.cluster_status import ClusterStatus
+
+import pendulum
 
 
 @fixture
@@ -256,3 +259,36 @@ async def create_one_booking(insert_objects, create_one_job, create_one_feature)
 
     inserted_booking = await insert_objects(booking_to_add, Booking)
     return inserted_booking
+
+
+@fixture
+async def create_cluster_statuses(insert_objects):
+    cluster_statuses_to_add = [
+        {
+            "cluster_client_id": "dummy_1",
+            "interval": 60,
+            "last_reported": pendulum.parse("2024-01-01T00:00:00+00:00"),
+        },
+        {
+            "cluster_client_id": "dummy_2",
+            "interval": 60,
+            "last_reported": pendulum.parse("2024-01-01T00:00:00+00:00"),
+        },
+    ]
+
+    inserted_cluster_statuses = await insert_objects(cluster_statuses_to_add, ClusterStatus)
+    return inserted_cluster_statuses
+
+
+@fixture
+async def create_one_cluster_status(insert_objects):
+    cluster_status_to_add = [
+        {
+            "cluster_client_id": "dummy_1",
+            "interval": 60,
+            "last_reported": pendulum.parse("2024-01-01T00:00:00+00:00"),
+        },
+    ]
+
+    inserted_cluster_status = await insert_objects(cluster_status_to_add, ClusterStatus)
+    return inserted_cluster_status

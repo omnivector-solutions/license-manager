@@ -5,7 +5,13 @@ from sqlalchemy import Integer
 from sqlalchemy.orm import DeclarativeBase, MappedColumn, declared_attr, mapped_column
 
 
-class CrudBase(DeclarativeBase):
+class Base(DeclarativeBase):
+    pass
+
+
+class CrudBase(Base):
+    __abstract__ = True  # Mark this class as abstract to avoid creating a table
+
     @declared_attr.directive
     @classmethod
     def __tablename__(cls) -> str:
@@ -18,3 +24,12 @@ class CrudBase(DeclarativeBase):
 
     sortable_fields: List[MappedColumn[Any]] = []
     searchable_fields: List[MappedColumn[Any]] = []
+
+
+class CrudWithoutId(CrudBase):
+    __abstract__ = True
+
+    @declared_attr.directive
+    @classmethod
+    def id(cls):
+        return None

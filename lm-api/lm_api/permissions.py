@@ -8,6 +8,9 @@ class Permissions(str, Enum):
 
     ADMIN = "license-manager:admin"
 
+    STATUS_UPDATE = "license-manager:status:update"
+    STATUS_READ = "license-manager:status:read"
+
     LICENSE_SERVER_CREATE = "license-manager:license-server:create"
     LICENSE_SERVER_READ = "license-manager:license-server:read"
     LICENSE_SERVER_UPDATE = "license-manager:license-server:update"
