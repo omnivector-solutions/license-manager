@@ -3,6 +3,9 @@
 sqlite*.db
 function*.zip
 
+# MacOS specific stuff
+
+.DS_Store
 
 # OmniVector specific stuff
 
