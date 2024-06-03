@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 
 
+## 3.3.0 -- 2024-05-30
+* Add new endpoints to manage the cluster reports from the agent [ASP-4601]
+
 ## 3.2.0 -- 2024-04-29
 * Expanded permission sets from view/edit to create/read/update/delete [PENG-2160]
 * Added admin permission to allow for full access to all resources [PENG-2207]

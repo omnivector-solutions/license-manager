@@ -3,7 +3,11 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+
+## 3.3.0 -- 2024-05-30
 * Fix bug in extraction of the lead host when the job runs in multiple nodes [ASP-5048]
+* Update agent to report the cluster status to the API during the reconciliation [ASP-4603]
 
 ## 3.2.0 -- 2024-04-29
 * Improve FlexLM, LM-X and OLicense parsers to parse multiple versions of the license server output [ASP-4670]
