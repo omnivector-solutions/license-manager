@@ -1,0 +1,24 @@
+lmutil - Copyright (c) 1989-2012 Flexera Software LLC. All Rights Reserved.
+Flexible License Manager status on Thu 10/29/2020 17:44
+
+License server status: server1,server2,server3
+    License file(s) on server1: f:\flexlm\AbaqusLM\License\license.dat:
+
+server1: license server UP v11.13
+server2: license server UP (MASTER) v11.13
+server3: license server UP v11.13
+
+Vendor daemon status (on server2):
+  FakeLM: UP v11.13
+
+Feature usage info:
+
+Users of {{license_name}}:  (Total of {{total_licenses}} licenses issued;  Total of {{in_use}} licenses in use)
+
+  "{{license_name}}" v62.2, vendor: FakeLM
+
+  floating license
+
+{% for license_in_use in licenses_in_use %}
+    {{license_in_use.user_name}} {{license_in_use.lead_host}} /dev/tty (v62.2) ({{license_in_use.lead_host}}/24200 12507), start Thu 10/29 8:09, {{license_in_use.quantity}} licenses
+{% endfor %}
