@@ -1,4 +1,4 @@
-name: Publish image to ECR
+name: Publish images to ECR
 
 on:
   workflow_dispatch:
@@ -11,10 +11,18 @@ on:
         options:
           - lm-api-staging
           - lm-api-production
+          - lm-simulator
       region:
         description: AWS region to which upload the package
         required: true
         default: 'us-west-2'
+      project:
+        description: Subproject to upload
+        required: true
+        default: 'lm-api'
+        options:
+          - lm-api
+          - lm-simulator
 
 jobs:
   publish:
@@ -39,7 +47,7 @@ jobs:
 
       - id: poetry-package-version
         name: Get version of project from poetry
-        working-directory: lm-api
+        working-directory: ${{ github.event.inputs.project }}
         run: |
           echo "Poetry version is: $(poetry version --short)"
           echo "::set-output name=version::$(poetry version --short)"
