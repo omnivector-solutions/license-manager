@@ -13,6 +13,7 @@ SQLAlchemy = "^1.4.23"
 uvicorn = "^0.15.0"
 requests = "^2.27.1"
 psycopg2 = "2.9.5"
+httpx = "^0.27.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
