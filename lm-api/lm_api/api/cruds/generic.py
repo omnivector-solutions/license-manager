@@ -23,7 +23,7 @@ class GenericCRUD:
 
     async def create(self, db_session: AsyncSession, obj: BaseCreateSchema) -> CrudBase:
         """Creates a new object in the database."""
-        db_obj = self.model(**obj.dict())
+        db_obj = self.model(**obj.model_dump())
         try:
             db_session.add(db_obj)
         except Exception as e:

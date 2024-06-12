@@ -1,7 +1,7 @@
 """Booking schemas for the License Manager API."""
 from typing import Optional
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import ConfigDict, BaseModel, Field, PositiveInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 
@@ -53,6 +53,4 @@ class BookingSchema(BaseModel):
     quantity: PositiveInt = Field(
         ..., title="Quantity", description="The quantity of the feature that was booked."
     )
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

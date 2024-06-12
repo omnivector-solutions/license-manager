@@ -1,8 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseSettings, Field, HttpUrl
+from pydantic import Field, HttpUrl
 
 from lm_api.constants import LogLevelEnum
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -43,19 +44,17 @@ class Settings(BaseSettings):
     LOG_LEVEL: LogLevelEnum = LogLevelEnum.INFO
 
     # log level (sql tracing)
-    LOG_LEVEL_SQL: Optional[LogLevelEnum]
+    LOG_LEVEL_SQL: Optional[LogLevelEnum] = None
 
     # Security Settings. For details, see https://github.com/omnivector-solutions/armsec
     ARMASEC_DOMAIN: str
     ARMASEC_AUDIENCE: Optional[HttpUrl]
     ARMASEC_DEBUG: bool = Field(False)
-    ARMASEC_ADMIN_DOMAIN: Optional[str]
-    ARMASEC_ADMIN_AUDIENCE: Optional[HttpUrl]
-    ARMASEC_ADMIN_MATCH_KEY: Optional[str]
-    ARMASEC_ADMIN_MATCH_VALUE: Optional[str]
-
-    class Config:
-        env_file = ".env"
+    ARMASEC_ADMIN_DOMAIN: Optional[str] = None
+    ARMASEC_ADMIN_AUDIENCE: Optional[HttpUrl] = None
+    ARMASEC_ADMIN_MATCH_KEY: Optional[str] = None
+    ARMASEC_ADMIN_MATCH_VALUE: Optional[str] = None
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()

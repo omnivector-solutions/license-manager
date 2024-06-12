@@ -89,8 +89,7 @@ async def read_cluster_status_by_client_id(
         "There should only be one status per cluster.",
         raise_exc_class=HTTPException,
         raise_kwargs=dict(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="There should only be one status per cluster."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="There should only be one status per cluster."
         ),
     )
 
