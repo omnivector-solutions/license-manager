@@ -4,8 +4,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pydantic import AnyHttpUrl, BaseSettings, Field
-from pydantic.error_wrappers import ValidationError
+from pydantic import AnyHttpUrl, Field
+from pydantic_core import ValidationError
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger("lm_agent.config")
 
@@ -46,10 +47,10 @@ class Settings(BaseSettings):
     BACKEND_BASE_URL: AnyHttpUrl = Field("http://127.0.0.1:8000")
 
     # location of the log directory
-    LOG_BASE_DIR: Optional[str]
+    LOG_BASE_DIR: Optional[str] = None
 
     # path to the license server features config file
-    LICENSE_SERVER_FEATURES_CONFIG_PATH: Optional[str]
+    LICENSE_SERVER_FEATURES_CONFIG_PATH: Optional[str] = None
 
     # path to the binary for lmutil (needed for FlexLM licenses)
     LMUTIL_PATH: Path = _DEFAULT_BIN_PATH
@@ -98,12 +99,10 @@ class Settings(BaseSettings):
     # Stat interval used to report the cluster status to the API
     STAT_INTERVAL: int = 60
 
-    class Config:
-        env_prefix = "LM2_AGENT_"
-        if DEFAULT_DOTENV_PATH.is_file():
-            env_file = DEFAULT_DOTENV_PATH
-        else:
-            env_file = Path(".env")
+    model_config = SettingsConfigDict(
+        env_prefix="LM2_AGENT_",
+        env_file=DEFAULT_DOTENV_PATH if DEFAULT_DOTENV_PATH.is_file() else Path(".env"),
+    )
 
 
 def init_settings() -> Settings:

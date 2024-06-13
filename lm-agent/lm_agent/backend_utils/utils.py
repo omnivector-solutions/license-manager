@@ -115,7 +115,7 @@ class AsyncBackendClient(httpx.AsyncClient):
 
     def __init__(self):
         self._token = None
-        super().__init__(base_url=settings.BACKEND_BASE_URL, auth=self._inject_token, timeout=None)
+        super().__init__(base_url=str(settings.BACKEND_BASE_URL), auth=self._inject_token, timeout=None)
 
     def _inject_token(self, request: httpx.Request) -> httpx.Request:
         if self._token is None:
@@ -165,7 +165,7 @@ async def get_cluster_jobs_from_backend() -> List[JobSchema]:
     with LicenseManagerParseError.handle_errors(
         "Could not parse job data returned from the backend", do_except=log_error
     ):
-        jobs = [JobSchema.parse_obj(job) for job in parsed_resp]
+        jobs = [JobSchema.model_validate(job) for job in parsed_resp]
 
     return jobs
 
@@ -186,7 +186,7 @@ async def get_cluster_configs_from_backend() -> List[ConfigurationSchema]:
     with LicenseManagerParseError.handle_errors(
         "Could not parse configuration data returned from the backend", do_except=log_error
     ):
-        configurations = [ConfigurationSchema.parse_obj(configuration) for configuration in parsed_resp]
+        configurations = [ConfigurationSchema.model_validate(configuration) for configuration in parsed_resp]
 
     return configurations
 
@@ -212,7 +212,7 @@ async def make_booking_request(lbr: LicenseBookingRequest) -> bool:
     async with AsyncBackendClient() as backend_client:
         job_response = await backend_client.post(
             "/lm/jobs",
-            json=lbr.dict(),
+            json=lbr.model_dump(),
         )
         if job_response.status_code != 201:
             logger.error(f"Failed to create booking: {job_response.text}")
@@ -269,7 +269,7 @@ async def get_all_features_from_backend() -> List[FeatureSchema]:
     with LicenseManagerParseError.handle_errors(
         "Could not parse feature data returned from the backend", do_except=log_error
     ):
-        features = [FeatureSchema.parse_obj(feature) for feature in parsed_resp]
+        features = [FeatureSchema.model_validate(feature) for feature in parsed_resp]
 
     return features
 

@@ -109,15 +109,9 @@ def test_parse_usage_line(line, result):
                 "total": 1000,
                 "used": 93,
                 "uses": [
-                    LicenseUsesItem(
-                        booked=29, lead_host="myserver.example.com", username="sdmfva"
-                    ),
-                    LicenseUsesItem(
-                        booked=27, lead_host="myserver.example.com", username="adfdna"
-                    ),
-                    LicenseUsesItem(
-                        booked=37, lead_host="myserver.example.com", username="sdmfva"
-                    ),
+                    LicenseUsesItem(booked=29, lead_host="myserver.example.com", username="sdmfva"),
+                    LicenseUsesItem(booked=27, lead_host="myserver.example.com", username="adfdna"),
+                    LicenseUsesItem(booked=37, lead_host="myserver.example.com", username="sdmfva"),
                 ],
             },
         ),

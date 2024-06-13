@@ -59,7 +59,7 @@ class LicenseReportItem(BaseModel):
     """
 
     feature_id: int
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    product_feature: str = Field(..., pattern=PRODUCT_FEATURE_RX)
     used: int
     total: int
     uses: List[LicenseUsesItem] = []
