@@ -58,7 +58,7 @@ async def test_flexlm_get_report(
     get_output_from_server_mock.return_value = output
 
     reconcile_list = await license_report.report()
-    assert reconcile_list == reconciliation
+    assert reconcile_list == [LicenseReportItem(**item) for item in reconciliation]
 
 
 @mark.asyncio
@@ -118,7 +118,7 @@ async def test_rlm_get_report(
     get_output_from_server_mock.return_value = output
 
     reconcile_list = await license_report.report()
-    assert reconcile_list == reconciliation
+    assert reconcile_list == [LicenseReportItem(**item) for item in reconciliation]
 
 
 @mark.asyncio
@@ -181,7 +181,7 @@ async def test_lsdyna_get_report(
     get_output_from_server_mock.return_value = output
 
     reconcile_list = await license_report.report()
-    assert reconcile_list == reconciliation
+    assert reconcile_list == [LicenseReportItem(**item) for item in reconciliation]
 
 
 @mark.asyncio
@@ -493,11 +493,11 @@ async def test_license_report_empty_on_exception_raised(
     get_report_item_mock.side_effect = Exception("Something is wrong with the license server!")
 
     assert await license_report.report() == [
-        {
-            "feature_id": 1,
-            "product_feature": "converge.converge_super",
-            "used": 0,
-            "total": 0,
-            "uses": [],
-        }
+        LicenseReportItem(
+            feature_id=1,
+            product_feature="converge.converge_super",
+            used=0,
+            total=0,
+            uses=[],
+        )
     ]
