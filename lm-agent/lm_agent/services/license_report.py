@@ -97,7 +97,9 @@ async def report() -> typing.List[LicenseReportItem]:
             )
             product_features_awaited.append(feature_info)
 
-    results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
+    results: list[BaseException | LicenseReportItem] = await asyncio.gather(
+        *get_report_awaitables, return_exceptions=True
+    )
 
     for result, feature_info in zip(results, product_features_awaited):
         feature_id, product_feature = feature_info
@@ -115,6 +117,7 @@ async def report() -> typing.List[LicenseReportItem]:
             )
             report_items.append(failed_report_item)
             continue
+        assert isinstance(result, LicenseReportItem)
         report_items.append(result)
 
     logger.debug("#### Reconciliation items:")

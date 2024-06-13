@@ -34,7 +34,7 @@ def test_init_settings(good_env):
     Do we build a settings object from good input?
     """
     good = init_settings()
-    assert good.BACKEND_BASE_URL == good_env["LM2_AGENT_BACKEND_BASE_URL"]
+    assert str(good.BACKEND_BASE_URL) == good_env["LM2_AGENT_BACKEND_BASE_URL"]
 
 
 def test_init_settings_bad(bad_env, caplog):
@@ -43,4 +43,8 @@ def test_init_settings_bad(bad_env, caplog):
     """
     with raises(SystemExit):
         init_settings()
-    assert len(caplog.messages) == 1 and "invalid or missing URL scheme" in caplog.text
+    assert (
+        len(caplog.messages) == 1
+        and "Input should be a valid URL, relative URL without a base [type=url_parsing, input_value='not-a-url', input_type=str]"
+        in caplog.text
+    )

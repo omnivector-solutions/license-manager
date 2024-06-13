@@ -4,7 +4,6 @@ from unittest import mock
 
 import jwt
 import pytest
-import respx
 from httpx import Response
 from pytest import mark, raises
 
@@ -193,14 +192,16 @@ def test_acquire_token__gets_a_token_from_auth_0_if_one_is_not_in_the_cache(resp
 
 
 @mark.asyncio
+@pytest.mark.respx(base_url=str(settings.BACKEND_BASE_URL))
 async def test__check_backend_health__success_on_two_hundered(respx_mock):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(204))
+    respx_mock.get("/lm/health").mock(return_value=Response(204))
     await check_backend_health()
 
 
 @mark.asyncio
+@pytest.mark.respx(base_url=str(settings.BACKEND_BASE_URL))
 async def test__get_license_manager_backend_version__raises_exception_on_non_two_hundred(respx_mock):
-    respx.get(f"{settings.BACKEND_BASE_URL}/lm/health").mock(return_value=Response(500))
+    respx_mock.get("/lm/health").mock(return_value=Response(500))
     with raises(LicenseManagerBackendConnectionError, match="Could not connect"):
         await check_backend_health()
 
