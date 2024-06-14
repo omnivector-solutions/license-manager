@@ -1,0 +1,244 @@
+version: '3.8'
+
+services:
+  lm-api:
+    build:
+      context: ../lm-api
+      dockerfile: Dockerfile
+    networks:
+      - lm-net
+    volumes:
+      - ../lm-api/lm_api:/app/lm_api
+    environment:
+      DATABASE_HOST: db-lm-api
+      DATABASE_USER: compose-db-user
+      DATABASE_PSWD: compose-db-pswd
+      DATABASE_NAME: compose-db-name
+      DATABASE_PORT: 5432
+      ARMASEC_DOMAIN: keycloak.local:8080/realms/jobbergate-local
+      ARMASEC_AUDIENCE: https://local.omnivector.solutions
+      ARMASEC_DEBUG: false
+      LOG_LEVEL: DEBUG
+    ports:
+      - "7000:8000"
+    healthcheck:
+      test: curl --fail http://localhost:8000/lm/health || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 5s
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+  migration:
+    build:
+      context: ../lm-api
+      dockerfile: Dockerfile-ci
+    environment:
+      DATABASE_HOST: db-lm-api
+      DATABASE_USER: compose-db-user
+      DATABASE_PSWD: compose-db-pswd
+      DATABASE_NAME: compose-db-name
+      ARMASEC_DOMAIN: armasec.dev
+      ARMASEC_AUDIENCE: https://armasec.dev
+      LOG_LEVEL: DEBUG
+    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
+    depends_on:
+      db-lm-api:
+        condition: service_healthy
+
+  db-lm-api:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: compose-db-api-user
+      POSTGRES_PASSWORD: compose-db-api-pswd
+      POSTGRES_DB: compose-db-api-name
+    ports: ["5432:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  lm-simulator:
+    build:
+      context: ../lm-simulator
+      dockerfile: ./Dockerfile
+    depends_on:
+      db-lm-simulator:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://compose-db-sim-user:compose-db-sim-pswd@db-lm-simulator:5432/compose-db-sim-name
+    ports:
+      - "8000:8000"
+    command: uvicorn lm_simulator.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  db-lm-simulator:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: compose-db-sim-user
+      POSTGRES_PASSWORD: compose-db-sim-pswd
+      POSTGRES_DB: compose-db-sim-name
+    ports: ["5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak.local:
+    image: keycloak/keycloak:18.0.0
+    restart: always
+    networks:
+      - lm-net
+    volumes:
+      - kc-realm-files:/opt/keycloak/data/import/
+      - ./etc/lm-local.json:/opt/keycloak/data/import/lm-local.json
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+    command:
+      - "start-dev"
+      - "--import-realm"
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: curl --fail http://localhost:8080/health/ready || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 5s
+
+  mysql:
+    image: mariadb:11.4.2
+    networks:
+      - lm-net
+    hostname: mysql
+    container_name: mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=slurm_acct_db
+      - MYSQL_USER=slurm
+      - MYSQL_PASSWORD=password
+    volumes:
+      - var_lib_mysql:/var/lib/mysql
+
+  slurmctld:
+    build:
+      context: .
+      dockerfile: Dockerfile-slurm
+      args:
+        - JWT_SECRET=${JWT_SECRET:-supersecret}
+    image: slurm-docker-cluster
+    networks:
+      - lm-net
+    command: ["slurmctld"]
+    container_name: slurmctld
+    hostname: slurmctld
+    volumes:
+      - etc_munge:/etc/munge
+      - var_log_slurm:/var/log/slurm
+      - ./slurm-fake-nfs:/nfs
+      - ./slurm-work-dir:/slurm-work-dir
+    expose:
+      - "6817"
+
+  slurmdbd:
+    build:
+      context: .
+      dockerfile: Dockerfile-slurm
+    image: slurm-docker-cluster
+    networks:
+      - lm-net
+    command: ["slurmdbd"]
+    container_name: slurmdbd
+    hostname: slurmdbd
+    volumes:
+      - etc_munge:/etc/munge
+      - var_log_slurm:/var/log/slurm
+      - ./slurm-fake-nfs:/nfs
+      - ./slurm-work-dir:/slurm-work-dir
+    expose:
+      - "6819"
+    depends_on:
+      - slurmctld
+      - mysql
+
+  c1:
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile-slurm
+    image: slurm-docker-cluster
+    networks:
+      - lm-net
+    command: ["slurmd"]
+    hostname: c1
+    container_name: c1
+    volumes:
+      - etc_munge:/etc/munge
+      - var_log_slurm:/var/log/slurm
+      - ./slurm-fake-nfs:/nfs
+      - ./slurm-work-dir:/slurm-work-dir
+    expose:
+      - "6818"
+    depends_on:
+      - slurmctld
+
+  c2:
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile-slurm
+    image: slurm-docker-cluster
+    networks:
+      - lm-net
+    command: ["slurmd"]
+    hostname: c2
+    container_name: c2
+    volumes:
+      - etc_munge:/etc/munge
+      - var_log_slurm:/var/log/slurm
+      - ./slurm-fake-nfs:/nfs
+      - ./slurm-work-dir:/slurm-work-dir
+    expose:
+      - "6818"
+    depends_on:
+      - slurmctld
+
+  slurmrestd:
+    build:
+      context: .
+      dockerfile: Dockerfile-slurm
+    image: slurm-docker-cluster
+    networks:
+      - lm-net
+    command: ["slurmrestd"]
+    environment:
+      - SLURMRESTD_SECURITY=disable_unshare_files,disable_unshare_sysv,disable_user_check
+      - SLURM_JWT=daemon
+    container_name: slurmrestd
+    hostname: slurmrestd
+    volumes:
+      - etc_munge:/etc/munge
+      - var_log_slurm:/var/log/slurm
+      - ./slurm-fake-nfs:/nfs
+      - ./slurm-work-dir:/slurm-work-dir
+    expose:
+      - "6820"
+    ports:
+      - 6820:6820
+    depends_on:
+      - slurmctld
+
+volumes:
+  postgres_data:
+  kc-realm-files:
+  etc_munge:
+  var_lib_mysql:
+  var_log_slurm:
+
+networks:
+  lm-net:
+    driver: bridge
