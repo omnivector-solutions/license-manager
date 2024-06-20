@@ -17,7 +17,6 @@ services:
       DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
       DATABASE_PORT: 5432
       ARMASEC_DOMAIN: ${ARMASEC_DOMAIN}
-      ARMASEC_AUDIENCE: ${ARMASEC_AUDIENCE}
       ARMASEC_DEBUG: ${ARMASEC_DEBUG:-false}
       LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
     ports:
@@ -35,7 +34,6 @@ services:
       TEST_DATABASE_NAME: test-db-name
       TEST_DATABASE_PORT: 5432
       ARMASEC_DOMAIN: armasec.dev
-      ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
       DEPLOY_ENV: TEST
     command: poetry run pytest -s
@@ -55,7 +53,6 @@ services:
       DATABASE_PSWD: ${DATABASE_PSWD:-compose-db-pswd}
       DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
       ARMASEC_DOMAIN: armasec.dev
-      ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
     command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
     depends_on:

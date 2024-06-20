@@ -21,14 +21,12 @@ def get_domain_configs() -> typing.List[DomainConfig]:
     domain_configs = [
         DomainConfig(
             domain=settings.ARMASEC_DOMAIN,
-            audience=str(settings.ARMASEC_AUDIENCE),
             debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
         )
     ]
     if all(
         [
             settings.ARMASEC_ADMIN_DOMAIN,
-            settings.ARMASEC_ADMIN_AUDIENCE,
             settings.ARMASEC_ADMIN_MATCH_KEY,
             settings.ARMASEC_ADMIN_MATCH_VALUE,
         ]
@@ -36,7 +34,6 @@ def get_domain_configs() -> typing.List[DomainConfig]:
         domain_configs.append(
             DomainConfig(
                 domain=settings.ARMASEC_ADMIN_DOMAIN,
-                audience=str(settings.ARMASEC_ADMIN_AUDIENCE),
                 match_keys={settings.ARMASEC_ADMIN_MATCH_KEY: settings.ARMASEC_ADMIN_MATCH_VALUE},
                 debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
             )
