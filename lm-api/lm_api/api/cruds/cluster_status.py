@@ -28,7 +28,7 @@ class ClusterStatusCRUD(GenericCRUD):
             raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
 
         if db_obj is None:
-            create_obj = self.model(**payload.dict())
+            create_obj = self.model(**payload.model_dump())
             try:
                 db_session.add(create_obj)
             except Exception as e:

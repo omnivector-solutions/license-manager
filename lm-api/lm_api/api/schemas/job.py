@@ -1,7 +1,7 @@
 """Job schemas for the License Manager API."""
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.booking import BookingSchema
@@ -100,6 +100,4 @@ class JobSchema(BaseModel):
     bookings: Optional[List[BookingSchema]] = Field(
         None, title="Bookings", description="The bookings of the job."
     )
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

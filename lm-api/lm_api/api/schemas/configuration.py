@@ -1,7 +1,7 @@
 """Configuration schemas for the License Manager API."""
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import ConfigDict, BaseModel, Field, PositiveInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.feature import (
@@ -195,6 +195,4 @@ class ConfigurationSchema(BaseModel):
         title="Type of license server",
         description="The type of license server that provides the license.",
     )
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

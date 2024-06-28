@@ -1,7 +1,7 @@
 """Feature schemas for the License Manager API."""
 from typing import Optional
 
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import ConfigDict, BaseModel, Field, NonNegativeInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.product import ProductSchema
@@ -167,9 +167,7 @@ class FeatureSchema(BaseModel):
         title="Booked total quantity",
         description="The total quantity of licenses that are booked.",
     )
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
     @classmethod
     def from_flat_dict(cls, d):

@@ -3,7 +3,13 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Upgrade FastAPI version to *^0.111.0*
+* Upgrade Uvicorn version to *^0.30.1*
+* Upgrade python-dotenv to *^0.21.0*
+* Upgrade Armasec to *^2.0.1*
+* Upgrade py-buzz to *^4.1.0*
+* Upgrade Pydantic to *^2.7.3* [[PENG-2280](https://sharing.clickup.com/t/h/c/18022949/PENG-2280/YUSOZKBIF96CZJ0)]
+* Add *pydantic-settings* as a dependency
 
 ## 3.3.0 -- 2024-05-30
 * Add new endpoints to manage the cluster reports from the agent [ASP-4601]

@@ -2,7 +2,7 @@
 import re
 from typing import Optional
 
-from pydantic import BaseModel, Field, PositiveInt, validator
+from pydantic import field_validator, ConfigDict, BaseModel, Field, PositiveInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 
@@ -20,14 +20,16 @@ class LicenseServerCreateSchema(BaseCreateSchema):
     host: str = Field(..., title="Host", description="The host of the license server.")
     port: PositiveInt = Field(..., title="Port", description="The port of the license server.")
 
-    @validator("host")
+    @field_validator("host")
+    @classmethod
     def validate_host(cls, value):
         HOST = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*$"  # noqa: W605
         if not re.match(HOST, value):
             raise ValueError("Host must match the regex [a-z0-9-.]+")
         return value
 
-    @validator("port")
+    @field_validator("port")
+    @classmethod
     def validate_port(cls, value):
         if value > 65535:
             raise ValueError("Port must be less than or equal to 65535")
@@ -44,14 +46,16 @@ class LicenseServerWithoutConfigIdCreateSchema(BaseCreateSchema):
     host: str = Field(..., title="Host", description="The host of the license server.")
     port: PositiveInt = Field(..., title="Port", description="The port of the license server.")
 
-    @validator("host")
+    @field_validator("host")
+    @classmethod
     def validate_host(cls, value):
         HOST = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*$"  # noqa: W605
         if not re.match(HOST, value):
             raise ValueError("Host must match the regex [a-z0-9-.]+")
         return value
 
-    @validator("port")
+    @field_validator("port")
+    @classmethod
     def validate_port(cls, value):
         if value > 65535:
             raise ValueError("Port must be less than or equal to 65535")
@@ -67,14 +71,16 @@ class LicenseServerWithOptionalIdUpdateSchema(BaseUpdateSchema):
     host: Optional[str] = Field(None, title="Host", description="The host of the license server.")
     port: Optional[PositiveInt] = Field(None, title="Port", description="The port of the license server.")
 
-    @validator("host")
+    @field_validator("host")
+    @classmethod
     def validate_host(cls, value):
         HOST = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*$"  # noqa: W605
         if not re.match(HOST, value):
             raise ValueError("Host must match the regex [a-z0-9-.]+")
         return value
 
-    @validator("port")
+    @field_validator("port")
+    @classmethod
     def validate_port(cls, value):
         if value > 65535:
             raise ValueError("Port must be less than or equal to 65535")
@@ -94,14 +100,16 @@ class LicenseServerUpdateSchema(BaseUpdateSchema):
     host: Optional[str] = Field(None, title="Host", description="The host of the license server.")
     port: Optional[PositiveInt] = Field(None, title="Port", description="The port of the license server.")
 
-    @validator("host")
+    @field_validator("host")
+    @classmethod
     def validate_host(cls, value):
         HOST = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*$"  # noqa: W605
         if not re.match(HOST, value):
             raise ValueError("Host must match the regex [a-z0-9-.]+")
         return value
 
-    @validator("port")
+    @field_validator("port")
+    @classmethod
     def validate_port(cls, value):
         if value > 65535:
             raise ValueError("Port must be less than or equal to 65535")
@@ -121,6 +129,4 @@ class LicenseServerSchema(BaseModel):
     )
     host: str = Field(..., title="Host", description="The host of the license server.")
     port: PositiveInt = Field(..., title="Port", description="The port of the license server.")
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

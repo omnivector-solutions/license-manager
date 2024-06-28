@@ -1,5 +1,4 @@
 import pytest
-from pydantic import ValidationError
 
 from lm_api.security import IdentityPayload, get_domain_configs
 
@@ -65,17 +64,6 @@ def test_identity_payload__extracts_organization_id_successfully():
     assert identity.organization_id == "dummy-organization-id"
 
 
-def test_identity_payload__fails_validation_with_non_dict_organization_or_non_string():
-    token_payload = {
-        "exp": 1689105153,
-        "sub": "dummy-sub",
-        "azp": "dummy-client-id",
-        "organization": 1234,
-    }
-    with pytest.raises(ValidationError, match="Invalid organization payload"):
-        IdentityPayload(**token_payload)
-
-
 def test_identity_payload__fails_validation_with_wrong_number_of_organization_values():
     token_payload = {
         "exp": 1689105153,
@@ -92,7 +80,7 @@ def test_identity_payload__fails_validation_with_wrong_number_of_organization_va
             },
         },
     }
-    with pytest.raises(ValidationError, match="Organization payload did not include exactly one value"):
+    with pytest.raises(ValueError, match="Organization payload did not include exactly one value"):
         IdentityPayload(**token_payload)
 
     token_payload = {
@@ -101,7 +89,7 @@ def test_identity_payload__fails_validation_with_wrong_number_of_organization_va
         "azp": "dummy-client-id",
         "organization": {},
     }
-    with pytest.raises(ValidationError, match="Organization payload did not include exactly one value"):
+    with pytest.raises(ValueError, match="Organization payload did not include exactly one value"):
         IdentityPayload(**token_payload)
 
 

@@ -5,12 +5,14 @@ Also provides a factory function for TokenSecurity to reduce boilerplate.
 
 import typing
 
+from typing_extensions import Self
+
 from armasec import Armasec, TokenPayload
 from armasec.schemas import DomainConfig
 from armasec.token_security import PermissionMode
 from fastapi import Depends
 from loguru import logger
-from pydantic import EmailStr, root_validator
+from pydantic import model_validator, EmailStr
 
 from lm_api.config import settings
 
@@ -19,7 +21,7 @@ def get_domain_configs() -> typing.List[DomainConfig]:
     domain_configs = [
         DomainConfig(
             domain=settings.ARMASEC_DOMAIN,
-            audience=settings.ARMASEC_AUDIENCE,
+            audience=str(settings.ARMASEC_AUDIENCE),
             debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
         )
     ]
@@ -34,7 +36,7 @@ def get_domain_configs() -> typing.List[DomainConfig]:
         domain_configs.append(
             DomainConfig(
                 domain=settings.ARMASEC_ADMIN_DOMAIN,
-                audience=settings.ARMASEC_ADMIN_AUDIENCE,
+                audience=str(settings.ARMASEC_ADMIN_AUDIENCE),
                 match_keys={settings.ARMASEC_ADMIN_MATCH_KEY: settings.ARMASEC_ADMIN_MATCH_VALUE},
                 debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
             )
@@ -51,10 +53,11 @@ class IdentityPayload(TokenPayload):
     """
 
     email: typing.Optional[EmailStr] = None
+    organization: typing.Optional[typing.Union[str, typing.Dict]] = None
     organization_id: typing.Optional[str] = None
 
-    @root_validator(pre=True)
-    def extract_organization(cls, values):
+    @model_validator(mode="after")
+    def extract_organization(self) -> Self:
         """
         Extracts the organization_id from the organization payload.
 
@@ -68,21 +71,14 @@ class IdentityPayload(TokenPayload):
             }
         }
         """
-        organization_payload = values.pop("organization", None)
-        if organization_payload is None:
-            return values
-        if not isinstance(organization_payload, dict) and not isinstance(organization_payload, str):
-            raise ValueError(f"Invalid organization payload: {organization_payload}")
-        elif len(organization_payload) != 1 and isinstance(organization_payload, dict):
+        if self.organization is None:
+            return typing.cast(Self, self)
+        elif len(self.organization) != 1 and isinstance(self.organization, dict):
             raise ValueError(
-                f"Organization payload did not include exactly one value: {organization_payload}"
+                f"Organization payload did not include exactly one value: {getattr(self, 'organization')}"
             )
-        return {
-            **values,
-            "organization_id": next(iter(organization_payload))
-            if isinstance(organization_payload, dict)
-            else organization_payload,
-        }
+        setattr(self, "organization_id", next(iter(self.organization)))
+        return typing.cast(Self, self)
 
 
 def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = PermissionMode.SOME):
@@ -96,6 +92,6 @@ def lockdown_with_identity(*scopes: str, permission_mode: PermissionMode = Permi
         """
         Provide an injectable function to lockdown a route and extract the identity payload.
         """
-        return IdentityPayload.parse_obj(token_payload)
+        return IdentityPayload.model_validate(token_payload, from_attributes=True)
 
     return dependency
