@@ -3,6 +3,8 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+* Upgrade Pydantic to *^2.7.4* [[PENG-2281](https://sharing.clickup.com/t/h/c/18022949/PENG-2281/S5C5TX46EBVEU8Z)]
+* Add *pydantic-settings* as a dependency
 
 
 ## 3.3.0 -- 2024-05-30
