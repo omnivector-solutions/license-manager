@@ -113,7 +113,9 @@ def init_settings() -> Settings:
           an exception that causes the uvicorn process to exit gracefully (with an error code)
     """
     try:
-        return Settings()
+        # ignoring call-arg because we expect the parameters to
+        # be set either by the environment or the dotenv file
+        return Settings()  # type: ignore[call-arg]
     except ValidationError as e:
         logger.error(f"Failed to load settings: {str(e)}")
         # neither fastapi nor uvicorn appear to offer a way to do a graceful

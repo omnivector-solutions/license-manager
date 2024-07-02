@@ -1,5 +1,4 @@
 """Module for license server interface abstract base class."""
-import abc
 from typing import List
 
 from pydantic import BaseModel, Field
@@ -7,7 +6,7 @@ from pydantic import BaseModel, Field
 from lm_agent.config import PRODUCT_FEATURE_RX
 
 
-class LicenseServerInterface(metaclass=abc.ABCMeta):
+class LicenseServerInterface:
     """
     Abstract base class for License Server interface.
 
@@ -34,13 +33,13 @@ class LicenseServerInterface(metaclass=abc.ABCMeta):
             or NotImplemented
         )
 
-    @abc.abstractclassmethod
     def get_output_from_server(self, product_feature: str):
         """Return output from license server for the indicated features."""
+        raise NotImplementedError("get_output_from_server not implemented")
 
-    @abc.abstractclassmethod
     def get_report_item(self, feature_id: int, product_feature: str):
         """Parse license server output into a report item for the indicated feature."""
+        raise NotImplementedError("get_report_item not implemented")
 
 
 class LicenseUsesItem(BaseModel):
