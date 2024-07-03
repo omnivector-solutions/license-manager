@@ -20,6 +20,14 @@ from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
             },
         ),
         (
+            "Users of TESTFEATURE:  (Total of 1000 licenses issued;  Total of 1 license in use)",
+            {
+                "feature": "testfeature",
+                "total": 1000,
+                "used": 1,
+            },
+        ),
+        (
             "not a feature line",
             None,
         ),
@@ -152,6 +160,17 @@ def test_parse_usage_line(line, result):
                     LicenseUsesItem(booked=1, lead_host="ER0037", username="abcdkk"),
                     LicenseUsesItem(booked=5, lead_host="ER0037", username="abcdkk"),
                     LicenseUsesItem(booked=1, lead_host="ER0037", username="abcdkk"),
+                ],
+            },
+        ),
+        (
+            "flexlm_output_5",
+            {
+                "feature": "adamstk_gg_solver",
+                "total": 6,
+                "used": 1,
+                "uses": [
+                    LicenseUsesItem(booked=1, lead_host="dcv055.com", username="fjan1a"),
                 ],
             },
         ),
