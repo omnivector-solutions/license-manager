@@ -32,6 +32,15 @@ then
     done
     echo "-- slurmdbd is now active ..."
 
+    # Install License Manager Agent
+    /app/install-lm-agent.sh
+
+    # Install License Manager Simulator
+    /app/install-lm-simulator.sh
+
+    # Populate APIs
+    /app/populate-apis.sh
+
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
     exec gosu slurm /usr/sbin/slurmctld -Dvvv
 fi
