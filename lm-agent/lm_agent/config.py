@@ -87,6 +87,7 @@ class Settings(BaseSettings):
     OIDC_AUDIENCE: str
     OIDC_CLIENT_ID: str
     OIDC_CLIENT_SECRET: str
+    OIDC_USE_HTTPS: bool = True
 
     # Token cache directory
     CACHE_DIR: Path = DEFAULT_CACHE_DIR
