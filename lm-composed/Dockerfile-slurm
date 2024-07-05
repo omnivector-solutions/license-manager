@@ -26,9 +26,23 @@ RUN set -ex \
     && echo "deb [signed-by=/usr/share/keyrings/ubuntu-hpc.gpg] https://ppa.launchpadcontent.net/ubuntu-hpc/slurm-wlm-23.02/ubuntu/ jammy main" > /etc/apt/sources.list.d/ubuntu-hpc-slurm.list \
     && gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys AE87121DC3E4A0B0F81FF023F6D0C5D5C6BEB37B \
     && apt update \
-    && apt install slurm-wlm-basic-plugins slurmrestd slurmd slurmdbd slurmctld mysql-client -y \
+    && apt install slurm-wlm-basic-plugins slurmd slurmdbd slurmctld slurmrestd mysql-client -y \
     && rm -rf "${GNUPGHOME}" ubuntu-hpc.pub
 
+# Install Python 3.12.1
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt install -y curl jq build-essential libssl-dev zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev \
+    libsqlite3-dev libgdbm-dev libdb-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev curl libgdbm-compat-dev \
+    && curl -O https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tar.xz \
+    && tar -xf Python-3.12.1.tar.xz \
+    && cd Python-3.12.1  \
+    && export CFLAGS="$CFLAGS $(pkg-config --cflags openssl11)"  \
+    && export LDFLAGS="$LDFLAGS $(pkg-config --libs openssl11)"  \
+    && ./configure --prefix=/opt/python/python3.12 --enable-optimizations  \
+    && make -j "$(nproc)" && make -j "$(nproc)" altinstall
+
+ENV PATH=/opt/python/python3.12/bin:$PATH
 
 # Prepare Filesystem
 RUN mkdir /var/spool/slurmctld \
@@ -47,11 +61,25 @@ RUN chown -R slurm:slurm /var/spool/slurmctld \
     && chown -R slurm:slurm /var/spool/slurmd \
     && chown -R slurm:slurm /etc/slurm
 
+# Add user license-manager
+RUN useradd --system --no-create-home license-manager \
+    && usermod -a -G slurm license-manager
 
-# Add local-user
-RUN useradd -ms /bin/bash local-user
+# Configure log and cache dirs
+RUN mkdir /var/log/license-manager-agent \
+    && chown -r slurm:slurm /var/log/license-manager-agent \
+    && chmod 777 /var/log/license-manager-agent \
+    && mkdir /var/cache/license-manager \
+    && chown -r slurm:slurm /var/cache/license-manager \
+    && chmod 777 /var/log/license-manager
 
 # Copy in the entrypoint.sh
 COPY etc/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
+
+# Copy in the License Manager setup scripts
+COPY etc/install-lm-agent.sh /app/install-lm-agent.sh
+COPY etc/install-lm-simulator.sh /app/install-lm-simulator.sh
+COPY etc/populate-apis.sh /app/populate-apis.sh
+COPY etc/configure-slurm.sh /app/configure-slurm.sh
 
 ENTRYPOINT ["/usr/local/bin/slurm-entrypoint.sh"]

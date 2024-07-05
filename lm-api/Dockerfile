@@ -16,6 +16,8 @@ FROM python:3.12.3-slim-bullseye as runner
 
 WORKDIR /app
 
+RUN apt update && apt install -y curl
+
 COPY --from=builder /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
@@ -23,4 +25,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
 
-CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "7000", "--loop", "asyncio"]
