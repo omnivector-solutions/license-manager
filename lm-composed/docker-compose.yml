@@ -7,22 +7,22 @@ services:
       dockerfile: Dockerfile
     networks:
       - lm-net
+    container_name: lm-api
     volumes:
       - ../lm-api/lm_api:/app/lm_api
     environment:
       DATABASE_HOST: db-lm-api
-      DATABASE_USER: compose-db-user
-      DATABASE_PSWD: compose-db-pswd
-      DATABASE_NAME: compose-db-name
+      DATABASE_USER: compose-db-api-user
+      DATABASE_PSWD: compose-db-api-pswd
+      DATABASE_NAME: compose-db-api-name
       DATABASE_PORT: 5432
-      ARMASEC_DOMAIN: keycloak.local:8080/realms/jobbergate-local
+      ARMASEC_DOMAIN: keycloak.local:8080/realms/lm-local
       ARMASEC_AUDIENCE: https://local.omnivector.solutions
-      ARMASEC_DEBUG: false
+      ARMASEC_DEBUG: true
       LOG_LEVEL: DEBUG
-    ports:
-      - "7000:8000"
+    ports: ["7000:7000"]
     healthcheck:
-      test: curl --fail http://localhost:8000/lm/health || exit 1
+      test: curl --fail http://localhost:7000/lm/health || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
@@ -34,11 +34,13 @@ services:
     build:
       context: ../lm-api
       dockerfile: Dockerfile-ci
+    networks:
+      - lm-net
     environment:
       DATABASE_HOST: db-lm-api
-      DATABASE_USER: compose-db-user
-      DATABASE_PSWD: compose-db-pswd
-      DATABASE_NAME: compose-db-name
+      DATABASE_USER: compose-db-api-user
+      DATABASE_PSWD: compose-db-api-pswd
+      DATABASE_NAME: compose-db-api-name
       ARMASEC_DOMAIN: armasec.dev
       ARMASEC_AUDIENCE: https://armasec.dev
       LOG_LEVEL: DEBUG
@@ -49,11 +51,13 @@ services:
 
   db-lm-api:
     image: postgres:13-alpine
+    networks:
+      - lm-net
     environment:
       POSTGRES_USER: compose-db-api-user
       POSTGRES_PASSWORD: compose-db-api-pswd
       POSTGRES_DB: compose-db-api-name
-    ports: ["5432:5432"]
+    ports: ["5434:5432"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -65,22 +69,31 @@ services:
     build:
       context: ../lm-simulator
       dockerfile: ./Dockerfile
+    networks:
+      - lm-net
+    container_name: lm-simulator
     depends_on:
       db-lm-simulator:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://compose-db-sim-user:compose-db-sim-pswd@db-lm-simulator:5432/compose-db-sim-name
-    ports:
-      - "8000:8000"
+    ports: ["8001:8000"]
+    healthcheck:
+      test: curl --fail http://localhost:8000/lm-sim/health || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 5s
     command: uvicorn lm_simulator.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 
   db-lm-simulator:
     image: postgres:13-alpine
+    networks:
+      - lm-net
     environment:
       POSTGRES_USER: compose-db-sim-user
       POSTGRES_PASSWORD: compose-db-sim-pswd
       POSTGRES_DB: compose-db-sim-name
-    ports: ["5433:5432"]
+    ports: ["5435:5432"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
@@ -103,7 +116,7 @@ services:
       - "start-dev"
       - "--import-realm"
     ports:
-      - 8080:8080
+      - 8081:8080
     healthcheck:
       test: curl --fail http://localhost:8080/health/ready || exit 1
       interval: 5s
@@ -111,7 +124,7 @@ services:
       timeout: 5s
 
   mysql:
-    image: mariadb:11.4.2
+    image: mysql:5.7
     networks:
       - lm-net
     hostname: mysql
@@ -136,11 +149,42 @@ services:
     command: ["slurmctld"]
     container_name: slurmctld
     hostname: slurmctld
+    environment:
+      LM2_AGENT_BACKEND_BASE_URL: http://lm-api:7000
+      LM2_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
+      LM2_AGENT_LOG_LEVEL: DEBUG
+      LM2_AGENT_LMUTIL_PATH: /srv/license-manager-simulator/flexlm/lmutil
+      LM2_AGENT_RLMUTIL_PATH: /srv/license-manager-simulator/rlm/rlmutil
+      LM2_AGENT_LSDYNA_PATH: /srv/license-manager-simulator/lsdyna/lstc_qrun
+      LM2_AGENT_LMXENDUTIL_PATH: /srv/license-manager-simulator/lmx/lmxendutil
+      LM2_AGENT_OLIXTOOL_PATH: /srv/license-manager-simulator/olicense/olixtool
+      LM2_AGENT_USE_RECONCILE_IN_PROLOG_EPILOG: true
+      LM2_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
+      LM2_AGENT_OIDC_AUDIENCE: https://local.omnivector.solutions
+      LM2_AGENT_OIDC_CLIENT_ID: agent
+      LM2_AGENT_OIDC_CLIENT_SECRET: RhU42zR0IxsJwkUgc0GXoGX1bDs46nT9
+      LM2_AGENT_CACHE_DIR: /var/cache/license-manager
+      LM2_AGENT_DEPLOY_ENV: local
+      LM2_AGENT_STAT_INTERVAL: 60
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
+      - ../lm-agent/lm_agent:/app/lm_agent
+      - ../lm-agent/pyproject.toml:/app/pyproject.toml
+      - ../lm-agent/poetry.lock:/app/poetry.lock
+      - ../lm-agent/README.md:/app/README.md
+      - ../lm-agent/LICENSE:/app/LICENSE
+      - ../lm-simulator/bin:/app/lm_simulator
+      - license-manager-agent-cache:/var/cache/license-manager
+      - license-manager-agent-log:/var/log/license-manager-agent
+    depends_on:
+      lm-api:
+        condition: service_healthy
+      lm-simulator:
+        condition: service_healthy
+
     expose:
       - "6817"
 
@@ -238,6 +282,8 @@ volumes:
   etc_munge:
   var_lib_mysql:
   var_log_slurm:
+  license-manager-agent-cache:
+  license-manager-agent-log:
 
 networks:
   lm-net:
