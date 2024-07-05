@@ -12,4 +12,4 @@ RUN poetry install --no-root && rm -rf "$POETRY_CACHE_DIR"
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
 
-CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "7000", "--loop", "asyncio"]
