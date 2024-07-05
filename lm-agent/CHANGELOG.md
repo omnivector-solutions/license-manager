@@ -3,6 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+* Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
 
 
 ## 3.3.0 -- 2024-05-30
