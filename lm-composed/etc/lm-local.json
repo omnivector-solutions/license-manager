@@ -706,7 +706,7 @@
             "access.token.claim": "true",
             "claim.name": "permissions",
             "jsonType.label": "String",
-            "usermodel.clientRoleMapping.clientId": "local-slurm"
+            "usermodel.clientRoleMapping.clientId": "client"
           }
         },
         {
