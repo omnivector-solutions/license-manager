@@ -227,7 +227,8 @@ def test_delete_license_in_use(client, session, one_license):
     )
     session.commit()
 
-    response = client.delete(
+    response = client.request(
+        "DELETE",
         "/licenses-in-use/",
         json={"license_name": "test_name", "quantity": 10, "user_name": "user1", "lead_host": "host1"},
     )
@@ -235,7 +236,8 @@ def test_delete_license_in_use(client, session, one_license):
 
 
 def test_delete_license_in_use_not_found(client):
-    response = client.delete(
+    response = client.request(
+        "DELETE",
         "/licenses-in-use/",
         json={"license_name": "test_name", "quantity": 10, "user_name": "user1", "lead_host": "host1"},
     )

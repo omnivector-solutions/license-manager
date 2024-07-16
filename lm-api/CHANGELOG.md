@@ -8,7 +8,7 @@ This file keeps track of all notable changes to `License Manager API`.
 * Upgrade python-dotenv to *^0.21.0*
 * Upgrade Armasec to *^2.0.1*
 * Upgrade py-buzz to *^4.1.0*
-* Upgrade Pydantic to *^2.7.3* [[PENG-2280](https://sharing.clickup.com/t/h/c/18022949/PENG-2280/YUSOZKBIF96CZJ0)]
+* Upgrade Pydantic to *^2.8.2* [[PENG-2280](https://sharing.clickup.com/t/h/c/18022949/PENG-2280/YUSOZKBIF96CZJ0)]
 * Add *pydantic-settings* as a dependency
 
 ## 3.3.0 -- 2024-05-30

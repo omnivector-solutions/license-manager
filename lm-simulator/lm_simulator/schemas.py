@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class LicenseInUseCreate(BaseModel):
@@ -13,8 +13,7 @@ class LicenseInUseCreate(BaseModel):
 class LicenseInUseRow(LicenseInUseCreate):
     id: Optional[int] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LicenseCreate(BaseModel):
@@ -30,13 +29,12 @@ class LicenseRow(LicenseCreate):
     # This is used to calculate the in_use value using the licenses_in_use field.
     in_use: Optional[int] = 0
 
-    @root_validator()
-    def in_use_validator(cls, values) -> int:
+    @model_validator(mode="after")
+    def in_use_validator(self) -> int:
         """This validator is used to calculate the in_use value."""
-        values["in_use"] = 0
-        for license_in_use in values["licenses_in_use"]:
-            values["in_use"] += license_in_use.quantity
-        return values
+        self.in_use = 0
+        for license_in_use in self.licenses_in_use:
+            self.in_use += license_in_use.quantity
+        return self
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
