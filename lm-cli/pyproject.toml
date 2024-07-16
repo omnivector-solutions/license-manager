@@ -12,7 +12,7 @@ packages = [ { include = "lm_cli" } ]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pydantic = "^1.9.1"
+pydantic = "^2.8.2"
 rich = "^11.2.0"
 pyperclip = "^1.8.2"
 python-jose = "^3.3.0"

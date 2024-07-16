@@ -7,8 +7,8 @@ license = "MIT"
 packages = [{ include = "lm_simulator" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-fastapi = "^0.68.1"
+python = "^3.12"
+fastapi = "^0.111.0"
 SQLAlchemy = "^1.4.23"
 uvicorn = "^0.15.0"
 requests = "^2.27.1"

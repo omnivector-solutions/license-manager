@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager CLI`.
 
 ## Unreleased
-
+* Upgrade Pydantic to *^2.8.2*
 
 ## 3.3.0 -- 2024-05-30
 * Bumped version to keep in sync with backend and agent
