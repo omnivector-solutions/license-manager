@@ -23,6 +23,8 @@ class Tick(pydantic.BaseModel):
     elapsed: pendulum.Duration
     total_elapsed: pendulum.Duration
 
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
 
 class TimeLoop:
     """
