@@ -24,7 +24,7 @@ FEATURE_LINE = (
     rf"(?P<total>{INT}) "
     r"licenses issued;  Total of "
     rf"(?P<used>{INT}) "
-    rf"licenses in use\)$"
+    rf"license(?P<plural>s)? in use\)$"
 )
 
 USAGE_LINE_1 = (

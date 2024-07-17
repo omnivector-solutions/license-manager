@@ -670,6 +670,20 @@ def flexlm_output_4():
 
 
 @fixture
+def flexlm_output_5():
+    """Some FlexLM output to parse."""
+    return dedent(
+        """\
+        Flexible License Manager status on Wed 7/3/2024 14:36
+        ...
+        Users of ADAMSTK_GG_Solver:  (Total of 6 licenses issued;  Total of 1 license in use)
+        ...
+            fjan1a dcv055.com /dev/pts/0 (v2023.0331) (myserver.example.com/29065 7549), start Wed 7/3 11:03
+        """
+    )
+
+
+@fixture
 def flexlm_output_no_licenses():
     """Some lmstat output with no licenses in use to parse."""
     return dedent(

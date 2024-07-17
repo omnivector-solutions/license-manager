@@ -4,7 +4,7 @@ This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
 * Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
-
+* Fix FlexLM parser to parse an output with only one license checked out
 
 ## 3.3.0 -- 2024-05-30
 * Fix bug in extraction of the lead host when the job runs in multiple nodes [ASP-5048]
