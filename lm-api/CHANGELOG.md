@@ -11,6 +11,7 @@ This file keeps track of all notable changes to `License Manager API`.
 * Upgrade Pydantic to *^2.8.2* [[PENG-2280](https://sharing.clickup.com/t/h/c/18022949/PENG-2280/YUSOZKBIF96CZJ0)]
 * Add *pydantic-settings* as a dependency
 * Remove the audience setting [[PENG-2231](https://sharing.clickup.com/t/h/c/18022949/PENG-2231/T3PXA6KD1EH124G)]
+* Add env var to set whether Armasec should use HTTPS or HTTP
 
 
 ## 3.3.0 -- 2024-05-30

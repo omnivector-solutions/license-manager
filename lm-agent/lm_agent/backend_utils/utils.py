@@ -87,7 +87,8 @@ def acquire_token() -> str:
             client_secret=settings.OIDC_CLIENT_SECRET,
             grant_type="client_credentials",
         )
-        oidc_url = f"https://{settings.OIDC_DOMAIN}/protocol/openid-connect/token"
+        protocol = "https" if settings.OIDC_USE_HTTPS else "http"
+        oidc_url = f"{protocol}://{settings.OIDC_DOMAIN}/protocol/openid-connect/token"
         logger.debug(f"Posting OIDC request to {oidc_url}")
         response = httpx.post(oidc_url, data=oidc_body)
         LicenseManagerAuthTokenError.require_condition(

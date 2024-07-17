@@ -22,6 +22,7 @@ def get_domain_configs() -> typing.List[DomainConfig]:
         DomainConfig(
             domain=settings.ARMASEC_DOMAIN,
             debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
+            use_https=settings.ARMASEC_USE_HTTPS,
         )
     ]
     if all(
@@ -36,6 +37,7 @@ def get_domain_configs() -> typing.List[DomainConfig]:
                 domain=settings.ARMASEC_ADMIN_DOMAIN,
                 match_keys={settings.ARMASEC_ADMIN_MATCH_KEY: settings.ARMASEC_ADMIN_MATCH_VALUE},
                 debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
+                use_https=settings.ARMASEC_USE_HTTPS,
             )
         )
     return domain_configs
