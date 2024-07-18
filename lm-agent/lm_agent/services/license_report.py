@@ -9,7 +9,7 @@ from lm_agent.backend_utils.utils import get_cluster_configs_from_backend
 from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
+from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
@@ -63,8 +63,6 @@ async def report() -> typing.List[LicenseReportItem]:
     logger.debug("### Licenses in the cluster: ")
     logger.debug(filtered_entries)
 
-    license_server_interface: LicenseServerInterface
-
     server_type_map = dict(
         flexlm=FlexLMLicenseServer,
         rlm=RLMLicenseServer,
@@ -97,7 +95,9 @@ async def report() -> typing.List[LicenseReportItem]:
             )
             product_features_awaited.append(feature_info)
 
-    results = await asyncio.gather(*get_report_awaitables, return_exceptions=True)
+    results: list[BaseException | LicenseReportItem] = await asyncio.gather(
+        *get_report_awaitables, return_exceptions=True
+    )
 
     for result, feature_info in zip(results, product_features_awaited):
         feature_id, product_feature = feature_info
@@ -115,6 +115,7 @@ async def report() -> typing.List[LicenseReportItem]:
             )
             report_items.append(failed_report_item)
             continue
+        assert isinstance(result, LicenseReportItem)
         report_items.append(result)
 
     logger.debug("#### Reconciliation items:")

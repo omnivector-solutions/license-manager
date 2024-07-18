@@ -109,7 +109,7 @@ def test_parse_usage_line():
                             booked=37,
                             lead_host="myserver.example.com",
                             username="asdj13",
-                                                    ),
+                        ),
                     ],
                 },
                 "converge_tecplot": {"total": 45, "used": 0, "uses": []},
@@ -140,7 +140,7 @@ def test_parse_usage_line():
                 "powerdelta": {
                     "used": 1,
                     "total": 1,
-                    "uses": [{"username": "ghnds2", "lead_host": "server4", "booked": 1}],
+                    "uses": [LicenseUsesItem(username="ghnds2", lead_host="server4", booked=1)],
                 },
                 "powerdelta-meshunion": {"used": 0, "total": 1, "uses": []},
                 "powerdelta-translate2": {"used": 0, "total": 1000000, "uses": []},
