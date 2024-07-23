@@ -1,23 +1,21 @@
+from contextlib import asynccontextmanager
 from typing import List
 
-from fastapi import Body, Depends, FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from lm_simulator import crud, models, schemas
-from lm_simulator.database import engine, session
-
-models.Base.metadata.create_all(bind=engine)
-
-
-def get_db():
-    db = session()
-    try:
-        yield db
-    finally:
-        db.close()
-
+from lm_simulator.crud import (
+    add_license,
+    add_license_in_use,
+    list_licenses,
+    list_licenses_in_use,
+    remove_license,
+    remove_license_in_use,
+)
+from lm_simulator.database import get_session, init_db
+from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
 
 subapp = FastAPI(title="License Manager Simulator API")
 subapp.add_middleware(
@@ -33,7 +31,7 @@ subapp.add_middleware(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={204: {"description": "API is healthy"}},
 )
-def health():
+async def health():
     """
     Provide a health-check endpoint for the app.
     """
@@ -41,99 +39,78 @@ def health():
 
 
 @subapp.post(
-    "/licenses/",
+    "/licenses",
     status_code=status.HTTP_201_CREATED,
-    response_model=schemas.LicenseRow,
+    response_model=LicenseRow,
 )
-def create_license(license: schemas.LicenseCreate, db: Session = Depends(get_db)):
-    try:
-        created_license = crud.create_license(db, license)
-    except IntegrityError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"License already exists\n{e}")
-    return created_license
+async def create_license(license: LicenseCreate, session: AsyncSession = Depends(get_session)):
+    license = await add_license(session=session, license=license)
+    logger.debug(f"Created license: {license}")
+    return license
 
 
 @subapp.get(
-    "/licenses/",
+    "/licenses",
     status_code=status.HTTP_200_OK,
-    response_model=List[schemas.LicenseRow],
+    response_model=List[LicenseRow],
 )
-def list_licenses(db: Session = Depends(get_db)):
-    return crud.get_licenses(db)
+async def get_licenses(session: AsyncSession = Depends(get_session)):
+    licenses = await list_licenses(session=session)
+    return licenses
 
 
 @subapp.delete(
     "/licenses/{license_name}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_license(
+async def delete_license(
     license_name: str,
-    db: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_session),
 ):
-    try:
-        crud.delete_license(db, license_name)
-    except crud.LicenseNotFound:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="License not found.")
-
+    await remove_license(session=session, license_name=license_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @subapp.post(
-    "/licenses-in-use/",
+    "/licenses-in-use",
     status_code=status.HTTP_201_CREATED,
-    response_model=schemas.LicenseInUseRow,
+    response_model=LicenseInUseRow,
 )
-def create_license_in_use(license_in_use: schemas.LicenseInUseCreate, db: Session = Depends(get_db)):
-    try:
-        created_license_in_use = crud.create_license_in_use(db, license_in_use)
-    except crud.LicenseNotFound:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The license {license_in_use.license_name} doesn't exist.",
-        )
-    except crud.NotEnoughLicenses:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough licenses available.")
-    except IntegrityError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"LicenseInUse already exists\n{e}")
-    return created_license_in_use
+async def create_license_in_use(
+    license_in_use: LicenseInUseCreate, session: AsyncSession = Depends(get_session)
+):
+    license_in_use = await add_license_in_use(session=session, license_in_use=license_in_use)
+    return license_in_use
 
 
 @subapp.get(
-    "/licenses-in-use/",
+    "/licenses-in-use",
     status_code=status.HTTP_200_OK,
-    response_model=List[schemas.LicenseInUseRow],
+    response_model=List[LicenseInUseRow],
 )
-def list_licenses_in_use(db: Session = Depends(get_db)):
-    return crud.get_licenses_in_use(db)
-
-
-@subapp.get(
-    "/licenses-in-use/{license_name}",
-    status_code=status.HTTP_200_OK,
-    response_model=List[schemas.LicenseInUseRow],
-)
-def list_licenses_in_use_from_name(license_name: str, db: Session = Depends(get_db)):
-    return crud.get_licenses_in_use_from_name(db, license_name)
+async def get_licenses_in_use(session: AsyncSession = Depends(get_session)):
+    licenses_in_use = await list_licenses_in_use(session=session)
+    return licenses_in_use
 
 
 @subapp.delete(
-    "/licenses-in-use/",
+    "/licenses-in-use/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_license_in_use(
-    lead_host: str = Body(...),
-    user_name: str = Body(...),
-    quantity: int = Body(...),
-    license_name: str = Body(...),
-    db: Session = Depends(get_db),
+async def delete_license_in_use(
+    id: int,
+    session: AsyncSession = Depends(get_session),
 ):
-    try:
-        crud.delete_license_in_use(db, lead_host, user_name, quantity, license_name)
-    except crud.LicenseNotFound:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="License not found.")
-
+    await remove_license_in_use(session=session, id=id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await init_db()
+
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.mount("/lm-sim", subapp)
