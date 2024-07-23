@@ -1,32 +1,35 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-from lm_simulator.database import Base
+
+class Base(DeclarativeBase):
+    pass
 
 
 class License(Base):
     __tablename__ = "licenses"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, unique=True, nullable=False)
-    total = Column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(String, primary_key=True)
+    total: Mapped[int] = mapped_column(Integer, nullable=False)
+    licenses_in_use: Mapped[list["LicenseInUse"]] = relationship(
+        "LicenseInUse",
+        back_populates="license",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
 
-    # this relationship is a must to be able to calculate the in_use value, we don't store the in_use value.
-    licenses_in_use = relationship("LicenseInUse", back_populates="license")
+    @property
+    def in_use(self):
+        return sum(license_in_use.quantity for license_in_use in self.licenses_in_use)
 
 
 class LicenseInUse(Base):
     __tablename__ = "licenses_in_use"
 
-    id = Column(Integer, primary_key=True, index=True)
-    quantity = Column(Integer, nullable=False)
-    user_name = Column(String, nullable=False)
-    lead_host = Column(String, nullable=False)
-    license_name = Column(String, ForeignKey("licenses.name"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_name: Mapped[str] = mapped_column(String, nullable=False)
+    lead_host: Mapped[str] = mapped_column(String, nullable=False)
+    license_name: Mapped[str] = mapped_column(String, ForeignKey("licenses.name"), nullable=False)
 
-    license = relationship("License", back_populates="licenses_in_use")
-
-    # the quantity, user_name, lead_host and license_name must be unique.
-    __table_args__ = (
-        UniqueConstraint("quantity", "user_name", "lead_host", "license_name", name="_unique_contraint"),
-    )
+    license: Mapped["License"] = relationship("License", back_populates="licenses_in_use", lazy="selectin")
