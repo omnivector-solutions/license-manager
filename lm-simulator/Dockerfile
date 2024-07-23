@@ -1,14 +1,18 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8-slim
+FROM python:3.12-slim-bullseye
 
-ENV MODULE_NAME=lm_simulator.main
+WORKDIR /app
 
 RUN apt update && apt install -y curl libpq-dev gcc
 
-RUN pip install poetry && \
-    poetry config virtualenvs.create false
-
 COPY ./pyproject.toml ./poetry.lock* /app/
 
-RUN poetry install --no-root --only main
+RUN pip install poetry \
+    && poetry config virtualenvs.in-project true \
+    && poetry install --no-root --no-dev \
+    && rm -rf "$POETRY_CACHE_DIR"
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 COPY ./lm_simulator /app/lm_simulator
+
+CMD ["uvicorn", "lm_simulator.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
