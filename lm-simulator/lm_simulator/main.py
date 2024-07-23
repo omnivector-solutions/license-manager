@@ -3,7 +3,6 @@ from typing import List
 
 from fastapi import Depends, FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lm_simulator.crud import (
@@ -45,7 +44,6 @@ async def health():
 )
 async def create_license(license: LicenseCreate, session: AsyncSession = Depends(get_session)):
     license = await add_license(session=session, license=license)
-    logger.debug(f"Created license: {license}")
     return license
 
 
