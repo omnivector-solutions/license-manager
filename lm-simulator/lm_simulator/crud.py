@@ -24,7 +24,7 @@ async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:
         ),
     ):
         session.add(db_license)
-        await session.commit()
+        await session.flush()
         await session.refresh(db_license)
 
         return LicenseRow.model_validate(db_license, from_attributes=True)
@@ -66,7 +66,7 @@ async def remove_license(session: Session, license_name: str):
         ),
     ):
         await session.delete(db_license)
-        await session.commit()
+        await session.flush()
 
 
 async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreate) -> LicenseInUseRow:
@@ -107,7 +107,7 @@ async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreat
         ),
     ):
         session.add(db_license_in_use)
-        await session.commit()
+        await session.flush()
         await session.refresh(db_license_in_use)
 
         return LicenseInUseRow.model_validate(db_license_in_use)
@@ -152,4 +152,4 @@ async def remove_license_in_use(
         ),
     ):
         await session.delete(db_license_in_use)
-        await session.commit()
+        await session.flush()
