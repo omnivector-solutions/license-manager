@@ -3,8 +3,7 @@ from typing import List
 
 from httpx import AsyncClient
 from pytest import fixture
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from yarl import URL
 
 from lm_simulator.config import settings
@@ -62,9 +61,9 @@ async def engine():
 async def synth_session(engine):
     async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session_maker() as session:
-        transaction = await session.begin_nested()
+        await session.begin_nested()
         yield session
-        await transaction.rollback()
+        await session.rollback()
         await session.close()
 
 
@@ -79,7 +78,7 @@ async def backend_client(synth_session):
 
 
 @fixture
-async def insert_objects(synth_session):
+def insert_objects(synth_session):
     """
     Fixture to insert objects into the database.
     """
@@ -102,7 +101,7 @@ async def insert_objects(synth_session):
 
 
 @fixture
-async def read_objects(synth_session):
+def read_objects(synth_session):
     """
     Fixture to read objects from the database.
     """
@@ -117,7 +116,7 @@ async def read_objects(synth_session):
 
 
 @fixture
-async def read_object(synth_session):
+def read_object(synth_session):
     """
     Fixture to read a single object from the database.
     """
@@ -132,7 +131,7 @@ async def read_object(synth_session):
 
 
 @fixture
-async def delete_objects(synth_session):
+def delete_objects(synth_session):
     """
     Fixture to delete objects from the database.
     """
@@ -142,72 +141,6 @@ async def delete_objects(synth_session):
         await synth_session.flush()
 
     return _helper
-
-
-@fixture
-async def create_licenses(insert_objects):
-    licenses_to_add = [
-        {
-            "name": "test_license1",
-            "total": 1000,
-        },
-        {
-            "name": "test_license2",
-            "total": 2000,
-        },
-    ]
-
-    inserted_licenses = await insert_objects(licenses_to_add, License)
-    return inserted_licenses
-
-
-@fixture
-async def create_one_license(insert_objects):
-    license_to_add = [
-        {
-            "name": "test_license",
-            "total": 1000,
-        }
-    ]
-
-    inserted_license = await insert_objects(license_to_add, License)
-    return inserted_license
-
-
-@fixture
-async def create_one_license_in_use(insert_objects):
-    license_in_use_to_add = [
-        {
-            "quantity": 100,
-            "user_name": "user1",
-            "lead_host": "host1",
-            "license_name": "test_license",
-        }
-    ]
-
-    inserted_license_in_use = await insert_objects(license_in_use_to_add, LicenseInUse)
-    return inserted_license_in_use
-
-
-@fixture
-async def create_licenses_in_use(insert_objects, create_licenses):
-    licenses_in_use_to_add = [
-        {
-            "quantity": 100,
-            "user_name": "user1",
-            "lead_host": "host1",
-            "license_name": "test_license1",
-        },
-        {
-            "quantity": 200,
-            "user_name": "user2",
-            "lead_host": "host2",
-            "license_name": "test_license2",
-        },
-    ]
-
-    inserted_licenses_in_use = await insert_objects(licenses_in_use_to_add, LicenseInUse)
-    return inserted_licenses_in_use
 
 
 @fixture
