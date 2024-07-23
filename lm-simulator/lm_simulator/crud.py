@@ -1,129 +1,155 @@
 from typing import List
 
-from sqlalchemy import delete, select
+from buzz import enforce_defined, handle_errors, require_condition
+from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from lm_simulator.models import License, LicenseInUse
 from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
 
 
-class LicenseNotFound(Exception):
-    """The requested license is not found."""
+async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:
+    """
+    Add a new License to the database.
+    """
+    db_license = License(**license.model_dump())
+
+    with handle_errors(
+        "Can't create License, check the input data",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can't create License, check the input data",
+        ),
+    ):
+        session.add(db_license)
+        await session.commit()
+        await session.refresh(db_license)
+
+        return LicenseRow.model_validate(db_license, from_attributes=True)
 
 
-class NotEnoughLicenses(Exception):
-    """The number of requested licenses is bigger than the available."""
+async def list_licenses(session: Session) -> List[LicenseRow]:
+    """
+    List all Licenses in the database.
+    """
+    query = await session.execute(select(License))
+    db_licenses = query.scalars().all()
+    return [LicenseRow.model_validate(license) for license in db_licenses]
 
 
-def get_licenses(session: Session) -> List[LicenseRow]:
-    db_licenses = session.execute(select(License)).scalars().all()
-    return [LicenseRow.from_orm(license) for license in db_licenses]
+async def remove_license(session: Session, license_name: str):
+    """
+    Remove the License from the database.
 
-
-def get_licenses_in_use(session: Session) -> List[LicenseInUseRow]:
-    db_licenses_in_use = session.execute(select(LicenseInUse)).scalars().all()
-    return [LicenseInUseRow.from_orm(license) for license in db_licenses_in_use]
-
-
-def get_licenses_in_use_from_name(session: Session, license_name: str) -> List[LicenseInUse]:
-    db_licenses_in_use = (
-        session.execute(select(LicenseInUse).where(LicenseInUse.license_name == license_name)).scalars().all()
+    Raises LicenseNotFound if the License does not exist.
+    """
+    query = await session.execute(select(License).where(License.name == license_name))
+    db_license = query.scalar_one_or_none()
+    enforce_defined(
+        db_license,
+        "License not found",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="License not found",
+        ),
     )
-    return [LicenseInUseRow.from_orm(license) for license in db_licenses_in_use]
+
+    with handle_errors(
+        "Can't remove License",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Database operation failed, check the input data",
+        ),
+    ):
+        await session.delete(db_license)
+        await session.commit()
 
 
-def create_license(session: Session, license: LicenseCreate) -> LicenseRow:
-    db_license = License(**license.dict())
-    session.add(db_license)
-    session.commit()
-    session.refresh(db_license)
-    return LicenseRow.from_orm(db_license)
-
-
-def _get_license_available(session: Session, license_name: str) -> LicenseRow:
-    license = session.execute(select(License).where(License.name == license_name)).scalars().first()
-    return license
-
-
-def create_license_in_use(session: Session, license_in_use: LicenseInUseCreate) -> LicenseInUseRow:
-    """Create the license_in_use.
-
-    We must ensure that there is a license with the license_name in the database, if there is not we raise
-    a LicenseNotFound exception.
-    Given that the license exists in the database, the total number of licenses must be greater than or equal
-    the in_use value for the license plus the quantity needed for the new license_in_use. If it is not, then
-    raise a NotEnoughLicenses exception.
-    If all the conditions are satisfied, the license_in_use is created and returned.
+async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreate) -> LicenseInUseRow:
     """
-    license = _get_license_available(session, license_in_use.license_name)
-    if not license:
-        raise LicenseNotFound()
-    license_row = LicenseRow.from_orm(license)
-    if license_row.total < license_in_use.quantity + license_row.in_use:
-        raise NotEnoughLicenses()
-    db_license_in_use = LicenseInUse(**license_in_use.dict())
-    session.add(db_license_in_use)
-    session.commit()
-    session.refresh(db_license_in_use)
-    return LicenseInUseRow.from_orm(db_license_in_use)
-
-
-def _get_licenses_in_database(
-    session: Session,
-    lead_host: str,
-    user_name: str,
-    quantity: int,
-    license_name: str,
-) -> List[LicenseInUse]:
-    stmt = (
-        select(LicenseInUse)
-        .join(License)
-        .where(
-            License.name == license_name,
-            LicenseInUse.lead_host == lead_host,
-            LicenseInUse.user_name == user_name,
-            LicenseInUse.quantity == quantity,
-        )
+    Add a new LicenseInUse to the database.
+    """
+    query = await session.execute(select(License).where(License.name == license_in_use.license_name))
+    db_license = query.scalar_one_or_none()
+    enforce_defined(
+        db_license,
+        "License not found",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="License not found",
+        ),
     )
-    licenses = session.execute(stmt).scalars().all()
-    return licenses
+    license_row = LicenseRow.model_validate(db_license)
+
+    require_condition(
+        license_row.total >= license_in_use.quantity + license_row.in_use,
+        "Not enough licenses",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Not enough licenses",
+        ),
+    )
+
+    db_license_in_use = LicenseInUse(**license_in_use.model_dump())
+
+    with handle_errors(
+        "Can't create License In Use",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can't create License In Use, check the input data",
+        ),
+    ):
+        session.add(db_license_in_use)
+        await session.commit()
+        await session.refresh(db_license_in_use)
+
+        return LicenseInUseRow.model_validate(db_license_in_use)
 
 
-def delete_license_in_use(
-    session: Session,
-    lead_host: str,
-    user_name: str,
-    quantity: int,
-    license_name: str,
-):
-    """Delete the license_in_use from the database.
-
-    To be able to delete a license_in_use, the license_in_use must exists in the database, if it doesn't
-    then we raise a LicenseNotFound exception.
+async def list_licenses_in_use(session: Session) -> List[LicenseInUseRow]:
     """
-    licenses = _get_licenses_in_database(session, lead_host, user_name, quantity, license_name)
-    if not licenses:
-        raise LicenseNotFound()
-
-    ids_to_delete = [license.id for license in licenses]
-    for id in ids_to_delete:
-        session.execute(delete(LicenseInUse).where(LicenseInUse.id == id))
-
-    session.commit()
-
-
-def delete_license(
-    session: Session,
-    license_name: str,
-):
-    """Delete the license from the database.
-
-    To be able to delete a license, the license must exists in the database, if it doesn't
-    then we raise a LicenseNotFound exception.
+    List all LicensesInUse in the database.
     """
-    license = _get_license_available(session, license_name)
-    if not license:
-        raise LicenseNotFound()
+    query = await session.execute(select(LicenseInUse))
+    db_licenses_in_use = query.scalars().all()
+    return [LicenseInUseRow.model_validate(license_in_use) for license_in_use in db_licenses_in_use]
 
-    session.execute(delete(License).where(License.name == license_name))
-    session.commit()
+
+async def remove_license_in_use(
+    session: Session,
+    id: int,
+):
+    """
+    Remove the LicenseInUse from the database.
+
+    Raises LicenseNotFound if the LicenseInUse does not exist.
+    """
+    query = await session.execute(select(LicenseInUse).where(LicenseInUse.id == id))
+    db_license_in_use = query.scalars().one_or_none()
+
+    enforce_defined(
+        db_license_in_use,
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="License In Use not found",
+        ),
+    )
+
+    with handle_errors(
+        "Can't remove License In Use",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Database operation failed, check the input data",
+        ),
+    ):
+        await session.delete(db_license_in_use)
+        await session.commit()
