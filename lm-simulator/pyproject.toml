@@ -35,11 +35,11 @@ python-dotenv = "^1.0.1"
 [tool.pytest.ini_options]
 addopts = "-v --random-order --cov=lm_simulator --cov-report=term-missing --cov-fail-under=85"
 env = [
-    "DATABASE_HOST: postgres-test",
-    "DATABASE_USER: test-user",
-    "DATABASE_PSWD: test-pswd",
-    "DATABASE_NAME: test-db",
-    "DATABASE_PORT: 5433"
+    "TEST_DATABASE_HOST: test-db",
+    "TEST_DATABASE_USER: test-user",
+    "TEST_DATABASE_PSWD: test-pswd",
+    "TEST_DATABASE_NAME: test-db",
+    "TEST_DATABASE_PORT: 5432"
 ]
 
 [tool.black]

@@ -1,0 +1,16 @@
+FROM python:3.12-slim-bullseye
+
+WORKDIR /app
+
+RUN apt update && apt install -y curl libpq-dev gcc
+
+COPY ./pyproject.toml ./poetry.lock* /app/
+
+RUN pip install poetry \
+    && poetry config virtualenvs.in-project true \
+    && poetry install --no-root \
+    && rm -rf "$POETRY_CACHE_DIR"
+
+COPY ./lm_simulator /app/lm_simulator
+
+CMD ["uvicorn", "lm_simulator.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
