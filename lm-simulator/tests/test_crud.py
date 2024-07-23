@@ -33,6 +33,7 @@ async def test__add_license__success(one_license, read_objects, synth_session):
 async def test__add_license__fail_with_duplicate(one_license, synth_session):
     with pytest.raises(HTTPException) as exc_info:
         await add_license(synth_session, one_license)
+        await add_license(synth_session, one_license)
 
     assert exc_info.type == HTTPException
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
@@ -120,7 +121,7 @@ async def test__add_license_in_use__fail_with_not_enough_licenses(
 async def test__add_license_in_use__fail_with_license_not_found(
     one_license, one_license_in_use__not_found, insert_objects, synth_session
 ):
-    await insert_objects([one_license], LicenseInUse)
+    await insert_objects([one_license], License)
 
     with pytest.raises(HTTPException) as exc_info:
         await add_license_in_use(synth_session, one_license_in_use__not_found)
