@@ -163,12 +163,12 @@ async def test__remove_license_in_use__success(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):
     await insert_objects([one_license], License)
-    await insert_objects([one_license_in_use], LicenseInUse)
+    inserted = await insert_objects([one_license_in_use], LicenseInUse)
 
     licenses_in_use_in_db = await read_objects(LicenseInUse)
     assert len(licenses_in_use_in_db) == 1
 
-    await remove_license_in_use(synth_session, licenses_in_use_in_db[0].id)
+    await remove_license_in_use(synth_session, inserted[0].id)
 
     licenses_in_use_in_db_after_delete = await read_objects(LicenseInUse)
     assert len(licenses_in_use_in_db_after_delete) == 0
@@ -182,7 +182,7 @@ async def test__remove_license_in_use__fail_with_not_found(
     await insert_objects([one_license_in_use], LicenseInUse)
 
     with pytest.raises(HTTPException) as exc_info:
-        await remove_license_in_use(synth_session, 2)
+        await remove_license_in_use(synth_session, 0)
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "License In Use not found"
