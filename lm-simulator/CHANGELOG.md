@@ -8,7 +8,7 @@ This file keeps track of all notable changes to license-manager-simulator
 * Upgrade Pydantic to *^2.8.2*
 * Added cascade delete to remove Licenses In Use when the License is deleted
 * Refactored database module to use AsyncSesssion
-
+* Updated job application example
 
 ## 0.3.0 -- 2022-11-16
 * Fixed lm-sim ip in setup scripts to use the new subapp endpoint
