@@ -6,6 +6,9 @@ This file keeps track of all notable changes to license-manager-simulator
 * Migrated the project to the main license-manager repository
 * Upgrade FastAPI to *^0.111.0*
 * Upgrade Pydantic to *^2.8.2*
+* Added cascade delete to remove Licenses In Use when the License is deleted
+* Refactored database module to use AsyncSesssion
+
 
 ## 0.3.0 -- 2022-11-16
 * Fixed lm-sim ip in setup scripts to use the new subapp endpoint
