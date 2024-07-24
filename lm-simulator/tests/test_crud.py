@@ -54,11 +54,11 @@ async def test__list_licenses__success(licenses, insert_objects, synth_session):
 
     assert len(licenses_in_db) == 2
 
-    assert licenses_in_db[0].name == licenses.name
-    assert licenses_in_db[0].total == licenses.total
+    assert licenses_in_db[0].name == licenses[0].name
+    assert licenses_in_db[0].total == licenses[0].total
 
-    assert licenses_in_db[1].name == licenses.name
-    assert licenses_in_db[1].total == licenses.total
+    assert licenses_in_db[1].name == licenses[1].name
+    assert licenses_in_db[1].total == licenses[1].total
 
 
 @mark.asyncio
@@ -139,23 +139,23 @@ async def test__list_licenses_in_use__empty(synth_session):
 @mark.asyncio
 async def test__list_licenses_in_use__success(licenses, licenses_in_use, insert_objects, synth_session):
     await insert_objects(licenses, License)
-    await insert_objects(licenses_in_use, LicenseInUse)
+    inserted = await insert_objects(licenses_in_use, LicenseInUse)
 
     licenses_in_use_in_db = await list_licenses_in_use(synth_session)
 
     assert len(licenses_in_use_in_db) == 2
 
-    assert licenses_in_use_in_db[0].id == 1
-    assert licenses_in_use_in_db[0].quantity == licenses_in_use[0].quantity
-    assert licenses_in_use_in_db[0].user_name == licenses_in_use[0].user_name
-    assert licenses_in_use_in_db[0].lead_host == licenses_in_use[0].lead_host
-    assert licenses_in_use_in_db[0].license_name == licenses_in_use[0].license_name
+    assert licenses_in_use_in_db[0].id == inserted[0].id
+    assert licenses_in_use_in_db[0].quantity == inserted[0].quantity
+    assert licenses_in_use_in_db[0].user_name == inserted[0].user_name
+    assert licenses_in_use_in_db[0].lead_host == inserted[0].lead_host
+    assert licenses_in_use_in_db[0].license_name == inserted[0].license_name
 
-    assert licenses_in_use_in_db[1].id == 2
-    assert licenses_in_use_in_db[1].quantity == licenses_in_use[1].quantity
-    assert licenses_in_use_in_db[1].user_name == licenses_in_use[1].user_name
-    assert licenses_in_use_in_db[1].lead_host == licenses_in_use[1].lead_host
-    assert licenses_in_use_in_db[1].license_name == licenses_in_use[1].license_name
+    assert licenses_in_use_in_db[1].id == inserted[1].id
+    assert licenses_in_use_in_db[1].quantity == inserted[1].quantity
+    assert licenses_in_use_in_db[1].user_name == inserted[1].user_name
+    assert licenses_in_use_in_db[1].lead_host == inserted[1].lead_host
+    assert licenses_in_use_in_db[1].license_name == inserted[1].license_name
 
 
 @mark.asyncio
@@ -200,9 +200,9 @@ async def test__add_license_in_use__correctly_updates_license_in_use(
 
     await add_license_in_use(synth_session, one_license_in_use)
 
-    licenses_in_use_in_db = await read_objects(LicenseInUse)
-    assert len(licenses_in_use_in_db) == 1
-    assert LicenseRow.model_validate(licenses_in_db[0]).in_use == one_license_in_use.quantity
+    licenses_in_db_after_add = await read_objects(License)
+    assert len(licenses_in_db_after_add) == 1
+    assert LicenseRow.model_validate(licenses_in_db_after_add[0]).in_use == one_license_in_use.quantity
 
 
 @mark.asyncio
@@ -210,13 +210,13 @@ async def test__remove_license_in_use__correctly_updates_license_in_use(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):
     await insert_objects([one_license], License)
-    await insert_objects([one_license_in_use], LicenseInUse)
+    inserted = await insert_objects([one_license_in_use], LicenseInUse)
 
     licenses_in_db = await read_objects(License)
     assert len(licenses_in_db) == 1
     assert LicenseRow.model_validate(licenses_in_db[0]).in_use == one_license_in_use.quantity
 
-    remove_license_in_use(synth_session, 1)
+    await remove_license_in_use(synth_session, inserted[0].id)
 
     licenses_in_db_after_delete = await read_objects(License)
     assert len(licenses_in_db_after_delete) == 1

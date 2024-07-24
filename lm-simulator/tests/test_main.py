@@ -14,7 +14,7 @@ async def test__health_check(backend_client):
 
 
 @mark.asyncio
-async def test__create_license__success(backend_client, one_license):
+async def test__create_license__success(backend_client, one_license, read_objects):
     """
     Test that the correct status code and response are returned on in use license creation.
     """
@@ -22,10 +22,14 @@ async def test__create_license__success(backend_client, one_license):
         "/licenses",
         json=one_license.model_dump(),
     )
+
+    licenses_in_db = await read_objects(License)
+    assert len(licenses_in_db) == 1
+
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {
-        "name": one_license.name,
-        "total": one_license.total,
+        "name": licenses_in_db[0].name,
+        "total": licenses_in_db[0].total,
         "in_use": 0,
         "licenses_in_use": [],
     }
@@ -38,7 +42,7 @@ async def test__create_license__fail_with_duplicate(backend_client, one_license,
     """
     await insert_objects([one_license], License)
 
-    response = backend_client.post(
+    response = await backend_client.post(
         "/licenses",
         json=one_license.model_dump(),
     )
@@ -58,21 +62,21 @@ async def test__list_licenses__success(backend_client, licenses, insert_objects)
     """
     Test that the correct response is returned when listing licenses.
     """
-    await insert_objects(licenses, License)
+    inserted = await insert_objects(licenses, License)
 
     response = await backend_client.get("/licenses")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            "name": licenses[0].name,
-            "total": licenses[0].total,
+            "name": inserted[0].name,
+            "total": inserted[0].total,
             "in_use": 0,
             "licenses_in_use": [],
         },
         {
-            "name": licenses[1].name,
-            "total": licenses[1].total,
+            "name": inserted[1].name,
+            "total": inserted[1].total,
             "in_use": 0,
             "licenses_in_use": [],
         },
@@ -103,7 +107,7 @@ async def test__delete_license__fail_with_not_found(backend_client):
 
 @mark.asyncio
 async def test__create_license_in_use__success(
-    backend_client, one_license, one_license_in_use, insert_objects
+    backend_client, one_license, one_license_in_use, insert_objects, read_objects
 ):
     """
     Test that the correct response is returned when creating a license in use.
@@ -115,8 +119,17 @@ async def test__create_license_in_use__success(
         json=one_license_in_use.model_dump(),
     )
 
+    licenses_in_use_in_db = await read_objects(LicenseInUse)
+    assert len(licenses_in_use_in_db) == 1
+
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == one_license_in_use.model_dump()
+    assert response.json() == {
+        "id": licenses_in_use_in_db[0].id,
+        "quantity": licenses_in_use_in_db[0].quantity,
+        "user_name": licenses_in_use_in_db[0].user_name,
+        "lead_host": licenses_in_use_in_db[0].lead_host,
+        "license_name": licenses_in_use_in_db[0].license_name,
+    }
 
 
 @mark.asyncio
@@ -160,7 +173,7 @@ async def test__create_license_in_use__fail_with_license_not_found(
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert "doesn't exist" in response.text
+    assert "License not found" in response.text
 
 
 @mark.asyncio
@@ -180,25 +193,25 @@ async def test__list_licenses_in_use__success(backend_client, licenses, licenses
     Test that the correct response is returned when listing licenses in use.
     """
     await insert_objects(licenses, License)
-    await insert_objects(licenses_in_use, LicenseInUse)
+    inserted = await insert_objects(licenses_in_use, LicenseInUse)
 
     response = await backend_client.get("/licenses-in-use")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            "id": 1,
-            "quantity": licenses_in_use[0].quantity,
-            "user_name": licenses_in_use[0].user_name,
-            "lead_host": licenses_in_use[0].lead_host,
-            "license_name": licenses_in_use[0].license_name,
+            "id": inserted[0].id,
+            "quantity": inserted[0].quantity,
+            "user_name": inserted[0].user_name,
+            "lead_host": inserted[0].lead_host,
+            "license_name": inserted[0].license_name,
         },
         {
-            "id": 2,
-            "quantity": licenses_in_use[1].quantity,
-            "user_name": licenses_in_use[1].user_name,
-            "lead_host": licenses_in_use[1].lead_host,
-            "license_name": licenses_in_use[1].license_name,
+            "id": inserted[1].id,
+            "quantity": inserted[1].quantity,
+            "user_name": inserted[1].user_name,
+            "lead_host": inserted[1].lead_host,
+            "license_name": inserted[1].license_name,
         },
     ]
 
@@ -213,7 +226,7 @@ async def test__delete_license_in_use__success(
     await insert_objects([one_license], License)
     inserted = await insert_objects([one_license_in_use], LicenseInUse)
 
-    response = await backend_client.delete(f"/licenses-in-use/{inserted.id}")
+    response = await backend_client.delete(f"/licenses-in-use/{inserted[0].id}")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

@@ -3,13 +3,13 @@ from typing import List
 
 from httpx import AsyncClient
 from pytest import fixture
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from yarl import URL
 
 from lm_simulator.config import settings
 from lm_simulator.database import Base, get_session
 from lm_simulator.main import subapp
-from lm_simulator.models import License, LicenseInUse
 from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate
 
 
@@ -93,8 +93,8 @@ def insert_objects(synth_session):
             synth_session.add(obj)
 
         await synth_session.flush()
+        await asyncio.gather(*(synth_session.refresh(obj) for obj in db_objects if obj))
 
-        await asyncio.gather(synth_session.refresh(obj) for obj in db_objects if obj)
         return db_objects
 
     return _helper
@@ -106,39 +106,11 @@ def read_objects(synth_session):
     Fixture to read objects from the database.
     """
 
-    async def _helper(stmt):
-        fetched = (await synth_session.execute(stmt)).scalars().all()
+    async def _helper(model):
+        db_objects = (await synth_session.execute(select(model))).scalars().all()
+        await asyncio.gather(*(synth_session.refresh(obj) for obj in db_objects if obj))
 
-        await asyncio.gather(synth_session.refresh(obj) for obj in fetched if obj)
-        return fetched
-
-    return _helper
-
-
-@fixture
-def read_object(synth_session):
-    """
-    Fixture to read a single object from the database.
-    """
-
-    async def _helper(stmt):
-        fetched = (await synth_session.execute(stmt)).scalar()
-
-        await synth_session.refresh(fetched)
-        return fetched
-
-    return _helper
-
-
-@fixture
-def delete_objects(synth_session):
-    """
-    Fixture to delete objects from the database.
-    """
-
-    async def _helper(object):
-        await synth_session.delete(object)
-        await synth_session.flush()
+        return db_objects
 
     return _helper
 
