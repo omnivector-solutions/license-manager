@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: local-db
       POSTGRES_USER: local-user
       POSTGRES_PASSWORD: local-pswd
-    ports: ["5432:5432"]
+    ports: ["5434:5432"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -21,7 +21,7 @@ services:
       POSTGRES_DB: test-db
       POSTGRES_USER: test-user
       POSTGRES_PASSWORD: test-pswd
-    ports: ["5433:5432"]
+    ports: ["5435:5432"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
