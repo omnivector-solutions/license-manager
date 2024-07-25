@@ -94,7 +94,7 @@ class LicenseBookingRequest(BaseModel):
     Structure to represent a list of license bookings.
     """
 
-    slurm_job_id: int
+    slurm_job_id: str
     username: str
     lead_host: str
     bookings: List[LicenseBooking] = []
