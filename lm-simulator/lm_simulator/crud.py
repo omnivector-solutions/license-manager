@@ -13,14 +13,25 @@ async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:
     """
     Add a new License to the database.
     """
+    query = await session.execute(select(License).where(License.name == license.name))
+    require_condition(
+        query.scalar_one_or_none() is None,
+        "License already exists",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="License already exists",
+        ),
+    )
+
     db_license = License(**license.model_dump())
 
     with handle_errors(
-        "Can't create License, check the input data",
+        "Can't create License",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Can't create License, check the input data",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database operation failed, check the input data",
         ),
     ):
         session.add(db_license)
@@ -46,9 +57,8 @@ async def remove_license(session: Session, license_name: str):
     Raises LicenseNotFound if the License does not exist.
     """
     query = await session.execute(select(License).where(License.name == license_name))
-    db_license = query.scalar_one_or_none()
-    enforce_defined(
-        db_license,
+    db_license = enforce_defined(
+        query.scalar_one_or_none(),
         "License not found",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
@@ -61,7 +71,7 @@ async def remove_license(session: Session, license_name: str):
         "Can't remove License",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database operation failed, check the input data",
         ),
     ):
@@ -74,9 +84,8 @@ async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreat
     Add a new LicenseInUse to the database.
     """
     query = await session.execute(select(License).where(License.name == license_in_use.license_name))
-    db_license = query.scalar_one_or_none()
-    enforce_defined(
-        db_license,
+    db_license = enforce_defined(
+        query.scalar_one_or_none(),
         "License not found",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
@@ -102,7 +111,7 @@ async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreat
         "Can't create License In Use",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Can't create License In Use, check the input data",
         ),
     ):
@@ -132,10 +141,9 @@ async def remove_license_in_use(
     Raises LicenseNotFound if the LicenseInUse does not exist.
     """
     query = await session.execute(select(LicenseInUse).where(LicenseInUse.id == id))
-    db_license_in_use = query.scalars().one_or_none()
-
-    enforce_defined(
-        db_license_in_use,
+    db_license_in_use = enforce_defined(
+        query.scalars().one_or_none(),
+        "License In Use not found",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -147,7 +155,7 @@ async def remove_license_in_use(
         "Can't remove License In Use",
         raise_exc_class=HTTPException,
         exc_builder=lambda exc_class, msg: exc_class(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database operation failed, check the input data",
         ),
     ):

@@ -36,8 +36,8 @@ async def test__add_license__fail_with_duplicate(one_license, synth_session):
         await add_license(synth_session, one_license)
 
     assert exc_info.type == HTTPException
-    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
-    assert exc_info.value.detail == "Can't create License, check the input data"
+    assert exc_info.value.status_code == status.HTTP_409_CONFLICT
+    assert exc_info.value.detail == "License already exists"
 
 
 @mark.asyncio

@@ -1,6 +1,4 @@
-from typing import List
-
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict
 
 
 class LicenseInUseCreate(BaseModel):
@@ -23,11 +21,6 @@ class LicenseCreate(BaseModel):
 
 class LicenseRow(LicenseCreate):
     in_use: int = 0
-    licenses_in_use: List[LicenseInUseRow] = []
+    licenses_in_use: list[LicenseInUseRow] = []
 
     model_config = ConfigDict(from_attributes=True)
-
-    @model_validator(mode="after")
-    def calculate_in_use(self):
-        self.in_use = sum(license_in_use.quantity for license_in_use in self.licenses_in_use)
-        return self

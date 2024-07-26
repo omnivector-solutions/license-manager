@@ -46,7 +46,7 @@ async def test__create_license__fail_with_duplicate(backend_client, one_license,
         "/licenses",
         json=one_license.model_dump(),
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_409_CONFLICT
 
 
 @mark.asyncio
