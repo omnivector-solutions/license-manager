@@ -1,235 +1,223 @@
 import pytest
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException, status
+from pytest import mark
 
-from lm_simulator import crud
+from lm_simulator.crud import (
+    add_license,
+    add_license_in_use,
+    list_licenses,
+    list_licenses_in_use,
+    remove_license,
+    remove_license_in_use,
+)
 from lm_simulator.models import License, LicenseInUse
-from lm_simulator.schemas import LicenseInUseCreate, LicenseRow
+from lm_simulator.schemas import LicenseRow
 
 
-def test_create_license(one_license, session):
-    created_license = crud.create_license(session, one_license)
-    assert created_license.id
+@mark.asyncio
+async def test__add_license__success(one_license, read_objects, synth_session):
+    created_license = await add_license(synth_session, one_license)
+
     assert created_license.name == one_license.name
     assert created_license.total == one_license.total
 
-    licenses_in_db = session.execute(select(License)).scalars().all()
+    licenses_in_db = await read_objects(License)
+
     assert len(licenses_in_db) == 1
-    assert licenses_in_db[0].id == created_license.id
-    assert licenses_in_db[0].name == one_license.name
-    assert licenses_in_db[0].total == one_license.total
+
+    assert licenses_in_db[0].name == created_license.name
+    assert licenses_in_db[0].total == created_license.total
 
 
-# ignoring warning about double rollback
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_create_license_duplicate(one_license, session):
-    """Test that an exception is thrown if a duplicate license entry is created."""
-    crud.create_license(session, one_license)
-    with pytest.raises(IntegrityError):
-        crud.create_license(session, one_license)
+@mark.asyncio
+async def test__add_license__fail_with_duplicate(one_license, synth_session):
+    with pytest.raises(HTTPException) as exc_info:
+        await add_license(synth_session, one_license)
+        await add_license(synth_session, one_license)
+
+    assert exc_info.type == HTTPException
+    assert exc_info.value.status_code == status.HTTP_409_CONFLICT
+    assert exc_info.value.detail == "License already exists"
 
 
-def test_get_licenses_empty(session):
-    licenses = crud.get_licenses(session)
+@mark.asyncio
+async def test__list_licenses__empty(synth_session):
+    licenses = await list_licenses(synth_session)
     assert len(licenses) == 0
 
 
-def test_get_licenses(session):
-    session.add(License(id=1, name="name1", total=10))
-    session.add(License(id=2, name="name2", total=10))
-    session.commit()
+@mark.asyncio
+async def test__list_licenses__success(licenses, insert_objects, synth_session):
+    await insert_objects(licenses, License)
 
-    licenses_response = crud.get_licenses(session)
-    assert len(licenses_response) == 2
-    assert licenses_response[0].id == 1
-    assert licenses_response[0].name == "name1"
-    assert licenses_response[0].total == 10
-    assert licenses_response[1].id == 2
-    assert licenses_response[1].name == "name2"
-    assert licenses_response[1].total == 10
+    licenses_in_db = await list_licenses(synth_session)
+
+    assert len(licenses_in_db) == 2
+
+    assert licenses_in_db[0].name == licenses[0].name
+    assert licenses_in_db[0].total == licenses[0].total
+
+    assert licenses_in_db[1].name == licenses[1].name
+    assert licenses_in_db[1].total == licenses[1].total
 
 
-def test_delete_license(session, one_license):
-    session.add(License(**one_license.dict()))
-    session.commit()
+@mark.asyncio
+async def test__remove_license__success(one_license, insert_objects, read_objects, synth_session):
+    await insert_objects([one_license], License)
 
-    licenses_in_db = session.execute(select(License)).scalars().all()
+    licenses_in_db = await read_objects(License)
     assert len(licenses_in_db) == 1
-    crud.delete_license(session, one_license.name)
-    licenses_in_db_after_delete = session.execute(select(License)).scalars().all()
+
+    await remove_license(synth_session, one_license.name)
+
+    licenses_in_db_after_delete = await read_objects(License)
     assert len(licenses_in_db_after_delete) == 0
 
 
-def test_delete_license_not_found(session, one_license):
-    session.add(License(**one_license.dict()))
-    session.commit()
+@mark.asyncio
+async def test__remove_license__fail_with_not_found(one_license, insert_objects, synth_session):
+    await insert_objects([one_license], License)
 
-    with pytest.raises(crud.LicenseNotFound):
-        crud.delete_license(
-            session,
-            "non-existing-license",
-        )
-    licenses_in_db = session.execute(select(License)).scalars().all()
+    with pytest.raises(HTTPException) as exc_info:
+        await remove_license(synth_session, "non-existing-license")
+
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "License not found"
+
+
+@mark.asyncio
+async def test__add_license_in_use__success(
+    one_license, one_license_in_use, insert_objects, read_objects, synth_session
+):
+    await insert_objects([one_license], License)
+
+    await add_license_in_use(synth_session, one_license_in_use)
+
+    licenses_in_use_in_db = await read_objects(LicenseInUse)
+    assert len(licenses_in_use_in_db) == 1
+
+    assert licenses_in_use_in_db[0].id
+    assert licenses_in_use_in_db[0].quantity == one_license_in_use.quantity
+    assert licenses_in_use_in_db[0].user_name == one_license_in_use.user_name
+    assert licenses_in_use_in_db[0].lead_host == one_license_in_use.lead_host
+    assert licenses_in_use_in_db[0].license_name == one_license_in_use.license_name
+
+
+@mark.asyncio
+async def test__add_license_in_use__fail_with_not_enough_licenses(
+    one_license, one_license_in_use__not_enough, insert_objects, synth_session
+):
+    await insert_objects([one_license], License)
+    await insert_objects([one_license_in_use__not_enough], LicenseInUse)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await add_license_in_use(synth_session, one_license_in_use__not_enough)
+
+    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc_info.value.detail == "Not enough licenses"
+
+
+@mark.asyncio
+async def test__add_license_in_use__fail_with_license_not_found(
+    one_license, one_license_in_use__not_found, insert_objects, synth_session
+):
+    await insert_objects([one_license], License)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await add_license_in_use(synth_session, one_license_in_use__not_found)
+
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "License not found"
+
+
+@mark.asyncio
+async def test__list_licenses_in_use__empty(synth_session):
+    licenses_in_use = await list_licenses_in_use(synth_session)
+    assert len(licenses_in_use) == 0
+
+
+@mark.asyncio
+async def test__list_licenses_in_use__success(licenses, licenses_in_use, insert_objects, synth_session):
+    await insert_objects(licenses, License)
+    inserted = await insert_objects(licenses_in_use, LicenseInUse)
+
+    licenses_in_use_in_db = await list_licenses_in_use(synth_session)
+
+    assert len(licenses_in_use_in_db) == 2
+
+    assert licenses_in_use_in_db[0].id == inserted[0].id
+    assert licenses_in_use_in_db[0].quantity == inserted[0].quantity
+    assert licenses_in_use_in_db[0].user_name == inserted[0].user_name
+    assert licenses_in_use_in_db[0].lead_host == inserted[0].lead_host
+    assert licenses_in_use_in_db[0].license_name == inserted[0].license_name
+
+    assert licenses_in_use_in_db[1].id == inserted[1].id
+    assert licenses_in_use_in_db[1].quantity == inserted[1].quantity
+    assert licenses_in_use_in_db[1].user_name == inserted[1].user_name
+    assert licenses_in_use_in_db[1].lead_host == inserted[1].lead_host
+    assert licenses_in_use_in_db[1].license_name == inserted[1].license_name
+
+
+@mark.asyncio
+async def test__remove_license_in_use__success(
+    one_license, one_license_in_use, insert_objects, read_objects, synth_session
+):
+    await insert_objects([one_license], License)
+    inserted = await insert_objects([one_license_in_use], LicenseInUse)
+
+    licenses_in_use_in_db = await read_objects(LicenseInUse)
+    assert len(licenses_in_use_in_db) == 1
+
+    await remove_license_in_use(synth_session, inserted[0].id)
+
+    licenses_in_use_in_db_after_delete = await read_objects(LicenseInUse)
+    assert len(licenses_in_use_in_db_after_delete) == 0
+
+
+@mark.asyncio
+async def test__remove_license_in_use__fail_with_not_found(
+    one_license, one_license_in_use, insert_objects, synth_session
+):
+    await insert_objects([one_license], License)
+    await insert_objects([one_license_in_use], LicenseInUse)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await remove_license_in_use(synth_session, 0)
+
+    assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc_info.value.detail == "License In Use not found"
+
+
+@mark.asyncio
+async def test__add_license_in_use__correctly_updates_license_in_use(
+    one_license, one_license_in_use, insert_objects, read_objects, synth_session
+):
+    await insert_objects([one_license], License)
+
+    licenses_in_db = await read_objects(License)
     assert len(licenses_in_db) == 1
+    assert LicenseRow.model_validate(licenses_in_db[0]).in_use == 0
+
+    await add_license_in_use(synth_session, one_license_in_use)
+
+    licenses_in_db_after_add = await read_objects(License)
+    assert len(licenses_in_db_after_add) == 1
+    assert LicenseRow.model_validate(licenses_in_db_after_add[0]).in_use == one_license_in_use.quantity
 
 
-def test_get_licenses_in_use(session, one_license, one_license_in_use):
-    session.add(License(**one_license.dict()))
-    session.add(LicenseInUse(**one_license_in_use.dict(), id=1))
-    session.commit()
+@mark.asyncio
+async def test__remove_license_in_use__correctly_updates_license_in_use(
+    one_license, one_license_in_use, insert_objects, read_objects, synth_session
+):
+    await insert_objects([one_license], License)
+    inserted = await insert_objects([one_license_in_use], LicenseInUse)
 
-    licenses_in_use = crud.get_licenses_in_use(session)
-    assert len(licenses_in_use) == 1
-    assert licenses_in_use[0].id == 1
-    assert licenses_in_use[0].quantity == one_license_in_use.quantity
-    assert licenses_in_use[0].user_name == one_license_in_use.user_name
-    assert licenses_in_use[0].lead_host == one_license_in_use.lead_host
-    assert licenses_in_use[0].license_name == one_license_in_use.license_name
+    licenses_in_db = await read_objects(License)
+    assert len(licenses_in_db) == 1
+    assert LicenseRow.model_validate(licenses_in_db[0]).in_use == one_license_in_use.quantity
 
+    await remove_license_in_use(synth_session, inserted[0].id)
 
-def test_get_licenses_in_use_empty(session):
-    licenses_in_use = crud.get_licenses_in_use(session)
-    assert len(licenses_in_use) == 0
-
-
-def test_get_licenses_in_use_from_name(session, one_license, one_license_in_use):
-    session.add(License(**one_license.dict()))
-    session.add(LicenseInUse(**one_license_in_use.dict(), id=1))
-    session.commit()
-
-    licenses_in_use = crud.get_licenses_in_use_from_name(session, one_license.name)
-    assert len(licenses_in_use) == 1
-    assert licenses_in_use[0].id == 1
-    assert licenses_in_use[0].quantity == one_license_in_use.quantity
-    assert licenses_in_use[0].user_name == one_license_in_use.user_name
-    assert licenses_in_use[0].lead_host == one_license_in_use.lead_host
-    assert licenses_in_use[0].license_name == one_license_in_use.license_name
-
-
-def test_get_licenses_in_use_from_name_empty(session):
-    licenses_in_use = crud.get_licenses_in_use_from_name(session, "name")
-    assert len(licenses_in_use) == 0
-
-
-def test_create_license_in_use(session, one_license_in_use):
-    session.add(License(id=1, name="test_name", total=10))
-    session.commit()
-
-    created_license_in_use = crud.create_license_in_use(session, one_license_in_use)
-    assert created_license_in_use.id
-    assert created_license_in_use.quantity == one_license_in_use.quantity
-    assert created_license_in_use.user_name == one_license_in_use.user_name
-    assert created_license_in_use.lead_host == one_license_in_use.lead_host
-    assert created_license_in_use.license_name == one_license_in_use.license_name
-
-    license_in_use_in_db = session.execute(select(LicenseInUse)).scalars().all()
-    assert len(license_in_use_in_db) == 1
-    assert license_in_use_in_db[0].id == created_license_in_use.id
-    assert license_in_use_in_db[0].quantity == one_license_in_use.quantity
-    assert license_in_use_in_db[0].user_name == one_license_in_use.user_name
-    assert license_in_use_in_db[0].lead_host == one_license_in_use.lead_host
-    assert license_in_use_in_db[0].license_name == one_license_in_use.license_name
-
-
-def test_create_license_in_use_correctly_updates_license_in_use(session):
-    session.add(License(id=1, name="test_name", total=30))
-    session.commit()
-
-    crud.create_license_in_use(
-        session,
-        LicenseInUseCreate(
-            quantity=10,
-            user_name="user1",
-            lead_host="host1",
-            license_name="test_name",
-        ),
-    )
-    crud.create_license_in_use(
-        session,
-        LicenseInUseCreate(
-            quantity=20,
-            user_name="user1",
-            lead_host="host1",
-            license_name="test_name",
-        ),
-    )
-    licenses_in_db = session.execute(select(License)).scalars().all()
-    assert LicenseRow.from_orm(licenses_in_db[0]).in_use == 30
-
-
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_create_license_in_use_duplicate(session, one_license_in_use):
-    """Test that an exception is thrown if a duplicate in use license entry is created."""
-    session.add(License(id=1, name="test_name", total=100))
-    session.commit()
-
-    crud.create_license_in_use(session, one_license_in_use)
-    with pytest.raises(IntegrityError):
-        crud.create_license_in_use(session, one_license_in_use)
-
-
-def test_create_license_in_use_not_available(session, one_license_in_use):
-    session.add(License(id=1, name="test_name", total=0))
-    session.commit()
-
-    with pytest.raises(crud.NotEnoughLicenses):
-        crud.create_license_in_use(session, one_license_in_use)
-
-
-def test_create_license_in_use_empty(session, one_license_in_use):
-    with pytest.raises(crud.LicenseNotFound):
-        crud.create_license_in_use(session, one_license_in_use)
-
-
-def test_delete_license_in_use(session, one_license, one_license_in_use):
-    session.add(License(**one_license.dict()))
-    session.add(LicenseInUse(**one_license_in_use.dict(), id=1))
-    session.commit()
-
-    license_in_use_in_db = session.execute(select(LicenseInUse)).scalars().all()
-    assert len(license_in_use_in_db) == 1
-
-    crud.delete_license_in_use(
-        session,
-        one_license_in_use.lead_host,
-        one_license_in_use.user_name,
-        one_license_in_use.quantity,
-        one_license_in_use.license_name,
-    )
-    license_in_use_in_db_after_delete = session.execute(select(LicenseInUse)).scalars().all()
-    assert len(license_in_use_in_db_after_delete) == 0
-
-
-def test_delete_license_in_use_not_found(session, one_license, one_license_in_use):
-    session.add(License(**one_license.dict()))
-    session.add(LicenseInUse(**one_license_in_use.dict(), id=1))
-    session.commit()
-
-    with pytest.raises(crud.LicenseNotFound):
-        crud.delete_license_in_use(
-            session,
-            "wrong_lead_host",
-            one_license_in_use.user_name,
-            one_license_in_use.quantity,
-            one_license_in_use.license_name,
-        )
-    license_in_use_in_db = session.execute(select(LicenseInUse)).scalars().all()
-    assert len(license_in_use_in_db) == 1
-
-
-def test_delete_license_in_use_correctly_updates_license_in_use(session, one_license_in_use):
-    session.add(License(id=1, name="test_name", total=30))
-    session.add(LicenseInUse(**one_license_in_use.dict(), id=1))
-    session.commit()
-    licenses_in_db = session.execute(select(License)).scalars().all()
-    assert LicenseRow.from_orm(licenses_in_db[0]).in_use == one_license_in_use.quantity
-    crud.delete_license_in_use(
-        session,
-        one_license_in_use.lead_host,
-        one_license_in_use.user_name,
-        one_license_in_use.quantity,
-        one_license_in_use.license_name,
-    )
-
-    licenses_in_db = session.execute(select(License)).scalars().all()
-    assert LicenseRow.from_orm(licenses_in_db[0]).in_use == 0
+    licenses_in_db_after_delete = await read_objects(License)
+    assert len(licenses_in_db_after_delete) == 1
+    assert LicenseRow.model_validate(licenses_in_db_after_delete[0]).in_use == 0

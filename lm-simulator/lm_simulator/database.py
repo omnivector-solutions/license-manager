@@ -1,10 +1,39 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from yarl import URL
 
 from lm_simulator.config import settings
+from lm_simulator.models import Base
 
-engine = create_engine(settings.DATABASE_URL)
-session = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
+engine = create_async_engine(
+    str(
+        URL.build(
+            scheme="postgresql+asyncpg",
+            user=settings.DATABASE_USER,
+            password=settings.DATABASE_PSWD,
+            host=settings.DATABASE_HOST,
+            port=settings.DATABASE_PORT,
+            path=f"/{settings.DATABASE_NAME}",
+        )
+    )
+)
 
-Base = declarative_base()
+async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()

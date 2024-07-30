@@ -1,26 +1,63 @@
 version: "3.9"
 services:
 
-  postgres-back:
+  db:
     image: postgres:14.1
     environment:
-      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: local-db
+      POSTGRES_USER: local-user
+      POSTGRES_PASSWORD: local-pswd
+    ports: ["5434:5432"]
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "postgres", "-h", "localhost"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
       timeout: 5s
       retries: 5
-    user: postgres
+
+  unittest-db:
+    image: postgres:14.1
+    environment:
+      POSTGRES_DB: test-db
+      POSTGRES_USER: test-user
+      POSTGRES_PASSWORD: test-pswd
+    ports: ["5435:5432"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   lm-simulator:
     build:
       context: .
       dockerfile: ./Dockerfile
     depends_on:
-      postgres-back:
+      db:
         condition: service_healthy
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:123@postgres-back:5432/postgres}
-    ports:
-      - "8000:8000"
+      DATABASE_HOST: db
+      DATABASE_USER: local-user
+      DATABASE_PSWD: local-pswd
+      DATABASE_NAME: local-db
+      DATABASE_PORT: 5432
+    ports: ["8000:8000"]
     command: uvicorn lm_simulator.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+
+  unittest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-ci
+    environment:
+      TEST_DATABASE_HOST: unittest-db
+      TEST_DATABASE_USER: test-user
+      TEST_DATABASE_PSWD: test-pswd
+      TEST_DATABASE_NAME: test-db
+      TEST_DATABASE_PORT: 5432
+    command: poetry run pytest -s
+    depends_on:
+      unittest-db:
+        condition: service_healthy
+    volumes:
+      - ./tests:/app/tests

@@ -9,10 +9,15 @@ packages = [{ include = "lm_simulator" }]
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.111.0"
-SQLAlchemy = "^1.4.23"
+pydantic = "^2.8.2"
+pydantic-settings = "^2.3.4"
+SQLAlchemy = {extras = ["mypy"], version = "^2.0.22"}
 uvicorn = "^0.30.1"
 requests = "^2.27.1"
 psycopg2 = "2.9.5"
+yarl = "^1.9.2"
+asyncpg = "^0.28"
+py-buzz = "^4.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
@@ -26,12 +31,15 @@ isort = "^5.9.3"
 requests = "^2.26.0"
 Jinja2 = "^3.0.1"
 python-dotenv = "^1.0.1"
-pydantic-settings = "^2.3.4"
 
 [tool.pytest.ini_options]
 addopts = "-v --random-order --cov=lm_simulator --cov-report=term-missing --cov-fail-under=85"
 env = [
-    "DATABASE_URL = sqlite:///./sqlite-testing.db",
+    "TEST_DATABASE_HOST: test-db",
+    "TEST_DATABASE_USER: test-user",
+    "TEST_DATABASE_PSWD: test-pswd",
+    "TEST_DATABASE_NAME: test-db",
+    "TEST_DATABASE_PORT: 5432"
 ]
 
 [tool.black]

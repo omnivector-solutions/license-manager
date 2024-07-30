@@ -8,10 +8,8 @@ COPY ./pyproject.toml ./poetry.lock* /app/
 
 RUN pip install poetry \
     && poetry config virtualenvs.in-project true \
-    && poetry install --no-root --no-dev \
+    && poetry install --no-root \
     && rm -rf "$POETRY_CACHE_DIR"
-
-ENV PATH="/app/.venv/bin:$PATH"
 
 COPY ./lm_simulator /app/lm_simulator
 
