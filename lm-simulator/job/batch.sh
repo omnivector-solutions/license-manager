@@ -7,4 +7,4 @@
 #SBATCH --error=/tmp/%j.err
 #SBATCH --licenses=test_product.test_feature@flexlm:42
 
-srun /tmp/application.sh
+srun /tmp/application.py
