@@ -34,14 +34,22 @@ def make_request(url, method="GET", data=None, headers=None):
     except urllib.error.URLError as e:
         print(f"URL Error: {e.reason}")
         sys.exit(1)
+    except Exception as e:
+        print(f"Unknown Error: {e}")
+        sys.exit(1)
 
 
 def main():
+    quantity = int(sys.argv[1]) if len(sys.argv) > 1 else 42
+    user = os.getenv("USER")
+    lead_host = socket.gethostname()
+    license_name = sys.argv[2] if len(sys.argv) > 2 else "test_feature"
+
     payload = {
-        "quantity": int(sys.argv[1]) if len(sys.argv) > 1 else 42,  # from the CLI or default to 42
-        "user_name": os.getenv("USER"),
-        "lead_host": socket.gethostname(),
-        "license_name": "test_feature",
+        "quantity": quantity,
+        "user_name": user,
+        "lead_host": lead_host,
+        "license_name": license_name,
     }
 
     print(f"Requesting {payload['quantity']} licenses for user {payload['user_name']}")
