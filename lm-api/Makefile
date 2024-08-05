@@ -11,8 +11,8 @@ install:
 
 .PHONY: test
 test:
-	docker-compose build unittest
-	docker-compose run --rm unittest
+	docker compose build unittest
+	docker compose run --rm unittest
 
 .PHONY: mypy
 mypy: install
@@ -42,7 +42,7 @@ publish:
 
 .PHONY: local
 local:
-	docker-compose up --build license-manager
+	docker compose up --build license-manager
 
 # To include a message with the generated migration, set the MESSAGE variable in the make command:
 #   $ make db-migration MESSAGE="this migration applies foo to bar"
