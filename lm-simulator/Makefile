@@ -11,8 +11,8 @@ install:
 
 .PHONY: test
 test:
-	docker-compose up --build unittest
-	docker-compose run --rm unittest
+	docker compose up --build unittest
+	docker compose run --rm unittest
 
 .PHONY: lint
 lint: install
@@ -31,7 +31,7 @@ qa: test lint
 
 .PHONY: local
 local: install
-	docker-compose up --build lm-simulator
+	docker compose up --build lm-simulator
 
 .PHONY: setup
 setup:
