@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+
+## 3.4.0 -- 2024-08-06
 * Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
 * Fix FlexLM parser to parse an output with only one license checked out
 
