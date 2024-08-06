@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager CLI`.
 
 ## Unreleased
+
+
+## 3.4.0 -- 2024-08-06
 * Upgrade Pydantic to *^2.8.2*
 
 ## 3.3.0 -- 2024-05-30
