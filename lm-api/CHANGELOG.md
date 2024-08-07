@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+
+
+## 3.4.0 -- 2024-08-06
 * Upgrade FastAPI version to *^0.111.0*
 * Upgrade Uvicorn version to *^0.30.1*
 * Upgrade python-dotenv to *^0.21.0*
