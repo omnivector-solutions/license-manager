@@ -1,7 +1,7 @@
 from fastapi import status
 from pytest import mark
 
-from lm_simulator.models import License, LicenseInUse
+from lm_simulator.api.models import License, LicenseInUse
 
 
 @mark.asyncio

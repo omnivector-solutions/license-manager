@@ -2,7 +2,7 @@ import pytest
 from fastapi import HTTPException, status
 from pytest import mark
 
-from lm_simulator.crud import (
+from lm_simulator.api.crud import (
     add_license,
     add_license_in_use,
     list_licenses,
@@ -10,8 +10,8 @@ from lm_simulator.crud import (
     remove_license,
     remove_license_in_use,
 )
-from lm_simulator.models import License, LicenseInUse
-from lm_simulator.schemas import LicenseRow
+from lm_simulator.api.models import License, LicenseInUse
+from lm_simulator.api.schemas import LicenseRow
 
 
 @mark.asyncio

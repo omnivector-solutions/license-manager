@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from yarl import URL
 
 from lm_simulator.config import settings
-from lm_simulator.models import Base
+from lm_simulator.api.models import Base
 
 engine = create_async_engine(
     str(

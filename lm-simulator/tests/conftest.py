@@ -9,8 +9,8 @@ from yarl import URL
 
 from lm_simulator.config import settings
 from lm_simulator.database import Base, get_session
-from lm_simulator.main import subapp
-from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate
+from lm_simulator.api.main import subapp
+from lm_simulator.api.schemas import LicenseCreate, LicenseInUseCreate
 
 
 @fixture(scope="session")
