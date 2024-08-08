@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from lm_simulator.constants import LicenseServerType
+from lm_simulator_api.constants import LicenseServerType
 
 
 class LicenseInUseCreate(BaseModel):
