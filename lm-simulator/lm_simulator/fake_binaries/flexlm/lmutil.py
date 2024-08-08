@@ -24,7 +24,10 @@ def get_server_data(lm_sim_host: str, lm_sim_port: str, feature: str) -> dict:
     Since FlexLM outputs only the ``feature`` name (omitting the ``product``), the license
     in the simulator database should be created with the feature as its name.
     """
-    license = requests.get(f"http://{lm_sim_host}:{lm_sim_port}/lm-sim/licenses/{feature}").json()
+    response = requests.get(f"http://{lm_sim_host}:{lm_sim_port}/lm-sim/licenses/{feature}")
+    if response.status_code != 200:
+        exit(1)
+    license = response.json()
 
     return {
         "license_name": license.get("name"),
