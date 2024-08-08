@@ -55,6 +55,7 @@ include_trailing_comma = true
 [tool.poetry.scripts]
 lmutil = "lm_simulator.fake_binaries.flexlm.lmutil:main"
 lmxendutil = "lm_simulator.fake_binaries.lmx.lmxendutil:main"
+lstc_qrun = "lm_simulator.fake_binaries.lsdyna.lstc_qrun:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

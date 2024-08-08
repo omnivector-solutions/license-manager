@@ -4,8 +4,10 @@ LICENSE INFORMATION
 
 PROGRAM          EXPIRATION CPUS  USED   FREE    MAX | QUEUE
 ---------------- ----------      ----- ------ ------ | -----
-{{license_name}}          12/30/2022          {{used}}     {{free}}    {{total_licenses}} |     0
-{% for license_in_use in licenses_in_use %}
+{% for feature in licenses %}
+{{feature.license_name}}          12/30/2022          {{feature.used}}     {{feature.free}}    {{feature.total_licenses}} |     0
+{% for license_in_use in feature.licenses_in_use %}
  {{license_in_use.user_name}}      00000@{{license_in_use.lead_host}}  {{license_in_use.quantity}}
 {% endfor %}
-                   LICENSE GROUP   {{in_use}}     {{free}}    {{total_licenses}} |     0
+                   LICENSE GROUP   {{feature.in_use}}     {{feature.free}}    {{feature.total_licenses}} |     0
+{% endfor %}
