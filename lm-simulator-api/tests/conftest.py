@@ -3,6 +3,7 @@ from typing import List
 
 from httpx import AsyncClient
 from lm_simulator_api.config import settings
+from lm_simulator_api.constants import LicenseServerType
 from lm_simulator_api.database import Base, get_session
 from lm_simulator_api.main import subapp
 from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate
@@ -116,14 +117,14 @@ def read_objects(synth_session):
 
 @fixture
 def one_license():
-    return LicenseCreate(name="test_license", total=1000, license_server_type="flexlm")
+    return LicenseCreate(name="test_license", total=1000, license_server_type=LicenseServerType.FLEXLM)
 
 
 @fixture
 def licenses():
     return [
-        LicenseCreate(name="test_license1", total=1000, license_server_type="flexlm"),
-        LicenseCreate(name="test_license2", total=2000, license_server_type="flexlm"),
+        LicenseCreate(name="test_license1", total=1000, license_server_type=LicenseServerType.FLEXLM),
+        LicenseCreate(name="test_license2", total=2000, license_server_type=LicenseServerType.FLEXLM),
     ]
 
 
