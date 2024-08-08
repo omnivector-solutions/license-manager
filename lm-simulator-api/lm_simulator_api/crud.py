@@ -5,9 +5,14 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from lm_simulator.constants import LicenseServerType
-from lm_simulator.models import License, LicenseInUse
-from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
+from lm_simulator_api.constants import LicenseServerType
+from lm_simulator_api.models import License, LicenseInUse
+from lm_simulator_api.schemas import (
+    LicenseCreate,
+    LicenseInUseCreate,
+    LicenseInUseRow,
+    LicenseRow,
+)
 
 
 async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:

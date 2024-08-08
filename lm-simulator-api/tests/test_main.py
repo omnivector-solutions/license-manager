@@ -1,7 +1,7 @@
 from fastapi import status
 from pytest import mark
 
-from lm_simulator.models import License, LicenseInUse
+from lm_simulator_api.models import License, LicenseInUse
 
 
 @mark.asyncio
@@ -126,6 +126,16 @@ async def test__list_licenses_by_server_type__success(backend_client, licenses, 
             "licenses_in_use": [],
         },
     ]
+
+
+@mark.asyncio
+async def test__read_license_by_name__empty(backend_client):
+    """
+    Test that the correct response is returned when reading a non-existent license.
+    """
+    response = await backend_client.get("/licenses/not-a-license")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @mark.asyncio
