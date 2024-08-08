@@ -2,17 +2,11 @@ from typing import List
 
 from buzz import enforce_defined, handle_errors, require_condition
 from fastapi import HTTPException, status
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from lm_simulator_api.constants import LicenseServerType
 from lm_simulator_api.models import License, LicenseInUse
-from lm_simulator_api.schemas import (
-    LicenseCreate,
-    LicenseInUseCreate,
-    LicenseInUseRow,
-    LicenseRow,
-)
+from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:

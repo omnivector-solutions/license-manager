@@ -1,10 +1,9 @@
 from typing import AsyncGenerator
 
+from lm_simulator_api.config import settings
+from lm_simulator_api.models import Base
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from yarl import URL
-
-from lm_simulator_api.models import Base
-from lm_simulator_api.config import settings
 
 engine = create_async_engine(
     str(
