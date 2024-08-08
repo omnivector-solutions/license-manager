@@ -33,10 +33,6 @@ qa: test lint
 local: install
 	docker compose up --build lm-simulator
 
-.PHONY: setup
-setup:
-	./scripts/create-dev-setup.sh $(lm_sim_ip)
-
 .PHONY: clean
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete
