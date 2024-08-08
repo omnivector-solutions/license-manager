@@ -7,10 +7,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from yarl import URL
 
-from lm_simulator.config import settings
-from lm_simulator.database import Base, get_session
 from lm_simulator.api.main import subapp
 from lm_simulator.api.schemas import LicenseCreate, LicenseInUseCreate
+from lm_simulator.config import settings
+from lm_simulator.database import Base, get_session
 
 
 @fixture(scope="session")
