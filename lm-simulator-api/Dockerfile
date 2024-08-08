@@ -13,6 +13,6 @@ RUN pip install poetry \
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY ./lm_simulator /app/lm_simulator
+COPY ./lm_simulator_api /app/lm_simulator_api
 
-CMD ["uvicorn", "lm_simulator.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_simulator_api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]

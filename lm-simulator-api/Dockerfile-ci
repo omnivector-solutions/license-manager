@@ -11,6 +11,6 @@ RUN pip install poetry \
     && poetry install --no-root \
     && rm -rf "$POETRY_CACHE_DIR"
 
-COPY ./lm_simulator /app/lm_simulator
+COPY ./lm_simulator_api /app/lm_simulator_api
 
-CMD ["uvicorn", "lm_simulator.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_simulator_api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]

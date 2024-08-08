@@ -3,10 +3,8 @@ from typing import List
 
 from fastapi import Depends, FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from lm_simulator.constants import LicenseServerType
-from lm_simulator.crud import (
+from lm_simulator_api.constants import LicenseServerType
+from lm_simulator_api.crud import (
     add_license,
     add_license_in_use,
     list_licenses,
@@ -16,8 +14,9 @@ from lm_simulator.crud import (
     remove_license,
     remove_license_in_use,
 )
-from lm_simulator.database import get_session, init_db
-from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
+from lm_simulator_api.database import get_session, init_db
+from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
+from sqlalchemy.ext.asyncio import AsyncSession
 
 subapp = FastAPI(title="License Manager Simulator API")
 subapp.add_middleware(
