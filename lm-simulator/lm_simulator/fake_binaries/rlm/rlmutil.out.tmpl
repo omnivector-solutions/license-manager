@@ -39,21 +39,24 @@ Copyright (C) 2006-2017, Reprise Software, Inc. All rights reserved.
 	Removals:    0 (0/sec)           0 (0/sec)          0 (0/sec)
 
 
+	{% for feature in licenses %}
+
 	------------------------
 
 	csci license pool status on licserv0011.com (port 63133)
 
-		{{license_name}} v3.0
-		count: {{total_licenses}}, # reservations: 0, inuse: {{in_use}}, exp: 31-jan-2022
+		{{feature.license_name}} v3.0
+		count: {{feature.total_licenses}}, # reservations: 0, inuse: {{feature.in_use}}, exp: 31-jan-2022
 		obsolete: 0, min_remove: 120, total checkouts: 0
-	    {% if any_in_use %}
+	    {% if feature.any_in_use %}
 
 
 	------------------------
 
 	csci license usage status on licserv0011.com (port 63133)
 
-	{% for license_in_use in licenses_in_use %}
+	{% for license_in_use in feature.licenses_in_use %}
 	{{license_in_use.license_name}} v3.0: {{license_in_use.user_name}}@{{license_in_use.lead_host}} {{license_in_use.quantity}}/0 at 11/01 09:01  (handle: 15a)
     {% endfor %}
 	{% endif %}
+{% endfor %}

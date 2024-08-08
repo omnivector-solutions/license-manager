@@ -1,0 +1,13 @@
+Using user specified server 000000@licserv0000.com
+
+LICENSE INFORMATION
+
+PROGRAM          EXPIRATION CPUS  USED   FREE    MAX | QUEUE
+---------------- ----------      ----- ------ ------ | -----
+{% for feature in licenses %}
+{{feature.license_name}}          12/30/2022          {{feature.used}}     {{feature.free}}    {{feature.total_licenses}} |     0
+{% for license_in_use in feature.licenses_in_use %}
+ {{license_in_use.user_name}}      00000@{{license_in_use.lead_host}}  {{license_in_use.quantity}}
+{% endfor %}
+                   LICENSE GROUP   {{feature.in_use}}     {{feature.free}}    {{feature.total_licenses}} |     0
+{% endfor %}

@@ -5,10 +5,10 @@ import os
 import random
 import socket
 import sys
-from time import sleep
 import urllib.error
 import urllib.parse
 import urllib.request
+from time import sleep
 
 # Modify this value to reflect the IP address and port that the
 # license-manager-simulator is listening on in your environment.
@@ -60,9 +60,7 @@ def main():
 
     if response_status == 201:
         sleep_time = random.randint(60, 120)
-        print(
-            f"There are enough licenses available, let's run (sleep) the job for {sleep_time} seconds"
-        )
+        print(f"There are enough licenses available, let's run (sleep) the job for {sleep_time} seconds")
         sleep(sleep_time)
     else:
         print("There are not enough licenses, let's crash the job")
@@ -72,9 +70,7 @@ def main():
 
     print(f"Deleting the license-in-use record with id {license_in_use_id}")
 
-    response_status, _ = make_request(
-        f"{URL}/lm-sim/licenses-in-use/{license_in_use_id}", method="DELETE"
-    )
+    response_status, _ = make_request(f"{URL}/lm-sim/licenses-in-use/{license_in_use_id}", method="DELETE")
 
     if response_status != 204:
         print("Failed to delete license-in-use")
