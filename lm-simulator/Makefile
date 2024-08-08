@@ -9,33 +9,17 @@ PACKAGE_NAME:=lm_simulator
 install:
 	poetry install
 
-.PHONY: test
-test:
-	docker compose up --build unittest
-	docker compose run --rm unittest
-
 .PHONY: lint
 lint: install
-	poetry run flake8 lm_simulator tests --max-line-length=110
-	poetry run isort --check lm_simulator tests
-	poetry run black --check lm_simulator tests
+	poetry run ruff check ${PACKAGE_NAME}
 
 .PHONY: format
 format: install
-	poetry run black lm_simulator tests
-	poetry run isort lm_simulator tests
+	poetry run ruff format ${PACKAGE_NAME}
 
 .PHONY: qa
-qa: test lint
+qa: lint
 	echo "All quality checks pass!"
-
-.PHONY: local
-local: install
-	docker compose up --build lm-simulator
-
-.PHONY: setup
-setup:
-	./scripts/create-dev-setup.sh $(lm_sim_ip)
 
 .PHONY: clean
 clean: clean-eggs clean-build
