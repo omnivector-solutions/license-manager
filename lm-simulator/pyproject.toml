@@ -56,6 +56,7 @@ include_trailing_comma = true
 lmutil = "lm_simulator.fake_binaries.flexlm.lmutil:main"
 lmxendutil = "lm_simulator.fake_binaries.lmx.lmxendutil:main"
 lstc_qrun = "lm_simulator.fake_binaries.lsdyna.lstc_qrun:main"
+olixtool = "lm_simulator.fake_binaries.olicense.olixtool:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
