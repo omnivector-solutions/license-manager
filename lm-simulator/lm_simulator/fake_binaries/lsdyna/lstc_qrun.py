@@ -65,8 +65,7 @@ def main():
     """
     assert len(sys.argv) == 4, "Invalid number of arguments"
 
-    lm_sim_host = sys.argv[2].split("@")[1]
-    lm_sim_port = sys.argv[2].split("@")[0]
+    lm_sim_port, lm_sim_host = sys.argv[2].split("@")
 
     license_information = get_server_data(lm_sim_host, lm_sim_port)
     generate_license_server_output(license_information)
