@@ -22,7 +22,7 @@ on:
         default: 'lm-api'
         options:
           - lm-api
-          - lm-simulator
+          - lm-simulator-api
 
 jobs:
   publish:
