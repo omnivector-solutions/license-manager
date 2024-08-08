@@ -15,4 +15,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 COPY ./lm_simulator /app/lm_simulator
 
-CMD ["uvicorn", "lm_simulator.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_simulator.api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
