@@ -12,26 +12,26 @@ import requests
 from jinja2 import Environment, FileSystemLoader
 
 
-def get_server_data(lm_sim_host: str, lm_sim_port: str) -> dict:
+def get_server_data(lm_sim_host: str, lm_sim_port: str, feature: str) -> dict:
     """
-    To simulate the FlexLM output, add this license to the backend:
+    To simulate the FlexLM output, add a license with ``flexlm`` license server type to the backend:
     {
         "name": "abaqus",
         "total": 1000
+        "license_server_type": "flexlm"
     }
+
     Since FlexLM outputs only the ``feature`` name (omitting the ``product``), the license
     in the simulator database should be created with the feature as its name.
     """
-    licenses = requests.get(f"http://{lm_sim_host}:{lm_sim_port}/lm-sim/licenses/").json()
+    license = requests.get(f"http://{lm_sim_host}:{lm_sim_port}/lm-sim/licenses/{feature}").json()
 
-    for license in licenses:
-        if license["name"] == "abaqus":
-            return {
-                "license_name": license.get("name"),
-                "total_licenses": license.get("total"),
-                "in_use": license.get("in_use"),
-                "licenses_in_use": license.get("licenses_in_use"),
-            }
+    return {
+        "license_name": license.get("name"),
+        "total_licenses": license.get("total"),
+        "in_use": license.get("in_use"),
+        "licenses_in_use": license.get("licenses_in_use"),
+    }
 
 
 def generate_license_server_output(license_information: dict) -> None:
@@ -56,8 +56,9 @@ def main():
 
     lm_sim_host = sys.argv[3].split("@")[1]
     lm_sim_port = sys.argv[3].split("@")[0]
+    feature = sys.argv[5]
 
-    license_information = get_server_data(lm_sim_host, lm_sim_port)
+    license_information = get_server_data(lm_sim_host, lm_sim_port, feature)
     generate_license_server_output(license_information)
 
 
