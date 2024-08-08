@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from yarl import URL
 
 from lm_simulator.config import settings
+from lm_simulator.constants import LicenseServerType
 from lm_simulator.database import Base, get_session
 from lm_simulator.main import subapp
 from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate
@@ -117,14 +118,14 @@ def read_objects(synth_session):
 
 @fixture
 def one_license():
-    return LicenseCreate(name="test_license", total=1000)
+    return LicenseCreate(name="test_license", total=1000, license_server_type=LicenseServerType.FLEXLM)
 
 
 @fixture
 def licenses():
     return [
-        LicenseCreate(name="test_license1", total=1000),
-        LicenseCreate(name="test_license2", total=2000),
+        LicenseCreate(name="test_license1", total=1000, license_server_type=LicenseServerType.FLEXLM),
+        LicenseCreate(name="test_license2", total=2000, license_server_type=LicenseServerType.FLEXLM),
     ]
 
 

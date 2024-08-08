@@ -17,6 +17,7 @@ class License(Base):
         lazy="selectin",
         cascade="all, delete-orphan",
     )
+    license_server_type: Mapped[str] = mapped_column(String, nullable=False)
 
     @property
     def in_use(self):

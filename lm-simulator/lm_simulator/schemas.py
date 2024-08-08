@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
+from lm_simulator.constants import LicenseServerType
+
 
 class LicenseInUseCreate(BaseModel):
     quantity: int
@@ -17,6 +19,7 @@ class LicenseInUseRow(LicenseInUseCreate):
 class LicenseCreate(BaseModel):
     name: str
     total: int
+    license_server_type: LicenseServerType
 
 
 class LicenseRow(LicenseCreate):
