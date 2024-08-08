@@ -7,16 +7,20 @@ from lm_simulator_api.constants import LicenseServerType
 from lm_simulator_api.crud import (
     add_license,
     add_license_in_use,
+    read_license_by_name,
     list_licenses,
     list_licenses_by_server_type,
     list_licenses_in_use,
-    read_license_by_name,
     remove_license,
     remove_license_in_use,
 )
+from lm_simulator_api.schemas import (
+    LicenseCreate,
+    LicenseInUseCreate,
+    LicenseInUseRow,
+    LicenseRow,
+)
 from lm_simulator_api.database import get_session, init_db
-from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
-from sqlalchemy.ext.asyncio import AsyncSession
 
 subapp = FastAPI(title="License Manager Simulator API")
 subapp.add_middleware(
