@@ -17,7 +17,7 @@ def get_server_data(lm_sim_host: str, lm_sim_port: str) -> dict:
     To simulate the LM-X output, add a license with ``lmx`` license server type to the backend:
     {
         "name": "HyperWorks",
-        "total": 1000
+        "total": 1000,
         "license_server_type": "lmx"
     }
     Since LM-X outputs only the ``feature`` name (omitting the ``product``), the license

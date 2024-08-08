@@ -17,7 +17,7 @@ def get_server_data(lm_sim_host: str, lm_sim_port: str, feature: str) -> dict:
     To simulate the FlexLM output, add a license with ``flexlm`` license server type to the backend:
     {
         "name": "abaqus",
-        "total": 1000
+        "total": 1000,
         "license_server_type": "flexlm"
     }
 

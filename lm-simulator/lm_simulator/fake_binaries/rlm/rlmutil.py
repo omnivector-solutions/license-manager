@@ -5,50 +5,70 @@ File that will be called by the license-manager-agent in the report function.
 It will hit the /licenses-in-use/ endpoint and will generate the report in the same format as the RLM,
 this way we can use the same rlm parser in the license-manager-agent.
 """
+import sys
+from pathlib import Path
+
 import requests
 from jinja2 import Environment, FileSystemLoader
 
-# You must modify this value to reflect the ip address and port that the
-# license-manager-simulator is listening on in your environment.
-#
-# The format of the value is: `http://<ip-address>:<port>`
-URL = "http://localhost:8000"
 
-
-def get_server_data():
+def get_server_data(lm_sim_host: str, lm_sim_port: str) -> dict:
     """
-    To simulate the RLM output, add this license to the backend:
+    To simulate the RLM output, add a license with ``rlm`` license server type to the backend:
     {
         "name": "converge_super",
-        "total": 1000
+        "total": 1000,
+        "license_server_type": "rlm"
     }
-    Since RLM outputs the feature name as the product and feature concatenated with a underscore,
-    the license in the simulator database should be named with two words concatenated by ``_``.
+    Since RLM outputs only the ``feature`` name (omitting the ``product``), the license
+    in the simulator database should be created with the feature as its name.
     """
-    licenses = requests.get(URL + "/lm-sim/licenses/").json()
+    response = requests.get(f"http://{lm_sim_host}:{lm_sim_port}/lm-sim/licenses/type/rlm")
+    if response.status_code != 200:
+        exit(1)
+    licenses = response.json()
 
-    for license in licenses:
-        if license["name"] == "converge_super":
-            any_in_use = license["in_use"] > 0
-            return {
+    return {
+        "licenses": [
+            {
                 "license_name": license.get("name"),
                 "total_licenses": license.get("total"),
                 "in_use": license.get("in_use"),
                 "licenses_in_use": license.get("licenses_in_use"),
-                "any_in_use": any_in_use,
+                "any_in_use": license.get("in_use") > 0,
             }
+            for license in licenses
+        ]
+    }
 
 
-def generate_license_server_output() -> None:
+def generate_license_server_output(license_information: dict) -> None:
     """Print output formatted to stdout."""
+    script_path = Path(__file__).resolve()
+    template_dir = script_path.parent
     source = "rlmutil.out.tmpl"
-    licenses_information = get_server_data()
 
-    template = Environment(loader=FileSystemLoader("."), trim_blocks=True, lstrip_blocks=True).get_template(
-        source
-    )
-    print(template.render(**licenses_information))
+    template = Environment(
+        loader=FileSystemLoader(str(template_dir)), trim_blocks=True, lstrip_blocks=True
+    ).get_template(source)
+    print(template.render(**license_information))
+
+
+def main():
+    """
+    License Manager Agent will invoke the rlmutil binary with the following arguments:
+    ```
+    rlmutil rlmstat -c <port>@<host> -a -p
+    ```
+    The license server host and port will be identify the License Manager Simulator API.
+    """
+    assert len(sys.argv) == 6, "Invalid number of arguments"
+
+    lm_sim_port, lm_sim_host = sys.argv[3].split("@")
+
+    license_information = get_server_data(lm_sim_host, lm_sim_port)
+    generate_license_server_output(license_information)
 
 
 if __name__ == "__main__":
-    generate_license_server_output()
+    main()

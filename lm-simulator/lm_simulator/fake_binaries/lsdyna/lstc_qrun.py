@@ -17,7 +17,7 @@ def get_server_data(lm_sim_host: str, lm_sim_port: str) -> dict:
     To simulate the LS-Dyna output, add a license with ``lsdyna``license server type to the backend:
     {
         "name": "MPPDYNA",
-        "total": 1000
+        "total": 1000,
         "license_server_type": "lsdyna"
     }
     Since LS-Dyna outputs the feature name with all letters in uppercase,
