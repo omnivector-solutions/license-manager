@@ -43,7 +43,9 @@ def generate_license_server_output(license_information: dict) -> None:
     template_dir = script_path.parent
     source = "lmutil.out.tmpl"
 
-    template = Environment(loader=FileSystemLoader(str(template_dir))).get_template(source)
+    template = Environment(
+        loader=FileSystemLoader(str(template_dir)), trim_blocks=True, lstrip_blocks=True
+    ).get_template(source)
     print(template.render(**license_information))
 
 
