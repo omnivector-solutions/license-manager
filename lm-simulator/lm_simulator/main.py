@@ -5,11 +5,14 @@ from fastapi import Depends, FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lm_simulator.constants import LicenseServerType
 from lm_simulator.crud import (
     add_license,
     add_license_in_use,
     list_licenses,
+    list_licenses_by_server_type,
     list_licenses_in_use,
+    read_license_by_name,
     remove_license,
     remove_license_in_use,
 )
@@ -54,6 +57,28 @@ async def create_license(license: LicenseCreate, session: AsyncSession = Depends
 )
 async def get_licenses(session: AsyncSession = Depends(get_session)):
     licenses = await list_licenses(session=session)
+    return licenses
+
+
+@subapp.get(
+    "/licenses/{license_name}",
+    status_code=status.HTTP_200_OK,
+    response_model=LicenseRow,
+)
+async def get_license_by_name(license_name: str, session: AsyncSession = Depends(get_session)):
+    license = await read_license_by_name(session=session, license_name=license_name)
+    return license
+
+
+@subapp.get(
+    "/licenses/type/{server_type}",
+    status_code=status.HTTP_200_OK,
+    response_model=List[LicenseRow],
+)
+async def get_licenses_by_server_type(
+    server_type: LicenseServerType, session: AsyncSession = Depends(get_session)
+):
+    licenses = await list_licenses_by_server_type(session=session, server_type=server_type)
     return licenses
 
 

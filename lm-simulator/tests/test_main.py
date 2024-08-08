@@ -31,6 +31,7 @@ async def test__create_license__success(backend_client, one_license, read_object
         "name": licenses_in_db[0].name,
         "total": licenses_in_db[0].total,
         "in_use": 0,
+        "license_server_type": licenses_in_db[0].license_server_type,
         "licenses_in_use": [],
     }
 
@@ -51,6 +52,9 @@ async def test__create_license__fail_with_duplicate(backend_client, one_license,
 
 @mark.asyncio
 async def test__list_licenses__empty(backend_client):
+    """
+    Test that the correct response is returned when listing licenses with no licenses.
+    """
     response = await backend_client.get("/licenses")
 
     assert response.status_code == status.HTTP_200_OK
@@ -72,15 +76,85 @@ async def test__list_licenses__success(backend_client, licenses, insert_objects)
             "name": inserted[0].name,
             "total": inserted[0].total,
             "in_use": 0,
+            "license_server_type": inserted[0].license_server_type,
             "licenses_in_use": [],
         },
         {
             "name": inserted[1].name,
             "total": inserted[1].total,
             "in_use": 0,
+            "license_server_type": inserted[1].license_server_type,
             "licenses_in_use": [],
         },
     ]
+
+
+@mark.asyncio
+async def test__list_licenses_by_server_type__empty(backend_client):
+    """
+    Test that the correct response is returned when listing licenses by server type with no licenses.
+    """
+    response = await backend_client.get("/licenses/type/flexlm")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
+
+
+@mark.asyncio
+async def test__list_licenses_by_server_type__success(backend_client, licenses, insert_objects):
+    """
+    Test that the correct response is returned when listing licenses by server type.
+    """
+    await insert_objects(licenses, License)
+
+    response = await backend_client.get("/licenses/type/flexlm")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            "name": licenses[0].name,
+            "total": licenses[0].total,
+            "in_use": 0,
+            "license_server_type": licenses[0].license_server_type,
+            "licenses_in_use": [],
+        },
+        {
+            "name": licenses[1].name,
+            "total": licenses[1].total,
+            "in_use": 0,
+            "license_server_type": licenses[1].license_server_type,
+            "licenses_in_use": [],
+        },
+    ]
+
+
+@mark.asyncio
+async def test__read_license_by_name__success(backend_client, one_license, insert_objects):
+    """
+    Test that the correct response is returned when reading a license.
+    """
+    await insert_objects([one_license], License)
+
+    response = await backend_client.get(f"/licenses/{one_license.name}")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "name": one_license.name,
+        "total": one_license.total,
+        "in_use": 0,
+        "license_server_type": one_license.license_server_type,
+        "licenses_in_use": [],
+    }
+
+
+@mark.asyncio
+async def test__read_license_by_name__fail_with_not_found(backend_client):
+    """
+    Test that the correct response is returned when attempting to read a non-existent license.
+    """
+    response = await backend_client.get("/licenses/not-a-license")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @mark.asyncio
