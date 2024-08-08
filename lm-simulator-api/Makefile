@@ -3,23 +3,34 @@
 SHELL:=/bin/bash
 .DEFAULT_GOAL:=help
 ROOT_DIR:=$(shell dirname $(shell pwd))
-PACKAGE_NAME:=lm_simulator
+PACKAGE_NAME:=lm_simulator_api
 
 .PHONY: install
 install:
 	poetry install
 
+.PHONY: test
+test:
+	docker compose up --build unittest
+	docker compose run --rm unittest
+
 .PHONY: lint
 lint: install
 	poetry run ruff check ${PACKAGE_NAME}
+	poetry run ruff check tests
 
 .PHONY: format
 format: install
 	poetry run ruff format ${PACKAGE_NAME}
+	poetry run ruff format tests
 
 .PHONY: qa
 qa: test lint
 	echo "All quality checks pass!"
+
+.PHONY: local
+local: install
+	docker compose up --build lm-simulator
 
 .PHONY: clean
 clean: clean-eggs clean-build

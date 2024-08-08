@@ -5,9 +5,14 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from lm_simulator.api.constants import LicenseServerType
-from lm_simulator.api.models import License, LicenseInUse
-from lm_simulator.api.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
+from lm_simulator_api.constants import LicenseServerType
+from lm_simulator_api.models import License, LicenseInUse
+from lm_simulator_api.schemas import (
+    LicenseCreate,
+    LicenseInUseCreate,
+    LicenseInUseRow,
+    LicenseRow,
+)
 
 
 async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:
@@ -60,13 +65,22 @@ async def list_licenses_by_server_type(session: Session, server_type: LicenseSer
     return [LicenseRow.model_validate(license) for license in db_licenses]
 
 
-async def list_license_by_name(session: Session, license_name: str) -> Optional[LicenseRow]:
+async def read_license_by_name(session: Session, license_name: str) -> Optional[LicenseRow]:
     """
-    List the License in the database by name.
+    Retrive the License in the database by name.
     """
     query = await session.execute(select(License).where(License.name == license_name))
-    db_license = query.scalar_one_or_none()
-    return LicenseRow.model_validate(db_license) if db_license else None
+    db_license = enforce_defined(
+        query.scalar_one_or_none(),
+        "License not found",
+        raise_exc_class=HTTPException,
+        exc_builder=lambda exc_class, msg: exc_class(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="License not found",
+        ),
+    )
+
+    return LicenseRow.model_validate(db_license)
 
 
 async def remove_license(session: Session, license_name: str):

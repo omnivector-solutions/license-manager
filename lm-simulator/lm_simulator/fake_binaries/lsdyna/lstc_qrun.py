@@ -5,6 +5,7 @@ File that will be called by the license-manager-agent in the report function.
 It will hit the /licenses-in-use/ endpoint and will generate the report in the same format as the LS-Dyna,
 this way we can use the same LS-Dyna parser in the license-manager-agent.
 """
+
 import sys
 from pathlib import Path
 

@@ -5,6 +5,7 @@ File that will be called by the license-manager-agent in the report function.
 It will hit the /licenses-in-use/ endpoint and will generate the report in the same format as the FlexLM,
 this way we can use the same flexlm parser in the license-manager-agent.
 """
+
 import sys
 from pathlib import Path
 
