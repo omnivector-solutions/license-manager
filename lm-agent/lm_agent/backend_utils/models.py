@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel, Field, PositiveInt, ConfigDict
+from pydantic import BaseModel, Field, PositiveInt
 
 from lm_agent.backend_utils.constants import LicenseServerType
 from lm_agent.config import PRODUCT_FEATURE_RX
@@ -78,8 +78,6 @@ class JobSchema(BaseModel):
     lead_host: str
 
     bookings: List[BookingSchema] = []
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class LicenseBooking(BaseModel):
