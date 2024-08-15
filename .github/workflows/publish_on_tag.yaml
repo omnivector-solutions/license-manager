@@ -19,7 +19,7 @@ jobs:
   build-publish:
     runs-on: ubuntu-latest
     strategy:
-      matrix: { sub_project: ['lm-agent', 'lm-api', 'lm-cli', lm-simulator', 'lm-simulator-api'] }
+      matrix: { sub_project: ['lm-agent', 'lm-api', 'lm-cli', 'lm-simulator', 'lm-simulator-api'] }
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
