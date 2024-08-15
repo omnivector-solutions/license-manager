@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from buzz import enforce_defined, handle_errors, require_condition
 from fastapi import HTTPException, status
@@ -60,7 +60,7 @@ async def list_licenses_by_server_type(session: Session, server_type: LicenseSer
     return [LicenseRow.model_validate(license) for license in db_licenses]
 
 
-async def read_license_by_name(session: Session, license_name: str) -> Optional[LicenseRow]:
+async def read_license_by_name(session: Session, license_name: str) -> LicenseRow:
     """
     Retrive the License in the database by name.
     """
