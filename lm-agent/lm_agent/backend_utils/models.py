@@ -85,7 +85,7 @@ class LicenseBooking(BaseModel):
     Structure to represent a license booking.
     """
 
-    product_feature: str = Field(..., regex=PRODUCT_FEATURE_RX)
+    product_feature: str = Field(..., pattern=PRODUCT_FEATURE_RX)
     quantity: int
 
 
