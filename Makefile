@@ -4,19 +4,19 @@ install:
 	$(MAKE) -C lm-agent install
 	$(MAKE) -C lm-api install
 	$(MAKE) -C lm-cli install
-	$(MAKE) -C lm-simulator install
+	$(MAKE) -C lm-simulator-api install
 
 test:
 	$(MAKE) -C lm-agent test
 	$(MAKE) -C lm-api test
 	$(MAKE) -C lm-cli test
-	$(MAKE) -C lm-simulator test
+	$(MAKE) -C lm-simulator-api test
 
 qa:
 	$(MAKE) -C lm-agent qa
 	$(MAKE) -C lm-api qa
 	$(MAKE) -C lm-cli qa
-	$(MAKE) -C lm-simulator qa
+	$(MAKE) -C lm-simulator-api qa
 
 format:
 	$(MAKE) -C lm-agent format

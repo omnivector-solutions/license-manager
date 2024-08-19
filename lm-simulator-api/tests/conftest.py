@@ -2,16 +2,14 @@ import asyncio
 from typing import List
 
 from httpx import AsyncClient
+from lm_simulator_api.config import settings
+from lm_simulator_api.database import Base, get_session
+from lm_simulator_api.main import subapp
+from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate
 from pytest import fixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from yarl import URL
-
-from lm_simulator.config import settings
-from lm_simulator.constants import LicenseServerType
-from lm_simulator.database import Base, get_session
-from lm_simulator.main import subapp
-from lm_simulator.schemas import LicenseCreate, LicenseInUseCreate
 
 
 @fixture(scope="session")
@@ -118,14 +116,14 @@ def read_objects(synth_session):
 
 @fixture
 def one_license():
-    return LicenseCreate(name="test_license", total=1000, license_server_type=LicenseServerType.FLEXLM)
+    return LicenseCreate(name="test_license", total=1000, license_server_type="flexlm")
 
 
 @fixture
 def licenses():
     return [
-        LicenseCreate(name="test_license1", total=1000, license_server_type=LicenseServerType.FLEXLM),
-        LicenseCreate(name="test_license2", total=2000, license_server_type=LicenseServerType.FLEXLM),
+        LicenseCreate(name="test_license1", total=1000, license_server_type="flexlm"),
+        LicenseCreate(name="test_license2", total=2000, license_server_type="flexlm"),
     ]
 
 
@@ -149,6 +147,16 @@ def one_license_in_use__not_found():
 @fixture
 def licenses_in_use():
     return [
-        LicenseInUseCreate(quantity=100, user_name="user1", lead_host="host1", license_name="test_license1"),
-        LicenseInUseCreate(quantity=200, user_name="user2", lead_host="host2", license_name="test_license2"),
+        LicenseInUseCreate(
+            quantity=100,
+            user_name="user1",
+            lead_host="host1",
+            license_name="test_license1",
+        ),
+        LicenseInUseCreate(
+            quantity=200,
+            user_name="user2",
+            lead_host="host2",
+            license_name="test_license2",
+        ),
     ]
