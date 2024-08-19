@@ -5,19 +5,21 @@ Copyright (C) 2002-2010 X-Formation. All rights reserved.
 LM-X License Server on 6300@licserv0002.com:
 
 Server version: v4.9.3 Uptime: 7 day(s) 10 hour(s) 15 min(s) 52 sec(s)
+{% for feature in licenses %}
 ----------------------------------------
-Feature: {{license_name}} Version: 3.0 Vendor: MAGNAECS
+Feature: {{feature.license_name}} Version: 3.0 Vendor: MAGNAECS
 Start date: NONE Expire date: 2022-05-30
 Key type: EXCLUSIVE License sharing: VIRTUAL
 
-{% if any_in_use %}
-{{in_use}} of {{total_licenses}} license(s) used:
+{% if feature.in_use > 0 %}
+{{feature.in_use}} of {{feature.total_licenses}} license(s) used:
 
-{% for license_in_use in licenses_in_use %}
+{% for license_in_use in feature.licenses_in_use %}
 {{license_in_use.quantity}} license(s) used by {{license_in_use.user_name}}@{{license_in_use.lead_host}} [10.104.137.9]
   Login time: 2022-02-23 11:07   Checkout time: 2022-02-23 11:07 
 
 {% endfor %}
 {% else %}
-{{in_use}} of {{total_licenses}} license(s) used
+{{feature.in_use}} of {{feature.total_licenses}} license(s) used
 {% endif %}
+{% endfor %}
