@@ -16,14 +16,11 @@ test:
 
 .PHONY: lint
 lint: install
-	poetry run flake8 ${PACKAGE_NAME} tests --max-line-length=110
-	poetry run isort --check ${PACKAGE_NAME} tests
-	poetry run black --check ${PACKAGE_NAME} tests
+	poetry run ruff check --fix --select I ${PACKAGE_NAME} tests
 
 .PHONY: format
-format: install
-	poetry run black ${PACKAGE_NAME} tests
-	poetry run isort ${PACKAGE_NAME} tests
+format: install lint
+	poetry run ruff format ${PACKAGE_NAME} tests
 
 .PHONY: qa
 qa: test lint

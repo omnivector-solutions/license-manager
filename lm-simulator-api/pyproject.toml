@@ -25,10 +25,11 @@ pytest-asyncio = "^0.15.1"
 pytest-cov = "^2.12.1"
 pytest-env = "^0.6.2"
 pytest-random-order = "^1.0.4"
-black = "^24.4.2"
-flake8 = "^7.0.0"
-isort = "^5.9.3"
 python-dotenv = "^1.0.1"
+ruff = "^0.5.7"
+
+[tool.ruff]
+line-length = 110
 
 [tool.pytest.ini_options]
 addopts = "-v --random-order --cov=lm_simulator_api --cov-report=term-missing --cov-fail-under=85"
@@ -39,16 +40,6 @@ env = [
     "TEST_DATABASE_NAME: test-db",
     "TEST_DATABASE_PORT: 5432"
 ]
-
-[tool.black]
-line-length = 110
-src = ["lm_simulator", "tests"]
-
-[tool.isort]
-line_length = 110
-src_paths = ["lm_simulator", "tests"]
-multi_line_output = 3
-include_trailing_comma = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -11,20 +11,11 @@ python = "^3.12"
 requests = "^2.26.0"
 Jinja2 = "^3.0.1"
 
-[tool.poetry.dev-dependencies]
-black = "^24.4.2"
-flake8 = "^7.0.0"
-isort = "^5.9.3"
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.7"
 
-[tool.black]
+[tool.ruff]
 line-length = 110
-src = ["lm_simulator", "tests"]
-
-[tool.isort]
-line_length = 110
-src_paths = ["lm_simulator", "tests"]
-multi_line_output = 3
-include_trailing_comma = true
 
 [tool.poetry.scripts]
 lmutil = "lm_simulator.fake_binaries.flexlm.lmutil:main"

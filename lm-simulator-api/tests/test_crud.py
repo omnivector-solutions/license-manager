@@ -1,5 +1,6 @@
-import pytest
 from fastapi import HTTPException, status
+from pytest import mark, raises
+
 from lm_simulator_api.crud import (
     add_license,
     add_license_in_use,
@@ -12,7 +13,6 @@ from lm_simulator_api.crud import (
 )
 from lm_simulator_api.models import License, LicenseInUse
 from lm_simulator_api.schemas import LicenseRow
-from pytest import mark
 
 
 @mark.asyncio
@@ -33,7 +33,7 @@ async def test__add_license__success(one_license, read_objects, synth_session):
 
 @mark.asyncio
 async def test__add_license__fail_with_duplicate(one_license, synth_session):
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await add_license(synth_session, one_license)
         await add_license(synth_session, one_license)
 
@@ -80,7 +80,7 @@ async def test__read_license_by_name__success(one_license, insert_objects, synth
 async def test__read_license_by_name__fail_with_not_found(one_license, insert_objects, synth_session):
     await insert_objects([one_license], License)
 
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await read_license_by_name(synth_session, "non-existing-license")
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
@@ -127,7 +127,7 @@ async def test__remove_license__success(one_license, insert_objects, read_object
 async def test__remove_license__fail_with_not_found(one_license, insert_objects, synth_session):
     await insert_objects([one_license], License)
 
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await remove_license(synth_session, "non-existing-license")
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
@@ -159,7 +159,7 @@ async def test__add_license_in_use__fail_with_not_enough_licenses(
     await insert_objects([one_license], License)
     await insert_objects([one_license_in_use__not_enough], LicenseInUse)
 
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await add_license_in_use(synth_session, one_license_in_use__not_enough)
 
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
@@ -172,7 +172,7 @@ async def test__add_license_in_use__fail_with_license_not_found(
 ):
     await insert_objects([one_license], License)
 
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await add_license_in_use(synth_session, one_license_in_use__not_found)
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
@@ -230,7 +230,7 @@ async def test__remove_license_in_use__fail_with_not_found(
     await insert_objects([one_license], License)
     await insert_objects([one_license_in_use], LicenseInUse)
 
-    with pytest.raises(HTTPException) as exc_info:
+    with raises(HTTPException) as exc_info:
         await remove_license_in_use(synth_session, 0)
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
