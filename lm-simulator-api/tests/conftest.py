@@ -2,15 +2,16 @@ import asyncio
 from typing import List
 
 from httpx import AsyncClient
+from pytest import fixture
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from yarl import URL
+
 from lm_simulator_api.config import settings
 from lm_simulator_api.constants import LicenseServerType
 from lm_simulator_api.database import Base, get_session
 from lm_simulator_api.main import subapp
 from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate
-from pytest import fixture
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from yarl import URL
 
 
 @fixture(scope="session")
