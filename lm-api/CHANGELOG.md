@@ -5,7 +5,7 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 
 
-## 3.4.0 -- 2024-08-06
+## 3.4.0 -- 2024-08-19
 * Upgrade FastAPI version to *^0.111.0*
 * Upgrade Uvicorn version to *^0.30.1*
 * Upgrade python-dotenv to *^0.21.0*
@@ -15,7 +15,6 @@ This file keeps track of all notable changes to `License Manager API`.
 * Add *pydantic-settings* as a dependency
 * Remove the audience setting [[PENG-2231](https://sharing.clickup.com/t/h/c/18022949/PENG-2231/T3PXA6KD1EH124G)]
 * Add env var to set whether Armasec should use HTTPS or HTTP
-
 
 ## 3.3.0 -- 2024-05-30
 * Add new endpoints to manage the cluster reports from the agent [ASP-4601]

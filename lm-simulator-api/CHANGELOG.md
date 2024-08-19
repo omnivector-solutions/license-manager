@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to License Manager Simulator API
 
 ## Unreleased
+
+
+## 3.4.0 -- 2024-08-19
 * Migrated the project to the main license-manager repository
 * Upgrade FastAPI to *^0.111.0*
 * Upgrade Pydantic to *^2.8.2*
@@ -11,7 +14,6 @@ This file keeps track of all notable changes to License Manager Simulator API
 * Converted job application example to Python
 * Add LicenseServerType column to License table
 * Add routes to filter by name and LicenseServerType
-
 
 ## 0.3.0 -- 2022-11-16
 * Fixed lm-sim ip in setup scripts to use the new subapp endpoint

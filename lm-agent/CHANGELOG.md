@@ -5,7 +5,7 @@ This file keeps track of all notable changes to `License Manager Agent`.
 ## Unreleased
 
 
-## 3.4.0 -- 2024-08-06
+## 3.4.0 -- 2024-08-19
 * Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
 * Fix FlexLM parser to parse an output with only one license checked out
 * Upgrade Pydantic to *^2.7.4* [[PENG-2281](https://sharing.clickup.com/t/h/c/18022949/PENG-2281/S5C5TX46EBVEU8Z)]
