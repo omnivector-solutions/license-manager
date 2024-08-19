@@ -2,7 +2,7 @@
 
 BASE_BRANCH="main"
 SUBPROJECT=${PWD##*/}
-ALL_SUBPROJECTS="lm-agent lm-api lm-cli lm-simulator"
+ALL_SUBPROJECTS="lm-agent lm-api lm-cli lm-simulator lm-simulator-api"
 
 function bail {
     echo "!!! $1 -- Aborting !!!"
