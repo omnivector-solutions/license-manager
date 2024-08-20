@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to License Manager Simulator
 
 ## Unreleased
-
+* Added README link to PyPI page
 
 ## 3.4.0 -- 2024-08-19
 * Remove project from the License Manager Simulator API
