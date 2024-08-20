@@ -18,6 +18,7 @@ psycopg2 = "2.9.5"
 yarl = "^1.9.2"
 asyncpg = "^0.28"
 py-buzz = "^4.1.0"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"

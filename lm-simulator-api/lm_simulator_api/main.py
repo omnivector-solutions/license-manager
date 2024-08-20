@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lm_simulator_api import __version__
 from lm_simulator_api.constants import LicenseServerType
 from lm_simulator_api.crud import (
     add_license,
@@ -19,7 +20,20 @@ from lm_simulator_api.crud import (
 from lm_simulator_api.database import get_session, init_db
 from lm_simulator_api.schemas import LicenseCreate, LicenseInUseCreate, LicenseInUseRow, LicenseRow
 
-subapp = FastAPI(title="License Manager Simulator API")
+subapp = FastAPI(
+    title="License Manager Simulator API",
+    version=__version__,
+    contact={
+        "name": "Omnivector Solutions",
+        "url": "https://www.omnivector.solutions/",
+        "email": "info@omnivector.solutions",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://github.com/omnivector-solutions/license-manager/blob/main/LICENSE",
+    },
+)
+
 subapp.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
