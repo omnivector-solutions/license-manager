@@ -4,6 +4,9 @@ version = "3.4.0"
 description = "The License Manager Simulator is an application that simulates output from 5 license servers for use in the development of applications which interface to the license servers."
 authors = ["OmniVector Solutions <info@omnivector.solutions>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/omnivector-solutions/license-manager"
+documentation = "https://omnivector-solutions.github.io/license-manager"
 packages = [{ include = "lm_simulator" }]
 
 [tool.poetry.dependencies]
