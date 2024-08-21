@@ -4,12 +4,11 @@ Invoke license stat tools to build a view of license token counts.
 import asyncio
 import typing
 
-from lm_agent.backend_utils.models import ConfigurationSchema
-from lm_agent.backend_utils.utils import get_cluster_configs_from_backend
-from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError
+from lm_agent.models import ConfigurationSchema, LicenseReportItem
+from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_feature_update
+from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError, LicenseManagerEmptyReportError
 from lm_agent.logs import logger
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
@@ -122,3 +121,33 @@ async def report() -> typing.List[LicenseReportItem]:
     logger.debug(report_items)
 
     return report_items
+
+
+async def update_features() -> typing.List[LicenseReportItem]:
+    """Send the license data collected from the cluster to the backend."""
+    license_report = await report()
+
+    if not license_report:
+        logger.error(
+            "No license data could be collected, check that tools are installed "
+            "correctly and the right hosts/ports are configured in settings"
+        )
+        raise LicenseManagerEmptyReportError("Got an empty response from the license server")
+
+    features_to_update = []
+
+    for license in license_report:
+        product, feature = license.product_feature.split(".")
+
+        feature_data = {
+            "product_name": product,
+            "feature_name": feature,
+            "total": license.total,
+            "used": license.used,
+        }
+
+        features_to_update.append(feature_data)
+
+    await make_feature_update(features_to_update)
+
+    return license_report

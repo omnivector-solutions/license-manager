@@ -3,7 +3,7 @@ Parser for LM-X
 """
 import re
 from typing import Optional
-from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem
 
 
 HOSTWORD = r"[a-zA-Z0-9-]+"

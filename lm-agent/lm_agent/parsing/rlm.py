@@ -3,7 +3,7 @@ Parser for RLM
 """
 import re
 from typing import Optional
-from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem
 
 
 INT = r"\d+"

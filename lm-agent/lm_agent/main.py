@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
 import asyncio
-import logging
 import typing
 
 import sentry_sdk
@@ -8,7 +6,9 @@ import sentry_sdk
 from lm_agent.backend_utils.utils import check_backend_health, report_cluster_status
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
+from lm_agent.scheduler import scheduler
 from lm_agent.services.reconciliation import reconcile
+
 
 if settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -18,24 +18,31 @@ if settings.SENTRY_DSN:
     )
 
 
-def begin_logging():
-    """Configure logging."""
-    init_logging("license-manager-agent")
-
-    level = getattr(logging, settings.LOG_LEVEL)
-    logger.setLevel(level)
-    logger.info(f"Backend URL: {settings.BACKEND_BASE_URL}")
-
-
-async def run_reconcile():
-    """Main function to setup the env and call the reconcile function."""
-    begin_logging()
-    logger.info("Starting reconcile script")
+async def scheduled_tasks():
+    """
+    The scheduled tasks to be run by the agent.
+    """
     await check_backend_health()
     await report_cluster_status()
     await reconcile()
-    logger.info("Reconcile completed successfully")
 
 
 def main():
-    asyncio.run(run_reconcile())
+    """
+    Main function to run the scheduled tasks.
+    """
+    init_logging("license-manager-agent")
+    logger.info("Starting License Manager Agent")
+
+    scheduler.start()
+    scheduler.add_job(scheduled_tasks)
+
+    try:
+        asyncio.get_event_loop().run_forever()
+    except KeyboardInterrupt:
+        logger.info("Stopping License Manager Agent")
+        scheduler.stop()
+
+
+if __name__ == "__main__":
+    main()

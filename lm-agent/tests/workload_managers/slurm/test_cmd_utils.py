@@ -8,16 +8,15 @@ from unittest import mock
 from pytest import fixture, mark, raises
 
 from lm_agent.workload_managers.slurm.cmd_utils import (
-    LicenseBooking,
-    SqueueParserUnexpectedInputError,
     _match_requested_license,
     get_all_features_cluster_values,
     get_all_product_features_from_cluster,
     get_required_licenses_for_job,
     squeue_parser,
     get_lead_host,
-    ScontrolRetrievalFailure,
 )
+from lm_agent.exceptions import SqueueParserUnexpectedInputError, ScontrolRetrievalFailure
+from lm_agent.models import LicenseBooking
 
 
 @fixture
@@ -240,36 +239,36 @@ async def test_get_all_features_cluster_values(
 @mark.parametrize(
     "nodelist,scontrol_output,actual_lead_host",
     [
-        ("host[1,2,3,4]", b"host1\nhost2\nhost3\nhost4\n", "host1"),
-        ("host1", b"host1", "host1"),
+        ("host[1,2,3,4]", "host1\nhost2\nhost3\nhost4\n", "host1"),
+        ("host1", "host1", "host1"),
         (
             "host-1-[1-3,5],host-2-[1,4]",
-            b"host-1-1\nhost-1-2\nhost-1-3\nhost-1-5\nhost-2-1\nhost-2-4\n",
+            "host-1-1\nhost-1-2\nhost-1-3\nhost-1-5\nhost-2-1\nhost-2-4\n",
             "host-1-1",
         ),
     ],
 )
 @mark.asyncio
-@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.run_command")
 async def test_get_lead_host__success(
-    subprocess_mock: mock.MagicMock, nodelist: str, scontrol_output: bytes, actual_lead_host: str
+    run_command_mock: mock.MagicMock, nodelist: str, scontrol_output: str, actual_lead_host: str
 ):
     """
     Do I return the correct lead host from the scontrol show hostnames command?
     """
-    subprocess_mock.return_value.communicate.return_value = (scontrol_output, None)
+    run_command_mock.return_value = scontrol_output
 
     parsed_lead_host = await get_lead_host(nodelist)
     assert parsed_lead_host == actual_lead_host
 
 
 @mark.asyncio
-@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.asyncio.create_subprocess_shell")
-async def test_get_lead_host__raise_exception_when_empty(subprocess_mock: mock.MagicMock):
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.run_command")
+async def test_get_lead_host__raise_exception_when_empty(run_command_mock: mock.MagicMock):
     """
     Do I raise an exception when the scontrol show hostnames command returns an empty string?
     """
-    subprocess_mock.return_value.communicate.return_value = (b"", None)
+    run_command_mock.return_value = ""
 
     with raises(ScontrolRetrievalFailure):
         await get_lead_host("host1")

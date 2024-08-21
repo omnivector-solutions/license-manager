@@ -7,7 +7,7 @@ import pytest
 from httpx import Response
 from pytest import mark, raises
 
-from lm_agent.backend_utils.models import (
+from lm_agent.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,

@@ -1,11 +1,11 @@
 """LS-Dyna license server interface."""
 import typing
 
-from lm_agent.backend_utils.models import LicenseServerSchema
+from lm_agent.models import LicenseServerSchema, LicenseReportItem
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
 from lm_agent.parsing import lsdyna
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
+from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
 from lm_agent.utils import run_command
 
 

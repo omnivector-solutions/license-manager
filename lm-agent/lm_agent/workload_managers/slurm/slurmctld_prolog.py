@@ -13,7 +13,7 @@ if the exit status is anything other then 0, e.g. 1.
 import asyncio
 import sys
 
-from lm_agent.backend_utils.models import LicenseBookingRequest
+from lm_agent.models import LicenseBookingRequest
 from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger

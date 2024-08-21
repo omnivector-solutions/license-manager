@@ -5,14 +5,13 @@ import asyncio
 from collections import defaultdict
 from typing import List, Dict, Tuple
 
-from lm_agent.backend_utils.models import JobSchema, BookingSchema, ConfigurationSchema
+from lm_agent.models import JobSchema, BookingSchema, ConfigurationSchema, LicenseReportItem
 from lm_agent.backend_utils.utils import (
     remove_booking,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.logs import logger
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
-from lm_agent.services.models import ExtractedBookingSchema, ExtractedUsageSchema
+from lm_agent.models import ExtractedBookingSchema, ExtractedUsageSchema
 
 
 def get_cluster_grace_times(cluster_configurations: List[ConfigurationSchema]) -> Dict[int, int]:

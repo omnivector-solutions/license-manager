@@ -4,6 +4,7 @@ import os
 from logging.handlers import RotatingFileHandler
 from textwrap import dedent
 from traceback import format_tb
+from pathlib import Path
 
 from buzz import DoExceptParams
 
@@ -58,7 +59,9 @@ def _formatter():
 def init_logging(command_type: str):
     """Create and return the logging handler."""
     if settings.LOG_BASE_DIR is not None:
-        _rotating_file_handler(f"{settings.LOG_BASE_DIR}/{command_type}.log")
+        log_dir = Path(settings.LOG_BASE_DIR) / command_type
+        log_dir.mkdir(parents=True, exist_ok=True)
+        _rotating_file_handler(log_dir / f"{command_type}.log")
     else:
         _default_logging()
 
@@ -95,6 +98,3 @@ def _default_logging():
     level = getattr(logging, settings.LOG_LEVEL)
     handler.setLevel(level)
     logger.addHandler(handler)
-
-
-log = logger

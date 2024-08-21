@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Union
 import httpx
 import jwt
 
-from lm_agent.backend_utils.models import (
+from lm_agent.models import (
     ConfigurationSchema,
     FeatureSchema,
     JobSchema,
@@ -128,25 +128,27 @@ async def check_backend_health():
     """
     Hit the API's health-check endpoint to make sure the API is available.
     """
+    logger.debug("Checking backend health")
     async with AsyncBackendClient() as backend_client:
         resp = await backend_client.get("/lm/health")
     if resp.status_code != 204:
         logger.error(f"Backend health-check request failed with status code: {resp.status_code}")
         raise LicenseManagerBackendConnectionError("Could not connect to the backend health-check endpoint")
+    logger.debug("Backend is healthy!")
 
 
 async def report_cluster_status():
     """
     Report the cluster status to the backend.
     """
-    interval = settings.STAT_INTERVAL
-
+    logger.debug("Reporting cluster status")
     async with AsyncBackendClient() as backend_client:
-        resp = await backend_client.put("/lm/cluster_statuses", params={"interval": interval})
+        resp = await backend_client.put("/lm/cluster_statuses", params={"interval": settings.STAT_INTERVAL})
 
     LicenseManagerBackendConnectionError.require_condition(
         resp.status_code == 202, f"Failed to report cluster status: {resp.text}"
     )
+    logger.debug("Cluster status reported successfully")
 
 
 async def get_cluster_jobs_from_backend() -> List[JobSchema]:

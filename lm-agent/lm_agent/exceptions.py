@@ -43,3 +43,11 @@ class LicenseManagerFeatureConfigurationIncorrect(Buzz):
 
 class LicenseManagerReservationFailure(Buzz):
     """Exception for failure during reservation management."""
+
+
+class SqueueParserUnexpectedInputError(Buzz):
+    """Unexpected squeue output."""
+
+
+class ScontrolRetrievalFailure(Buzz):
+    """Could not get SLURM data for job id."""

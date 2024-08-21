@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from lm_agent.backend_utils.models import FeatureSchema, ProductSchema
+from lm_agent.models import FeatureSchema, ProductSchema
 from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as main
 
 

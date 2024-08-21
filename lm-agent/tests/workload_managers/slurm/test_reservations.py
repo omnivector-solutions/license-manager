@@ -12,6 +12,7 @@ from lm_agent.workload_managers.slurm.reservations import (
     scontrol_delete_reservation,
     scontrol_show_reservation,
     scontrol_update_reservation,
+    create_or_update_reservation,
 )
 
 
@@ -114,3 +115,32 @@ async def test__scontrol_delete_reservation__fail(run_command_mock: mock.MagicMo
     run_command_mock.side_effect = CommandFailedToExecute("Command failed")
     delete_reservation = await scontrol_delete_reservation()
     assert not delete_reservation
+
+
+@mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.reservations.scontrol_create_reservation")
+@mock.patch("lm_agent.workload_managers.slurm.reservations.scontrol_show_reservation")
+@mock.patch("lm_agent.workload_managers.slurm.reservations.scontrol_update_reservation")
+@mock.patch("lm_agent.workload_managers.slurm.reservations.scontrol_delete_reservation")
+async def test_create_or_update_reservation(delete_mock, update_mock, show_mock, create_mock):
+    """
+    Test that create_or_update_reservation:
+    - update the reservation if it exists
+    - delete the reservation if it can't update
+    - create the reservation if doesn't exist
+    """
+    # Update reservation if it exists
+    show_mock.return_value = "reservation_data"
+    await create_or_update_reservation("reservation_info")
+    update_mock.assert_called_once()
+
+    # Delete reservation if it can't update
+    show_mock.return_value = "reservation_data"
+    update_mock.return_value = False
+    await create_or_update_reservation("reservation_info")
+    delete_mock.assert_called()
+
+    # Create reservation if it doesn't exist
+    show_mock.return_value = False
+    await create_or_update_reservation("reservation_info")
+    create_mock.assert_called()

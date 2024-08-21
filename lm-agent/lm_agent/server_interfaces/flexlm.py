@@ -1,13 +1,14 @@
 """FlexLM license server interface."""
 import typing
 
-from lm_agent.backend_utils.models import LicenseServerSchema
+from buzz import check_expressions
+
+from lm_agent.models import LicenseServerSchema, LicenseReportItem
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBadServerOutput
+from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
 from lm_agent.parsing import flexlm
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem, LicenseServerInterface
 from lm_agent.utils import run_command
-from buzz import check_expressions
 
 
 class FlexLMLicenseServer(LicenseServerInterface):
