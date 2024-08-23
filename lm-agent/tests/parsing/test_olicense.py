@@ -3,7 +3,7 @@ Test the OLicense parser
 """
 
 from lm_agent.parsing.olicense import parse, parse_feature_line, parse_in_use_line, parse_usage_line
-from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem
 
 
 def test_parse_feature_line():

@@ -2,6 +2,7 @@ import bz2
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from textwrap import dedent
 from traceback import format_tb
 
@@ -58,12 +59,13 @@ def _formatter():
 def init_logging(command_type: str):
     """Create and return the logging handler."""
     if settings.LOG_BASE_DIR is not None:
-        _rotating_file_handler(f"{settings.LOG_BASE_DIR}/{command_type}.log")
+        settings.LOG_BASE_DIR.mkdir(parents=True, exist_ok=True)
+        _rotating_file_handler(settings.LOG_BASE_DIR / f"{command_type}.log")
     else:
         _default_logging()
 
 
-def _rotating_file_handler(log_file: str):
+def _rotating_file_handler(log_file: Path):
     """Configure the rotating file handler."""
     global logger
 
@@ -95,6 +97,3 @@ def _default_logging():
     level = getattr(logging, settings.LOG_LEVEL)
     handler.setLevel(level)
     logger.addHandler(handler)
-
-
-log = logger

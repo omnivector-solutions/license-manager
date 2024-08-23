@@ -4,7 +4,7 @@ Test the RLM parser
 from pytest import mark
 
 from lm_agent.parsing.rlm import parse, parse_count_line, parse_feature_line, parse_usage_line
-from lm_agent.server_interfaces.license_server_interface import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem
 
 
 def test_parse_feature_line():

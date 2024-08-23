@@ -3,7 +3,7 @@ import asyncio
 import shlex
 from typing import List
 
-from lm_agent.config import ENCODING, TOOL_TIMEOUT
+from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.logs import logger
 
@@ -21,8 +21,8 @@ async def run_command(command_line_parts: List[str]) -> str:
     )
 
     # block until the command succeeds
-    stdout, _ = await asyncio.wait_for(proc.communicate(), TOOL_TIMEOUT)
-    output = str(stdout, encoding=ENCODING, errors="replace")
+    stdout, _ = await asyncio.wait_for(proc.communicate(), settings.TOOL_TIMEOUT)
+    output = str(stdout, encoding=settings.ENCODING, errors="replace")
 
     if proc.returncode != 0:
         error_message = shlex.join(

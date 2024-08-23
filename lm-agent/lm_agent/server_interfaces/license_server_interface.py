@@ -1,9 +1,4 @@
 """Module for license server interface abstract base class."""
-from typing import List
-
-from pydantic import BaseModel, Field
-
-from lm_agent.config import PRODUCT_FEATURE_RX
 
 
 class LicenseServerInterface:
@@ -40,25 +35,3 @@ class LicenseServerInterface:
     def get_report_item(self, feature_id: int, product_feature: str):
         """Parse license server output into a report item for the indicated feature."""
         raise NotImplementedError("get_report_item not implemented")
-
-
-class LicenseUsesItem(BaseModel):
-    """
-    A list of usage information for a license.
-    """
-
-    username: str
-    lead_host: str
-    booked: int
-
-
-class LicenseReportItem(BaseModel):
-    """
-    An item in a LicenseReport, a count of tokens for one product/feature.
-    """
-
-    feature_id: int
-    product_feature: str = Field(..., pattern=PRODUCT_FEATURE_RX)
-    used: int
-    total: int
-    uses: List[LicenseUsesItem] = []

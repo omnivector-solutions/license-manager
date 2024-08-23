@@ -1,37 +1,12 @@
 """Utilities that interact with slurm."""
-import asyncio
 import re
-import shlex
-import subprocess
 from typing import Dict, List, Optional, Union
 
-from lm_agent.backend_utils.models import LicenseBooking
-from lm_agent.logs import logger
-from buzz import require_condition
-
-
-SCONTROL_PATH = "/usr/bin/scontrol"
-SACCTMGR_PATH = "/usr/bin/sacctmgr"
-SQUEUE_PATH = "/usr/bin/squeue"
-CMD_TIMEOUT = 5
-ENCODING = "UTF8"
-
-
-class SqueueParserUnexpectedInputError(ValueError):
-    """Unexpected squeue output."""
-
-
-class ScontrolRetrievalFailure(Exception):
-    """
-    Could not get SLURM data for job id.
-    The following function's return code was zero:
-
-    await asyncio.create_subprocess_shell(
-        shlex.join([SCONTROL_PATH, "show", f"job={slurm_job_id}"]),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
-    )
-    """
+from lm_agent.exceptions import ScontrolRetrievalFailure, SqueueParserUnexpectedInputError
+from lm_agent.models import LicenseBooking
+from lm_agent.logs import logger, log_error
+from lm_agent.config import settings
+from lm_agent.utils import run_command
 
 
 def _match_requested_license(requested_license: str) -> Union[dict, None]:
@@ -131,17 +106,12 @@ async def scontrol_show_lic():
     """
 
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "show",
         "lic",
     ]
+    output = await run_command(cmd)
 
-    proc = await asyncio.create_subprocess_shell(
-        shlex.join(cmd), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
-    )
-
-    stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
-    output = str(stdout, encoding=ENCODING)
     logger.debug("##### scontrol show lic #####")
     return output
 
@@ -154,85 +124,17 @@ async def get_lead_host(nodelist):
     The nodelist can contain multiple lists of nodes inside square brackets.
     """
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "show",
         "hostnames",
         nodelist,
     ]
-
-    proc = await asyncio.create_subprocess_shell(
-        shlex.join(cmd), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
-    )
-
-    stdout, _ = await asyncio.wait_for(proc.communicate(), CMD_TIMEOUT)
-    output = str(stdout, encoding=ENCODING)
+    output = await run_command(cmd)
 
     lead_host = output.split("\n")[0]
-
-    require_condition(
-        lead_host != "", "Could not get lead host from nodelist.", raise_exc_class=ScontrolRetrievalFailure
-    )
+    ScontrolRetrievalFailure.require_condition(lead_host != "", "Could not get lead host from nodelist")
 
     return lead_host
-
-
-async def get_cluster_name() -> str:
-    cmd = [
-        SACCTMGR_PATH,
-        "list",
-        "cluster",
-        "-nP",
-        "format=Cluster",
-    ]
-    logger.debug("##### sacctmgr get cluster name cmd #####")
-
-    sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
-        shlex.join(cmd),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
-    )
-
-    cluster_name_stdout, _ = await asyncio.wait_for(
-        sacctmgr_modify_resource.communicate(),
-        CMD_TIMEOUT,
-    )
-    return cluster_name_stdout.decode("utf8").strip()
-
-
-async def sacctmgr_modify_resource(product: str, feature: str, num_tokens) -> bool:
-    """
-    Update the license resource in slurm.
-    """
-    cmd = [
-        SACCTMGR_PATH,
-        "modify",
-        "resource",
-        f"name={product}.{feature}",
-        "set",
-        f"count={num_tokens}",
-        "-i",
-    ]
-    logger.debug("##### sacctmgr update cmd #####")
-    logger.debug(f"{' '.join(cmd)}")
-
-    sacctmgr_modify_resource = await asyncio.create_subprocess_shell(
-        shlex.join(cmd),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.STDOUT,
-    )
-
-    modify_resource_stdout, _ = await asyncio.wait_for(
-        sacctmgr_modify_resource.communicate(),
-        CMD_TIMEOUT,
-    )
-
-    rc = sacctmgr_modify_resource.returncode
-
-    if not rc == 0:
-        logger.warning(f"rc = {rc}!")
-        logger.warning(modify_resource_stdout)
-        return False
-    return True
 
 
 async def get_all_product_features_from_cluster() -> List[str]:
@@ -257,24 +159,19 @@ async def get_all_product_features_from_cluster() -> List[str]:
     return parsed_features
 
 
-def return_formatted_squeue_out() -> str:
+async def return_formatted_squeue_out() -> str:
     """
     Call squeue via Popen and return the formatted output.
 
     Return the squeue output in the form "<job_id>|<run_time>|<state>".
     """
+    cmd = [
+        str(settings.SQUEUE_PATH),
+        "--noheader",
+        "--format='%A|%M|%T'",
+    ]
 
-    result = subprocess.run(
-        f"{shlex.quote(SQUEUE_PATH)} --noheader --format='%A|%M|%T'",
-        capture_output=True,
-        shell=True,
-        encoding="utf-8",
-    )
-    if result.returncode != 0:
-        logger.error(result.stderr)
-        raise Exception(result.stderr)
-
-    return result.stdout.strip()
+    return await run_command(cmd)
 
 
 def _total_time_in_seconds(time_string: str) -> int:
@@ -314,11 +211,11 @@ def squeue_parser(squeue_formatted_output) -> List:
 
     def parse_squeue_line():
         """Parse a line from squeue formatted output."""
-        try:
-            job_id, run_time, state = line.split("|")
-        except ValueError as e:
-            logger.error(e)
-            raise SqueueParserUnexpectedInputError()
+        with SqueueParserUnexpectedInputError.handle_errors(
+            "Unexpected input from squeue", do_except=log_error
+        ):
+            job_id, run_time, state = line.strip("'").split("|")
+
         return job_id, run_time, state
 
     for line in squeue_formatted_output.split():

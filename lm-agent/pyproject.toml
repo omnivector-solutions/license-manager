@@ -44,6 +44,9 @@ env = [
     "LM2_AGENT_BACKEND_BASE_URL = http://backend",
     "LM2_AGENT_LMUTIL_PATH = ./tests/mock_tools",
     "LM2_AGENT_RLMUTIL_PATH = ./tests/mock_tools",
+    "LM2_AGENT_LSDYNA_PATH = ./tests/mock_tools",
+    "LM2_AGENT_LMXENDUTIL_PATH = ./tests/mock_tools",
+    "LM2_AGENT_OLIXTOOL_PATH = ./tests/mock_tools",
     "LM2_AGENT_LOG_LEVEL = DEBUG",
 ]
 

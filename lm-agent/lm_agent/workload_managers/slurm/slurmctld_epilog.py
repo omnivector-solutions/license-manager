@@ -8,7 +8,7 @@ import sys
 from lm_agent.backend_utils.utils import remove_job_by_slurm_job_id
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
-from lm_agent.services.reconciliation import update_features
+from lm_agent.services.reconciliation import reconcile
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
 
@@ -24,7 +24,7 @@ async def epilog():
     if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
         # Force a reconciliation before we attempt to remove bookings.
         try:
-            await update_features()
+            await reconcile()
         except Exception as e:
             logger.error(f"Failed to call reconcile with {e}")
             sys.exit(1)

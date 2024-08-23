@@ -2,10 +2,9 @@
 from typing import Union
 
 from lm_agent.config import settings
-from lm_agent.exceptions import CommandFailedToExecute
+from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerReservationFailure
 from lm_agent.logs import logger
 from lm_agent.utils import run_command
-from lm_agent.workload_managers.slurm.cmd_utils import SCONTROL_PATH
 
 
 async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
@@ -18,7 +17,7 @@ async def scontrol_create_reservation(licenses: str, duration: str) -> bool:
     Returns True if the reservation was created successfully, otherwise returns False.
     """
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "create",
         "reservation",
         f"user={settings.LM_USER}",
@@ -47,7 +46,7 @@ async def scontrol_show_reservation() -> Union[str, bool]:
     Returns the reservation information if it exists, otherwise returns None.
     """
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "show",
         "reservation",
         settings.RESERVATION_IDENTIFIER,
@@ -74,7 +73,7 @@ async def scontrol_update_reservation(licenses: str, duration: str) -> bool:
     Returns True if the reservation was updated successfully, otherwise returns False.
     """
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "update",
         "reservation",
         f"ReservationName={settings.RESERVATION_IDENTIFIER}",
@@ -100,7 +99,7 @@ async def scontrol_delete_reservation() -> bool:
     Returns True if the reservation was deleted successfully, otherwise returns False.
     """
     cmd = [
-        SCONTROL_PATH,
+        str(settings.SCONTROL_PATH),
         "delete",
         f"ReservationName={settings.RESERVATION_IDENTIFIER}",
     ]
@@ -114,3 +113,22 @@ async def scontrol_delete_reservation() -> bool:
 
     logger.debug(f"#### Successfully deleted reservation {settings.RESERVATION_IDENTIFIER} ####")
     return True
+
+
+async def create_or_update_reservation(reservation_data: str):
+    """
+    Create the reservation if it doesn't exist, otherwise update it.
+    If the reservation cannot be updated, delete it and create a new one.
+    """
+    reservation = await scontrol_show_reservation()
+
+    if reservation:
+        updated = await scontrol_update_reservation(reservation_data, "30:00")
+        if not updated:
+            deleted = await scontrol_delete_reservation()
+            LicenseManagerReservationFailure.require_condition(
+                deleted, "Could not update or delete reservation."
+            )
+    else:
+        created = await scontrol_create_reservation(reservation_data, "30:00")
+        LicenseManagerReservationFailure.require_condition(created, "Could not create reservation.")
