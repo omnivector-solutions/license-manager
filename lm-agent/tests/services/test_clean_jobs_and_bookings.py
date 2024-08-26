@@ -16,9 +16,13 @@ from lm_agent.services.clean_jobs_and_bookings import (
     clean_jobs_by_grace_time,
     clean_jobs_and_bookings,
 )
-from lm_agent.services.models import ExtractedBookingSchema, ExtractedUsageSchema
-from lm_agent.backend_utils.models import JobSchema, BookingSchema
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
+from lm_agent.models import (
+    JobSchema,
+    BookingSchema,
+    ExtractedBookingSchema,
+    ExtractedUsageSchema,
+    LicenseReportItem,
+)
 
 
 def test_get_cluster_grace_times(parsed_configurations):

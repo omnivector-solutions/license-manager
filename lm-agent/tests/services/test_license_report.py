@@ -1,15 +1,17 @@
 from unittest import mock
 
-from pytest import mark
+from pytest import mark, raises
+from httpx import Response
 
-from lm_agent.backend_utils.models import (
+from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
+from lm_agent.models import (
     ConfigurationSchema,
     FeatureSchema,
     LicenseServerSchema,
     LicenseServerType,
     ProductSchema,
+    LicenseReportItem,
 )
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
 from lm_agent.services import license_report
 
 
@@ -453,6 +455,7 @@ def test_get_local_license_configurations():
 
 
 @mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
 @mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
 @mock.patch("lm_agent.services.license_report.get_local_license_configurations")
 @mock.patch("lm_agent.services.license_report.RLMLicenseServer.get_report_item")
@@ -460,11 +463,13 @@ async def test_license_report_empty_on_exception_raised(
     get_report_item_mock: mock.MagicMock,
     get_local_license_configurations_mock: mock.MagicMock,
     get_cluster_configs_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
 ):
     """
     Do I get an empty report when an exception is raised?
     """
     get_cluster_configs_from_backend_mock.return_value = []
+    show_lic_mock.return_value = ""
     get_local_license_configurations_mock.return_value = [
         ConfigurationSchema(
             id=1,
@@ -501,3 +506,40 @@ async def test_license_report_empty_on_exception_raised(
             uses=[],
         )
     ]
+
+
+@mark.asyncio
+@mock.patch("lm_agent.services.license_report.report")
+async def test__update_features__report_empty(report_mock):
+    """
+    Check the correct behavior when the report is empty in reconcile.
+    """
+    report_mock.return_value = []
+    with raises(LicenseManagerEmptyReportError):
+        await license_report.update_features()
+
+
+@mark.asyncio
+@mark.respx(base_url="http://backend")
+@mock.patch("lm_agent.services.license_report.report")
+async def test__update_features__put_failed(
+    report_mock,
+    respx_mock,
+):
+    """
+    Check that when put /features/bulk status_code is not 200, should raise exception.
+    """
+    report_mock.return_value = [
+        LicenseReportItem(
+            feature_id=1,
+            product_feature="abaqus.abaqus",
+            total=1000,
+            used=200,
+            uses=[],
+        )
+    ]
+
+    respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=400))
+
+    with raises(LicenseManagerBackendConnectionError):
+        await license_report.update_features()

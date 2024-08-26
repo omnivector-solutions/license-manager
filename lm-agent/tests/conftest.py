@@ -1,7 +1,6 @@
 """
 Configuration of pytest for agent tests.
 """
-from pathlib import Path
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -9,19 +8,17 @@ import httpx
 import respx
 from pytest import fixture
 
-from lm_agent.backend_utils.models import (
+from lm_agent.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
     JobSchema,
     LicenseServerSchema,
+    LicenseReportItem,
     LicenseServerType,
     ProductSchema,
 )
 from lm_agent.config import settings
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
-
-MOCK_BIN_PATH = Path(__file__).parent / "mock_tools"
 
 
 @fixture(autouse=True)
@@ -31,6 +28,15 @@ def mock_cache_dir(tmp_path):
     assert not _cache_dir.exists()
     with patch("lm_agent.config.settings.CACHE_DIR", new=_cache_dir):
         yield _cache_dir
+
+
+@fixture(autouse=True)
+def mock_log_dir(tmp_path):
+    """Mock a log directory."""
+    _log_dir = tmp_path / "license-manager-agent-logs"
+    assert not _log_dir.exists()
+    with patch("lm_agent.config.settings.LOG_BASE_DIR", new=_log_dir):
+        yield _log_dir
 
 
 @fixture

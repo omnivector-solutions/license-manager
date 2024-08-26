@@ -1,19 +1,13 @@
-#!/usr/bin/env python3
 """
 Reconciliation functionality live here.
 """
-from typing import List
-
 from lm_agent.backend_utils.utils import (
     get_all_features_bookings_sum,
     get_cluster_configs_from_backend,
     get_cluster_jobs_from_backend,
-    make_feature_update,
 )
-from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerReservationFailure
 from lm_agent.logs import logger
-from lm_agent.server_interfaces.license_server_interface import LicenseReportItem
-from lm_agent.services.license_report import report
+from lm_agent.services.license_report import update_features
 from lm_agent.services.clean_jobs_and_bookings import clean_jobs_and_bookings
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_features_cluster_values,
@@ -21,30 +15,10 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
     squeue_parser,
 )
 from lm_agent.workload_managers.slurm.reservations import (
-    scontrol_create_reservation,
+    create_or_update_reservation,
     scontrol_delete_reservation,
     scontrol_show_reservation,
-    scontrol_update_reservation,
 )
-
-
-async def create_or_update_reservation(reservation_data: str):
-    """
-    Create the reservation if it doesn't exist, otherwise update it.
-    If the reservation cannot be updated, delete it and create a new one.
-    """
-    reservation = await scontrol_show_reservation()
-
-    if reservation:
-        updated = await scontrol_update_reservation(reservation_data, "30:00")
-        if not updated:
-            deleted = await scontrol_delete_reservation()
-            LicenseManagerReservationFailure.require_condition(
-                deleted, "Could not update or delete reservation."
-            )
-    else:
-        created = await scontrol_create_reservation(reservation_data, "30:00")
-        LicenseManagerReservationFailure.require_condition(created, "Could not create reservation.")
 
 
 async def reconcile():
@@ -69,7 +43,7 @@ async def reconcile():
     all_features_cluster_value = await get_all_features_cluster_values()
 
     # Get squeue result from cluster
-    squeue_output = squeue_parser(return_formatted_squeue_out())
+    squeue_output = squeue_parser(await return_formatted_squeue_out())
 
     # Clean jobs and bookings
     await clean_jobs_and_bookings(configurations, jobs, squeue_output, license_usage_info)
@@ -138,33 +112,3 @@ async def reconcile():
             await scontrol_delete_reservation()
 
     logger.debug("Reconciliation done")
-
-
-async def update_features() -> List[LicenseReportItem]:
-    """Send the license data collected from the cluster to the backend."""
-    license_report = await report()
-
-    if not license_report:
-        logger.error(
-            "No license data could be collected, check that tools are installed "
-            "correctly and the right hosts/ports are configured in settings"
-        )
-        raise LicenseManagerEmptyReportError("Got an empty response from the license server")
-
-    features_to_update = []
-
-    for license in license_report:
-        product, feature = license.product_feature.split(".")
-
-        feature_data = {
-            "product_name": product,
-            "feature_name": feature,
-            "total": license.total,
-            "used": license.used,
-        }
-
-        features_to_update.append(feature_data)
-
-    await make_feature_update(features_to_update)
-
-    return license_report
