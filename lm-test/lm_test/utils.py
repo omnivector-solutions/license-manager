@@ -13,7 +13,6 @@ def acquire_token() -> str:
     Retrieves a token from OIDC based on the app settings.
     """
     oidc_body = dict(
-        audience=settings.OIDC_AUDIENCE,
         client_id=settings.OIDC_CLIENT_ID,
         client_secret=settings.OIDC_CLIENT_SECRET,
         grant_type="client_credentials",

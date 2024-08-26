@@ -20,7 +20,6 @@ class Settings(BaseSettings):
 
     # OIDC config for machine-to-machine security
     OIDC_DOMAIN: str
-    OIDC_AUDIENCE: str
     OIDC_CLIENT_ID: str
     OIDC_CLIENT_SECRET: str
 

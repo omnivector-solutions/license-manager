@@ -10,13 +10,12 @@ from data_migration.models import OldConfiguration
 load_dotenv()
 
 
-def acquire_token(oidc_domain, audience, client_id, client_secret) -> str:
+def acquire_token(oidc_domain, client_id, client_secret) -> str:
     """
     Retrieves a token from OIDC.
     """
     logger.debug("Attempting to acquire token from OIDC")
     oidc_body = dict(
-        audience=audience,
         client_id=client_id,
         client_secret=client_secret,
         grant_type="client_credentials",
@@ -178,14 +177,12 @@ def create_new_configurations(token: str, old_configurations: List[OldConfigurat
 def main():
     old_token = acquire_token(
         oidc_domain=os.environ.get("OLD_OIDC_DOMAIN"),
-        audience=os.environ.get("OLD_OIDC_AUDIENCE"),
         client_id=os.environ.get("OLD_OIDC_CLIENT_ID"),
         client_secret=os.environ.get("OLD_OIDC_CLIENT_SECRET"),
     )
 
     new_token = acquire_token(
         oidc_domain=os.environ.get("NEW_OIDC_DOMAIN"),
-        audience=os.environ.get("NEW_OIDC_AUDIENCE"),
         client_id=os.environ.get("NEW_OIDC_CLIENT_ID"),
         client_secret=os.environ.get("NEW_OIDC_CLIENT_SECRET"),
     )
