@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
-
+* Remove OIDC_AUDIENCE setting
 
 ## 3.4.0 -- 2024-08-19
 * Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
