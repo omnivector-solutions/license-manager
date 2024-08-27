@@ -82,7 +82,6 @@ def acquire_token() -> str:
     if token is None:
         logger.debug("Attempting to acquire token from OIDC")
         oidc_body = dict(
-            audience=settings.OIDC_AUDIENCE,
             client_id=settings.OIDC_CLIENT_ID,
             client_secret=settings.OIDC_CLIENT_SECRET,
             grant_type="client_credentials",

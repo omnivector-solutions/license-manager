@@ -233,7 +233,6 @@ license-manager-agent:
   lmxendutil-path: "/usr/local/bin/lmxendutil"
   olixtool-path: "/usr/local/bin/olixtool"
   oidc-domain: "your-oidc-domain"
-  oidc-audience: "your-oidc-audience"
   oidc-client-id: "your-oidc-client-id"
   oidc-client-secret: "your-oidc-client-secret"
   sentry-dsn: ""

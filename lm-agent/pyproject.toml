@@ -39,7 +39,6 @@ addopts = "--random-order --cov=lm_agent --cov-report=term-missing --cov-fail-un
 testpaths = ["tests"]
 env = [
     "LM2_AGENT_OIDC_DOMAIN = str",
-    "LM2_AGENT_OIDC_AUDIENCE = str",
     "LM2_AGENT_OIDC_CLIENT_ID = str",
     "LM2_AGENT_OIDC_CLIENT_SECRET = str",
     "LM2_AGENT_BACKEND_BASE_URL = http://backend",

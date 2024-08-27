@@ -217,7 +217,6 @@ def refresh_access_token(ctx: LicenseManagerContext, token_set: TokenSet):
             response_model_cls=TokenSet,
             data=dict(
                 client_id=settings.OIDC_CLIENT_ID,
-                audience=settings.OIDC_AUDIENCE,
                 grant_type="refresh_token",
                 refresh_token=token_set.refresh_token,
             ),
@@ -251,7 +250,6 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
             data=dict(
                 client_id=settings.OIDC_CLIENT_ID,
                 grant_type="client_credentials",
-                audience=settings.OIDC_AUDIENCE,
             ),
         ),
     )

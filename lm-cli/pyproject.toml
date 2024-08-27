@@ -51,7 +51,6 @@ env = [
     "LM_API_ENDPOINT = https://dummy_api.com/lm/api/v1",
     "LM_DEBUG = false",
     "OIDC_DOMAIN = dummy_auth_domain.com",
-    "OIDC_AUDIENCE = https://dummy_auth_audience.com",
     "OIDC_CLIENT_ID = dummy_client_id",
     "IDENTITY_CLAIMS_KEY = email",
 ]

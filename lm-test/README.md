@@ -31,7 +31,6 @@ You'll also need the `.env` file with the following values:
 LM_API_BASE_URL=http://127.0.0.1:7000
 LM_SIM_BASE_URL=http://127.0.0.1:7070
 OIDC_DOMAIN=<your-OIDC-domain>
-OIDC_AUDIENCE=<your-OIDC-audience>
 OIDC_CLIENT_ID=<cluster-client-id-in-OIDC>
 OIDC_CLIENT_SECRET=<client-secret-to-retrieve-OIDC-token>
 LM_SIM_PATH=<path-to-lm-sim-cloned-repo>

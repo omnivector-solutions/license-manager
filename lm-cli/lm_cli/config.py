@@ -38,7 +38,6 @@ class Settings(BaseSettings):
     # OIDC config for machine-to-machine security
     OIDC_DOMAIN: str
     OIDC_LOGIN_DOMAIN: Optional[str] = None
-    OIDC_AUDIENCE: str
     OIDC_CLIENT_ID: str
     OIDC_MAX_POLL_TIME: int = 5 * 60  # 5 Minutes
 

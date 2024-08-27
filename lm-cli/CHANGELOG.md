@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager CLI`.
 
 ## Unreleased
-
+* Remove OIDC_AUDIENCE setting
 
 ## 3.4.0 -- 2024-08-19
 * Upgrade Pydantic to *^2.8.2*
