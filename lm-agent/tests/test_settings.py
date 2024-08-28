@@ -14,7 +14,7 @@ def good_env():
     """
     A parseable environment
     """
-    env = {"LM2_AGENT_BACKEND_BASE_URL": "http://hello/"}
+    env = {"BACKEND_BASE_URL": "http://hello/"}
     with patch.dict(os.environ, env) as e:
         yield e
 
@@ -24,7 +24,7 @@ def bad_env():
     """
     An unparseable environment
     """
-    env = {"LM2_AGENT_BACKEND_BASE_URL": "not-a-url"}
+    env = {"BACKEND_BASE_URL": "not-a-url"}
     with patch.dict(os.environ, env) as e:
         yield e
 
@@ -34,7 +34,7 @@ def test_init_settings(good_env):
     Do we build a settings object from good input?
     """
     good = init_settings()
-    assert str(good.BACKEND_BASE_URL) == good_env["LM2_AGENT_BACKEND_BASE_URL"]
+    assert str(good.BACKEND_BASE_URL) == good_env["BACKEND_BASE_URL"]
 
 
 def test_init_settings_bad(bad_env, caplog):
