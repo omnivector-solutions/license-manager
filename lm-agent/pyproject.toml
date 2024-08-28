@@ -38,16 +38,16 @@ minversion = "6.0"
 addopts = "--random-order --cov=lm_agent --cov-report=term-missing --cov-fail-under=70"
 testpaths = ["tests"]
 env = [
-    "OIDC_DOMAIN = str",
-    "OIDC_CLIENT_ID = str",
-    "OIDC_CLIENT_SECRET = str",
-    "BACKEND_BASE_URL = http://backend",
-    "LMUTIL_PATH = ./tests/mock_tools",
-    "RLMUTIL_PATH = ./tests/mock_tools",
-    "LSDYNA_PATH = ./tests/mock_tools",
-    "LMXENDUTIL_PATH = ./tests/mock_tools",
-    "OLIXTOOL_PATH = ./tests/mock_tools",
-    "LOG_LEVEL = DEBUG",
+    "LM_AGENT_OIDC_DOMAIN = str",
+    "LM_AGENT_OIDC_CLIENT_ID = str",
+    "LM_AGENT_OIDC_CLIENT_SECRET = str",
+    "LM_AGENT_BACKEND_BASE_URL = http://backend",
+    "LM_AGENT_LMUTIL_PATH = ./tests/mock_tools",
+    "LM_AGENT_RLMUTIL_PATH = ./tests/mock_tools",
+    "LM_AGENT_LSDYNA_PATH = ./tests/mock_tools",
+    "LM_AGENT_LMXENDUTIL_PATH = ./tests/mock_tools",
+    "LM_AGENT_OLIXTOOL_PATH = ./tests/mock_tools",
+    "LM_AGENT_LOG_LEVEL = DEBUG",
 ]
 
 [tool.ruff]
