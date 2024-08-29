@@ -19,6 +19,9 @@ DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
 class Settings(BaseSettings):
     """
     App config.
+
+    If you are setting these in the environment, you must prefix "LM_AGENT_", e.g.
+    LM_AGENT_LOG_LEVEL=DEBUG
     """
 
     # Deployment environment
@@ -85,6 +88,7 @@ class Settings(BaseSettings):
     ENCODING: str = "utf-8"
 
     model_config = SettingsConfigDict(
+        env_prefix="LM_AGENT_",
         env_file=DEFAULT_DOTENV_PATH if DEFAULT_DOTENV_PATH.is_file() else Path(".env"),
     )
 
