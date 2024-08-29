@@ -79,13 +79,7 @@ jobs:
           echo "::set-output name=version::$(poetry version --short)" 
 
       - name: Fail if poetry packages version don't match
-        if: |
-          ${{ steps.agent-package.outputs.version != |
-              steps.backend-package.outputs.version != |
-              steps.lm-cli-package.outputs.version != |
-              steps.lm-sim-package.outputs.version != |
-              steps.lm-sim-api-package.outputs.version |
-          }}
+        if: ${{ steps.agent-package.outputs.version != steps.backend-package.outputs.version != steps.lm-cli-package.outputs.version != steps.lm-sim-package.outputs.version != steps.lm-sim-api-package.outputs.version }}
         run: echo "Poetry packages version don't match!"
 
       - uses: peter-evans/create-pull-request@v4
