@@ -3,8 +3,12 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
+
+
+## 4.0.0 -- 2024-08-30
 * Remove OIDC_AUDIENCE setting
 * Change .env prefix to LM_AGENT in settings
+* Convert the reconciliation from a systemd timed service into a running process [ASP-5382]
 
 ## 3.4.0 -- 2024-08-19
 * Add env var to set wheter the agent should use HTTP or HTTPS to communicate with the OIDC provider
