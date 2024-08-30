@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to License Manager Simulator API
 
 ## Unreleased
+
+
+## 4.0.0 -- 2024-08-30
 * Added version number to documentation page
 * Added README link to PyPI page
 

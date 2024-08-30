@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 
 
+## 4.0.0 -- 2024-08-30
+* Bumped version to keep in sync with agent
+
 ## 3.4.0 -- 2024-08-19
 * Upgrade FastAPI version to *^0.111.0*
 * Upgrade Uvicorn version to *^0.30.1*

@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager CLI`.
 
 ## Unreleased
+
+
+## 4.0.0 -- 2024-08-30
 * Remove OIDC_AUDIENCE setting
 
 ## 3.4.0 -- 2024-08-19
