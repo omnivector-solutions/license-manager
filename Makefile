@@ -19,6 +19,7 @@ qa:
 	$(MAKE) -C lm-cli qa
 	$(MAKE) -C lm-simulator qa
 	$(MAKE) -C lm-simulator-api qa
+	$(MAKE) -C lm-agent-snap qa
 
 format:
 	$(MAKE) -C lm-agent format
@@ -26,6 +27,7 @@ format:
 	$(MAKE) -C lm-cli format
 	$(MAKE) -C lm-simulator format
 	$(MAKE) -C lm-simulator-api format
+	$(MAKE) -C lm-agent-snap format
 
 clean:
 	$(MAKE) -C lm-agent clean
@@ -33,3 +35,4 @@ clean:
 	$(MAKE) -C lm-cli clean
 	$(MAKE) -C lm-simulator clean
 	$(MAKE) -C lm-simulator-api clean
+	$(MAKE) -C lm-agent-snap clean

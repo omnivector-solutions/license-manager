@@ -15,4 +15,6 @@ jobs:
           architecture: 'x64'
       - uses: Gr1N/setup-poetry@v8
       - name: "run full suite of tests"
-        run: make qa
+        run: |
+          pip install tox==4.20.0  # required by the snap pipeline
+          make qa
