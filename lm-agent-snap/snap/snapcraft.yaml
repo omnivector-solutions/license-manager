@@ -35,7 +35,7 @@ description: |
 
   - reservation-identifier: Reservation name used when doing the reconciliation. Defaults to *license-manager-reservation*.
 
-  - lm_user: System user name for creating reservations on behalf of. Defaults to *license-manager*.
+  - lm_user: System user name used when creating reservations. Defaults to *license-manager*.
 
   - stat-interval: Interval in seconds used to report the cluster status to the API. Defaults to 60.
 

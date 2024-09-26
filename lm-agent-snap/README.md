@@ -3,37 +3,48 @@ The License Managar Agent bundled into a Snap.
 
 # Installation instructions
 
-For installing from the remote store, run:
+For installing from the Snap Store, run:
 ```bash
 sudo snap install license-manager-agent
 ```
 
 ## Basic Usage
 
-This snap requires a few configuration values to be set before it can be used. These values are:
-- base-api-url: The URL of the Jobbergate API server where the agent will send its data. Setting/unsetting this value is more interesting when using the snap in a development environment; do not change it otherwise.
-
-- oidc-domain: The domain of the OIDC server that the agent will use for authentication. Setting/unsetting this value is more interesting when using the snap in a development environment; do not change it otherwise.
-
+This snap requires a few configuration values to be set before it can be used. The required values are:
 - oidc-client-id: The client ID of the OIDC application that the agent will use for authentication.
 
 - oidc-client-secret: The client secret of the OIDC application that the agent will use for authentication.
 
-- task-jobs-interval-seconds: The interval in seconds at which the agent will run its internal task jobs, hence sending data to the Jobbergate API server. This is optional and defaults to 30 seconds.
+The optional values are:
+- backend-base-url: The URL of the License Manager API server where the agent will send its data. Setting/unsetting this value is more interesting when using the snap in a development environment; do not change it otherwise.
 
-- task-self-update-interval-seconds: The interval in seconds at which the agent will check for updates to itself. This is optional and defaults to 30 seconds.
+- oidc-domain: The domain of the OIDC server that the agent will use for authentication. Setting/unsetting this value is more interesting when using the snap in a development environment; do not change it otherwise.
 
-- sbatch-path: The absolute path to the *sbatch* command on the host system. This is optional and defaults to /usr/bin/sbatch.
+- sacctmgr-path: The absolute path to the *sacctmgr* command on the host system. This is optional and defaults to /usr/bin/sacctmgr.
 
 - scontrol-path: The absolute path to the *scontrol* command on the host system. This is optional and defaults to /usr/bin/scontrol.
 
-- default-slurm-work-dir: The default working directory that the agent will use when submitting jobs to the SLURM cluster. This is optional and defaults to /tmp.
+- squeue-path: The absolute path to the *squeue* command on the host system. This is optional and defaults to /usr/bin/squeue.
 
-- slurm-user-mapper: The user mapper that the agent will use to map the system user name to the SLURM user name. This is optional and defaults to none.
+- lmutil-path: Absolute path to the binary for lmutil (needed for FlexLM licenses). Defaults to /usr/local/bin/lmutil.
 
-- single-user-submitter: The system user name that the agent will use to submit jobs to the SLURM cluster on behalf of in case the *single-user-submitter* is not set. This is optional and defaults to *ubuntu*.
+- rlmutil-path: Absolute path to the binary for rlmutil (needed for RLM licenses). Defaults to /usr/local/bin/rlmutil.
 
-- write-submission-files: A boolean value (true, false) that indicates whether the agent should write submission files to disk. This is optional and defaults to false.
+- lsdyna-path: Absolute path to the binary for lstc_qrun (needed for LS-Dyna licenses). Defaults to /usr/local/bin/lsdyna.
+
+- lmxendutil-path: Absolute path to the binary for lmxendutil (needed for LM-X licenses). Defaults to /usr/local/bin/lmxendutil.
+
+- olixtool-path: Absolute path to the binary for olixtool (needed for OLicense licenses). Defaults to /usr/local/bin/olixtool.
+
+- reservation-identifier: Reservation name used when doing the reconciliation. Defaults to *license-manager-reservation*.
+
+- lm_user: System user name used when creating reservations. Defaults to *license-manager*.
+
+- stat-interval: Interval in seconds used to report the cluster status to the API. Defaults to 60.
+
+- tool-timeout: Timeout in seconds for the license server binaries. Defaults to 6.
+
+- encoding: Encoding used for decoding the output of the license server binaries. Defaults to *utf-8*.
 
 Any configuration can be set using the *snap* command line, e.g.:
 ```bash
@@ -43,7 +54,7 @@ sudo snap set license-manager-agent oidc-client-secret=boo
 
 # Development
 
-For development purposes, you can build the `license-manager-agent` part prior of packing the snap. To do that, run:
+For development purposes, you can build the `license-manager-agent` part prior to packing the snap. To do that, run:
 ```bash
 snapcraft prime -v
 ```
