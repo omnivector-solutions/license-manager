@@ -13,6 +13,7 @@ from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
+from lm_agent.server_interfaces.dsls import DSLSLicenseServer
 from lm_agent.workload_managers.slurm.cmd_utils import get_all_product_features_from_cluster
 
 
@@ -68,6 +69,7 @@ async def report() -> typing.List[LicenseReportItem]:
         lsdyna=LSDynaLicenseServer,
         lmx=LMXLicenseServer,
         olicense=OLicenseLicenseServer,
+        dsls=DSLSLicenseServer,
     )
 
     for entry in filtered_entries:

@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     # Path to the binary for olixtool (needed for OLicense licenses)
     OLIXTOOL_PATH: Path = DEFAULT_BIN_PATH / "olixtool"
 
+    # Path to the binary for DSLicSrv (needed for DSLS licenses)
+    DSLICSRV_PATH: Path = DEFAULT_BIN_PATH / "DSLicSrv"
+
     # Reservation name for reconciliation
     RESERVATION_IDENTIFIER: str = "license-manager-reservation"
 
