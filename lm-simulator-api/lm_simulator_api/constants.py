@@ -11,3 +11,4 @@ class LicenseServerType(str, Enum):
     LMX = "lmx"
     LSDYNA = "lsdyna"
     OLICENSE = "olicense"
+    DSLS = "dsls"
