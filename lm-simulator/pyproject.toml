@@ -26,6 +26,7 @@ lmxendutil = "lm_simulator.fake_binaries.lmx.lmxendutil:main"
 lstc_qrun = "lm_simulator.fake_binaries.lsdyna.lstc_qrun:main"
 olixtool = "lm_simulator.fake_binaries.olicense.olixtool:main"
 rlmutil = "lm_simulator.fake_binaries.rlm.rlmutil:main"
+DSLicSrv = "lm_simulator.fake_binaries.dsls.DSLicSrv:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

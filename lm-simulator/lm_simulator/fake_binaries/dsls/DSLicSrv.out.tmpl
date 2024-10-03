@@ -1,0 +1,16 @@
+License Administration Tool Version 6.425.4 Built on May 2, 2023, 6:45:36 PM.
+admin >	Software version: 6.425.4
+    Build date: May 2, 2023, 6:45:36 PM
+    Standalone mode
+    Ready: yes
+    Server name: localhost   Server id: ZSD-123
+Editor,EditorId,Feature,Model,Commercial Type,Max Release Number,Max Release Date,Pricing Structure,Max Casual Duration,Expiration Date,Customer ID,Count,Inuse,Tokens,Casual Usage (mn),Host,User,Internal ID,Active Process,Client Code Version,Session ID,Granted Since,Last Used At,Granted At,Queue Position,
+{% for feature in licenses %}
+{% if feature.in_use > 0 %}
+{% for license_in_use in feature.licenses_in_use %}
+Dassault Systemes,5E756A80,{{ feature.license_name }},Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,{{ feature.total_licenses }},{{ feature.in_use }},{{ license_in_use.quantity }},,{{license_in_use.lead_host }} (263.0)/127.0.0.1,{{ license_in_use.user_name }},{{ feature.license_name }},/powerflow/pf_sim_comm ( 3148728),6.424,02DBE16,2024-09-17 17:59:34,2024-09-18 15:25:50,2024-09-17 17:59:34,
+{% endfor %}
+{% else %}
+Dassault Systemes,5E756A80,{{ feature.license_name }},Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,{{ feature.total_licenses }},{{ feature.in_use }},
+{% endif %}
+{% endfor %}
