@@ -3,6 +3,7 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+* Add support to DSLS license server
 
 
 ## 4.0.0 -- 2024-08-30
