@@ -1,4 +1,4 @@
-"""LM-X license server interface."""
+"""DSLS license server interface."""
 import typing
 
 from lm_agent.models import LicenseServerSchema, LicenseReportItem
@@ -17,25 +17,15 @@ class DSLSLicenseServer(LicenseServerInterface):
         self.license_servers = license_servers
         self.parser = dsls.parse
 
-    def get_commands_list(self) -> typing.List[typing.List[str]]:
+    def get_commands_list(self) -> typing.List[typing.Dict]:
         """Generate a list of commands with the available license server hosts."""
 
         commands_to_run = []
         for license_server in self.license_servers:
-            command_line = [
-                "echo",
-                "-e",
-                '"connect',
-                f"{license_server.host}",
-                f"{license_server.port}",
-                "\n",
-                "getLicenseUsage",
-                "-csv",
-                "|",
-                f"{settings.DSLICSRV_PATH}",
-                "-admin",
-            ]
-            commands_to_run.append(command_line)
+            command_input = f"connect {license_server.host} {license_server.port}\ngetLicenseUsage -csv"
+            command_line = [f"{settings.DSLICSRV_PATH}", "-admin"]
+
+            commands_to_run.append({"input": command_input, "command": command_line})
         return commands_to_run
 
     async def get_output_from_server(self):
@@ -46,7 +36,7 @@ class DSLSLicenseServer(LicenseServerInterface):
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
-            output = await run_command(cmd)
+            output = await run_command(command_line_parts=cmd["command"], stdin_str=cmd["input"])
 
             # try the next server if the previous didn't return the expected data
             if not output:

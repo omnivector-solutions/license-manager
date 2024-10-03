@@ -2,8 +2,8 @@
 """
 File that will be called by the license-manager-agent in the report function.
 
-It will hit the /licenses-in-use/ endpoint and will generate the report in the same format as the LM-X,
-this way we can use the same LM-X parser in the license-manager-agent.
+It will hit the /licenses-in-use/ endpoint and will generate the report in the same format as the DSÇS,
+this way we can use the same DSLS parser in the license-manager-agent.
 """
 
 import sys
@@ -62,9 +62,11 @@ def main():
     ```
     The license server host and port will be identify the License Manager Simulator API.
     """
-    input_data = sys.stdin.read()
+    input_data = sys.stdin.read().split()
+    assert len(input_data) == 5, "Invalid number of arguments"
 
-    _, lm_sim_host, lm_sim_port = input_data.split("\n")[0].split()
+    lm_sim_host = input_data[1]
+    lm_sim_port = input_data[2]
 
     license_information = get_server_data(lm_sim_host, lm_sim_port)
     generate_license_server_output(license_information)

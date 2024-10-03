@@ -20,19 +20,10 @@ def test_get_dsls_commands_list(dsls_server: DSLSLicenseServer):
     """
     commands_list = dsls_server.get_commands_list()
     assert commands_list == [
-        [
-            "echo",
-            "-e",
-            '"connect',
-            "127.0.0.1",
-            "2345",
-            "\n",
-            "getLicenseUsage",
-            "-csv",
-            "|",
-            f"{settings.DSLICSRV_PATH}",
-            "-admin",
-        ]
+        {
+            "input": "connect 127.0.0.1 2345\ngetLicenseUsage -csv",
+            "command": [f"{settings.DSLICSRV_PATH}", "-admin"],
+        },
     ]
 
 
