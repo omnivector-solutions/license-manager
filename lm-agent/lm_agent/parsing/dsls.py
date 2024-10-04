@@ -4,10 +4,10 @@ Parser for DSLS.
 import csv
 from typing import Optional
 
-from lm_agent.models import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem, ParsedFeatureItem
 
 
-def parse_feature_dict(feature_dict: dict) -> Optional[dict]:
+def parse_feature_dict(feature_dict: dict[str, str]) -> Optional[ParsedFeatureItem]:
     """
     Parse the feature dcit in the DSLS output.
 
@@ -19,15 +19,15 @@ def parse_feature_dict(feature_dict: dict) -> Optional[dict]:
     if not all([feature_dict.get("Feature"), feature_dict.get("Count"), feature_dict.get("Inuse")]):
         return None
 
-    return {
-        "feature": feature_dict["Feature"].lower(),
-        "total": int(feature_dict["Count"]),
-        "used": int(feature_dict["Inuse"]),
-        "uses": [],
-    }
+    return ParsedFeatureItem(
+        feature=feature_dict["Feature"].lower(),
+        total=int(feature_dict["Count"]),
+        used=int(feature_dict["Inuse"]),
+        uses=[],
+    )
 
 
-def parse_usage_dict(usage_dict: dict) -> Optional[LicenseUsesItem]:
+def parse_usage_dict(usage_dict: dict[str, str]) -> Optional[LicenseUsesItem]:
     """
     Parse the usage dict in the DSLS output.
 
@@ -46,7 +46,7 @@ def parse_usage_dict(usage_dict: dict) -> Optional[LicenseUsesItem]:
     )
 
 
-def parse(server_output: str) -> dict:
+def parse(server_output: str) -> dict[str, ParsedFeatureItem]:
     """
     Parse the output from the DSLS server.
     Data we need:
@@ -64,18 +64,17 @@ def parse(server_output: str) -> dict:
     csv_data = csv.DictReader(server_output.splitlines()[6:])
 
     for row in csv_data:
-        print(row)
         parsed_feature = parse_feature_dict(row)
         if not parsed_feature:
             continue
 
         parsed_usage = parse_usage_dict(row)
         if parsed_usage:
-            parsed_feature["uses"].append(parsed_usage)
+            parsed_feature.uses.append(parsed_usage)
 
-        if parsed_feature["feature"] in parsed_data:
-            parsed_data[parsed_feature["feature"]]["uses"].extend(parsed_feature["uses"])
+        if parsed_feature.feature in parsed_data:
+            parsed_data[parsed_feature.feature].uses.extend(parsed_feature.uses)
         else:
-            parsed_data[parsed_feature["feature"]] = parsed_feature
+            parsed_data[parsed_feature.feature] = parsed_feature
 
     return parsed_data

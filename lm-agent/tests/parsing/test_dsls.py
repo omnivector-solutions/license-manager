@@ -5,7 +5,7 @@ Test the DSLS parser
 from pytest import mark
 
 from lm_agent.parsing.dsls import parse, parse_feature_dict, parse_usage_dict
-from lm_agent.models import LicenseUsesItem
+from lm_agent.models import LicenseUsesItem, ParsedFeatureItem
 
 
 @mark.parametrize(
@@ -39,7 +39,7 @@ from lm_agent.models import LicenseUsesItem
                 "Granted At": None,
                 "Queue Position": None,
             },
-            {"feature": "pac", "total": 1, "used": 0, "uses": []},
+            ParsedFeatureItem(feature="pac", total=1, used=0, uses=[]),
         ),
         (
             {
@@ -69,7 +69,7 @@ from lm_agent.models import LicenseUsesItem
                 "Granted At": "2024-09-17 17:59:34",
                 "Queue Position": None,
             },
-            {"feature": "sru", "total": 2374, "used": 1559, "uses": []},
+            ParsedFeatureItem(feature="sru", total=2374, used=1559, uses=[]),
         ),
         (
             {},
@@ -175,32 +175,32 @@ def test_parse__correct_output(dsls_output):
     which contain licenses and usage information.
     """
     assert parse(dsls_output) == {
-        "pac": {"feature": "pac", "total": 1, "used": 0, "uses": []},
-        "paj": {"feature": "paj", "total": 6, "used": 0, "uses": []},
-        "pca": {"feature": "pca", "total": 4, "used": 0, "uses": []},
-        "pco": {"feature": "pco", "total": 2, "used": 0, "uses": []},
-        "pd5": {"feature": "pd5", "total": 1, "used": 0, "uses": []},
-        "pv6": {"feature": "pv6", "total": 7, "used": 0, "uses": []},
-        "pvg": {"feature": "pvg", "total": 2, "used": 0, "uses": []},
-        "pw7": {
-            "feature": "pw7",
-            "total": 2000,
-            "used": 2,
-            "uses": [
+        "pac": ParsedFeatureItem(feature="pac", total=1, used=0, uses=[]),
+        "paj": ParsedFeatureItem(feature="paj", total=6, used=0, uses=[]),
+        "pca": ParsedFeatureItem(feature="pca", total=4, used=0, uses=[]),
+        "pco": ParsedFeatureItem(feature="pco", total=2, used=0, uses=[]),
+        "pd5": ParsedFeatureItem(feature="pd5", total=1, used=0, uses=[]),
+        "pv6": ParsedFeatureItem(feature="pv6", total=7, used=0, uses=[]),
+        "pvg": ParsedFeatureItem(feature="pvg", total=2, used=0, uses=[]),
+        "pw7": ParsedFeatureItem(
+            feature="pw7",
+            total=2000,
+            used=2,
+            uses=[
                 LicenseUsesItem(username="user_1", lead_host="nid001627", booked=2),
             ],
-        },
-        "pw8": {"feature": "pw8", "total": 2000, "used": 0, "uses": []},
-        "sru": {
-            "feature": "sru",
-            "total": 2374,
-            "used": 1559,
-            "uses": [
+        ),
+        "pw8": ParsedFeatureItem(feature="pw8", total=2000, used=0, uses=[]),
+        "sru": ParsedFeatureItem(
+            feature="sru",
+            total=2374,
+            used=1559,
+            uses=[
                 LicenseUsesItem(username="user_2", lead_host="nid001626", booked=493),
                 LicenseUsesItem(username="user_3", lead_host="nid001601", booked=533),
                 LicenseUsesItem(username="user_4", lead_host="nid001671", booked=533),
             ],
-        },
+        ),
     }
 
 
@@ -220,14 +220,14 @@ def test_parse__no_licenses_output(dsls_output_no_licenses):
     when none of the licenses are in use by users.
     """
     assert parse(dsls_output_no_licenses) == {
-        "pac": {"feature": "pac", "total": 1, "used": 0, "uses": []},
-        "paj": {"feature": "paj", "total": 6, "used": 0, "uses": []},
-        "pca": {"feature": "pca", "total": 4, "used": 0, "uses": []},
-        "pco": {"feature": "pco", "total": 2, "used": 0, "uses": []},
-        "pd5": {"feature": "pd5", "total": 1, "used": 0, "uses": []},
-        "pv6": {"feature": "pv6", "total": 7, "used": 0, "uses": []},
-        "pvg": {"feature": "pvg", "total": 2, "used": 0, "uses": []},
-        "pw7": {"feature": "pw7", "total": 2000, "used": 0, "uses": []},
-        "pw8": {"feature": "pw8", "total": 2000, "used": 0, "uses": []},
-        "sru": {"feature": "sru", "total": 2374, "used": 0, "uses": []},
+        "pac": ParsedFeatureItem(feature="pac", total=1, used=0, uses=[]),
+        "paj": ParsedFeatureItem(feature="paj", total=6, used=0, uses=[]),
+        "pca": ParsedFeatureItem(feature="pca", total=4, used=0, uses=[]),
+        "pco": ParsedFeatureItem(feature="pco", total=2, used=0, uses=[]),
+        "pd5": ParsedFeatureItem(feature="pd5", total=1, used=0, uses=[]),
+        "pv6": ParsedFeatureItem(feature="pv6", total=7, used=0, uses=[]),
+        "pvg": ParsedFeatureItem(feature="pvg", total=2, used=0, uses=[]),
+        "pw7": ParsedFeatureItem(feature="pw7", total=2000, used=0, uses=[]),
+        "pw8": ParsedFeatureItem(feature="pw8", total=2000, used=0, uses=[]),
+        "sru": ParsedFeatureItem(feature="sru", total=2374, used=0, uses=[]),
     }

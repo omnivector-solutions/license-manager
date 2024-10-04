@@ -62,9 +62,9 @@ class DSLSLicenseServer(LicenseServerInterface):
         report_item = LicenseReportItem(
             feature_id=feature_id,
             product_feature=product_feature,
-            used=current_feature_item["used"],
-            total=current_feature_item["total"],
-            uses=current_feature_item["uses"],
+            used=current_feature_item.used,
+            total=current_feature_item.total,
+            uses=current_feature_item.uses,
         )
 
         return report_item
