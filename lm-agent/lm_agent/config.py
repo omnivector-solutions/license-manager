@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from lm_agent.constants import LogLevelEnum
 
 
-DEFAULT_DOTENV_PATH = Path("/etc/default/license-manager-agent")
+DEFAULT_DOTENV_PATH = Path("/var/snap/license-manager-agent/common/.env")
 DEFAULT_CACHE_DIR = Path.home() / Path(".cache/license-manager")
 DEFAULT_LOG_DIR = Path("/var/log/license-manager-agent")
 DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
