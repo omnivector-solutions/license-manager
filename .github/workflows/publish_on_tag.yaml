@@ -22,6 +22,9 @@ jobs:
     strategy:
       matrix: { sub_project: ['lm-agent', 'lm-api', 'lm-cli', 'lm-simulator', 'lm-simulator-api'] }
       fail-fast: false
+    outputs:
+      agent-pypi-version: ${{ steps.extract-metadata.outputs.version }}
+      agent-pypi-package-name: ${{ steps.extract-metadata.outputs.name }}
     steps:
       - uses: actions/checkout@v2
 
@@ -45,14 +48,6 @@ jobs:
           echo "tag=${{ github.ref_name }}, version=${{ steps.poetry-package-version.outputs.version }}"
           exit 1
 
-      # - name: Build and publish on test-PyPI
-      #   working-directory: ${{ matrix.sub_project }}
-      #   run: |
-      #     poetry config repositories.test-pypi https://test.pypi.org/legacy/
-      #     poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
-      #     poetry build
-      #     poetry publish -r test-pypi
-
       - name: Build and publish on PyPI
         working-directory: ${{ matrix.sub_project }}
         run: |
@@ -60,22 +55,70 @@ jobs:
           poetry build
           poetry publish
 
+      - name: Output metadata
+        working-directory: ${{ matrix.sub_project }}
+        if: ${{ matrix.sub_project }} == "lm-agent"
+        id: extract-metadata
+        run: |
+          VERSION=$(find ./dist -name '*.tar.gz' | sed 's/.\/dist\/license_manager_agent-\(.*\)\.tar\.gz/\1/')
+          NAME=$(poetry --no-interaction version | awk '{print $1}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
   snapstore:
     runs-on: ubuntu-24.04
+    needs: [build-publish]
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Snapcraft
-        uses: snapcore/action-build@v1
-        id: snapcraft
-        with:
-          snapcraft-args: "--destructive-mode"
-          snapcraft-channel: "8.x/stable"
-          path: "./lm-agent-snap"
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v2
+
+      - name: Install Jq
+        run: sudo snap install jq --channel latest/stable
+
+      - name: Wait latest version on PyPI
+        env:
+          DESIRED_VERSION: ${{ needs.build-publish.outputs.agent-pypi-version }}
+          PACKAGE_NAME: ${{ needs.build-publish.outputs.agent-pypi-package-name }}
+        timeout-minutes: 1
+        run: |
+          while true; do
+            echo "Checking for version $DESIRED_VERSION of $PACKAGE_NAME"
+            curl -s https://pypi.org/pypi/$PACKAGE_NAME/json | jq -r '.releases | keys[]' | grep -q $DESIRED_VERSION
+            if [ $? -eq 0 ]; then
+              echo "Version $DESIRED_VERSION is available"
+              break
+            else
+              echo "Version $DESIRED_VERSION is not available yet"
+              sleep 2
+            fi
+          done
+
+      - name: Install core24
+        run: sudo snap install core24 --channel latest/stable
+
+      - name: Build snap
+        id: build
+        working-directory: ./lm-agent-snap
+        run: |
+          snapcraft --destructive-mode -v
+          SNAP_FILE_PATH=`find . -name '*.snap'`
+          echo "snap_file_path=$SNAP_FILE_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Release to Edge
+        working-directory: ./lm-agent-snap
         run: |
-          snapcraft upload --release latest/edge,latest/candidate ${{ steps.snapcraft.outputs.snap }}
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          snapcraft upload --release latest/edge,latest/candidate ${{ steps.build.outputs.snap_file_path }}
+
+      - name: Archive snap logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-snap-log
+          path: /home/runner/.local/state/snapcraft/log/**
