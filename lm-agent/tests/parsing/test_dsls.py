@@ -79,7 +79,7 @@ from lm_agent.models import LicenseUsesItem, ParsedFeatureItem
 )
 def test_parse_feature_dict(feature_dict, parsed_feature):
     """
-    Does the regex for the feature line match the lines in the output?
+    Does the parse_feature_dict function extracts the correct data from the csv line?
     The line contains several fields, but we only need:
     - feature
     - count
@@ -159,7 +159,7 @@ def test_parse_feature_dict(feature_dict, parsed_feature):
 )
 def test_parse_usage_dict(usage_dict, parsed_usage):
     """
-    Does the regex for the usage line match the lines in the output?
+    Does the parse_usage_dict function extracts the correct data from the csv line?
     The line contains:
     - user name
     - lead host
@@ -186,9 +186,7 @@ def test_parse__correct_output(dsls_output):
             feature="pw7",
             total=2000,
             used=2,
-            uses=[
-                LicenseUsesItem(username="user_1", lead_host="nid001627", booked=2),
-            ],
+            uses=[LicenseUsesItem(username="user_1", lead_host="nid001627", booked=2)],
         ),
         "pw8": ParsedFeatureItem(feature="pw8", total=2000, used=0, uses=[]),
         "sru": ParsedFeatureItem(
