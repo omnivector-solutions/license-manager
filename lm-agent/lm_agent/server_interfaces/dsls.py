@@ -53,11 +53,10 @@ class DSLSLicenseServer(LicenseServerInterface):
 
         (_, feature) = product_feature.split(".")
 
-        current_feature_item = parsed_output.get(feature)
-
-        # raise exception if parser didn't output license information
-        if current_feature_item is None:
-            raise LicenseManagerBadServerOutput("Invalid data returned from parser.")
+        current_feature_item = LicenseManagerBadServerOutput.enforce_defined(
+            parsed_output.get(feature),
+            "Invalid data returned from parser.",
+        )
 
         report_item = LicenseReportItem(
             feature_id=feature_id,
