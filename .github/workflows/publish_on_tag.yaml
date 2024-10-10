@@ -103,11 +103,16 @@ jobs:
       - name: Install core24
         run: sudo snap install core24 --channel latest/stable
 
+      - name: Set up LXD
+        uses: canonical/setup-lxd@v0.1.1
+        with:
+          channel: 5.21/stable
+
       - name: Build snap
         id: build
         working-directory: ./lm-agent-snap
         run: |
-          snapcraft --destructive-mode -v
+          make build ARGS="-v"
           SNAP_FILE_PATH=`find . -name '*.snap'`
           echo "snap_file_path=$SNAP_FILE_PATH" >> "$GITHUB_OUTPUT"
 
