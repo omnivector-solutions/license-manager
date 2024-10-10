@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to License Manager Simulator API
 
 ## Unreleased
+
+
+## 4.1.0 -- 2024-10-10
 * Add support to DSLS license server
 
 

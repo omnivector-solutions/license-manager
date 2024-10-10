@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager CLI`.
 ## Unreleased
 
 
+## 4.1.0 -- 2024-10-10
+* Bumped version to keep in sync with backend and agent
+
 ## 4.0.0 -- 2024-08-30
 * Remove OIDC_AUDIENCE setting
 
