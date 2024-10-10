@@ -2,7 +2,7 @@
 To run License Manager you will need three different systems:
 
 1. Slurm cluster (where `License Manager Agent` runs)
-2. License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense or License Manager Simulator)
+2. License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense, DSLS or License Manager Simulator)
 3. API with license information (`License Manager API`)
 
 ## Slurm cluster
@@ -17,6 +17,7 @@ License Manager supports the following license servers:
 * LS-Dyna
 * LM-X
 * OLicense
+* DSLS
 
 You need to have the license server installed and working on a path that is accessible to the `License Manager Agent`.
 The path for each license server binary is configurable in the `License Manager Agent` charm.

@@ -27,6 +27,17 @@ class LicenseReportItem(BaseModel):
     uses: List[LicenseUsesItem] = []
 
 
+class ParsedFeatureItem(BaseModel):
+    """
+    A report of the parsed license server output.
+    """
+
+    feature: str
+    total: int
+    used: int
+    uses: List[LicenseUsesItem] = []
+
+
 class LicenseBooking(BaseModel):
     """
     Structure to represent a license booking.

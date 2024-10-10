@@ -535,6 +535,32 @@ def one_configuration_row_olicense():
 
 
 @fixture
+def one_configuration_row_dsls():
+    return ConfigurationSchema(
+        id=1,
+        name="Powerflow-decomp",
+        cluster_client_id="dummy",
+        features=[
+            FeatureSchema(
+                id=1,
+                name="pw7",
+                product=ProductSchema(id=1, name="powerflow"),
+                config_id=1,
+                reserved=100,
+                total=1000,
+                used=93,
+                booked_total=0,
+            )
+        ],
+        license_servers=[
+            LicenseServerSchema(id=1, config_id=1, host="127.0.0.1", port=2345),
+        ],
+        grace_time=60,
+        type=LicenseServerType.DSLS,
+    )
+
+
+@fixture
 def scontrol_show_lic_output_flexlm():
     """An output of scontrol show lic command for FlexLM license."""
     return dedent(
@@ -1298,5 +1324,72 @@ def olicense_output_no_licenses():
           Name; LicenseType; FloatCount; Expiration
           --------------------------------------------
           ftire_adams;         	FreeFloating;	1;	2023-02-28 23:59:00;
+        """
+    )
+
+
+@fixture
+def dsls_output():
+    """
+    Some DSLS output to parse.
+    """
+    return dedent(
+        """\
+        License Administration Tool Version 6.425.4 Built on May 2, 2023, 6:45:36 PM.
+        admin >	Software version: 6.425.4
+            Build date: May 2, 2023, 6:45:36 PM
+            Standalone mode
+            Ready: yes
+            Server name: localhost   Server id: ZSD-123
+        Editor,EditorId,Feature,Model,Commercial Type,Max Release Number,Max Release Date,Pricing Structure,Max Casual Duration,Expiration Date,Customer ID,Count,Inuse,Tokens,Casual Usage (mn),Host,User,Internal ID,Active Process,Client Code Version,Session ID,Granted Since,Last Used At,Granted At,Queue Position,
+        Dassault Systemes,5E756A80,PAC,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,1,0,
+        Dassault Systemes,5E756A80,PAJ,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,6,0,
+        Dassault Systemes,5E756A80,PCA,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,4,0,
+        Dassault Systemes,5E756A80,PCO,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2,0,
+        Dassault Systemes,5E756A80,PD5,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,1,0,
+        Dassault Systemes,5E756A80,PV6,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,7,0,
+        Dassault Systemes,5E756A80,PVG,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2,0,
+        Dassault Systemes,5E756A80,PW7,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2000,2,2,,nid001627 (263.0)/127.0.0.1,user_1,PW7,/powerflow/pf_sim_comm ( 3148728),6.424,02DBE16,2024-09-17 17:59:34,2024-09-18 15:25:50,2024-09-17 17:59:34,
+        Dassault Systemes,5E756A80,PW8,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2000,0,
+        Dassault Systemes,5E756A80,SRU,Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2374,1559,493,,nid001626 (263.0)/127.0.0.1,user_2,SRU,/powerflow/pf_sim_comm ( 3148728),6.424,02DBE16,2024-09-17 17:59:34,2024-09-18 15:25:50,2024-09-17 17:59:34,
+        Dassault Systemes,5E756A80,SRU,Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2374,1559,533,,nid001601 (226.0)/127.0.0.1,user_3,SRU,/powerflow/pf_sim_comm ( 2885345),6.424,02DBE17,2024-09-17 18:48:17,2024-09-18 15:26:13,2024-09-17 18:48:17,
+        Dassault Systemes,5E756A80,SRU,Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,10001723,2374,1559,533,,nid001671 (2a8.0)/127.0.0.1,user_4,SRU,/powerflow/pf_sim_comm ( 3206577),6.424,02DBE18,2024-09-17 18:49:49,2024-09-18 15:26:45,2024-09-17 18:49:49,
+        """
+    )
+
+
+@fixture
+def dsls_output_no_licenses():
+    """Some DSLS output with no licenses in use to parse."""
+    return dedent(
+        """\
+        License Administration Tool Version 6.425.4 Built on May 2, 2023, 6:45:36 PM.
+        admin >	Software version: 6.425.4
+            Build date: May 2, 2023, 6:45:36 PM
+            Standalone mode
+            Ready: yes
+            Server name: localhost   Server id: ZSD-123
+        Editor,EditorId,Feature,Model,Commercial Type,Max Release Number,Max Release Date,Pricing Structure,Max Casual Duration,Expiration Date,Customer ID,Count,Inuse,Tokens,Casual Usage (mn),Host,User,Internal ID,Active Process,Client Code Version,Session ID,Granted Since,Last Used At,Granted At,Queue Position,
+        Dassault Systemes,5E756A80,PAC,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,1,0,
+        Dassault Systemes,5E756A80,PAJ,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,6,0,
+        Dassault Systemes,5E756A80,PCA,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,4,0,
+        Dassault Systemes,5E756A80,PCO,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,2,0,
+        Dassault Systemes,5E756A80,PD5,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,1,0,
+        Dassault Systemes,5E756A80,PV6,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,7,0,
+        Dassault Systemes,5E756A80,PVG,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,2,0,
+        Dassault Systemes,5E756A80,PW7,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,2000,0,
+        Dassault Systemes,5E756A80,PW8,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,2000,0,
+        Dassault Systemes,5E756A80,SRU,Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,1001723,2374,0,
+        """
+    )
+
+
+@fixture
+def dsls_output_bad():
+    """Some unparseable DSLS output."""
+    return dedent(
+        """\
+        License Administration Tool Version 6.425.4 Built on May 2, 2023, 6:45:36 PM.
+        Cannot connect to server localhost on port 1234
         """
     )
