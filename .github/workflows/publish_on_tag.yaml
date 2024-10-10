@@ -57,7 +57,7 @@ jobs:
 
       - name: Output metadata
         working-directory: ${{ matrix.sub_project }}
-        if: ${{ matrix.sub_project }} == "lm-agent"
+        if: matrix.sub_project == 'lm-agent'
         id: extract-metadata
         run: |
           VERSION=$(find ./dist -name '*.tar.gz' | sed 's/.\/dist\/license_manager_agent-\(.*\)\.tar\.gz/\1/')
