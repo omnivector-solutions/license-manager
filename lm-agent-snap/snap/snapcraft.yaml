@@ -1,6 +1,6 @@
 name: license-manager-agent
 base: core24
-version: '0.1.0'
+version: '0.2.0'
 summary: The License Manager Agent snap
 adopt-info: metadata
 license: MIT
@@ -44,7 +44,7 @@ description: |
   - encoding: Encoding used for decoding the output of the license server binaries. Defaults to *utf-8*.
 
 grade: stable
-confinement: strict
+confinement: classic
 
 parts:
   license-manager-agent:
@@ -52,6 +52,19 @@ parts:
     plugin: python
     python-packages:
     - license-manager-agent
+    build-packages:
+    - python3
+    - libapt-pkg-dev
+    - gcc
+    - g++
+    - dpkg-dev
+    stage-packages:
+    - python3.12-minimal
+    - python3.12-venv
+    - libpython3.12-minimal
+    - libpython3.12-stdlib
+    build-attributes:
+    - enable-patchelf
 
   hooks:
     plugin: dump
@@ -63,7 +76,8 @@ parts:
     plugin: nil
     override-pull: |
       craftctl default
-      craftctl set version="$(craftctl get version)-$(git rev-parse --short HEAD)"
+      COMMIT_SHA=$(cat $SNAPCRAFT_PROJECT_DIR/sha/commit-sha.txt)
+      craftctl set version="$(craftctl get version)-$COMMIT_SHA"
 
   wrappers:
     plugin: dump
@@ -74,33 +88,21 @@ apps:
   daemon:
     command: bin/license-manager-agent
     daemon: simple
-    plugs:
-    - network
     install-mode: disable
+    environment:
+      PYTHONPATH: "$SNAP/lib/python3.12/site-packages:${PYTHONPATH}"
 
   start:
     command: commands/daemon.start
     daemon: simple
-    plugs:
-    - system-observe
     install-mode: disable
 
   stop:
     command: commands/daemon.stop
     daemon: simple
-    plugs:
-    - system-observe
     install-mode: disable
 
   restart:
     command: commands/daemon.restart
     daemon: simple
-    plugs:
-    - system-observe
     install-mode: disable
-
-hooks:
-  configure:
-    plugs:
-    - system-observe
-    - network
