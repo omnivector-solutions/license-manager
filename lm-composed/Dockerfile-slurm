@@ -40,9 +40,18 @@ RUN apt install -y curl jq build-essential libssl-dev zlib1g-dev libncurses5-dev
     && export CFLAGS="$CFLAGS $(pkg-config --cflags openssl11)"  \
     && export LDFLAGS="$LDFLAGS $(pkg-config --libs openssl11)"  \
     && ./configure --prefix=/opt/python/python3.12 --enable-optimizations  \
-    && make -j "$(nproc)" && make -j "$(nproc)" altinstall
+    && make -j "$(nproc)" && make -j "$(nproc)" altinstall \
+    && cd .. && rm -rf Python-3.12.1 Python-3.12.1.tar.xz
 
-ENV PATH=/opt/python/python3.12/bin:$PATH
+RUN ln -s /opt/python/python3.12/bin/python3.12 /usr/local/bin/python3
+
+ENV PATH=/usr/local/bin:$PATH
+
+# Install Poetry
+RUN curl -sSL  https://install.python-poetry.org | \
+    POETRY_HOME=/opt/poetry POETRY_VERSION=1.5.1 python3 && \
+    ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry && \
+    poetry config virtualenvs.in-project true
 
 # Prepare Filesystem
 RUN mkdir /var/spool/slurmctld \
@@ -61,25 +70,14 @@ RUN chown -R slurm:slurm /var/spool/slurmctld \
     && chown -R slurm:slurm /var/spool/slurmd \
     && chown -R slurm:slurm /etc/slurm
 
-# Add user license-manager
-RUN useradd --system --no-create-home license-manager \
-    && usermod -a -G slurm license-manager
-
-# Configure log and cache dirs
-RUN mkdir /var/log/license-manager-agent \
-    && chown -r slurm:slurm /var/log/license-manager-agent \
-    && chmod 777 /var/log/license-manager-agent \
-    && mkdir /var/cache/license-manager \
-    && chown -r slurm:slurm /var/cache/license-manager \
-    && chmod 777 /var/log/license-manager
+RUN mkdir -p /var/log/license-manager-agent \
+    && mkdir -p /var/cache/license-manager-agent \
+    && chown -R slurm:slurm /var/log/license-manager-agent \
+    && chown -R slurm:slurm /var/cache/license-manager-agent \
+    && chmod -R 777 /var/log/license-manager-agent \
+    && chmod -R 777 /var/cache/license-manager-agent
 
 # Copy in the entrypoint.sh
 COPY etc/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
-
-# Copy in the License Manager setup scripts
-COPY etc/install-lm-agent.sh /app/install-lm-agent.sh
-COPY etc/install-lm-simulator.sh /app/install-lm-simulator.sh
-COPY etc/populate-apis.sh /app/populate-apis.sh
-COPY etc/configure-slurm.sh /app/configure-slurm.sh
 
 ENTRYPOINT ["/usr/local/bin/slurm-entrypoint.sh"]

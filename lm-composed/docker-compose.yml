@@ -17,8 +17,8 @@ services:
       DATABASE_NAME: compose-db-api-name
       DATABASE_PORT: 5432
       ARMASEC_DOMAIN: keycloak.local:8080/realms/lm-local
-      ARMASEC_AUDIENCE: https://local.omnivector.solutions
-      ARMASEC_DEBUG: true
+      ARMASEC_USE_HTTPS: false
+      ARMASEC_DEBUG: false
       LOG_LEVEL: DEBUG
     ports: ["7000:7000"]
     healthcheck:
@@ -29,6 +29,8 @@ services:
     depends_on:
       migration:
         condition: service_completed_successfully
+      keycloak.local:
+        condition: service_healthy
 
   migration:
     build:
@@ -41,8 +43,8 @@ services:
       DATABASE_USER: compose-db-api-user
       DATABASE_PSWD: compose-db-api-pswd
       DATABASE_NAME: compose-db-api-name
-      ARMASEC_DOMAIN: armasec.dev
-      ARMASEC_AUDIENCE: https://armasec.dev
+      ARMASEC_DOMAIN: keycloak.local:8080/realms/lm-local
+      ARMASEC_USE_HTTPS: false
       LOG_LEVEL: DEBUG
     command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
     depends_on:
@@ -65,27 +67,31 @@ services:
       timeout: 5s
       retries: 5
 
-  lm-simulator:
+  lm-simulator-api:
     build:
-      context: ../lm-simulator
+      context: ../lm-simulator-api
       dockerfile: ./Dockerfile
     networks:
       - lm-net
-    container_name: lm-simulator
+    container_name: lm-simulator-api
     depends_on:
-      db-lm-simulator:
+      db-lm-simulator-api:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://compose-db-sim-user:compose-db-sim-pswd@db-lm-simulator:5432/compose-db-sim-name
+      DATABASE_HOST: db-lm-simulator-api
+      DATABASE_USER: compose-db-sim-user
+      DATABASE_PSWD: compose-db-sim-pswd
+      DATABASE_NAME: compose-db-sim-name
+      DATABASE_PORT: 5432
     ports: ["8001:8000"]
     healthcheck:
       test: curl --fail http://localhost:8000/lm-sim/health || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
-    command: uvicorn lm_simulator.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    command: uvicorn lm_simulator_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 
-  db-lm-simulator:
+  db-lm-simulator-api:
     image: postgres:13-alpine
     networks:
       - lm-net
@@ -150,43 +156,49 @@ services:
     container_name: slurmctld
     hostname: slurmctld
     environment:
-      LM2_AGENT_BACKEND_BASE_URL: http://lm-api:7000
-      LM2_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
-      LM2_AGENT_LOG_LEVEL: DEBUG
-      LM2_AGENT_LMUTIL_PATH: /srv/license-manager-simulator/flexlm/lmutil
-      LM2_AGENT_RLMUTIL_PATH: /srv/license-manager-simulator/rlm/rlmutil
-      LM2_AGENT_LSDYNA_PATH: /srv/license-manager-simulator/lsdyna/lstc_qrun
-      LM2_AGENT_LMXENDUTIL_PATH: /srv/license-manager-simulator/lmx/lmxendutil
-      LM2_AGENT_OLIXTOOL_PATH: /srv/license-manager-simulator/olicense/olixtool
-      LM2_AGENT_USE_RECONCILE_IN_PROLOG_EPILOG: true
-      LM2_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
-      LM2_AGENT_OIDC_AUDIENCE: https://local.omnivector.solutions
-      LM2_AGENT_OIDC_CLIENT_ID: agent
-      LM2_AGENT_OIDC_CLIENT_SECRET: RhU42zR0IxsJwkUgc0GXoGX1bDs46nT9
-      LM2_AGENT_CACHE_DIR: /var/cache/license-manager
-      LM2_AGENT_DEPLOY_ENV: local
-      LM2_AGENT_STAT_INTERVAL: 60
+      LM_AGENT_BACKEND_BASE_URL: http://lm-api:7000
+      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
+      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
+      LM_AGENT_LOG_LEVEL: DEBUG
+      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
+      LM_AGENT_OIDC_CLIENT_ID: agent
+      LM_AGENT_OIDC_CLIENT_SECRET: yS58okAXiRAW1wfZcLyRCzv3fCq7ZIEV
+      LM_AGENT_OIDC_USE_HTTPS: false
+      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
+      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
+      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
+      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
+      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
+      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
+      LM_AGENT_LM_USER: root
+      LM_AGENT_STAT_INTERVAL: 60
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-      - ../lm-agent/lm_agent:/app/lm_agent
-      - ../lm-agent/pyproject.toml:/app/pyproject.toml
-      - ../lm-agent/poetry.lock:/app/poetry.lock
-      - ../lm-agent/README.md:/app/README.md
-      - ../lm-agent/LICENSE:/app/LICENSE
-      - ../lm-simulator/bin:/app/lm_simulator
-      - license-manager-agent-cache:/var/cache/license-manager
-      - license-manager-agent-log:/var/log/license-manager-agent
+      - ../lm-agent/lm_agent/:/app/lm-agent/lm_agent
+      - ../lm-agent/pyproject.toml:/app/lm-agent/pyproject.toml
+      - ../lm-agent/poetry.lock:/app/lm-agent/poetry.lock
+      - ../lm-agent/README.md:/app/lm-agent/README.md
+      - ../lm-simulator/lm_simulator/:/app/lm-simulator/lm_simulator
+      - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
+      - ../lm-simulator/poetry.lock:/app/lm-simulator/poetry.lock
+      - ../lm-simulator/README.md:/app/lm-simulator/README.md
+      - ./etc/populate-lm-api.py:/app/populate-lm-api.py
+      - ./etc/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
+      - ./etc/configure-prolog-epilog.py:/app/configure-prolog-epilog.py
+      - ./etc/slurmctld_prolog.sh:/app/slurmctld_prolog.sh
+      - ./etc/slurmctld_epilog.sh:/app/slurmctld_epilog.sh
+      - ./etc/job_example.py:/nfs/job_example.py
+    expose:
+      - "6817"
     depends_on:
       lm-api:
         condition: service_healthy
-      lm-simulator:
+      lm-simulator-api:
         condition: service_healthy
-
-    expose:
-      - "6817"
 
   slurmdbd:
     build:
@@ -282,8 +294,6 @@ volumes:
   etc_munge:
   var_lib_mysql:
   var_log_slurm:
-  license-manager-agent-cache:
-  license-manager-agent-log:
 
 networks:
   lm-net:

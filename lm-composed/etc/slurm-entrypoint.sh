@@ -32,17 +32,33 @@ then
     done
     echo "-- slurmdbd is now active ..."
 
-    # Install License Manager Agent
-    /app/install-lm-agent.sh
+    echo "---> Installing lm-agent ..."
+    cd /app/lm-agent
+    poetry install
 
-    # Install License Manager Simulator
-    /app/install-lm-simulator.sh
+    echo "---> Installing lm-simulator ..."
+    poetry add /app/lm-simulator
+    
+    echo "---> Polutating LM API with pre-defined license ..."
+    /app/populate-lm-api.py
 
-    # Populate APIs
-    /app/populate-apis.sh
+    echo "---> Polutating LM Simulator API with pre-defined license ..."
+    /app/populate-lm-simulator-api.py
+
+    echo "---> Starting the License Manager Agent (lm-agent) ..."
+    poetry run license-manager-agent &
 
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
-    exec gosu slurm /usr/sbin/slurmctld -Dvvv
+    gosu slurm /usr/sbin/slurmctld -Dvvv &
+
+    echo "---> Seeding the test license into Slurm ..."
+    /app/seed-license-in-slurm.py
+
+    echo "---> Configuring Prolog and Epilog scripts ..."
+    /app/configure-prolog-epilog.py
+
+    # Wait for both slurmctld and lm-agent to finish
+    wait -n
 fi
 
 if [ "$1" = "slurmd" ]
