@@ -161,8 +161,8 @@ services:
       LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
       LM_AGENT_LOG_LEVEL: DEBUG
       LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
-      LM_AGENT_OIDC_CLIENT_ID: agent
-      LM_AGENT_OIDC_CLIENT_SECRET: yS58okAXiRAW1wfZcLyRCzv3fCq7ZIEV
+      LM_AGENT_OIDC_CLIENT_ID: local-slurm
+      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
       LM_AGENT_OIDC_USE_HTTPS: false
       LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
       LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil

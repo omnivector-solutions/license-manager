@@ -54,7 +54,7 @@ def main():
     clean_table(access_token, "configurations")
     configuration_data = {
         "name": "test_feature",
-        "cluster_client_id": "agent",
+        "cluster_client_id": LM_AGENT_OIDC_CLIENT_ID,
         "features": [
             {
                 "name": "test_feature",
