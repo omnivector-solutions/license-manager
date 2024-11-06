@@ -8,7 +8,6 @@
 #SBATCH --licenses=test_product.test_feature@flexlm:42
 
 import json
-import os
 import random
 import socket
 import sys
