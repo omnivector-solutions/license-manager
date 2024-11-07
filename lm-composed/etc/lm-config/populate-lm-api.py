@@ -28,7 +28,6 @@ def get_access_token():
             "client_secret": LM_AGENT_OIDC_CLIENT_SECRET,
             "grant_type": "client_credentials"
         },
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
     return handle_request_errors(response)["access_token"]
 
@@ -52,7 +51,7 @@ def clean_table(token, table_name):
 def create_data(token, table_name, data):
     response = httpx.post(
         f"{LM_AGENT_BACKEND_BASE_URL}/lm/{table_name}",
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers={"Authorization": f"Bearer {token}"},
         json=data
     )
     return handle_request_errors(response)
