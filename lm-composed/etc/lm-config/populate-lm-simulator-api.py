@@ -5,16 +5,31 @@ import httpx
 LM_SIMULATOR_BASE_URL = "http://lm-simulator-api:8000"
 
 
+def handle_request_errors(response):
+    try:
+        response.raise_for_status()
+        return response.json()
+    except httpx.HTTPStatusError as e:
+        print(f"Request to {response.request.url} failed with: {e.response.status_code} - {e.response.text}")
+        exit(1)
+    except KeyError:
+        print("Unexpected response format; JSON data could not be parsed.")
+        exit(1)
+
+
 def clean_table(table_name, key):
-    rows = httpx.get(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}").json()
+    response = httpx.get(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}")
+    rows = handle_request_errors(response)
 
     for row in rows:
         identifier = row[key]
-        httpx.delete(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}/{identifier}")
+        delete_response = httpx.delete(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}/{identifier}")
+        handle_request_errors(delete_response)
 
 
 def create_data(table_name, data):
-    return httpx.post(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}", json=data).json()
+    response = httpx.post(f"{LM_SIMULATOR_BASE_URL}/lm-sim/{table_name}", json=data)
+    return handle_request_errors(response)
 
 
 def main():
