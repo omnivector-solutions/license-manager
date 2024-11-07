@@ -34,13 +34,13 @@ def make_request(url, method="GET", data=None, headers=None):
         with urllib.request.urlopen(request) as response:
             return response.getcode(), response.read().decode("utf-8")
     except urllib.error.HTTPError as e:
-        print(f"HTTP Error: {e.code} - {e.reason}")
+        sys.stderr.write(f"HTTP Error: {e.code} - {e.reason}\n")
         sys.exit(1)
     except urllib.error.URLError as e:
-        print(f"URL Error: {e.reason}")
+        sys.stderr.write(f"URL Error: {e.reason}\n")
         sys.exit(1)
     except Exception as e:
-        print(f"Unknown Error: {e}")
+        sys.stderr.write(f"Unknown Error: {e}\n")
         sys.exit(1)
 
 
