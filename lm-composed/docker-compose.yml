@@ -1,15 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
   lm-api:
     build:
       context: ../lm-api
       dockerfile: Dockerfile
-    networks:
-      - lm-net
     container_name: lm-api
-    volumes:
-      - ../lm-api/lm_api:/app/lm_api
     environment:
       DATABASE_HOST: db-lm-api
       DATABASE_USER: compose-db-api-user
@@ -20,9 +16,10 @@ services:
       ARMASEC_USE_HTTPS: false
       ARMASEC_DEBUG: false
       LOG_LEVEL: DEBUG
-    ports: ["7000:7000"]
+    ports: ["7000:8000"]
+    command: uvicorn lm_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     healthcheck:
-      test: curl --fail http://localhost:7000/lm/health || exit 1
+      test: curl --fail http://localhost:8000/lm/health || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
@@ -31,13 +28,16 @@ services:
         condition: service_completed_successfully
       keycloak.local:
         condition: service_healthy
+    networks:
+      - lm-net
+    volumes:
+      - ../lm-api/lm_api:/app/lm_api
 
   migration:
     build:
       context: ../lm-api
       dockerfile: Dockerfile-ci
-    networks:
-      - lm-net
+    container_name: migration
     environment:
       DATABASE_HOST: db-lm-api
       DATABASE_USER: compose-db-api-user
@@ -46,15 +46,16 @@ services:
       ARMASEC_DOMAIN: keycloak.local:8080/realms/lm-local
       ARMASEC_USE_HTTPS: false
       LOG_LEVEL: DEBUG
-    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
+    command: poetry run python -m alembic -c alembic/alembic.ini upgrade head
     depends_on:
       db-lm-api:
         condition: service_healthy
+    networks:
+      - lm-net
 
   db-lm-api:
     image: postgres:13-alpine
-    networks:
-      - lm-net
+    container_name: db-lm-api
     environment:
       POSTGRES_USER: compose-db-api-user
       POSTGRES_PASSWORD: compose-db-api-pswd
@@ -66,17 +67,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - lm-net
 
   lm-simulator-api:
     build:
       context: ../lm-simulator-api
       dockerfile: ./Dockerfile
-    networks:
-      - lm-net
     container_name: lm-simulator-api
-    depends_on:
-      db-lm-simulator-api:
-        condition: service_healthy
     environment:
       DATABASE_HOST: db-lm-simulator-api
       DATABASE_USER: compose-db-sim-user
@@ -84,62 +82,67 @@ services:
       DATABASE_NAME: compose-db-sim-name
       DATABASE_PORT: 5432
     ports: ["8001:8000"]
+    command: uvicorn lm_simulator_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     healthcheck:
       test: curl --fail http://localhost:8000/lm-sim/health || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
-    command: uvicorn lm_simulator_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    depends_on:
+      db-lm-simulator-api:
+        condition: service_healthy
+    networks:
+      - lm-net
 
   db-lm-simulator-api:
     image: postgres:13-alpine
-    networks:
-      - lm-net
+    container_name: db-lm-simulator-api
     environment:
       POSTGRES_USER: compose-db-sim-user
       POSTGRES_PASSWORD: compose-db-sim-pswd
       POSTGRES_DB: compose-db-sim-name
     ports: ["5435:5432"]
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - lm-net
 
   keycloak.local:
     image: keycloak/keycloak:18.0.0
-    restart: always
-    networks:
-      - lm-net
-    volumes:
-      - kc-realm-files:/opt/keycloak/data/import/
-      - ./etc/lm-local.json:/opt/keycloak/data/import/lm-local.json
+    container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
       - KC_HEALTH_ENABLED=true
-    command:
-      - "start-dev"
-      - "--import-realm"
-    ports:
-      - 8081:8080
+    ports: ["8081:8080"]
+    command: ["start-dev", "--import-realm"]
+    restart: always
     healthcheck:
       test: curl --fail http://localhost:8080/health/ready || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
+    networks:
+      - lm-net
+    volumes:
+      - kc-realm-files:/opt/keycloak/data/import/
+      - ./etc/lm-local.json:/opt/keycloak/data/import/lm-local.json
 
   mysql:
     image: mysql:5.7
-    networks:
-      - lm-net
-    hostname: mysql
     container_name: mysql
+    hostname: mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=slurm_acct_db
       - MYSQL_USER=slurm
       - MYSQL_PASSWORD=password
+    networks:
+      - lm-net
     volumes:
       - var_lib_mysql:/var/lib/mysql
 
@@ -150,13 +153,10 @@ services:
       args:
         - JWT_SECRET=${JWT_SECRET:-supersecret}
     image: slurm-docker-cluster
-    networks:
-      - lm-net
-    command: ["slurmctld"]
     container_name: slurmctld
     hostname: slurmctld
     environment:
-      LM_AGENT_BACKEND_BASE_URL: http://lm-api:7000
+      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
       LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
       LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
       LM_AGENT_LOG_LEVEL: DEBUG
@@ -172,6 +172,15 @@ services:
       LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
       LM_AGENT_LM_USER: root
       LM_AGENT_STAT_INTERVAL: 60
+    expose: ["6817"]
+    command: ["slurmctld"]
+    depends_on:
+      lm-api:
+        condition: service_healthy
+      lm-simulator-api:
+        condition: service_healthy
+    networks:
+      - lm-net
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
@@ -185,41 +194,33 @@ services:
       - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
       - ../lm-simulator/poetry.lock:/app/lm-simulator/poetry.lock
       - ../lm-simulator/README.md:/app/lm-simulator/README.md
-      - ./etc/populate-lm-api.py:/app/populate-lm-api.py
-      - ./etc/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
-      - ./etc/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
-      - ./etc/configure-prolog-epilog.py:/app/configure-prolog-epilog.py
-      - ./etc/slurmctld_prolog.sh:/app/slurmctld_prolog.sh
-      - ./etc/slurmctld_epilog.sh:/app/slurmctld_epilog.sh
+      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
+      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/lm-config/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
+      - ./etc/lm-config/configure-prolog-epilog.py:/app/configure-prolog-epilog.py
+      - ./etc/slurm-config/slurmctld_prolog.sh:/app/slurmctld_prolog.sh
+      - ./etc/slurm-configslurmctld_epilog.sh:/app/slurmctld_epilog.sh
       - ./etc/job_example.py:/nfs/job_example.py
-    expose:
-      - "6817"
-    depends_on:
-      lm-api:
-        condition: service_healthy
-      lm-simulator-api:
-        condition: service_healthy
 
   slurmdbd:
     build:
       context: .
       dockerfile: Dockerfile-slurm
     image: slurm-docker-cluster
-    networks:
-      - lm-net
-    command: ["slurmdbd"]
     container_name: slurmdbd
     hostname: slurmdbd
+    expose: ["6819"]
+    command: ["slurmdbd"]
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-    expose:
-      - "6819"
     depends_on:
       - slurmctld
       - mysql
+    networks:
+      - lm-net
 
   c1:
     privileged: true
@@ -227,20 +228,19 @@ services:
       context: .
       dockerfile: Dockerfile-slurm
     image: slurm-docker-cluster
+    container_name: c1
+    hostname: c1
+    expose: ["6818"]
+    command: ["slurmd"]
+    depends_on:
+      - slurmctld
     networks:
       - lm-net
-    command: ["slurmd"]
-    hostname: c1
-    container_name: c1
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-    expose:
-      - "6818"
-    depends_on:
-      - slurmctld
 
   c2:
     privileged: true
@@ -248,45 +248,42 @@ services:
       context: .
       dockerfile: Dockerfile-slurm
     image: slurm-docker-cluster
+    container_name: c2
+    hostname: c2
+    expose: ["6818"]
+    command: ["slurmd"]
+    depends_on:
+      - slurmctld
     networks:
       - lm-net
-    command: ["slurmd"]
-    hostname: c2
-    container_name: c2
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-    expose:
-      - "6818"
-    depends_on:
-      - slurmctld
 
   slurmrestd:
     build:
       context: .
       dockerfile: Dockerfile-slurm
     image: slurm-docker-cluster
-    networks:
-      - lm-net
-    command: ["slurmrestd"]
+    container_name: slurmrestd
+    hostname: slurmrestd
     environment:
       - SLURMRESTD_SECURITY=disable_unshare_files,disable_unshare_sysv,disable_user_check
       - SLURM_JWT=daemon
-    container_name: slurmrestd
-    hostname: slurmrestd
+    ports: ["6820:6820"]
+    expose: ["6820"]
+    command: ["slurmrestd"]
+    depends_on:
+      - slurmctld
+    networks:
+      - lm-net
     volumes:
       - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-    expose:
-      - "6820"
-    ports:
-      - 6820:6820
-    depends_on:
-      - slurmctld
 
 volumes:
   postgres_data:
