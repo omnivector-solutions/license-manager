@@ -57,9 +57,9 @@ RUN curl -sSL  https://install.python-poetry.org | \
 RUN mkdir /var/spool/slurmctld \
     && mkdir /var/spool/slurmd
 
-COPY etc/slurmdbd.conf /etc/slurm/slurmdbd.conf
-COPY etc/slurm.conf /etc/slurm/slurm.conf
-COPY etc/slurm-env.sh /etc/profile.d/slurm-env.sh
+COPY etc/slurm-config/slurmdbd.conf /etc/slurm/slurmdbd.conf
+COPY etc/slurm-config/slurm.conf /etc/slurm/slurm.conf
+COPY etc/slurm-config/slurm-env.sh /etc/profile.d/slurm-env.sh
 
 ARG JWT_SECRET=supersecret
 RUN echo -n "$JWT_SECRET" > /var/spool/slurmctld/jwt_hs256.key
@@ -78,6 +78,6 @@ RUN mkdir -p /var/log/license-manager-agent \
     && chmod -R 777 /var/cache/license-manager-agent
 
 # Copy in the entrypoint.sh
-COPY etc/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
+COPY etc/slurm-config/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/slurm-entrypoint.sh"]
