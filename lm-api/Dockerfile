@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim-bullseye as builder
+FROM python:3.12-slim-bullseye as builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN poetry config virtualenvs.in-project true \
     && rm -rf "$POETRY_CACHE_DIR"
 
 
-FROM python:3.12.3-slim-bullseye as runner
+FROM python:3.12-slim-bullseye as runner
 
 WORKDIR /app
 
@@ -25,4 +25,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
 
-CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "7000", "--loop", "asyncio"]
+CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
