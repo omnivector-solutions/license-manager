@@ -3,11 +3,10 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Fix lifespan initialization in FastAPI app
 
 ## 4.1.0 -- 2024-10-10
 * Add support to DSLS license server
-
 
 ## 4.0.0 -- 2024-08-30
 * Bumped version to keep in sync with agent
