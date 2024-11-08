@@ -8,7 +8,6 @@ import typing
 from typing_extensions import Self
 
 from armasec import Armasec, TokenPayload
-from armasec.schemas import DomainConfig
 from armasec.token_security import PermissionMode
 from fastapi import Depends
 from loguru import logger
@@ -17,33 +16,11 @@ from pydantic import model_validator, EmailStr
 from lm_api.config import settings
 
 
-def get_domain_configs() -> typing.List[DomainConfig]:
-    domain_configs = [
-        DomainConfig(
-            domain=settings.ARMASEC_DOMAIN,
-            debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
-            use_https=settings.ARMASEC_USE_HTTPS,
-        )
-    ]
-    if all(
-        [
-            settings.ARMASEC_ADMIN_DOMAIN,
-            settings.ARMASEC_ADMIN_MATCH_KEY,
-            settings.ARMASEC_ADMIN_MATCH_VALUE,
-        ]
-    ):
-        domain_configs.append(
-            DomainConfig(
-                domain=settings.ARMASEC_ADMIN_DOMAIN,
-                match_keys={settings.ARMASEC_ADMIN_MATCH_KEY: settings.ARMASEC_ADMIN_MATCH_VALUE},
-                debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
-                use_https=settings.ARMASEC_USE_HTTPS,
-            )
-        )
-    return domain_configs
-
-
-guard = Armasec(domain_configs=get_domain_configs())
+guard = Armasec(
+    domain=settings.ARMASEC_DOMAIN,
+    debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
+    use_https=settings.ARMASEC_USE_HTTPS,
+)
 
 
 class IdentityPayload(TokenPayload):

@@ -4,6 +4,7 @@ This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
 * Fix lifespan initialization in FastAPI app
+* Remove DomainConfig from Armasec client to pass the attributes directly
 
 ## 4.1.0 -- 2024-10-10
 * Add support to DSLS license server
