@@ -16,7 +16,7 @@ def main():
         return
     else:
         cmd = shlex.split(
-            f"sacctmgr add resource Type=license Clusters=linux Server={SERVER_TYPE}"
+            f"sacctmgr add resource Type=license Clusters=linux Server={SERVER_TYPE} "
             f"Names={LICENSE_NAME} Count=1000 ServerType={SERVER_TYPE} PercentAllowed=100 -i"
         )
         output = subprocess.run(cmd, capture_output=True)
