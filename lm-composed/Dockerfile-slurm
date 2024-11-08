@@ -1,0 +1,83 @@
+FROM ubuntu:jammy-20211122
+
+
+# Install GOSU
+ARG GOSU_VERSION=1.16
+
+RUN set -ex \
+    && apt update \
+    && apt install wget gpg -y \
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64" \
+    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64.asc" \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
+    && rm -rf "${GNUPGHOME}" /usr/local/bin/gosu.asc \
+    && chmod +x /usr/local/bin/gosu \
+    && gosu nobody true
+
+
+# Install slurm from ubuntu-hpc ppa
+COPY ubuntu-hpc.pub .
+
+RUN set -ex \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && cat ubuntu-hpc.pub | gpg --dearmor -o /usr/share/keyrings/ubuntu-hpc.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/ubuntu-hpc.gpg] https://ppa.launchpadcontent.net/ubuntu-hpc/slurm-wlm-23.02/ubuntu/ jammy main" > /etc/apt/sources.list.d/ubuntu-hpc-slurm.list \
+    && gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys AE87121DC3E4A0B0F81FF023F6D0C5D5C6BEB37B \
+    && apt update \
+    && apt install slurm-wlm-basic-plugins slurmd slurmdbd slurmctld slurmrestd mysql-client -y \
+    && rm -rf "${GNUPGHOME}" ubuntu-hpc.pub
+
+# Install Python 3.12.1
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt install -y curl jq build-essential libssl-dev zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev \
+    libsqlite3-dev libgdbm-dev libdb-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev curl libgdbm-compat-dev \
+    && curl -O https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tar.xz \
+    && tar -xf Python-3.12.1.tar.xz \
+    && cd Python-3.12.1  \
+    && export CFLAGS="$CFLAGS $(pkg-config --cflags openssl11)"  \
+    && export LDFLAGS="$LDFLAGS $(pkg-config --libs openssl11)"  \
+    && ./configure --prefix=/opt/python/python3.12 --enable-optimizations  \
+    && make -j "$(nproc)" && make -j "$(nproc)" altinstall \
+    && cd .. && rm -rf Python-3.12.1 Python-3.12.1.tar.xz
+
+RUN ln -s /opt/python/python3.12/bin/python3.12 /usr/local/bin/python3
+
+ENV PATH=/usr/local/bin:$PATH
+
+# Install Poetry
+RUN curl -sSL  https://install.python-poetry.org | \
+    POETRY_HOME=/opt/poetry POETRY_VERSION=1.5.1 python3 && \
+    ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry && \
+    poetry config virtualenvs.in-project true
+
+# Prepare Filesystem
+RUN mkdir /var/spool/slurmctld \
+    && mkdir /var/spool/slurmd
+
+COPY etc/slurm-config/slurmdbd.conf /etc/slurm/slurmdbd.conf
+COPY etc/slurm-config/slurm.conf /etc/slurm/slurm.conf
+COPY etc/slurm-config/slurm-env.sh /etc/profile.d/slurm-env.sh
+
+ARG JWT_SECRET=supersecret
+RUN echo -n "$JWT_SECRET" > /var/spool/slurmctld/jwt_hs256.key
+
+RUN chown -R slurm:slurm /var/spool/slurmctld \
+    && chmod 600 /var/spool/slurmctld/jwt_hs256.key \
+    && chmod 600 /etc/slurm/slurmdbd.conf \
+    && chown -R slurm:slurm /var/spool/slurmd \
+    && chown -R slurm:slurm /etc/slurm
+
+RUN mkdir -p /var/log/license-manager-agent \
+    && mkdir -p /var/cache/license-manager-agent \
+    && chown -R slurm:slurm /var/log/license-manager-agent \
+    && chown -R slurm:slurm /var/cache/license-manager-agent \
+    && chmod -R 777 /var/log/license-manager-agent \
+    && chmod -R 777 /var/cache/license-manager-agent
+
+# Copy in the entrypoint.sh
+COPY etc/slurm-config/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/slurm-entrypoint.sh"]
