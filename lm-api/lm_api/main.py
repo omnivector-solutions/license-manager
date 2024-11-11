@@ -73,10 +73,6 @@ async def get_version():
     return __version__
 
 
-app = FastAPI()
-app.mount("/lm", subapp)
-
-
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """
@@ -102,3 +98,7 @@ async def lifespan(_: FastAPI):
     yield
 
     await engine_factory.cleanup()
+
+
+app = FastAPI(lifespan=lifespan)
+app.mount("/lm", subapp)
