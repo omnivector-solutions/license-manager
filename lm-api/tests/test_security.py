@@ -1,43 +1,6 @@
 import pytest
 
-from lm_api.security import IdentityPayload, get_domain_configs
-
-
-def test_get_domain_configs__loads_only_base_settings(tweak_settings):
-    with tweak_settings(
-        ARMASEC_DOMAIN="foo.io",
-    ):
-        domain_configs = get_domain_configs()
-
-    assert len(domain_configs) == 1
-    first_config = domain_configs.pop()
-    assert first_config.domain == "foo.io"
-
-
-def test_get_domain_configs__loads_admin_settings_if_all_are_present(tweak_settings):
-    with tweak_settings(
-        ARMASEC_DOMAIN="foo.io",
-        ARMASEC_ADMIN_DOMAIN="admin.io",
-    ):
-        domain_configs = get_domain_configs()
-
-    assert len(domain_configs) == 1
-    first_config = domain_configs.pop()
-    assert first_config.domain == "foo.io"
-
-    with tweak_settings(
-        ARMASEC_DOMAIN="foo.io",
-        ARMASEC_ADMIN_DOMAIN="admin.io",
-        ARMASEC_ADMIN_MATCH_KEY="foo",
-        ARMASEC_ADMIN_MATCH_VALUE="bar",
-    ):
-        domain_configs = get_domain_configs()
-
-    assert len(domain_configs) == 2
-    (first_config, second_config) = domain_configs
-    assert first_config.domain == "foo.io"
-    assert second_config.domain == "admin.io"
-    assert second_config.match_keys == dict(foo="bar")
+from lm_api.security import IdentityPayload
 
 
 def test_identity_payload__extracts_organization_id_successfully():
