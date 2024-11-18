@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
 
 ## 4.2.0 -- 2024-11-18
 * Fix lifespan initialization in FastAPI app
