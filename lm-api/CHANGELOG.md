@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Bumped version to keep in sync with agent
 
 ## 4.2.1 -- 2024-11-18
 * Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
