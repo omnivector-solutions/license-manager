@@ -9,11 +9,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from lm_agent.constants import LogLevelEnum
 
-
-DEFAULT_DOTENV_PATH = Path("/var/snap/license-manager-agent/common/.env")
 DEFAULT_CACHE_DIR = Path.home() / Path(".cache/license-manager")
 DEFAULT_LOG_DIR = Path("/var/log/license-manager-agent")
 DEFAULT_BIN_PATH = Path(__file__).parent.parent / "bin"
+
+
+def _get_env_file() -> Path | None:
+    """
+    Determine if running in test mode and return the correct path to the .env file if not.
+    """
+    _test_mode = "pytest" in sys.modules
+    if not _test_mode:
+        default_dotenv_file_location = Path("/var/snap/jobbergate-agent/common/.env")
+        if default_dotenv_file_location.exists():
+            return default_dotenv_file_location
+        fallback_dotenv_file_location = Path("/etc/default/license-manager-agent")
+        if fallback_dotenv_file_location.exists():
+            return fallback_dotenv_file_location
+        return Path(".env")
+    return None
 
 
 class Settings(BaseSettings):
@@ -90,10 +104,7 @@ class Settings(BaseSettings):
     # Encoding used for decoding the output of the license server binaries
     ENCODING: str = "utf-8"
 
-    model_config = SettingsConfigDict(
-        env_prefix="LM_AGENT_",
-        env_file=DEFAULT_DOTENV_PATH if DEFAULT_DOTENV_PATH.is_file() else Path(".env"),
-    )
+    model_config = SettingsConfigDict(env_prefix="LM_AGENT_", env_file=_get_env_file())
 
 
 def init_settings() -> Settings:
