@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 
 
+## 4.2.1 -- 2024-11-18
+* Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
+
 ## 4.2.0 -- 2024-11-18
 * Fix lifespan initialization in FastAPI app
 * Remove DomainConfig from Armasec client to pass the attributes directly
