@@ -4,6 +4,8 @@ This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
 
+## 4.2.1 -- 2024-11-19
+* Updated Agent to find .env file [PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)
 
 ## 4.2.0 -- 2024-11-18
 * Bumped version to keep in sync with LM-API
@@ -62,7 +64,7 @@ This file keeps track of all notable changes to `License Manager Agent`.
 * Fix bug when retrieving bookings for non existing job
 
 ## 3.0.5 -- 2023-08-29
-* Change payload for feature update to include the product name 
+* Change payload for feature update to include the product name
 
 ## 3.0.4 -- 2023-08-28
 * Improve function to get bookings sum from backend
