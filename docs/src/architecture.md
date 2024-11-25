@@ -413,6 +413,24 @@ Payload example for POST:
 }
 ```
 
+### Permissions
+The `License Manager API` needs an authentication provider (OIDC) to manage the permissions for the users.
+
+We recommend using the `Keycloak` as the OIDC provider, but any provider that supports the `OIDC` protocol can be used.
+
+Each endpoint is protected using [Armasec](https://github.com/omnivector-solutions/armasec), which manages the permissions
+needed to access each endpoint. The permissions must be available as a claim in the JWT token.
+
+The permissions are granular for each endpoint, and the user needs to have the correct permissions to access the endpoint.
+Each endpoint has four permissions, for example:
+
+* `license-manager:config:create`
+* `license-manager:config:read`
+* `license-manager:config:update`
+* `license-manager:config:delete`
+
+There's also the `license-manager:admin` permission, which allows access to all operations in all endpoints.
+
 ## License Manager CLI
 The `License Manager CLI` is a client to interact with the `License Manager API`.
 
