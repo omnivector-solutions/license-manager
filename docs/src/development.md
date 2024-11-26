@@ -2,7 +2,10 @@
 The `License Manager` can be provisioned using two approaches:
 
 * Use `Docker Compose` to run the services
-* Create a `Slurm` cluster using Juju
+* Create a `Slurm` cluster and `License Manager` components using `Juju`.  
+
+You can also provision the components manually, but this guide will focus on the two approaches mentioned above.
+
 
 ## Using Docker Compose
 
@@ -24,15 +27,17 @@ docker-compose up --build
 The `docker compose` command will start the following services:
 
 1. License Manager API
-2. Keycloak (authentication provider for the-LM API)
-3. License Manager Simulator API
-4. Slurm cluster (with two compute node)
+2. Postgresql database (for the License Manager API)
+4. Keycloak (authentication provider for the-LM API)
+5. License Manager Simulator API
+6. Postgresql database (for the License Manager Simulator API)
+7. Slurm cluster (Slurmctld, Slurmdbd, Slurmrestd, and two Slurmd containers)
 
 ### Submitting a job
 1. Log into the `slurmctld` container:
 
 ```bash 
-docker exec -it slurmctld bash
+docker compose exec slurmctld bash
 ```
 
 2. Execute the job example:
@@ -41,8 +46,7 @@ docker exec -it slurmctld bash
 sbatch /nfs/job_example.py
 ```
 
-The job will request 42 licensesgit clone https://github.com/omnivector-solutions/license-manager
- to the `License Manager Simulator API` and return it after a few minutes.
+The job will request 42 licenses to the `License Manager Simulator API` and return it after a few minutes.
 It will be submitted to the Slurm cluster and the `License Manager Agent` will make a booking request to the `License Manager API`.
 The results will be available in the `slurm-fake-nfs` directory.
 
