@@ -332,14 +332,12 @@ Each **Booking** is related to a **Job**. The `job_id` parameter identifies the 
 that idenfies it in the cluster.
 
 ### Permissions
-The **License Manager API** needs an authentication provider (OIDC) to manage the permissions for the users.
+The **License Manager API** needs an authentication provider (OIDC) to work safely.
 
-We recommend using the **Keycloak** as the OIDC provider, but any provider that supports the **OIDC** protocol can be used.
+To manage permissions, the **License Manager API** uses the [Armasec](https://github.com/omnivector-solutions/armasec) library.
+[Armasec](https://github.com/omnivector-solutions/armasec) documentation has getting started guides to configure **Keycloak** or **Auth0** as the OIDC provider.
 
-Each endpoint is protected using [Armasec](https://github.com/omnivector-solutions/armasec), which manages the permissions
-needed to access each endpoint. The permissions must be available as a claim in the JWT token.
-
-The permissions are granular for each endpoint, and the user needs to have the correct permissions to access the endpoint.
+The endpoints have granular permissions, and the user needs to have the correct set of permissions to access them.
 Each endpoint has four permissions, for example:
 
 * `license-manager:config:create`
