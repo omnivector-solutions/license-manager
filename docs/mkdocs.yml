@@ -49,6 +49,12 @@ markdown_extensions:
   - pymdownx.details:
   - admonition:
   - attr_list:
+  - pymdownx.arithmatex:
+      generic: true
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
