@@ -2,23 +2,35 @@
 
 site_name: License Manager Documentation
 repo_url: https://github.com/omnivector-solutions/license-manager
+repo_name: omnivector-solutions/license-manager
 docs_dir: src
 theme:
   name: material
   logo: https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png
+  font:
+    code: Fira Code
   features:
     - navigation.expand
+    - navigation.footer
+    - navigation.tracking
     - content.code.copy
-  pallete:
-    # Dark/Light mode toggle is not working and can't figure out why
-    - scheme: default
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       toggle:
         icon: material/brightness-4
         name: Switch to dark mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
+watch:
+  - ../../lm-agent/
+  - ../../lm-api/
+  - ../../lm-cli/
 plugins:
   search:
     lang: en
@@ -26,7 +38,11 @@ plugins:
     default_handler: python
     handlers:
       python:
-        paths: [..]
+        paths: [
+          ../../lm-api,
+          ../../lm-cli,
+          ../../lm-agent
+        ]
         options:
           heading_level: 3
           show_root_heading: true
@@ -34,6 +50,13 @@ plugins:
           show_signature_annotations: true
           show_source: false
           docstring_style: google
+          show_submodules: true
+          show_members: true
+          show_inherited_members: true
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          extensions:
+          - griffe_pydantic
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -52,11 +75,20 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
 extra_javascript:
-  - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
-
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
-  - Architecture: architecture.md
-  - Development: development.md
+  - Architecture:
+    - Overview: architecture/index.md
+    - License Manager Agent: architecture/agent.md
+    - License Manager API: architecture/api.md
+    - License Manager CLI: architecture/cli.md
+  - Development:
+    - Overview: development/index.md
+    - Docker Compose: development/docker_compose.md
+    - Juju: development/juju.md
+  - Reference:
+    - License Manager Agent: reference/agent.md
+    - License Manager API: reference/api.md
+    - License Manager CLI: reference/cli.md
