@@ -12,6 +12,7 @@ mkdocs-material = "^9.1.21"
 griffe-pydantic = "^1.1.0"
 griffe = "^1.5.1"
 mkdocstrings-python = "^1.12.2"
+pydantic = "^2.10.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
