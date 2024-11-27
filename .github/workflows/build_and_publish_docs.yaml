@@ -11,8 +11,8 @@ on:
       - 'lm-agent/lm_agent/**'
       - 'lm-api/lm_api/**'
       - 'lm-cli/lm_cli/**'
-    branches:
-      - 'main'
+    types:
+      - closed
 jobs:
   build:
     runs-on: ubuntu-latest
