@@ -11,7 +11,11 @@ install:
 
 .PHONY: docs
 docs: install
-	poetry run mkdocs build
+	poetry run mkdocs build --config-file=docs/mkdocs.yaml
+
+.PHONY: docs-serve
+docs-serve: install
+	poetry run mkdocs serve --config-file=docs/mkdocs.yaml --dev-addr=localhost:10000
 
 .PHONY: clean
 clean:
