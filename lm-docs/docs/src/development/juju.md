@@ -1,58 +1,6 @@
-# Development
-The `License Manager` can be provisioned using two approaches:
+# Setting up License Manager using Juju
 
-* Use `Docker Compose` to run the services
-* Create a `Slurm` cluster and `License Manager` components using `Juju`.  
-
-You can also provision the components manually, but this guide will focus on the two approaches mentioned above.
-
-
-## Using Docker Compose
-
-### Pre-Installation
-Before you get started, ensure you have the following pre-requisites installed on your machine:
-
-* docker
-* docker compose
-
-### Running the License Manager Composed
-To get started, clone the `license-manager` repository from GitHub and run `docker compose up`.
-
-``` bash
-git clone https://github.com/omnivector-solutions/license-manager
-cd license-manager/lm-composed
-docker-compose up --build
-```
-
-The `docker compose` command will start the following services:
-
-1. License Manager API
-2. Postgresql database (for the License Manager API)
-4. Keycloak (authentication provider for the-LM API)
-5. License Manager Simulator API
-6. Postgresql database (for the License Manager Simulator API)
-7. Slurm cluster (Slurmctld, Slurmdbd, Slurmrestd, and two Slurmd containers)
-
-### Submitting a job
-1. Log into the `slurmctld` container:
-
-```bash 
-docker compose exec slurmctld bash
-```
-
-2. Execute the job example:
-
-```bash
-sbatch /nfs/job_example.py
-```
-
-The job will request 42 licenses to the `License Manager Simulator API` and return it after a few minutes.
-It will be submitted to the Slurm cluster and the `License Manager Agent` will make a booking request to the `License Manager API`.
-The results will be available in the `slurm-fake-nfs` directory.
-
-## Using Juju
-
-### Pre-Installation
+## Pre-Installation
 Before you get started, ensure you have the following pre-requisites installed on your machine:
 
 * snapd
@@ -70,7 +18,7 @@ development environment setup process.
 MY_IP="$(ip route get 1 | awk '{print $(NF-2);exit}')"
 ```
 
-### 1. Deploy a local SLURM cluster on LXD
+## 1. Deploy a local SLURM cluster on LXD
 Follow the [upstream documentation](https://omnivector-solutions.github.io/osd-documentation/master/installation.html#lxd)
 to deploy a local LXD slurm cluster that we can use in development.
 
@@ -124,7 +72,7 @@ juju-b71748-2
 
 The slurm cluster is now prepared for further configuration and use in `License Manager` development.
 
-### 2. Compose the License Manager API
+## 2. Compose the License Manager API
 Setting up the `License Manager API` for development is done in three steps:
 
 1. Clone the project to your local machine
@@ -235,7 +183,7 @@ curl -X 'GET' \
 
 The `License Manager API` is now configured and ready for use in the development environment.
 
-### 3. Compose the License Manager Simulator
+## 3. Compose the License Manager Simulator
 To run the `License Manager Simulator` API, enter the directory `lm-simulator-api` and run `make local`.
 
 ``` bash
@@ -258,7 +206,7 @@ curl -X 'POST' \
 }'
 ```
 
-### 4. Add the License Manager Agent to the cluster
+## 4. Add the License Manager Agent to the cluster
 The final component we need to deploy is the `License Manager Agent`. The `License Manager Agent` is deployed to the
 same model as the slurm charms, and related to `slurmctld`.
 
@@ -313,7 +261,7 @@ juju relate license-manager-agent:juju-info slurmctld
 juju relate license-manager-agent:prolog-epilog slurmctld
 ```
 
-### 5. Additional Modifications
+## 5. Additional Modifications
 At this point you should have 3 systems running:
 
 1. Slurm cluster in LXD
@@ -324,7 +272,7 @@ Once the systems have been successfully deployed you will need to apply the post
 These configurations will ensure that your slurm cluster has a fake license server client and available licenses
 to be used by the fake application (which will be run as a batch script).
 
-#### Configuring the license server client
+### Configuring the license server client
 The `License Manager Simulator` has a script for each license server supported (FlexLM, RLM, LS-Dyna, LM-X, OLicense and DSLS).
 The script requests license information from the `License Manager Simulator API` and renders
 it in a template, simulating the output from the real license server.
@@ -351,7 +299,7 @@ juju config license-manager-agent olixtool-path=/srv/license-manager-agent-venv/
 juju config license-manager-agent dslicsrv-path=/srv/license-manager-agent-venv/bin/dslicsrv
 ```
 
-#### Configuring the Slurm license counter
+### Configuring the Slurm license counter
 You need to add a license counter to Slurm to match the license created in the `License Manager API` and the `License Manager Simulator API`.
 
 To do this, you need to add the following configuration to the `slurmdctld` machine:
@@ -361,7 +309,7 @@ juju ssh slurmctld/0
 sudo sacctmgr add resource Type=license Clusters=osd-cluster Server=flexlm Names=test_product.test_feature Count=1000 ServerType=flexlm PercentAllowed=100 -i
 ```
 
-#### Using the simulated license server
+### Using the simulated license server
 You should now have a license for testing available. To check the output of the simulated license server, you can run:
 
 ``` bash
@@ -394,7 +342,7 @@ Users of test_feature:  (Total of 1000 licenses issued;  Total of 0 licenses in 
   floating license
 ```
 
-#### Seeding the batch script and fake application
+### Seeding the batch script and fake application
 To test the `License Manager`, you need to run a fake application that will request licenses from the `License Manager Simulator` API,
 and a batch script that will schedule the fake application job in the slurm cluster.
 
@@ -411,7 +359,7 @@ To run the job, use the `sbatch` command.
 juju ssh slurmd/0 sbatch /tmp/batch.sh
 ```
 
-### 6. Validation
+## 6. Validation
 After following the steps above, you should have a working development environment.
 To validate that it is indeed working, submit a job to slurm (using the batch script) and check `License Manager API`.
 

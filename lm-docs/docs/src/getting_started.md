@@ -29,4 +29,4 @@ process. This data is used to update the license counters in the cluster to refl
 For each license tracked by License Manager, you need to create a configuration in the API. This includes the license name, the license
 features, the license server type and location, and the grace time (how long it takes for the license to be checked out after the job starts).
 
-To learn how to set up each system needed, please refer to the [Development](development.md) section.
+To learn how to set up each system needed, please refer to the [Development](development/index.md) section.
