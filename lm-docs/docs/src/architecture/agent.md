@@ -34,19 +34,15 @@ The **Booking** will live until one of the following conditions are met:
 
 * When the **Grace Time** expires:
 
-   The **Grace Time** defaults to 5 minutes, but it can be configured by setting an environment variable in the **Agent**'s configuration file.
-   **Grace time** expiration is checked by the **Reconcilliation** process.
+>   The **Grace Time** defaults to 5 minutes, but it can be configured by setting an environment variable in the **Agent**'s configuration file. **Grace time** expiration is checked by the **Reconcilliation** process.
    
 * When **License Manager** identifies that the license was already checked out:
 
-   The license is checked-out when the application is granted the licenses by the **License Server**.
-   The **Reconcilliation** process checks for matches between the active **Bookings** and the licenses checked out in the **License Server**
-   to check if the **Booking** can be deleted.
+> The license is checked-out when the application is granted the licenses by the **License Server**. The **Reconcilliation** process checks for matches between the active **Bookings** and the licenses checked out in the **License Server** to check if the **Booking** can be deleted.
    
 * When the job finishes running:
 
-   The **SlurmctldEpilog** script is executed when a job finishes. This script will  
-   delete the booking if the **License Manager API** is still tracking the booking, which happens when the job finishes before the expiration of the **Grace Time**.
+>The **SlurmctldEpilog** script is executed when a job finishes. This script will delete the booking if the **License Manager API** is still tracking the booking, which happens when the job finishes before the expiration of the **Grace Time**.
 
 ### Deleting Bookings by Grace Time
 Depending on the HPC application used by a job, it may take some time to check out the license from the **License Server** after it is submitted to **Slurm**.
