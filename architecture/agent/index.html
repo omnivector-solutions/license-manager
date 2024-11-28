@@ -9,25 +9,25 @@
       
       
       
-        <link rel="prev" href="../getting_started/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="agent/">
+        <link rel="next" href="../api/">
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
     
     
       
-        <title>Overview - License Manager Documentation</title>
+        <title>License Manager Agent - License Manager Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -46,9 +46,9 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#license-manager-architecture" class="md-skip">
+        <a href="#license-manager-agent" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href="../.." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              License Manager Agent
             
           </span>
         </div>
@@ -222,7 +222,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href="../.." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -251,7 +251,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -271,7 +271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting_started/" class="md-nav__link">
+      <a href="../../getting_started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -325,6 +325,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -341,7 +362,7 @@
           
   
   <span class="md-ellipsis">
-    Overview
+    License Manager Agent
   </span>
   
 
@@ -352,7 +373,7 @@
         
   
   <span class="md-ellipsis">
-    Overview
+    License Manager Agent
   </span>
   
 
@@ -374,18 +395,84 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#bookings" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      Bookings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bookings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deleting-bookings-by-grace-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting Bookings by Grace Time
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-bookings-by-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting Bookings by matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reconciliation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reconciliation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slurm-license-counters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slurm License Counters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slurm-reservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slurm Reservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-agent-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      License Manager Agent Workflow
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Architecture
+      Reference
     </span>
   </a>
   
@@ -407,28 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="agent/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    License Manager Agent
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/" class="md-nav__link">
+      <a href="../api/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -449,7 +515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -514,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/" class="md-nav__link">
+      <a href="../../development/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -535,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/docker_compose/" class="md-nav__link">
+      <a href="../../development/docker_compose/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -556,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/juju/" class="md-nav__link">
+      <a href="../../development/juju/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -621,7 +687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/agent/" class="md-nav__link">
+      <a href="../../reference/agent/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -642,7 +708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/api/" class="md-nav__link">
+      <a href="../../reference/api/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -663,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/" class="md-nav__link">
+      <a href="../../reference/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -711,18 +777,84 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#bookings" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      Bookings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bookings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deleting-bookings-by-grace-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting Bookings by Grace Time
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-bookings-by-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting Bookings by matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reconciliation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reconciliation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slurm-license-counters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slurm License Counters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slurm-reservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slurm Reservation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-manager-agent-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      License Manager Agent Workflow
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Architecture
+      Reference
     </span>
   </a>
   
@@ -746,27 +878,160 @@
   
 
 
-<h1 id="license-manager-architecture">License Manager Architecture</h1>
-<h2 id="overview">Overview</h2>
-<p><strong>License Manager</strong> works in a client/server architecture, where the main components are the <strong>Agent</strong>, the <strong>API</strong> and the <strong>CLI</strong>.</p>
-<p>The <strong>License Manager Agent</strong> is the component that syncs the local <strong>Slurm</strong> license counters with the <strong>License Server</strong> data.
-It's also responsible for making <strong>Booking</strong> requests to the <strong>License Manager API</strong> when a job is submitted to <strong>Slurm</strong>.</p>
-<p>The <strong>License Manager API</strong> provides a <strong>RESTful API</strong> where license usage and <strong>Bookings</strong> are tracked. The <strong>License Manager Agent</strong> uses this <strong>API</strong>
-to store the license usage information and to process the <strong>Booking</strong> requests.</p>
-<p>The <strong>License Manager CLI</strong> provides an interface for managing license <strong>Configurations</strong> and retrieving usage information for tracked licenses via the <strong>License Manager API</strong>. </p>
-<h2 id="architecture">Architecture</h2>
-<p>Each component has its own architecture page:</p>
+<h1 id="license-manager-agent">License Manager Agent</h1>
+<p>The <strong>License Manager Agent</strong> is the key component that ensures jobs have enough free licenses to execute successfully.
+Deployed on the <strong>Slurm</strong> cluster, this agent works in conjunction with the <strong>License Manager API</strong> to track license usage and prevent job failures due to insufficient licenses.  </p>
+<p>The agent has two main functionalities:</p>
 <ul>
 <li>
-<p><a href="agent/">License Manager Agent</a></p>
+<p>Sync the local <strong>Slurm</strong> license counters with the usage from the <strong>License Server</strong></p>
 </li>
 <li>
-<p><a href="api/">License Manager API</a></p>
-</li>
-<li>
-<p><a href="cli/">LIcense Manager CLI</a></p>
+<p>Manage the license requests from jobs submitted to the cluster using <strong>Bookings</strong></p>
 </li>
 </ul>
+<p>Since the <strong>Slurm</strong> license counter doesn't directly interact with <strong>License Servers</strong>, the <strong>License Manager Agent</strong> actively polls the servers for data. Then it updates the corresponding counters in <strong>Slurm</strong>.
+Each cluster managed by <strong>License Manager</strong> has a dedicated license counter linked to the <strong>License Server</strong>. This configuration allows for license sharing across multiple clusters.</p>
+<h2 id="bookings">Bookings</h2>
+<p><strong>License Manager</strong> provides custom scripts for <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> that are executed when a job is submitted and when it finishes.</p>
+<p>When submitting a job to <strong>Slurm</strong>, if the <strong>sbatch</strong> directive for requesting licenses (<code>-L</code> or <code>--licenses</code>) is included in the job script, the <strong>SlurmctldProlog</strong> will intercept the job and make a <strong>Booking</strong> request to the <strong>License Manager API</strong>.
+The <strong>Booking</strong> reserves the needed licenses prior to the allocation of the job. The <strong>Booking</strong> ensures that the licenses are available for the job to use by taking into consideration the licenses booked for other jobs and the license usage in the <strong>License Server</strong>.</p>
+<p>If the <strong>Booking</strong> cannot be made, the job will be kept in the queue until there are enough licenses available to satisfy the <strong>Booking</strong> request.</p>
+<p>To calculate if the license is available for use, the formula used is:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\text{available} &amp;= \text{licenses booked} \\
+&amp;+ \text{licenses used in License Server} \\
+&amp;+ \text{licenses requested by job} \\
+&amp;&lt; \text{total amount of licenses}
+\end{aligned}
+\]</div>
+<p>The <strong>Booking</strong> will live until one of the following conditions are met:</p>
+<ul>
+<li>When the <strong>Grace Time</strong> expires:</li>
+</ul>
+<blockquote>
+<p>The <strong>Grace Time</strong> defaults to 5 minutes, but it can be configured by setting an environment variable in the <strong>Agent</strong>'s configuration file. <strong>Grace time</strong> expiration is checked by the <strong>Reconcilliation</strong> process.</p>
+</blockquote>
+<ul>
+<li>When <strong>License Manager</strong> identifies that the license was already checked out:</li>
+</ul>
+<blockquote>
+<p>The license is checked-out when the application is granted the licenses by the <strong>License Server</strong>. The <strong>Reconcilliation</strong> process checks for matches between the active <strong>Bookings</strong> and the licenses checked out in the <strong>License Server</strong> to check if the <strong>Booking</strong> can be deleted.</p>
+</blockquote>
+<ul>
+<li>When the job finishes running:</li>
+</ul>
+<blockquote>
+<p>The <strong>SlurmctldEpilog</strong> script is executed when a job finishes. This script will delete the booking if the <strong>License Manager API</strong> is still tracking the booking, which happens when the job finishes before the expiration of the <strong>Grace Time</strong>.</p>
+</blockquote>
+<h3 id="deleting-bookings-by-grace-time">Deleting Bookings by Grace Time</h3>
+<p>Depending on the HPC application used by a job, it may take some time to check out the license from the <strong>License Server</strong> after it is submitted to <strong>Slurm</strong>.
+It will take longer for jobs that have multiple setup steps before actually starting the application that requires the license.</p>
+<p>Thus, each license has a <strong>Grace Time</strong> period that is used to indicate how long a <strong>Booking</strong> will be retained.</p>
+<p>After the <strong>Grace Time</strong> expires, the <strong>Booking</strong> is deleted. This means that the license was checked out from the
+<strong>License Server</strong> and doesn't need a <strong>Booking</strong> anymore.</p>
+<p>If the <strong>Booking</strong> is not deleted once the license is checked out, <strong>License Manager</strong> would account for usage twice: once for the <strong>Booking</strong> and once for the actual usage. This double booking issue is mitigated by the <strong>Grace Time</strong> and by matching the <strong>Booking</strong> with the usage from the <strong>License Server</strong>.</p>
+<h3 id="deleting-bookings-by-matching">Deleting Bookings by matching</h3>
+<p><strong>License Manager</strong> parses output from each <strong>License Server</strong> to gather information into two main sections:  </p>
+<ul>
+<li>
+<p>License information: <strong>Used</strong> and <strong>Total</strong> counters</p>
+</li>
+<li>
+<p>Usage: how many licenses each <strong>User</strong> is using and the <strong>Lead Host</strong> from where the request was made</p>
+</li>
+</ul>
+<p>The <strong>Booking</strong> from <strong>License Manager</strong> contains the same information as the usage section.</p>
+<p>If there’s a match between a <strong>Booking</strong> and a <strong>usage line</strong> from the <strong>License Server</strong>, the <strong>Booking</strong> is deleted even if the <strong>Grace Time</strong> is not expired yet.
+This prevents double booking the license, since <strong>License Manager</strong> would take into account the <strong>Booking</strong> and the usage when updating the total amount of licenses used.</p>
+<h2 id="reconciliation">Reconciliation</h2>
+<p>For each license tracked by <strong>License Manager</strong>, the <strong>License Manager Agent</strong> will periodically poll the <strong>License Servers</strong> to get
+the usage information and store it in the <strong>License Manager API</strong>. This process is called <strong>Reconciliation</strong>. The <strong>stat-interval</strong> is the period of time
+between each <strong>Reconciliation</strong> and can be configured in the <strong>License Manager Agent</strong> configuration file.</p>
+<p>The <strong>Reconciliation</strong> is also triggered when the <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> run.</p>
+<p>The information in the <strong>License Manager API</strong> is used by the <strong>Reconciliation</strong> process to update the license counters in <strong>Slurm</strong>.</p>
+<h3 id="slurm-license-counters">Slurm License Counters</h3>
+<p>The license counter in <strong>Slurm</strong> shows the total number of licenses, how many are in use, and how many are reserved.
+The counter for licenses-in-use only accounts for licenses being used by jobs running in the cluster and can’t be edited manually.</p>
+<p>The licenses can be used anywhere, such as other clusters and desktop applications sharing the same license pool, so the <strong>Reconciliation</strong>
+syncs the counters in the cluster with the values in the <strong>License Servers</strong> to account for usage in other environments.</p>
+<p>The main issue is that the <strong>Used</strong> counter is a read-only value, which prevents <strong>License Manager</strong> from updating the counter directly.
+If this was possible, it would be easier to update the <strong>Used</strong> counter to reflect the actual usage in the <strong>License Server</strong>.
+But since it's not possible, <strong>License Manager</strong> uses the <strong>Reservation</strong> to achieve the same result.</p>
+<h3 id="slurm-reservation">Slurm Reservation</h3>
+<p><strong>Slurm</strong> has the ability to reserve resources to be used by specific users. This can also be used to block resource usage during maintenance downtime, for example.</p>
+<p>Due to the <strong>Slurm</strong> counters being immutable, <strong>License Manager Agent</strong> uses this feature to block the licenses that are already in use
+in the <strong>License Server</strong>, which can be used in any environment. </p>
+<p>The <strong>Reservation</strong> mechanism should not be confused with the <strong>Booking</strong> created by the <strong>SlurmctldProlog</strong> in the <strong>License Manager API</strong>.</p>
+<ul>
+<li><strong>Reservation</strong>: Represents the licenses in use in the <strong>License Server</strong> that are not being used by the cluster.</li>
+<li><strong>Booking</strong>: Represents the licenses that are reserved for a job in the cluster.</li>
+</ul>
+<p>To calculate the number of licenses reserved, the following formula is used:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\text{reserved} &amp;= \text{licenses used in License Server} \\
+&amp;- \text{licenses used by Slurm} \\
+&amp;+ \text{licenses booked}
+\end{aligned}
+\]</div>
+<p>This <strong>Reservation</strong> is not meant to be consumed by users nor jobs; it's only a representation of the licenses in use.</p>
+<p>The <strong>Reservation</strong> is created by the user configured in the <strong>License Manager Agent</strong> configuration file. The user must
+have a user account in the <strong>Slurm</strong> cluster and have <strong>operator</strong> privilege level to manage <strong>Reservations</strong>.</p>
+<h2 id="license-manager-agent-workflow">License Manager Agent Workflow</h2>
+<p>Sequence diagram for the timed <strong>Reconciliation</strong>:</p>
+<pre class="mermaid"><code>    sequenceDiagram
+        participant Slurm
+        participant Reconciliation
+        participant LicenseServer as License Server
+        participant LMAPI as LM API
+
+        %% Sequence begins
+        Slurm-&gt;&gt;Reconciliation: Timed Reconciliation
+        Reconciliation-&gt;&gt;LicenseServer: Access License Server
+        LicenseServer--&gt;&gt;Reconciliation: Get updated counters
+        Reconciliation-&gt;&gt;LMAPI: Update API counters
+        Reconciliation-&gt;&gt;LMAPI: Clean Bookings by grace time and matching
+        LMAPI--&gt;&gt;Reconciliation: Get new counters with Bookings deleted
+        Reconciliation--&gt;&gt;Slurm: Update Reservation with license usage</code></pre>
+<p>Sequence diagram for when a job is submitted to <em>Slurm</em>:
+<pre class="mermaid"><code>    sequenceDiagram
+        participant Slurm
+        participant Prolog
+        participant Reconciliation
+        participant LicenseServer as License Server
+        participant LMAPI as LM API
+
+        %% Sequence begins
+        Slurm-&gt;&gt;Prolog: Job is submitted
+        Prolog-&gt;&gt;Reconciliation: Forced Reconciliation
+        Reconciliation-&gt;&gt;LicenseServer: Access License Server
+        LicenseServer--&gt;&gt;Reconciliation: Get updated counters
+        Reconciliation-&gt;&gt;LMAPI: Update API counters
+        Reconciliation-&gt;&gt;Slurm: Update Reservation with license usage
+        Prolog-&gt;&gt;LMAPI: Create Booking
+        LMAPI--&gt;&gt;Prolog: Booking creation succeeded
+        Slurm-&gt;&gt;Slurm: Start job
+
+        %% Timed Reconciliation starts
+        Slurm-&gt;&gt;Reconciliation: Timed Reconciliation
+        Reconciliation-&gt;&gt;LicenseServer: Access License Server
+        LicenseServer--&gt;&gt;Reconciliation: Get updated counters
+        Reconciliation-&gt;&gt;LMAPI: Clean Bookings by grace time and matching
+        LMAPI--&gt;&gt;Reconciliation: Keep Booking (not expired or not checked out yet)
+        Reconciliation-&gt;&gt;Slurm: Update Reservation with license usage
+
+        %% Job checks out the license
+        Slurm-&gt;&gt;LicenseServer: Job checks out the license
+        Slurm-&gt;&gt;Reconciliation: Timed Reconciliation
+        Reconciliation-&gt;&gt;LicenseServer: Access License Server
+        LicenseServer--&gt;&gt;Reconciliation: Get updated counters
+        Reconciliation-&gt;&gt;LMAPI: Clean Bookings by grace time and matching
+        LMAPI--&gt;&gt;Reconciliation: Delete Booking (matched with a checked-out license)
+        Reconciliation-&gt;&gt;Slurm: Update Reservation with license usage</code></pre></p>
+<h2 id="reference">Reference</h2>
+<p>The <a href="../../reference/agent/">reference</a> page contains the parsers, server interfaces, services and backend communication modules available.</p>
 
 
 
@@ -796,7 +1061,7 @@ to store the license usage information and to process the <strong>Booking</stron
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../getting_started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -806,20 +1071,20 @@ to store the license usage information and to process the <strong>Booking</stron
                 Previous
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Overview
               </div>
             </div>
           </a>
         
         
           
-          <a href="agent/" class="md-footer__link md-footer__link--next" aria-label="Next: License Manager Agent">
+          <a href="../api/" class="md-footer__link md-footer__link--next" aria-label="Next: License Manager API">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                License Manager Agent
+                License Manager API
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -853,10 +1118,10 @@ to store the license usage information and to process the <strong>Booking</stron
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "navigation.footer", "navigation.tracking", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.footer", "navigation.tracking", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

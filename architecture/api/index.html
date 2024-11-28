@@ -9,25 +9,25 @@
       
       
       
-        <link rel="prev" href="../architecture/cli/">
+        <link rel="prev" href="../agent/">
       
       
-        <link rel="next" href="docker_compose/">
+        <link rel="next" href="../cli/">
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.46">
     
     
       
-        <title>Overview - License Manager Documentation</title>
+        <title>License Manager API - License Manager Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -46,9 +46,9 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development" class="md-skip">
+        <a href="#license-manager-api" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href="../.." title="License Manager Documentation" class="md-header__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              License Manager API
             
           </span>
         </div>
@@ -222,7 +222,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
+    <a href="../.." title="License Manager Documentation" class="md-nav__button md-logo" aria-label="License Manager Documentation" data-md-component="logo">
       
   <img src="https://omnivector-public-assets.s3.us-west-2.amazonaws.com/branding/omnivector-logo.png" alt="logo">
 
@@ -251,7 +251,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -271,7 +271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting_started/" class="md-nav__link">
+      <a href="../../getting_started/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -288,19 +288,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -314,7 +314,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -328,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/agent/" class="md-nav__link">
+      <a href="../agent/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -367,10 +367,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../architecture/api/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    License Manager API
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -379,6 +399,98 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configurations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      License Servers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    <span class="md-ellipsis">
+      Products
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bookings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bookings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permissions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -391,7 +503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -416,19 +528,19 @@
       
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -442,7 +554,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -453,30 +565,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Overview
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../development/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -485,35 +577,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#instructions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Instructions
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -526,7 +589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="docker_compose/" class="md-nav__link">
+      <a href="../../development/docker_compose/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -547,7 +610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="juju/" class="md-nav__link">
+      <a href="../../development/juju/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -612,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/agent/" class="md-nav__link">
+      <a href="../../reference/agent/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -633,7 +696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/api/" class="md-nav__link">
+      <a href="../../reference/api/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -654,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/" class="md-nav__link">
+      <a href="../../reference/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -702,9 +765,72 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#instructions" class="md-nav__link">
+  <a href="#configurations" class="md-nav__link">
     <span class="md-ellipsis">
-      Instructions
+      Configurations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      License Servers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#products" class="md-nav__link">
+    <span class="md-ellipsis">
+      Products
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bookings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bookings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permissions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference
     </span>
   </a>
   
@@ -728,23 +854,123 @@
   
 
 
-<h1 id="development">Development</h1>
-<p>The <code>License Manager</code> can be provisioned using two approaches:</p>
+<h1 id="license-manager-api">License Manager API</h1>
+<p>The <strong>License Manager API</strong> provides a <strong>RESTful API</strong> where licenses and bookings are tracked.
+The <strong>License Manager Agent</strong> uses this API to store the license usage information and to process the <strong>Booking</strong> requests.
+The <strong>License Manager CLI</strong> interacts with this API to add new configurations and to check the usage information for each tracked license.</p>
+<p>The <strong>License Manager API</strong> is also responsible for verifying if the <strong>Booking</strong> requests can be satisfied by accounting for <strong>Bookings</strong> already
+made and the license usage in the <strong>License Server</strong>.</p>
+<p>The <strong>License Manager API</strong> contains 6 distinct resources with interconnecting relationships.<br />
+This means that some of the resources need to be created before others can be created as well.</p>
+<pre class="mermaid"><code>    erDiagram
+        Bookings {
+            int id pk
+            int job_id pk
+            int feature_id pk
+            int quantity
+        }
+        Features {
+            int id pk,fk
+            str name
+            int config_id pk
+            int product_id pk
+            int reserved
+            int total
+            int used
+            int booked_total
+        }
+        Products {
+            int id pk
+            str name
+        }
+        Jobs {
+            int id pk, fk
+            str slurm_job_id
+            str cluster_client_id
+            str username
+            str lead_host
+        }
+        Configurations {
+            int id pk
+            str name
+            str cluster_client_id
+            int grace_time
+            enum[str] type
+        }
+        LicenseServers {
+            int id pk
+            int config_id fk
+            str host
+            int port
+        }
+        Jobs ||--o{ Bookings : ""
+        Features ||--o{ Bookings : ""
+        Products ||--o{ Features : ""
+        Configurations ||--|{ Features : ""
+        Configurations ||--|{ LicenseServers : ""</code></pre>
+<h2 id="configurations">Configurations</h2>
+<p>The <strong>Configuration</strong> resource holds the information for a set of <strong>Features</strong> that are available on the same <strong>License Server</strong>.</p>
+<p>A <strong>Configuration</strong> represents the license configured in the <strong>Slurm</strong> cluster. The configuration is linked to the cluster by the <strong>cluster_client_id</strong> field.</p>
+<p>The <strong>License Manager Agent</strong> instance running in the cluster will only reconcile the licenses configured for that cluster.</p>
+<p>Since each <strong>License Server</strong> can have multiple licenses configured, the same <strong>Configuration</strong> can be used for each license present in the <strong>License Server</strong>.
+The same command will be used to check the license usage for all the licenses under the same configuration.</p>
+<p>The <strong>Configuration</strong> also defines the license type, the <strong>License Server</strong> host addresses and the <strong>Grace Time</strong> period.</p>
+<p>The license type identifies the provider of the <strong>License Server</strong>.</p>
+<p>The following <strong>License Server types</strong> are supported:</p>
 <ul>
-<li>Use <code>Docker Compose</code> to run the services</li>
-<li>Create a <code>Slurm</code> cluster and <code>License Manager</code> components using <code>Juju</code>.  </li>
+<li>FlexLM</li>
+<li>RLM</li>
+<li>LS-Dyna</li>
+<li>LM-X</li>
+<li>OLicense</li>
+<li>DSLS</li>
 </ul>
-<p>You can also provision the components manually, but this guide will focus on the two approaches mentioned above.</p>
-<h2 id="instructions">Instructions</h2>
-<p>The guides below will walk you through the steps to provision the <code>License Manager</code> using the two approaches mentioned above.</p>
+<h2 id="license-servers">License Servers</h2>
+<p>The <strong>License Server</strong> resource represents the actual <strong>License Server</strong> where the license is installed.</p>
+<p>A <strong>License Server</strong> has a host and a port, and each <strong>Configuration</strong> must have at least one <strong>License Server</strong> related to it.
+The <strong>Configuration</strong> can cave multiple <strong>License Servers</strong> for redundancy, as long as they provide the same data.
+Each <strong>License Server</strong> will be called, in order, if the previous one is not available.</p>
+<h2 id="products">Products</h2>
+<p>The <strong>Product</strong> resource represents the product name of the license.</p>
+<p>Each license is identified in the cluster as <code>product.feature@license_server_type</code>.
+The <strong>Product</strong> is used to group the licenses that are under the same <strong>License Server</strong></p>
+<p>To create a <strong>Feature</strong>, a <strong>Product</strong> needs to be created first.</p>
+<h2 id="features">Features</h2>
+<p>The <strong>Feature</strong> resource represents the licenses in the cluster.</p>
+<p>Each <strong>Feature</strong> must be related to a <strong>Configuration</strong> and a <strong>Product</strong>.</p>
+<p>The <strong>reserved</strong> value represents how many licenses should be reserved for usage in desktop applications. The amount of licenses reserved is not used by the cluster.</p>
+<p><strong>License Manager Agent</strong> polls the <strong>License Server</strong> to populate the <strong>used</strong> and <strong>total</strong> values.
+The information stored includes the total number of licenses available, how many licenses are in use in the <strong>License Server</strong> and how many are booked.</p>
+<p>The <code>/lm/features/by_client_id</code> endpoint extracts the <strong>cluster_client_id</strong> from the request and updates the feature for that cluster. This endpoint is needed since there can be multiple licenses with the same name in different clusters.</p>
+<p>The <code>/lm/features/bulk</code> endpoint is used by the <strong>License Manager Agent</strong> to update the counters for multiple features with the same request.</p>
+<h2 id="jobs">Jobs</h2>
+<p>The <strong>Job</strong> resource represents the jobs submitted to the cluster.</p>
+<p>When a job is submitted to <strong>Slurm</strong>, it is intercepted by the <strong>SlurmctldProlog</strong> script, which creates a <strong>Job</strong> in the <strong>License Manager API</strong>.</p>
+<p>Each <strong>Job</strong> can have multiple <strong>Bookings</strong> related to it, depending on the number of licenses requested by the job.</p>
+<p>Once the job finishes, the <strong>SlurmctldEpilog</strong> deletes the job from the <strong>License Manager API</strong> , along with its <strong>Bookings</strong>.</p>
+<p>Since the  <code>slurm_job_id</code> is not unique across clusters, each job is identified by the <code>cluster_client_id</code> alongside the <code>slurm_job_id</code>.</p>
+<p>The endpoint <code>/lm/jobs/by_client_id</code> extracts the <code>cluster_client_id</code> from the request and returns the jobs that belong to the cluster.</p>
+<p>The in the POST endpoint, the parameter <code>cluster_client_id</code> is optional. If it's not provided, the <code>cluster_client_id</code> is extracted from the request.</p>
+<h2 id="bookings">Bookings</h2>
+<p>The <strong>Booking</strong> resource is responsible for Booking licenses for a specific job.</p>
+<p>The <strong>Booking</strong> ensures the job will have enough licenses to be used when it requests them to the <strong>License Server</strong>.</p>
+<p>Each <strong>Booking</strong> is related to a <strong>Job</strong>. The <code>job_id</code> parameter identifies the <strong>Job</strong> in the <strong>License Manager API</strong>, and is different from the <code>slurm_job_id</code>
+that idenfies it in the cluster.</p>
+<h2 id="permissions">Permissions</h2>
+<p>The <strong>License Manager API</strong> needs an authentication provider (OIDC) to work safely.</p>
+<p>To manage permissions, the <strong>License Manager API</strong> uses the <a href="https://github.com/omnivector-solutions/armasec">Armasec</a> library.
+<a href="https://github.com/omnivector-solutions/armasec">Armasec</a> documentation has getting started guides to configure <strong>Keycloak</strong> or <strong>Auth0</strong> as the OIDC provider.</p>
+<p>The endpoints have granular permissions, and the user needs to have the correct set of permissions to access them.
+Each endpoint has four permissions, for example:</p>
 <ul>
-<li>
-<p><a href="docker_compose/">Docker Compose</a></p>
-</li>
-<li>
-<p><a href="juju/">Juju</a></p>
-</li>
+<li><code>license-manager:config:create</code></li>
+<li><code>license-manager:config:read</code></li>
+<li><code>license-manager:config:update</code></li>
+<li><code>license-manager:config:delete</code></li>
 </ul>
+<p>There's also the <code>license-manager:admin</code> permission, which allows access to all operations in all endpoints.</p>
+<h2 id="reference">Reference</h2>
+<p>The <a href="../../reference/api/">reference</a> page contains the endpoints and schemas available.</p>
 
 
 
@@ -774,7 +1000,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../architecture/cli/" class="md-footer__link md-footer__link--prev" aria-label="Previous: License Manager CLI">
+          <a href="../agent/" class="md-footer__link md-footer__link--prev" aria-label="Previous: License Manager Agent">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -784,20 +1010,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                License Manager CLI
+                License Manager Agent
               </div>
             </div>
           </a>
         
         
           
-          <a href="docker_compose/" class="md-footer__link md-footer__link--next" aria-label="Next: Docker Compose">
+          <a href="../cli/" class="md-footer__link md-footer__link--next" aria-label="Next: License Manager CLI">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Docker Compose
+                License Manager CLI
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -831,10 +1057,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "navigation.footer", "navigation.tracking", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.footer", "navigation.tracking", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
