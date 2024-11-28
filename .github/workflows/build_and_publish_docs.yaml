@@ -7,7 +7,10 @@ name: Build Sphinx documentation
 on:
   pull_request:
     paths:
-      - 'docs/**'
+      - 'lm-docs/docs/**'
+      - 'lm-agent/lm_agent/**'
+      - 'lm-api/lm_api/**'
+      - 'lm-cli/lm_cli/**'
     types:
       - closed
 jobs:
@@ -27,12 +30,12 @@ jobs:
         uses: Gr1N/setup-poetry@v8
 
       - name: Build documentation
+        working-directory: lm-docs
         run: |
-          cd docs
           make docs
 
       - name: Deploy documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/site
+          publish_dir: lm-docs/docs/site
