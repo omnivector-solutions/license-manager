@@ -1385,6 +1385,45 @@ def dsls_output_no_licenses():
 
 
 @fixture
+def dsls_output_with_warning():
+    """Some DSLS output with a warning message to parse."""
+    return dedent(
+        """\
+        License Administration Tool Version 6.425.4 Built on May 2, 2023, 6:45:36 PM.
+        admin >	Software version: 6.425.4
+            Build date: May 2, 2023, 6:45:36 PM
+            Standalone mode
+            Ready: yes
+            Server name: localhost   Server id: ZSD-123
+        Warning: restricted connection, some operations are not permitted; due to an existing connection in full access from localhost(127.0.0.1)
+        admin >Editor,EditorId,Feature,Model,Commercial Type,Max Release Number,Max Release Date,Pricing Structure,Max Casual Duration,Expiration Date,Customer ID,Count,Inuse,Tokens,Casual Usage (mn),Host,User,Internal ID,Active Process,Client Code Version,Session ID,Granted Since,Last Used At,Granted At,Queue Position,
+        Dassault Systemes,5E756A80,PAC,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,1,0,
+        Dassault Systemes,5E756A80,PAJ,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,6,0,
+        Dassault Systemes,5E756A80,PCA,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,4,0,
+        Dassault Systemes,5E756A80,PCO,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PD5,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,1,0,
+        Dassault Systemes,5E756A80,PD6,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,1,0,
+        Dassault Systemes,5E756A80,PD8,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,10000,0,
+        Dassault Systemes,5E756A80,PEX,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,5,0,
+        Dassault Systemes,5E756A80,PIG,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,1,0,
+        Dassault Systemes,5E756A80,PIN,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,5,0,
+        Dassault Systemes,5E756A80,PT5,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PT6,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PTC,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PTI,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PTL,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,6,0,
+        Dassault Systemes,5E756A80,PTS,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PV5,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,5,0,
+        Dassault Systemes,5E756A80,PV6,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,7,0,
+        Dassault Systemes,5E756A80,PVG,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2,0,
+        Dassault Systemes,5E756A80,PW7,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2000,0,
+        Dassault Systemes,5E756A80,PW8,Token,STD,8,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2000,0,
+        Dassault Systemes,5E756A80,SRU,Token,STD,423,2025-01-01 00:59:00,YLC,0,2025-01-01 00:59:00,100000000001723,2374,493,493,,nid001234 (263.0)/127.0.0.1,user_1,SRU,,,,2024-12-09 03:02:19,2024-12-10 02:21:33,,
+        """
+    )
+
+
+@fixture
 def dsls_output_bad():
     """Some unparseable DSLS output."""
     return dedent(

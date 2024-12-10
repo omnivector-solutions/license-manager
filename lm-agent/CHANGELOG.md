@@ -4,6 +4,7 @@ This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
 * Updated Agent to find .env file [PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)
+* Fix DSLS parser to handle outputs with a warning line [ASP-5422]
 
 ## 4.2.0 -- 2024-11-18
 * Bumped version to keep in sync with LM-API

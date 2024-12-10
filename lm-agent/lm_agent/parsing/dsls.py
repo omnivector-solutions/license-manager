@@ -60,8 +60,13 @@ def parse(server_output: str) -> dict[str, ParsedFeatureItem]:
     """
     parsed_data: dict = {}
 
-    # Ignore the first 6 lines, which contain information about the DSLS license server
-    csv_data = csv.DictReader(server_output.splitlines()[6:])
+    # Ignore the lines that contain information about the DSLS license server
+    if "Warning" in server_output:  # Remove warning line with the information lines
+        offset = 7
+    else:
+        offset = 6
+
+    csv_data = csv.DictReader(server_output.splitlines()[offset:])
 
     for row in csv_data:
         parsed_feature = parse_feature_dict(row)
