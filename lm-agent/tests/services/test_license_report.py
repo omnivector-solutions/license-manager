@@ -509,6 +509,90 @@ async def test_license_report_empty_on_exception_raised(
 
 
 @mark.asyncio
+@mock.patch("lm_agent.workload_managers.slurm.cmd_utils.scontrol_show_lic")
+@mock.patch("lm_agent.services.license_report.get_cluster_configs_from_backend")
+@mock.patch("lm_agent.services.license_report.get_local_license_configurations")
+@mock.patch("lm_agent.services.license_report.RLMLicenseServer.get_report_item")
+async def test_license_report_empty_on_exception_raised_with_multiple_features(
+    get_report_item_mock: mock.MagicMock,
+    get_local_license_configurations_mock: mock.MagicMock,
+    get_cluster_configs_from_backend_mock: mock.MagicMock,
+    show_lic_mock: mock.MagicMock,
+):
+    """
+    Do I get an empty report when an exception is raised?
+    """
+    get_cluster_configs_from_backend_mock.return_value = []
+    show_lic_mock.return_value = ""
+    get_local_license_configurations_mock.return_value = [
+        ConfigurationSchema(
+            id=1,
+            name="Converge",
+            cluster_client_id="dummy",
+            features=[
+                FeatureSchema(
+                    id=1,
+                    name="converge_super",
+                    product=ProductSchema(id=1, name="converge"),
+                    config_id=1,
+                    reserved=100,
+                    total=1000,
+                    used=93,
+                    booked_total=0,
+                )
+            ],
+            license_servers=[
+                LicenseServerSchema(id=1, config_id=1, host="licserv0001", port=1234),
+                LicenseServerSchema(id=3, config_id=1, host="licserv0003", port=8760),
+            ],
+            grace_time=60,
+            type=LicenseServerType.RLM,
+        ),
+        ConfigurationSchema(
+            id=2,
+            name="Converge GUI Polygonica",
+            cluster_client_id="dummy",
+            features=[
+                FeatureSchema(
+                    id=2,
+                    name="converge_gui_polygonica",
+                    product=ProductSchema(id=1, name="converge"),
+                    config_id=2,
+                    reserved=100,
+                    total=1000,
+                    used=93,
+                    booked_total=0,
+                )
+            ],
+            license_servers=[
+                LicenseServerSchema(id=1, config_id=2, host="licserv0001", port=1234),
+                LicenseServerSchema(id=3, config_id=2, host="licserv0003", port=8760),
+            ],
+            grace_time=60,
+            type=LicenseServerType.RLM,
+        )
+    ]
+    get_report_item_mock.side_effect = Exception("Something is wrong with the license server!")
+
+    assert await license_report.report() == [
+        LicenseReportItem(
+            feature_id=1,
+            product_feature="converge.converge_super",
+            used=0,
+            total=0,
+            uses=[],
+        ),
+        LicenseReportItem(
+            feature_id=2,
+            product_feature="converge.converge_gui_polygonica",
+            used=0,
+            total=0,
+            uses=[],
+        ),
+    ]
+
+
+@mark.asyncio
 @mock.patch("lm_agent.services.license_report.report")
 async def test__update_features__report_empty(report_mock):
     """
