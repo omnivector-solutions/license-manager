@@ -80,6 +80,27 @@ async def test_dsls_get_report_item_with_bad_output(
 
 @mark.asyncio
 @mock.patch("lm_agent.server_interfaces.dsls.DSLSLicenseServer.get_output_from_server")
+async def test_dsls_get_report_item_with_warning_message(
+    get_output_from_server_mock: mock.MagicMock, dsls_server: DSLSLicenseServer, dsls_output_with_warning: str
+):
+    """
+    Do the DSLS server interface parse the output when the warning line is present?
+    """
+    get_output_from_server_mock.return_value = dsls_output_with_warning
+
+    assert await dsls_server.get_report_item(1, "powerflow.sru") == LicenseReportItem(
+        feature_id=1,
+        product_feature="powerflow.sru",
+        used=493,
+        total=2374,
+        uses=[
+            LicenseUsesItem(username="user_1", lead_host="nid001234", booked=493),
+        ],
+    )
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.dsls.DSLSLicenseServer.get_output_from_server")
 async def test_dsls_get_report_item_with_no_used_licenses(
     get_output_from_server_mock: mock.MagicMock,
     dsls_server: DSLSLicenseServer,
