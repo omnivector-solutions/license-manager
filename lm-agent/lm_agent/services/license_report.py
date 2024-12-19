@@ -94,7 +94,7 @@ async def report() -> typing.List[LicenseReportItem]:
             get_report_awaitables.append(
                 license_server_interface.get_report_item(feature_id, product_feature)
             )
-            product_features_awaited.append(feature_info)
+            product_features_awaited.append(feature_info_to_check)
 
     results: list[BaseException | LicenseReportItem] = await asyncio.gather(
         *get_report_awaitables, return_exceptions=True
