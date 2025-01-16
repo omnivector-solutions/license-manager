@@ -1,5 +1,4 @@
 import asyncio
-import typing
 
 import sentry_sdk
 
@@ -13,7 +12,9 @@ from lm_agent.services.reconciliation import reconcile
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
-        sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
+        sample_rate=settings.SENTRY_SAMPLE_RATE,
+        profiles_sample_rate=settings.SENTRY_PROFILING_SAMPLE_RATE,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
         environment=settings.DEPLOY_ENV,
     )
 

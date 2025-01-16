@@ -50,7 +50,7 @@ if settings.SENTRY_DSN:
         sample_rate=cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
         environment=settings.DEPLOY_ENV,
         profiles_sample_rate=settings.SENTRY_PROFILING_SAMPLE_RATE,
-        traces_sample_rate=settings.SENTRY_TRACING_SAMPLE_RATE,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
     )
     subapp.add_middleware(SentryAsgiMiddleware)
 
