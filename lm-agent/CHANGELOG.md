@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
-
+* Added configuration settings for customising Sentry's sample rates [[PENG-2592](https://sharing.clickup.com/t/h/c/18022949/PENG-2592/QQUQ1ABLAP6QSYX)]
 
 ## 4.2.2 -- 2024-11-19
 * Updated Agent to find .env file [PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)

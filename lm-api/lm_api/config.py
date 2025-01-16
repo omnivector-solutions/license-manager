@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, Annotated
 
-from pydantic import Field
+from pydantic import Field, confloat
 
 from lm_api.constants import LogLevelEnum
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -15,9 +15,9 @@ class Settings(BaseSettings):
 
     # Sentry settings
     SENTRY_DSN: Optional[str] = None
-    SENTRY_SAMPLE_RATE: Optional[float] = Field(1.0, gt=0.0, le=1.0)
-    SENTRY_PROFILING_SAMPLE_RATE: float = Field(1.0, gt=0.0, le=1.0)
-    SENTRY_TRACING_SAMPLE_RATE: float = Field(1.0, gt=0.0, le=1.0)
+    SENTRY_TRACES_SAMPLE_RATE: Annotated[float, confloat(gt=0, le=1.0)] = 0.01
+    SENTRY_SAMPLE_RATE: Annotated[float, confloat(gt=0.0, le=1.0)] = 0.25
+    SENTRY_PROFILING_SAMPLE_RATE: Annotated[float, confloat(gt=0.0, le=1.0)] = 0.01
 
     # vv should be specified as something like /staging
     # to match where the API is deployed in API Gateway

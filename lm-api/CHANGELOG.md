@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Adjusted the default values of Sentry's sample rates [[PENG-2592](https://sharing.clickup.com/t/h/c/18022949/PENG-2592/QQUQ1ABLAP6QSYX)]
 
 ## 4.2.2 -- 2024-11-19
 * Bumped version to keep in sync with agent
