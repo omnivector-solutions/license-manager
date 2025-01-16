@@ -51,7 +51,7 @@ parts:
     source: .
     plugin: python
     python-packages:
-    - license-manager-agent
+    - license-manager-agent==4.2.3
     build-packages:
     - python3
     - libapt-pkg-dev
