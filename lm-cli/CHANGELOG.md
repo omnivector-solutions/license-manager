@@ -5,6 +5,7 @@ This file keeps track of all notable changes to `License Manager CLI`.
 ## Unreleased
 
 
+## 4.2.3 -- 2025-01-16
 ## 4.2.2 -- 2024-11-19
 * Bumped version to keep in sync with agent
 
