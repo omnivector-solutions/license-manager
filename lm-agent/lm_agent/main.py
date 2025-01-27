@@ -19,7 +19,7 @@ if settings.SENTRY_DSN:
         environment=settings.DEPLOY_ENV,
         integrations=[
             LoggingIntegration(
-                level=settings.LOG_LEVEL,
+                level=logging.INFO,
                 event_level=logging.CRITICAL,
             ),
         ],
