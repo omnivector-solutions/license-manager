@@ -130,7 +130,7 @@ async def update_features() -> typing.List[LicenseReportItem]:
     license_report = await report()
 
     if not license_report:
-        logger.error(
+        logger.critical(
             "No license data could be collected, check that tools are installed "
             "correctly and the right hosts/ports are configured in settings"
         )

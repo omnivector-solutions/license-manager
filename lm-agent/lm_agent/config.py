@@ -117,7 +117,7 @@ def init_settings() -> Settings:
         return Settings()  # type: ignore[call-arg]
     except ValidationError as e:
         logger = logging.getLogger("lm_agent.config")
-        logger.error(f"Failed to load settings: {str(e)}")
+        logger.critical(f"Failed to load settings: {str(e)}")
         sys.exit(1)
 
 

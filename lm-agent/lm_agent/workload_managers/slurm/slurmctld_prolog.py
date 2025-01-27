@@ -38,7 +38,7 @@ async def prolog():
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)
     except Exception as e:
-        logger.error(f"Failed to call get_required_licenses_for_job with {e}")
+        logger.critical(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
 
     if not required_licenses:
@@ -55,7 +55,7 @@ async def prolog():
         try:
             entries = await get_cluster_configs_from_backend()
         except Exception as e:
-            logger.error(f"Failed to call get_config_from_backend with {e}")
+            logger.critical(f"Failed to call get_config_from_backend with {e}")
             sys.exit(1)
 
         for entry in entries:
@@ -83,7 +83,7 @@ async def prolog():
             try:
                 await reconcile()
             except Exception as e:
-                logger.error(f"Failed to call reconcile with {e}")
+                logger.critical(f"Failed to call reconcile with {e}")
                 sys.exit(1)
 
         booking_request = await make_booking_request(tracked_license_booking_request)
