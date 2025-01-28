@@ -26,13 +26,13 @@ async def epilog():
         try:
             await reconcile()
         except Exception as e:
-            logger.error(f"Failed to call reconcile with {e}")
+            logger.critical(f"Failed to call reconcile with {e}")
             sys.exit(1)
 
     try:
         required_licenses = get_required_licenses_for_job(job_licenses)
     except Exception as e:
-        logger.error(f"Failed to call get_required_licenses_for_job with {e}")
+        logger.critical(f"Failed to call get_required_licenses_for_job with {e}")
         sys.exit(1)
 
     if not required_licenses:

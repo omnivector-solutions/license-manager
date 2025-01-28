@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import typing
 
 import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from lm_agent.backend_utils.utils import check_backend_health, report_cluster_status
 from lm_agent.config import settings
@@ -15,6 +17,12 @@ if settings.SENTRY_DSN:
         dsn=settings.SENTRY_DSN,
         sample_rate=typing.cast(float, settings.SENTRY_SAMPLE_RATE),  # The cast silences mypy
         environment=settings.DEPLOY_ENV,
+        integrations=[
+            LoggingIntegration(
+                level=logging.INFO,
+                event_level=logging.CRITICAL,
+            ),
+        ],
     )
 
 
