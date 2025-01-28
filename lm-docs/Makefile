@@ -7,7 +7,7 @@ PACKAGE_NAME:=src
 
 .PHONY: install
 install:
-	poetry install
+	poetry install --no-root
 
 .PHONY: docs
 docs: install
