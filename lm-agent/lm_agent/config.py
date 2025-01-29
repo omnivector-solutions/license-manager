@@ -1,9 +1,9 @@
 import sys
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Annotated
 
-from pydantic import AnyHttpUrl, Field
+from pydantic import AnyHttpUrl, Field, confloat
 from pydantic_core import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -84,7 +84,9 @@ class Settings(BaseSettings):
 
     # Sentry specific settings
     SENTRY_DSN: Optional[str] = None
-    SENTRY_SAMPLE_RATE: Optional[float] = Field(1.0, gt=0.0, le=1.0)
+    SENTRY_TRACES_SAMPLE_RATE: Annotated[float, confloat(gt=0, le=1.0)] = 0.01
+    SENTRY_SAMPLE_RATE: Annotated[float, confloat(gt=0.0, le=1.0)] = 0.25
+    SENTRY_PROFILING_SAMPLE_RATE: Annotated[float, confloat(gt=0.0, le=1.0)] = 0.01
 
     # OIDC config for machine-to-machine security
     OIDC_DOMAIN: str
