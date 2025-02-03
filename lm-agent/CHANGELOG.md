@@ -3,10 +3,13 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
-* Updated Agent to find .env file [PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)
+
+
+## 4.3.0 -- 2025-02-03
+* Updated Agent to find .env file [[PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)]
 * Fix DSLS parser to handle outputs with a warning line [ASP-5422]
 * Fix License Report module to generate the correct feature report when the get_report_item fails [ASP-5422]
-* Update Sentry integration to send only CRITICAL events [PENG-2622](https://sharing.clickup.com/t/h/c/18022949/PENG-2622/S2UYYUP3WLPE6WO)
+* Update Sentry integration to send only CRITICAL events [[PENG-2622](https://sharing.clickup.com/t/h/c/18022949/PENG-2622/S2UYYUP3WLPE6WO)]
 * Added configuration settings for customising Sentry's sample rates [[PENG-2592](https://sharing.clickup.com/t/h/c/18022949/PENG-2592/QQUQ1ABLAP6QSYX)]
 
 ## 4.2.0 -- 2024-11-18

@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+
+
+## 4.3.0 -- 2025-02-03
 * Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
 * Adjusted the default values of Sentry's sample rates [[PENG-2592](https://sharing.clickup.com/t/h/c/18022949/PENG-2592/QQUQ1ABLAP6QSYX)]
 
