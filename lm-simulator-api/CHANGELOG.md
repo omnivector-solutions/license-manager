@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to License Manager Simulator API
 
 ## Unreleased
-
+* Update Poetry to 2.1.2 [[PENG-2660](https://sharing.clickup.com/t/h/c/18022949/PENG-2660/74MSS3GD0FAHASJ)]
 
 ## 4.3.0 -- 2025-02-03
 * Bumped version to keep in sync with LM-API and LM-Agent
