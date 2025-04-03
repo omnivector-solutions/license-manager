@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
-
+* Pin APScheduler version to 3.10.4 to avoid breaking changes [ASP-6607]
 
 ## 4.3.0 -- 2025-02-03
 * Updated Agent to find .env file [[PENG-2499](https://sharing.clickup.com/t/h/c/18022949/PENG-2499/NJ7XCLHQ3O2MBAX)]
