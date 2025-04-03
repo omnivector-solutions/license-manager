@@ -4,6 +4,7 @@ This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
 * Remove `pytest-freezegun` dependency [ASP-6607]
+* Update Poetry to 2.1.2 [[PENG-2660](https://sharing.clickup.com/t/h/c/18022949/PENG-2660/74MSS3GD0FAHASJ)]
 
 ## 4.3.0 -- 2025-02-03
 * Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
