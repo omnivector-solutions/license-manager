@@ -4,11 +4,11 @@ WORKDIR /app
 
 RUN apt update && apt install -y curl libpq-dev gcc
 
-COPY ./pyproject.toml ./poetry.lock* /app/
+COPY ./pyproject.toml ./poetry.lock /app/
 
-RUN pip install poetry \
+RUN pip install poetry==2.1.2 \
     && poetry config virtualenvs.in-project true \
-    && poetry install --no-root --no-dev \
+    && poetry install --no-root --only main \
     && rm -rf "$POETRY_CACHE_DIR"
 
 ENV PATH="/app/.venv/bin:$PATH"

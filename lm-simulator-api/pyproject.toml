@@ -23,7 +23,7 @@ asyncpg = "^0.28"
 py-buzz = "^4.1.0"
 toml = "^0.10.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^6.2.4"
 pytest-asyncio = "^0.15.1"
 pytest-cov = "^2.12.1"
