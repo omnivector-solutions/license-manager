@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
-
+* Remove `pytest-freezegun` dependency [ASP-6607]
 
 ## 4.3.0 -- 2025-02-03
 * Use `pydantic_extra_types.pendulum_dt` to parse the `last_reported` field in `ClusterStatusSchema`
