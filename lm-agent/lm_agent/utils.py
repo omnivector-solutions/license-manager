@@ -29,19 +29,26 @@ async def run_command(command_line_parts: List[str], stdin_str: Optional[str] = 
         stderr=asyncio.subprocess.STDOUT,
     )
 
-    # block until the command succeeds
-    stdout, _ = await asyncio.wait_for(proc.communicate(stdin_bytes), settings.TOOL_TIMEOUT)
-    output = str(stdout, encoding=settings.ENCODING, errors="replace")
+    try:
+        stdout, _ = await asyncio.wait_for(proc.communicate(stdin_bytes), settings.TOOL_TIMEOUT)
+        output = str(stdout, encoding=settings.ENCODING, errors="replace")
 
-    if proc.returncode != 0:
-        error_message = shlex.join(
-            [
-                f"Command {command_line} failed!",
-                f"Error: {output}",
-                f"Return code: {proc.returncode}",
-            ]
+        if proc.returncode != 0:
+            error_message = shlex.join(
+                [
+                    f"Command {command_line} failed!",
+                    f"Error: {output}",
+                    f"Return code: {proc.returncode}",
+                ]
+            )
+            logger.error(error_message)
+            raise CommandFailedToExecute(
+                f"The command failed to execute, with return code {proc.returncode}."
+            )
+    except asyncio.TimeoutError:
+        logger.error(f"Command {command_line} timed out after {settings.TOOL_TIMEOUT} seconds.")
+        raise CommandFailedToExecute(
+            f"The command failed to execute, timed out after {settings.TOOL_TIMEOUT} seconds."
         )
-        logger.error(error_message)
-        raise CommandFailedToExecute(f"The command failed to execute, with return code {proc.returncode}.")
 
     return output
