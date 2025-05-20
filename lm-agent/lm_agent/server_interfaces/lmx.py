@@ -3,7 +3,8 @@ import typing
 
 from lm_agent.models import LicenseServerSchema, LicenseReportItem
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBadServerOutput
+from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerBadServerOutput
+from lm_agent.logs import logger
 from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
 from lm_agent.parsing import lmx
 from lm_agent.utils import run_command
@@ -41,7 +42,11 @@ class LMXLicenseServer(LicenseServerInterface):
 
         # run each command in the list, one at a time, until one succeds
         for cmd in commands_to_run:
-            output = await run_command(cmd)
+            try:
+                output = await run_command(cmd)
+            except CommandFailedToExecute as e:
+                logger.debug(f"Command {cmd} failed to execute: {e}")
+                continue
 
             # try the next server if the previous didn't return the expected data
             if not output:

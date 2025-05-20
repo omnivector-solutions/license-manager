@@ -570,7 +570,7 @@ async def test_license_report_empty_on_exception_raised_with_multiple_features(
             ],
             grace_time=60,
             type=LicenseServerType.RLM,
-        )
+        ),
     ]
     get_report_item_mock.side_effect = Exception("Something is wrong with the license server!")
 
