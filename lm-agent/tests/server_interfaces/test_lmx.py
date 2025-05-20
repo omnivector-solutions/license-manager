@@ -1,10 +1,10 @@
-"""Test the LS-Dyna license server interface."""
+"""Test the LM-X license server interface."""
 from unittest import mock
 
 from pytest import fixture, mark, raises
 
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBadServerOutput
+from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerBadServerOutput
 from lm_agent.models import LicenseReportItem
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 
@@ -100,4 +100,48 @@ async def test_lmx_get_report_item_with_no_used_licenses(
         used=0,
         total=1000000,
         used_licenses=[],
+    )
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.lmx.run_command")
+@mock.patch("lm_agent.server_interfaces.lmx.LMXLicenseServer.get_commands_list")
+async def test_lmx_get_report_item_continues_on_exception(
+    get_commands_list_mock: mock.MagicMock,
+    run_command_mock: mock.MagicMock,
+    lmx_server: LMXLicenseServer,
+    lmx_output: str,
+):
+    """
+    Do the LM-X server interface check the next command if the previous one fails?
+    """
+    get_commands_list_mock.return_value = [
+        [
+            f"{settings.LMXENDUTIL_PATH}",
+            "-licstat",
+            "-host",
+            "127.0.0.1",
+            "-port",
+            "2345",
+        ],
+        [
+            f"{settings.LMXENDUTIL_PATH}",
+            "-licstat",
+            "-host",
+            "127.0.0.1",
+            "-port",
+            "3456",
+        ],
+    ]
+
+    run_command_mock.side_effect = [CommandFailedToExecute("Command failed for first server"), lmx_output]
+
+    assert await lmx_server.get_report_item(1, "hyperworks.hyperworks") == LicenseReportItem(
+        feature_id=1,
+        product_feature="hyperworks.hyperworks",
+        used=25000,
+        total=1000000,
+        uses=[
+            {"username": "sssaah", "lead_host": "RD0082406", "booked": 25000},
+        ],
     )

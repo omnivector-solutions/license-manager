@@ -4,7 +4,7 @@ from unittest import mock
 from pytest import fixture, mark, raises
 
 from lm_agent.config import settings
-from lm_agent.exceptions import LicenseManagerBadServerOutput
+from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerBadServerOutput
 from lm_agent.models import LicenseReportItem, LicenseUsesItem
 from lm_agent.server_interfaces.dsls import DSLSLicenseServer
 
@@ -117,4 +117,39 @@ async def test_dsls_get_report_item_with_no_used_licenses(
         used=0,
         total=2000,
         used_licenses=[],
+    )
+
+
+@mark.asyncio
+@mock.patch("lm_agent.server_interfaces.dsls.run_command")
+@mock.patch("lm_agent.server_interfaces.dsls.DSLSLicenseServer.get_commands_list")
+async def test_dsls_get_report_item_continues_on_exception(
+    get_commands_list_mock: mock.MagicMock,
+    run_command_mock: mock.MagicMock,
+    dsls_server: DSLSLicenseServer,
+    dsls_output: str,
+):
+    """
+    Do the DSLS server interface check the next command if the previous one fails?
+    """
+    get_commands_list_mock.return_value = [
+        {
+            "input": "connect 127.0.0.1 2345\ngetLicenseUsage -csv",
+            "command": [f"{settings.DSLICSRV_PATH}", "-admin"],
+        },
+        {
+            "input": "connect 127.0.0.0 3456\ngetLicenseUsage -csv",
+            "command": [f"{settings.DSLICSRV_PATH}", "-admin"],
+        },
+    ]
+    run_command_mock.side_effect = [CommandFailedToExecute("Command failed for first server"), dsls_output]
+
+    assert await dsls_server.get_report_item(1, "powerflow.pw7") == LicenseReportItem(
+        feature_id=1,
+        product_feature="powerflow.pw7",
+        used=2,
+        total=2000,
+        uses=[
+            LicenseUsesItem(username="user_1", lead_host="nid001627", booked=2),
+        ],
     )

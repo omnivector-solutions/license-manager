@@ -3,7 +3,7 @@
 This file keeps track of all notable changes to `License Manager Agent`.
 
 ## Unreleased
-
+* Add exception treatment to server interfaces to ensure the next server will be reached if the first one fails to respond [ASP-6723] 
 
 ## 4.4.0 -- 2025-04-04
 * Pin APScheduler version to 3.10.4 to avoid breaking changes [ASP-6607]
