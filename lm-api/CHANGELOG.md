@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager API`.
 ## Unreleased
 
 
+## 4.4.1 -- 2025-05-20
+* Bumped version to keep in sync with agent
+
 ## 4.4.0 -- 2025-04-04
 * Remove `pytest-freezegun` dependency [ASP-6607]
 * Update Poetry to 2.1.2 [[PENG-2660](https://sharing.clickup.com/t/h/c/18022949/PENG-2660/74MSS3GD0FAHASJ)]
