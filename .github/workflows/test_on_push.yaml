@@ -1,0 +1,104 @@
+name: "Test"
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+
+jobs:
+  agent-tests:
+    name: "lm-agent tests"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: "run quality control checks"
+        working-directory: lm-agent
+        run: |
+          make qa
+
+  api-tests:
+    name: "lm-api tests"
+    runs-on: "ubuntu-24.04"
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: "run quality control checks"
+        working-directory: lm-api
+        run: |
+          make qa
+
+  cli-tests:
+    name: "lm-cli tests"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: "run quality control checks"
+        working-directory: lm-cli
+        run: |
+          make qa
+
+  simulator-tests:
+    name: "lm-simulator tests"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: "run quality control checks"
+        working-directory: lm-simulator
+        run: |
+          make qa
+
+  simulator-api-tests:
+    name: "lm-simulator-api tests"
+    runs-on: "ubuntu-24.04"
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: "run quality control checks"
+        working-directory: lm-simulator-api
+        run: |
+          make qa
+
+  agent-snap-tests:
+    name: "lm-agent-snap tests"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+          cache: "pip"
+          cache-dependency-path: |
+            .github/workflows/test_on_push.yaml
+      - name: "run quality control checks"
+        working-directory: lm-agent-snap
+        run: |
+          python -m pip install tox==4.20.0
+          make qa
