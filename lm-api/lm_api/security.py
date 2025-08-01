@@ -29,7 +29,7 @@ class IdentityPayload(TokenPayload):
     """
 
     email: typing.Optional[EmailStr] = None
-    organization: typing.Optional[typing.Union[str, typing.Dict]] = None
+    organization: typing.Optional[typing.Union[str, typing.Dict[str, typing.Any]]] = None
     organization_id: typing.Optional[str] = None
 
     @model_validator(mode="after")
@@ -38,6 +38,8 @@ class IdentityPayload(TokenPayload):
         Extracts the organization_id from the organization payload.
 
         The payload is expected to look like:
+
+        # Old json structure
         {
             ...,
             "organization": {
@@ -46,6 +48,20 @@ class IdentityPayload(TokenPayload):
                 }
             }
         }
+        
+        or:
+
+        # New json structure
+        {
+            ...,
+            "organization": {
+                "orgname": {
+                    "id": "adf99e01-5cd5-41ac-a1af-191381ad7780",
+                    ...
+                }
+            }
+        }
+
         """
         if self.organization is None:
             return typing.cast(Self, self)
@@ -53,7 +69,15 @@ class IdentityPayload(TokenPayload):
             raise ValueError(
                 f"Organization payload did not include exactly one value: {getattr(self, 'organization')}"
             )
-        setattr(self, "organization_id", next(iter(self.organization)))
+
+        if isinstance(self.organization, dict):
+            org_field = next(iter(self.organization))
+            # Check if the organization field has the id field from Keycloak version
+            org_id = self.organization[org_field].get("id", org_field)
+        else:
+            org_id = self.organization
+
+        setattr(self, "organization_id", org_id)
         return typing.cast(Self, self)
 
 
