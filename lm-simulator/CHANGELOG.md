@@ -5,6 +5,9 @@ This file keeps track of all notable changes to License Manager Simulator
 ## Unreleased
 
 
+## 4.4.2 -- 2025-08-22
+* Bumped version to keep in sync with LM-API
+
 ## 4.4.1 -- 2025-05-20
 * Bumped version to keep in sync with agent
 
