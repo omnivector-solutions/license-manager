@@ -3,6 +3,9 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+
+
+## 4.4.2 -- 2025-08-22
 * Update keycloak token structure [[PENG-3064](https://app.clickup.com/t/18022949/PENG-3064)]
 
 ## 4.4.1 -- 2025-05-20
@@ -222,3 +225,4 @@ This file keeps track of all notable changes to `License Manager API`.
   * Extra accounting to add used slurm licenses to the total
   * Added forced reconciliation to the prolog
   * Added slurmctld prolog and epilog entrypoints.
+

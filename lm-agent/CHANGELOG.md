@@ -5,6 +5,9 @@ This file keeps track of all notable changes to `License Manager Agent`.
 ## Unreleased
 
 
+## 4.4.2 -- 2025-08-22
+* Bumped version to keep in sync with LM-API
+
 ## 4.4.1 -- 2025-05-20
 * Add exception treatment to server interfaces to ensure the next server will be reached if the first one fails to respond [ASP-6723]
 * Check for timeout exceptions when running commands with subprocess
