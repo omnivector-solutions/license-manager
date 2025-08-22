@@ -56,3 +56,22 @@ def test_identity_payload__null_organization_id_with_no_organization_claim():
     }
     identity = IdentityPayload(**token_payload)
     assert identity.organization_id is None
+
+
+def test_identity_payload__extracts_organization_id_from_new_token_structure():
+    org_id = "cdec816e-a28a-43cd-8d75-017a700540a1"
+    token_payload = {
+        "exp": 1689105153,
+        "sub": "dummy-sub",
+        "azp": "dummy-client-id",
+        "organization": {
+            "dummy-organization": {
+                "id": org_id,
+                "name": "Dummy Organization",
+                "alias": "dummy-organization",
+                "attributes": {"logo": [""], "created_at": ["1689105153.0"]},
+            }
+        },
+    }
+    identity = IdentityPayload(**token_payload)
+    assert identity.organization_id == org_id
