@@ -12,7 +12,7 @@ on:
   pull_request_target:
     branches:
       - "main"
-
+    types: [opened, synchronize, reopened]
   schedule:
     - cron: '0 0 * * 1' # weekly Monday scan
 
@@ -20,6 +20,7 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request_target' || github.actor == 'dependabot[bot]'
 
     permissions:
       contents: read
@@ -34,21 +35,20 @@ jobs:
           build-mode: none
         - language: python
           build-mode: none
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        queries: +security-extended,security-and-quality
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: +security-extended,security-and-quality
+  
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
