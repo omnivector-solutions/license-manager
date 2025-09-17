@@ -1,4 +1,6 @@
 name: Publish on Tag
+permissions:
+  contents: read
 
 # This action:
 #   - Is triggered when a new version is tagged;
