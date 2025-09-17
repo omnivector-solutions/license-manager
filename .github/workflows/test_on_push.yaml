@@ -7,13 +7,16 @@ on:
       - release/**
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   agent-tests:
     name: "lm-agent tests"
     runs-on: "ubuntu-24.04"
     steps:
       - uses: actions/checkout@v3
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -29,7 +32,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -44,7 +47,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     steps:
       - uses: actions/checkout@v3
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -59,7 +62,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     steps:
       - uses: actions/checkout@v3
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -75,7 +78,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"

@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: 3.12
 
-      - uses: Gr1N/setup-poetry@v8
+      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
         with:
           poetry-version: 1.5.1
 
@@ -86,7 +86,7 @@ jobs:
         if: ${{ steps.agent-package.outputs.version != steps.backend-package.outputs.version != steps.lm-cli-package.outputs.version != steps.lm-sim-package.outputs.version != steps.lm-sim-api-package.outputs.version }}
         run: echo "Poetry packages version don't match!"
 
-      - uses: peter-evans/create-pull-request@v4
+      - uses: peter-evans/create-pull-request@4320041ed380b20e97d388d56a7fb4f9b8c20e79 # v7
         name: Create Pull Request
         id: cpr
         with:
