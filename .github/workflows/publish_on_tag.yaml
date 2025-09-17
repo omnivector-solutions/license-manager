@@ -68,6 +68,8 @@ jobs:
 
   publish-to-ecr:
     name: Publish to ECR
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
 
