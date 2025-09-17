@@ -4,6 +4,7 @@ name: Build Sphinx documentation
 #   - Is triggered when a file in the docs-source folder is pushed;
 #   - Build the documentation using Sphinx;
 #   - Publish the documentation to GitHub Pages.
+
 on:
   pull_request:
     paths:
@@ -13,6 +14,11 @@ on:
       - 'lm-cli/lm_cli/**'
     types:
       - closed
+
+permissions:
+  contents: read
+  pages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +33,7 @@ jobs:
           python-version: 3.12
 
       - name: Set up Poetry
-        uses: Gr1N/setup-poetry@v8
+        uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
 
       - name: Build documentation
         working-directory: lm-docs
@@ -35,7 +41,7 @@ jobs:
           make docs
 
       - name: Deploy documentation
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: lm-docs/docs/site

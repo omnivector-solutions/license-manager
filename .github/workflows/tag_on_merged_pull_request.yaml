@@ -25,7 +25,7 @@ jobs:
         with:
           token: ${{ secrets.TOKEN }}
 
-      - uses: bluwy/substitute-string-action@v1
+      - uses: bluwy/substitute-string-action@70ff0b17357670ffd3fee68e95b6de9963b66bad # v3
         name: Get Tag
         id: get-tag
         with:
@@ -35,7 +35,7 @@ jobs:
       - name: Show tag name
         run: echo ${{ steps.get-tag.outputs.result }}
 
-      - uses: rickstaa/action-create-tag@v1
+      - uses: rickstaa/action-create-tag@a1c7777fcb2fee4f19b0f283ba888afa11678b72 # v1.7.2
         name: Create and Push Tag
         with:
           tag: ${{ steps.get-tag.outputs.result }}
