@@ -19,9 +19,9 @@ async def add_license(session: Session, license: LicenseCreate) -> LicenseRow:
         query.scalar_one_or_none() is None,
         "License already exists",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="License already exists",
+            detail=params.message,
         ),
     )
 
@@ -69,9 +69,9 @@ async def read_license_by_name(session: Session, license_name: str) -> LicenseRo
         query.scalar_one_or_none(),
         "License not found",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="License not found",
+            detail=params.message,
         ),
     )
 
@@ -89,9 +89,9 @@ async def remove_license(session: Session, license_name: str):
         query.scalar_one_or_none(),
         "License not found",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="License not found",
+            detail=params.message,
         ),
     )
 
@@ -116,9 +116,9 @@ async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreat
         query.scalar_one_or_none(),
         "License not found",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="License not found",
+            detail=params.message,
         ),
     )
     license_row = LicenseRow.model_validate(db_license)
@@ -127,9 +127,9 @@ async def add_license_in_use(session: Session, license_in_use: LicenseInUseCreat
         license_row.total >= license_in_use.quantity + license_row.in_use,
         "Not enough licenses",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Not enough licenses",
+            detail=params.message,
         ),
     )
 
@@ -173,9 +173,9 @@ async def remove_license_in_use(
         query.scalars().one_or_none(),
         "License In Use not found",
         raise_exc_class=HTTPException,
-        exc_builder=lambda exc_class, msg: exc_class(
+        exc_builder=lambda params: HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="License In Use not found",
+            detail=params.message,
         ),
     )
 
