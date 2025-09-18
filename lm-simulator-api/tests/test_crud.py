@@ -1,5 +1,5 @@
+import pytest
 from fastapi import HTTPException, status
-from pytest import mark, raises
 
 from lm_simulator_api.crud import (
     add_license,
@@ -15,7 +15,6 @@ from lm_simulator_api.models import License, LicenseInUse
 from lm_simulator_api.schemas import LicenseRow
 
 
-@mark.asyncio
 async def test__add_license__success(one_license, read_objects, synth_session):
     created_license = await add_license(synth_session, one_license)
 
@@ -31,10 +30,9 @@ async def test__add_license__success(one_license, read_objects, synth_session):
     assert licenses_in_db[0].license_server_type == created_license.license_server_type
 
 
-@mark.asyncio
 async def test__add_license__fail_with_duplicate(one_license, synth_session):
-    with raises(HTTPException) as exc_info:
-        await add_license(synth_session, one_license)
+    await add_license(synth_session, one_license)
+    with pytest.raises(HTTPException) as exc_info:
         await add_license(synth_session, one_license)
 
     assert exc_info.type == HTTPException
@@ -42,13 +40,11 @@ async def test__add_license__fail_with_duplicate(one_license, synth_session):
     assert exc_info.value.detail == "License already exists"
 
 
-@mark.asyncio
 async def test__list_licenses__empty(synth_session):
     licenses = await list_licenses(synth_session)
     assert len(licenses) == 0
 
 
-@mark.asyncio
 async def test__list_licenses__success(licenses, insert_objects, synth_session):
     await insert_objects(licenses, License)
 
@@ -65,7 +61,6 @@ async def test__list_licenses__success(licenses, insert_objects, synth_session):
     assert licenses_in_db[1].license_server_type == licenses[1].license_server_type
 
 
-@mark.asyncio
 async def test__read_license_by_name__success(one_license, insert_objects, synth_session):
     await insert_objects([one_license], License)
 
@@ -76,24 +71,21 @@ async def test__read_license_by_name__success(one_license, insert_objects, synth
     assert license_in_db.license_server_type == one_license.license_server_type
 
 
-@mark.asyncio
 async def test__read_license_by_name__fail_with_not_found(one_license, insert_objects, synth_session):
     await insert_objects([one_license], License)
 
-    with raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await read_license_by_name(synth_session, "non-existing-license")
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "License not found"
 
 
-@mark.asyncio
 async def test__list_licenses_by_server_type__empty(synth_session):
     licenses = await list_licenses_by_server_type(synth_session, "flexlm")
     assert len(licenses) == 0
 
 
-@mark.asyncio
 async def test__list_licenses_by_server_type__success(licenses, insert_objects, synth_session):
     await insert_objects(licenses, License)
 
@@ -110,7 +102,6 @@ async def test__list_licenses_by_server_type__success(licenses, insert_objects, 
     assert licenses_in_db[1].license_server_type == licenses[1].license_server_type
 
 
-@mark.asyncio
 async def test__remove_license__success(one_license, insert_objects, read_objects, synth_session):
     await insert_objects([one_license], License)
 
@@ -123,18 +114,16 @@ async def test__remove_license__success(one_license, insert_objects, read_object
     assert len(licenses_in_db_after_delete) == 0
 
 
-@mark.asyncio
 async def test__remove_license__fail_with_not_found(one_license, insert_objects, synth_session):
     await insert_objects([one_license], License)
 
-    with raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await remove_license(synth_session, "non-existing-license")
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "License not found"
 
 
-@mark.asyncio
 async def test__add_license_in_use__success(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):
@@ -152,40 +141,36 @@ async def test__add_license_in_use__success(
     assert licenses_in_use_in_db[0].license_name == one_license_in_use.license_name
 
 
-@mark.asyncio
 async def test__add_license_in_use__fail_with_not_enough_licenses(
     one_license, one_license_in_use__not_enough, insert_objects, synth_session
 ):
     await insert_objects([one_license], License)
     await insert_objects([one_license_in_use__not_enough], LicenseInUse)
 
-    with raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await add_license_in_use(synth_session, one_license_in_use__not_enough)
 
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
     assert exc_info.value.detail == "Not enough licenses"
 
 
-@mark.asyncio
 async def test__add_license_in_use__fail_with_license_not_found(
     one_license, one_license_in_use__not_found, insert_objects, synth_session
 ):
     await insert_objects([one_license], License)
 
-    with raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await add_license_in_use(synth_session, one_license_in_use__not_found)
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "License not found"
 
 
-@mark.asyncio
 async def test__list_licenses_in_use__empty(synth_session):
     licenses_in_use = await list_licenses_in_use(synth_session)
     assert len(licenses_in_use) == 0
 
 
-@mark.asyncio
 async def test__list_licenses_in_use__success(licenses, licenses_in_use, insert_objects, synth_session):
     await insert_objects(licenses, License)
     inserted = await insert_objects(licenses_in_use, LicenseInUse)
@@ -207,7 +192,6 @@ async def test__list_licenses_in_use__success(licenses, licenses_in_use, insert_
     assert licenses_in_use_in_db[1].license_name == inserted[1].license_name
 
 
-@mark.asyncio
 async def test__remove_license_in_use__success(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):
@@ -223,21 +207,19 @@ async def test__remove_license_in_use__success(
     assert len(licenses_in_use_in_db_after_delete) == 0
 
 
-@mark.asyncio
 async def test__remove_license_in_use__fail_with_not_found(
     one_license, one_license_in_use, insert_objects, synth_session
 ):
     await insert_objects([one_license], License)
     await insert_objects([one_license_in_use], LicenseInUse)
 
-    with raises(HTTPException) as exc_info:
+    with pytest.raises(HTTPException) as exc_info:
         await remove_license_in_use(synth_session, 0)
 
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc_info.value.detail == "License In Use not found"
 
 
-@mark.asyncio
 async def test__add_license_in_use__correctly_updates_license_in_use(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):
@@ -254,7 +236,6 @@ async def test__add_license_in_use__correctly_updates_license_in_use(
     assert LicenseRow.model_validate(licenses_in_db_after_add[0]).in_use == one_license_in_use.quantity
 
 
-@mark.asyncio
 async def test__remove_license_in_use__correctly_updates_license_in_use(
     one_license, one_license_in_use, insert_objects, read_objects, synth_session
 ):

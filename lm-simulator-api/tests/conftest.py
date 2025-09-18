@@ -1,7 +1,7 @@
 import asyncio
 from typing import List
 
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -32,7 +32,7 @@ def event_loop():
     loop.close()
 
 
-@fixture(autouse=True, scope="session")
+@fixture(autouse=True)
 async def engine():
     """
     Provide a fixture to prepare the test database.
@@ -70,11 +70,11 @@ async def synth_session(engine):
 
 @fixture
 async def backend_client(synth_session):
-    def override_get_session():
+    async def override_get_session():
         yield synth_session
 
     subapp.dependency_overrides[get_session] = override_get_session
-    async with AsyncClient(app=subapp, base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=subapp), base_url="http://test") as client:
         yield client
 
 
