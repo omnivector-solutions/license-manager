@@ -1,10 +1,8 @@
 from fastapi import status
-from pytest import mark
 
 from lm_simulator_api.models import License, LicenseInUse
 
 
-@mark.asyncio
 async def test__health_check(backend_client):
     """
     Test the health check route.
@@ -13,7 +11,6 @@ async def test__health_check(backend_client):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@mark.asyncio
 async def test__create_license__success(backend_client, one_license, read_objects):
     """
     Test that the correct status code and response are returned on in use license creation.
@@ -36,7 +33,6 @@ async def test__create_license__success(backend_client, one_license, read_object
     }
 
 
-@mark.asyncio
 async def test__create_license__fail_with_duplicate(backend_client, one_license, insert_objects):
     """
     Test that the correct response is returned when a duplicate license creation is attempted.
@@ -50,7 +46,6 @@ async def test__create_license__fail_with_duplicate(backend_client, one_license,
     assert response.status_code == status.HTTP_409_CONFLICT
 
 
-@mark.asyncio
 async def test__list_licenses__empty(backend_client):
     """
     Test that the correct response is returned when listing licenses with no licenses.
@@ -61,7 +56,6 @@ async def test__list_licenses__empty(backend_client):
     assert response.json() == []
 
 
-@mark.asyncio
 async def test__list_licenses__success(backend_client, licenses, insert_objects):
     """
     Test that the correct response is returned when listing licenses.
@@ -89,7 +83,6 @@ async def test__list_licenses__success(backend_client, licenses, insert_objects)
     ]
 
 
-@mark.asyncio
 async def test__list_licenses_by_server_type__empty(backend_client):
     """
     Test that the correct response is returned when listing licenses by server type with no licenses.
@@ -100,7 +93,6 @@ async def test__list_licenses_by_server_type__empty(backend_client):
     assert response.json() == []
 
 
-@mark.asyncio
 async def test__list_licenses_by_server_type__success(backend_client, licenses, insert_objects):
     """
     Test that the correct response is returned when listing licenses by server type.
@@ -128,7 +120,6 @@ async def test__list_licenses_by_server_type__success(backend_client, licenses, 
     ]
 
 
-@mark.asyncio
 async def test__read_license_by_name__empty(backend_client):
     """
     Test that the correct response is returned when reading a non-existent license.
@@ -138,7 +129,6 @@ async def test__read_license_by_name__empty(backend_client):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@mark.asyncio
 async def test__read_license_by_name__success(backend_client, one_license, insert_objects):
     """
     Test that the correct response is returned when reading a license.
@@ -157,7 +147,6 @@ async def test__read_license_by_name__success(backend_client, one_license, inser
     }
 
 
-@mark.asyncio
 async def test__read_license_by_name__fail_with_not_found(backend_client):
     """
     Test that the correct response is returned when attempting to read a non-existent license.
@@ -167,7 +156,6 @@ async def test__read_license_by_name__fail_with_not_found(backend_client):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@mark.asyncio
 async def test__delete_license__success(backend_client, one_license, insert_objects):
     """
     Test that the correct response is returned when deleting a license.
@@ -179,7 +167,6 @@ async def test__delete_license__success(backend_client, one_license, insert_obje
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@mark.asyncio
 async def test__delete_license__fail_with_not_found(backend_client):
     """
     Test that the correct response is returned when attempting to delete a non-existent license.
@@ -189,7 +176,6 @@ async def test__delete_license__fail_with_not_found(backend_client):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@mark.asyncio
 async def test__create_license_in_use__success(
     backend_client, one_license, one_license_in_use, insert_objects, read_objects
 ):
@@ -216,7 +202,6 @@ async def test__create_license_in_use__success(
     }
 
 
-@mark.asyncio
 async def test__create_license_in_use__fail_with_not_enough(backend_client, one_license, insert_objects):
     """
     Test that the correct response is returned when creating a license in use with not enough licenses.
@@ -237,7 +222,6 @@ async def test__create_license_in_use__fail_with_not_enough(backend_client, one_
     assert "Not enough licenses" in response.text
 
 
-@mark.asyncio
 async def test__create_license_in_use__fail_with_license_not_found(
     backend_client, one_license, insert_objects
 ):
@@ -260,7 +244,6 @@ async def test__create_license_in_use__fail_with_license_not_found(
     assert "License not found" in response.text
 
 
-@mark.asyncio
 async def test__list_licenses_in_use__empty(backend_client):
     """
     Test that the correct response is returned when listing licenses in use with no licenses in use.
@@ -271,7 +254,6 @@ async def test__list_licenses_in_use__empty(backend_client):
     assert response.json() == []
 
 
-@mark.asyncio
 async def test__list_licenses_in_use__success(backend_client, licenses, licenses_in_use, insert_objects):
     """
     Test that the correct response is returned when listing licenses in use.
@@ -300,7 +282,6 @@ async def test__list_licenses_in_use__success(backend_client, licenses, licenses
     ]
 
 
-@mark.asyncio
 async def test__delete_license_in_use__success(
     backend_client, one_license, one_license_in_use, insert_objects
 ):
@@ -315,7 +296,6 @@ async def test__delete_license_in_use__success(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@mark.asyncio
 async def test__delete_license_in_use__fail_with_not_found(backend_client):
     """
     Test that the correct response is returned when attempting to delete a non-existent license in use.
