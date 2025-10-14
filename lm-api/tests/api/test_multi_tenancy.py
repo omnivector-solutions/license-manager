@@ -15,7 +15,7 @@ from lm_api.database import engine_factory
 from lm_api.permissions import Permissions
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(autouse=True)
 async def alt_engine():
     """
     Provide a fixture to prepare the alternative test database.

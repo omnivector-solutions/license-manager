@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import sqlalchemy
 import sqlalchemy.orm
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,7 +41,6 @@ async def test_app():
     """
     A test app to be used by the test backend_client.
     """
-
     from lm_api.main import app as test_app
 
     yield test_app
@@ -52,12 +51,11 @@ async def backend_client(test_app):
     """
     A client that can issue fake requests against fastapi endpoint functions in the backend
     """
-
-    async with AsyncClient(app=test_app, base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
         yield ac
 
 
-@fixture(autouse=True, scope="session")
+@fixture(autouse=True)
 async def synth_engine():
     """
     Provide a fixture to prepare the test database.
