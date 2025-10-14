@@ -11,44 +11,45 @@ packages = [{ include = "lm_api" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.111.0"
-sentry-sdk = "2.8.0"
-jwt = {version = "^1.2.0", optional = true}
-SQLAlchemy-Utils = "^0.37.8"
-loguru = "^0.5.3"
-asyncpg = "^0.28"
-uvicorn = "^0.30.1"
-python-dotenv = "^0.21.0"
-armasec = "^2.0.1"
-SQLAlchemy = {extras = ["mypy"], version = "^2.0.22"}
+fastapi = {extras = ["all"], version = "^0.116.2"}
+sentry-sdk = "2.38.0"
+jwt = {version = "^1.4.0", optional = true}
+SQLAlchemy-Utils = "^0.42.0"
+loguru = "^0.7.3"
+asyncpg = "^0.30.0"
+uvicorn = "^0.35.0"
+python-dotenv = "^1.1.1"
+armasec = "^3.0.2"
+SQLAlchemy = {extras = ["mypy"], version = "^2.0.43"}
 toml = "^0.10.2"
-py-buzz = "^4.1.0"
-psycopg2 = "^2.9.5"
-yarl = "^1.9.2"
-pydantic = {version = "^2.8.2", extras = ["email"]}
+py-buzz = "7.3.0"
+psycopg2 = "^2.9.10"
+yarl = "^1.20.1"
+pydantic = {version = "^2.11.9", extras = ["email"]}
 inflection = "^0.5.1"
-pendulum = {extras = ["test"], version = "^3.0.0"}
-pydantic-settings = "^2.3.1"
-pydantic-extra-types = "^2.10.0"
+pendulum = {extras = ["test"], version = "^3.1.0"}
+pydantic-settings = "^2.10.1"
+pydantic-extra-types = "^2.10.5"
+greenlet = "^3.2.4"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.6"
-pytest = "^6.2.4"
-pytest-asyncio = "^0.15.1"
-pytest-cov = "^2.12.1"
-pytest-env = "^0.6.2"
-respx = "^0.20"
-pytest-random-order = "^1.0.4"
-pytest-sugar = "^0.9.4"
-ipython = "^8.10.0"
-asgi-lifespan = "^1.0.1"
-alembic = "^1.6.5"
-ruff = "^0.1.11"
+mypy = "^1.18.1"
+pytest = "^8.2.0"
+pytest-asyncio = "1.0.0"
+pytest-cov = "^7.0.0"
+pytest-env = "^1.0.0"
+respx = "^0.22.0"
+pytest-random-order = "^1.2.0"
+pytest-sugar = "^1.1.1"
+ipython = "^9.5.0"
+asgi-lifespan = "^2.1.0"
+alembic = "^1.16.5"
+ruff = "^0.13.0"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--random-order --cov=lm_api --cov-report=term-missing --cov-fail-under=85"
-testpaths = ["tests"]
+addopts = "-v --random-order --cov=lm_api --cov-report=term-missing --cov-fail-under=85"
+asyncio_mode = "auto"
 env = [
     "DEPLOY_ENV = TEST",  # Enforces that test database env vars will be used
     "ARMASEC_DOMAIN = armasec.dev",  # Must align with the rs256_domain fixture in armasec's pytest extension
