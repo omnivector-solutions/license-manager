@@ -33,10 +33,6 @@ pytest-random-order = "^1.2.0"
 python-dotenv = "^1.1.1"
 ruff = "^0.13.0"
 
-[tool.ruff]
-lint.select = ["I", "E", "F", "C"]
-line-length = 110
-
 [tool.pytest.ini_options]
 addopts = "-v --random-order --cov=lm_simulator_api --cov-report=term-missing --cov-fail-under=85"
 asyncio_mode = "auto"

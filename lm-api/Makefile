@@ -20,17 +20,17 @@ mypy: install
 
 .PHONY: lint
 lint: install
-	poetry run ruff check ${PACKAGE_NAME}
-	poetry run ruff check tests
+	poetry run ruff check tests ${PACKAGE_NAME}
+	poetry run ruff format --check tests ${PACKAGE_NAME}
+
+.PHONY: format
+format: install
+	poetry run ruff check --fix tests ${PACKAGE_NAME}
+	poetry run ruff format tests ${PACKAGE_NAME}
 
 .PHONY: qa
 qa: test mypy lint
 	echo "All quality checks pass!"
-
-.PHONY: format
-format: install
-	poetry run ruff format ${PACKAGE_NAME}
-	poetry run ruff format tests
 
 .PHONY: release-%
 release-%:

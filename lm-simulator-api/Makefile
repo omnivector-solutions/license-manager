@@ -16,12 +16,13 @@ test:
 
 .PHONY: lint
 lint: install
-	poetry run ruff check ${PACKAGE_NAME} tests
+	poetry run ruff check tests ${PACKAGE_NAME}
+	poetry run ruff format --check tests ${PACKAGE_NAME}
 
 .PHONY: format
 format: install
-	poetry run ruff check --fix ${PACKAGE_NAME} tests
-	poetry run ruff format ${PACKAGE_NAME} tests
+	poetry run ruff check --fix tests ${PACKAGE_NAME}
+	poetry run ruff format tests ${PACKAGE_NAME}
 
 .PHONY: qa
 qa: test lint

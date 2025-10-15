@@ -55,9 +55,6 @@ env = [
     "IDENTITY_CLAIMS_KEY = email",
 ]
 
-[tool.ruff]
-line-length = 110
-
 [[tool.mypy.overrides]]
 module = [
     "pyperclip",

@@ -47,9 +47,6 @@ env = [
     "LM_AGENT_LOG_LEVEL = DEBUG",
 ]
 
-[tool.ruff]
-line-length = 110
-
 [[tool.mypy.overrides]]
 module = [
     "buzz",

@@ -12,9 +12,11 @@ install:
 .PHONY: lint
 lint: install
 	poetry run ruff check ${PACKAGE_NAME}
+	poetry run ruff format --check ${PACKAGE_NAME}
 
 .PHONY: format
 format: install
+	poetry run ruff check --fix ${PACKAGE_NAME}
 	poetry run ruff format ${PACKAGE_NAME}
 
 .PHONY: qa

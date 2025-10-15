@@ -59,9 +59,6 @@ env = [
 [tool.coverage.run]
 concurrency = ["greenlet", "thread"]
 
-[tool.ruff]
-line-length = 110
-
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"
 
