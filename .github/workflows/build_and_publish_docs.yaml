@@ -16,7 +16,7 @@ on:
       - closed
 
 permissions:
-  contents: read
+  contents: write
   pages: write
 
 jobs:
