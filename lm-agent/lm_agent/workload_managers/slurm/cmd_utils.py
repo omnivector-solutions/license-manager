@@ -77,7 +77,7 @@ async def get_all_features_cluster_values() -> Optional[Dict[str, Dict[str, int]
     )
 
     used_tokens_line = re.compile(
-        r"^\s*Total=(?P<total>\d+) Used=(?P<used>\d+) Free=(?P<free>\d+) Reserved=(?P<reserved>\d+) Remote=(?P<remote>\w+)"  # noqa
+        r"^\s*Total=(?P<total>\d+) Used=(?P<used>\d+) Free=(?P<free>\d+) Reserved=(?P<reserved>\d+) Remote=(?P<remote>\w+)"  # noqa E501
     )
 
     scontrol_output = await scontrol_show_lic()

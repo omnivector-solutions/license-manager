@@ -10,3 +10,8 @@ known-first-party = ["lm_agent", "lm_api", "lm_cli", "lm_simulator_api", "lm-tes
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"lm-agent/tests/conftest.py" = ["E501"]
+"lm-agent/tests/workload_managers/slurm/test_reservations.py" = ["E501"]
+"lm-agent/tests/parsing/test_flexlm.py" = ["E501"]

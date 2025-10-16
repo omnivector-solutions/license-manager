@@ -53,7 +53,7 @@ def test_parse_feature_line(line, result):
     "line,result",
     [
         (
-            "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses",  # noqa: E501
+            "    user1 myserver.example.com /dev/tty (v62.2) (myserver.example.com/24200 12507), start Thu 10/29 8:09, 29 licenses",
             LicenseUsesItem(
                 username="user1",
                 lead_host="myserver.example.com",
@@ -61,7 +61,7 @@ def test_parse_feature_line(line, result):
             ),
         ),
         (
-            "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses",  # noqa: E501
+            "    user2 another.server.com /dev/tty feature=feature (v2023.0) (another.server.com/41020 10223), start Mon 3/11 13:16, 100 licenses",
             LicenseUsesItem(
                 username="user2",
                 lead_host="another.server.com",
@@ -69,7 +69,7 @@ def test_parse_feature_line(line, result):
             ),
         ),
         (
-            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses",  # noqa: E501
+            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25, 5 licenses",
             LicenseUsesItem(
                 username="user3",
                 lead_host="ER1234",
@@ -77,7 +77,7 @@ def test_parse_feature_line(line, result):
             ),
         ),
         (
-            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25",  # noqa: E501
+            "    user3 ER1234 SESOD5045 MSCONE:ADAMS_View (v2023.0331) (alternative.server.com/29065 2639), start Fri 3/8 13:25",
             LicenseUsesItem(
                 username="user3",
                 lead_host="ER1234",

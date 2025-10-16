@@ -1,4 +1,3 @@
-# ruff: noqa: E501
 """
 Configuration of pytest for agent tests.
 """
