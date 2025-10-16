@@ -17,6 +17,9 @@ Jinja2 = "^3.0.1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.13.0"
 
+[tool.ruff]
+extend = "../ruff.toml"
+
 [tool.poetry.scripts]
 lmutil = "lm_simulator.fake_binaries.flexlm.lmutil:main"
 lmxendutil = "lm_simulator.fake_binaries.lmx.lmxendutil:main"

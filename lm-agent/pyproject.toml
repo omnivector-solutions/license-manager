@@ -47,6 +47,9 @@ env = [
     "LM_AGENT_LOG_LEVEL = DEBUG",
 ]
 
+[tool.ruff]
+extend = "../ruff.toml"
+
 [[tool.mypy.overrides]]
 module = [
     "buzz",

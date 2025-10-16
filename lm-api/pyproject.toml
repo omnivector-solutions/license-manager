@@ -59,6 +59,9 @@ env = [
 [tool.coverage.run]
 concurrency = ["greenlet", "thread"]
 
+[tool.ruff]
+extend = "../ruff.toml"
+
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"
 

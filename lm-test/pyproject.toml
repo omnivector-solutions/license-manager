@@ -17,6 +17,9 @@ httpx = "^0.28.1"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.13.0"
 
+[tool.ruff]
+extend = "../ruff.toml"
+
 [tool.poetry.scripts]
 test-lm = "lm_test.main:main"
 
