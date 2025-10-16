@@ -1,18 +1,19 @@
 SHELL:=/bin/bash
 
-.PHONY: lint
-lint: ## Run the linters
+.PHONY: verify
+verify:
 	tox -e lint
 
 .PHONY: type
-type: ## Run the type checker
+type:
 	tox -e type
 
 .PHONY: qa
-qa: lint type ## Run all quality assurance checks
+qa: verify type
+	echo "All quality checks pass!"
 
-.PHONY: format
-format: ## Run the formatter
+.PHONY: modify
+modify:
 	tox -e format
 
 .PHONY: build

@@ -21,13 +21,21 @@ qa:
 	$(MAKE) -C lm-simulator-api qa
 	$(MAKE) -C lm-agent-snap qa
 
-format:
-	$(MAKE) -C lm-agent format
-	$(MAKE) -C lm-api format
-	$(MAKE) -C lm-cli format
-	$(MAKE) -C lm-simulator format
-	$(MAKE) -C lm-simulator-api format
-	$(MAKE) -C lm-agent-snap format
+verify:
+	$(MAKE) -C lm-agent verify
+	$(MAKE) -C lm-api verify
+	$(MAKE) -C lm-cli verify
+	$(MAKE) -C lm-simulator verify
+	$(MAKE) -C lm-simulator-api verify
+	$(MAKE) -C lm-agent-snap verify
+
+modify:
+	$(MAKE) -C lm-agent modify
+	$(MAKE) -C lm-api modify
+	$(MAKE) -C lm-cli modify
+	$(MAKE) -C lm-simulator modify
+	$(MAKE) -C lm-simulator-api modify
+	$(MAKE) -C lm-agent-snap modify
 
 clean:
 	$(MAKE) -C lm-agent clean

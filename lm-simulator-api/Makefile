@@ -14,18 +14,18 @@ test:
 	docker compose up --build unittest
 	docker compose run --rm unittest
 
-.PHONY: lint
-lint: install
+.PHONY: verify
+verify: install
 	poetry run ruff check tests ${PACKAGE_NAME}
 	poetry run ruff format --check tests ${PACKAGE_NAME}
 
-.PHONY: format
-format: install
+.PHONY: modify
+modify: install
 	poetry run ruff check --fix tests ${PACKAGE_NAME}
 	poetry run ruff format tests ${PACKAGE_NAME}
 
 .PHONY: qa
-qa: test lint
+qa: test verify
 	echo "All quality checks pass!"
 
 .PHONY: local
