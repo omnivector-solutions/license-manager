@@ -1,6 +1,7 @@
 """
 Custom exceptions.
 """
+
 from buzz import Buzz
 
 
