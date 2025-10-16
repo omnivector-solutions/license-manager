@@ -69,7 +69,7 @@ def validate_token_and_extract_identity(token_set: TokenSet) -> str:
             support=True,
             log_message=f"Unknown error while validating access access token: {err}.",
             original_error=err,
-        )
+        ) from err
 
     logger.debug("Extracting identity data from the access token.")
     user_email = token_data.get("email")

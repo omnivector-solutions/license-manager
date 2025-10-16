@@ -13,7 +13,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from lm_cli.render import terminal_message
 from lm_cli.text_tools import conjoin
 
-
 DEFAULT_DOTENV_PATH = Path("/etc/default/lm-cli")
 OV_CONTACT = "Omnivector Solutions <info@omnivector.solutions>"
 

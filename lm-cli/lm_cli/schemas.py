@@ -1,6 +1,7 @@
 """
 Pydantic models for various data items.
 """
+
 from typing import Optional
 
 import httpx

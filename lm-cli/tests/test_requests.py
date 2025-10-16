@@ -9,7 +9,6 @@ from lm_cli.constants import SortOrder
 from lm_cli.exceptions import Abort
 from lm_cli.requests import _deserialize_request_model, make_request, parse_query_params
 
-
 DEFAULT_DOMAIN = "https://dummy-domain.com"
 
 
@@ -339,7 +338,9 @@ def test_make_request__uses_request_model_instance_for_request_body_if_passed(re
     assert dummy_response_instance.foo == 1
     assert dummy_response_instance.bar == "one"
 
-    assert json.loads(dummy_route.calls.last.request.content.decode("utf-8")) == json.loads(json.dumps(dict(foo=1, bar="one")).encode("utf-8"))
+    assert json.loads(dummy_route.calls.last.request.content.decode("utf-8")) == json.loads(
+        json.dumps(dict(foo=1, bar="one")).encode("utf-8")
+    )
     assert dummy_route.calls.last.request.headers["Content-Type"] == "application/json"
 
 
