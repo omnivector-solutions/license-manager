@@ -1,8 +1,7 @@
-""" License-manager backend, command line entrypoint
-
-Run with e.g. `uvicorn lm_api.main:app` OR
-set `licensemanager2.backend.main.handler` as the ASGI handler
 """
+License Manager API command line entrypoint.
+"""
+
 import logging
 import sys
 from contextlib import asynccontextmanager

@@ -1,9 +1,9 @@
-from typing import Optional, Annotated
+from typing import Annotated, Optional
 
 from pydantic import Field, confloat
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from lm_api.constants import LogLevelEnum
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

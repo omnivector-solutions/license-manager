@@ -5,16 +5,14 @@ Also provides a factory function for TokenSecurity to reduce boilerplate.
 
 import typing
 
-from typing_extensions import Self
-
 from armasec import Armasec, TokenPayload
 from armasec.token_security import PermissionMode
 from fastapi import Depends
 from loguru import logger
-from pydantic import model_validator, EmailStr
+from pydantic import EmailStr, model_validator
+from typing_extensions import Self
 
 from lm_api.config import settings
-
 
 guard = Armasec(
     domain=settings.ARMASEC_DOMAIN,
@@ -48,7 +46,7 @@ class IdentityPayload(TokenPayload):
                 }
             }
         }
-        
+
         or:
 
         # New json structure
@@ -66,9 +64,7 @@ class IdentityPayload(TokenPayload):
         if self.organization is None:
             return typing.cast(Self, self)
         elif len(self.organization) != 1 and isinstance(self.organization, dict):
-            raise ValueError(
-                f"Organization payload did not include exactly one value: {getattr(self, 'organization')}"
-            )
+            raise ValueError(f"Organization payload did not include exactly one value: {self.organization}")
 
         if isinstance(self.organization, dict):
             org_field = next(iter(self.organization))
@@ -77,7 +73,7 @@ class IdentityPayload(TokenPayload):
         else:
             org_id = self.organization
 
-        setattr(self, "organization_id", org_id)
+        self.organization_id = org_id
         return typing.cast(Self, self)
 
 

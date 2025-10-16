@@ -1,7 +1,10 @@
-"""Configuration schemas for the License Manager API."""
+"""
+Configuration schemas for the License Manager API.
+"""
+
 from typing import List, Optional
 
-from pydantic import ConfigDict, BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.feature import (

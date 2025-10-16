@@ -1,8 +1,11 @@
-"""License Server schemas for the License Manager API."""
+"""
+License Server schemas for the License Manager API.
+"""
+
 import re
 from typing import Optional
 
-from pydantic import field_validator, ConfigDict, BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, field_validator
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 

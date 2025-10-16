@@ -1,11 +1,12 @@
-from typing import List 
-from loguru import logger
-import httpx
-from data_migration.exceptions import AuthTokenError, BadResponse
-from dotenv import load_dotenv
 import os
-from data_migration.models import OldConfiguration
+from typing import List
 
+import httpx
+from dotenv import load_dotenv
+from loguru import logger
+
+from data_migration.exceptions import AuthTokenError, BadResponse
+from data_migration.models import OldConfiguration
 
 load_dotenv()
 

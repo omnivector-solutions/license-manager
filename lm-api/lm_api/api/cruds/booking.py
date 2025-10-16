@@ -1,4 +1,7 @@
-"""Booking CRUD class for SQLAlchemy models."""
+"""
+Booking CRUD class for SQLAlchemy models.
+"""
+
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import func, insert, literal, select
@@ -70,7 +73,7 @@ class BookingCRUD(GenericCRUD):
             db_obj = result.scalars().one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Object could not be read.")
+            raise HTTPException(status_code=400, detail="Object could not be read.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=409, detail="Not enough licenses available.")

@@ -1,4 +1,7 @@
-"""Feature CRUD class for SQLAlchemy models."""
+"""
+Feature CRUD class for SQLAlchemy models.
+"""
+
 from typing import List, Optional, Sequence, Union
 
 from fastapi import HTTPException
@@ -43,7 +46,7 @@ class FeatureCRUD(GenericCRUD):
             db_obj = query.first()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
@@ -77,7 +80,7 @@ class FeatureCRUD(GenericCRUD):
             db_objs: Sequence[Feature] = result.scalars().all()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Feature could not be read.")
+            raise HTTPException(status_code=400, detail="Feature could not be read.") from e
 
         if len(db_objs) != len(features):
             raise HTTPException(status_code=404, detail="Feature not found.")
@@ -93,7 +96,7 @@ class FeatureCRUD(GenericCRUD):
             await db_session.flush()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Feature could not be updated.")
+            raise HTTPException(status_code=400, detail="Feature could not be updated.") from e
 
     async def filter_by_product_feature_and_client_id(
         self, db_session: AsyncSession, product_name: str, feature_name: str, client_id: str
@@ -120,7 +123,7 @@ class FeatureCRUD(GenericCRUD):
             db_obj = query.scalars().one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Feature could not be read.")
+            raise HTTPException(status_code=400, detail="Feature could not be read.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail="Feature not found.")
@@ -158,4 +161,4 @@ class FeatureCRUD(GenericCRUD):
             return [FeatureSchema.from_flat_dict(r._asdict()) for r in query.all()]
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.") from e

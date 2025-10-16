@@ -1,4 +1,7 @@
-"""Database model for Features."""
+"""
+Database model for Features.
+"""
+
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import Integer, String

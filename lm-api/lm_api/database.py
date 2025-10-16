@@ -1,6 +1,7 @@
 """
 Persistent data storage for the API.
 """
+
 import typing
 from dataclasses import dataclass
 
@@ -188,11 +189,11 @@ def sort_clause(
     sort_field_names = [f.name for f in sortable_fields]
     try:
         index = sort_field_names.index(sort_field)
-    except ValueError:
+    except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid sorting column requested: {sort_field}. Must be one of {sort_field_names}",
-        )
+        ) from e
     sort_column: typing.Union[Mapped[typing.Any], UnaryExpression] = sortable_fields[index]
     if not sort_ascending:
         sort_column = sort_column.desc()
