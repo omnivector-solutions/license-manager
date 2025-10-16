@@ -1,10 +1,13 @@
-"""RLM license server interface."""
+"""
+RLM license server interface.
+"""
+
 import typing
 
-from lm_agent.models import LicenseServerSchema, LicenseReportItem
 from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerBadServerOutput
 from lm_agent.logs import logger
+from lm_agent.models import LicenseReportItem, LicenseServerSchema
 from lm_agent.parsing import rlm
 from lm_agent.server_interfaces.license_server_interface import LicenseServerInterface
 from lm_agent.utils import run_command

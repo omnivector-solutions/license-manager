@@ -1,11 +1,11 @@
 """
-Test the DSLS parser
+Test the DSLS parser.
 """
 
 from pytest import mark
 
-from lm_agent.parsing.dsls import parse, parse_feature_dict, parse_usage_dict
 from lm_agent.models import LicenseUsesItem, ParsedFeatureItem
+from lm_agent.parsing.dsls import parse, parse_feature_dict, parse_usage_dict
 
 
 @mark.parametrize(

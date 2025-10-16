@@ -1,12 +1,15 @@
-"""Test the FlexLM license server interface."""
+"""
+Test the FlexLM license server interface.
+"""
+
 from unittest import mock
 
 from pytest import fixture, mark, raises
 
 from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute, LicenseManagerBadServerOutput
-from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.models import LicenseReportItem
+from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 
 
 @fixture

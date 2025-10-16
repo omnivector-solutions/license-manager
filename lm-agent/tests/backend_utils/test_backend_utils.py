@@ -7,17 +7,6 @@ import pytest
 from httpx import Response
 from pytest import mark, raises
 
-from lm_agent.models import (
-    BookingSchema,
-    ConfigurationSchema,
-    FeatureSchema,
-    JobSchema,
-    LicenseBooking,
-    LicenseBookingRequest,
-    LicenseServerSchema,
-    LicenseServerType,
-    ProductSchema,
-)
 from lm_agent.backend_utils.utils import (
     TOKEN_FILE_NAME,
     _load_token_from_cache,
@@ -34,6 +23,17 @@ from lm_agent.backend_utils.utils import (
 )
 from lm_agent.config import settings
 from lm_agent.exceptions import LicenseManagerBackendConnectionError
+from lm_agent.models import (
+    BookingSchema,
+    ConfigurationSchema,
+    FeatureSchema,
+    JobSchema,
+    LicenseBooking,
+    LicenseBookingRequest,
+    LicenseServerSchema,
+    LicenseServerType,
+    ProductSchema,
+)
 
 
 def test__write_token_to_cache__caches_a_token(mock_cache_dir):
@@ -357,12 +357,10 @@ async def test__make_feature_update__success(respx_mock):
         },
     ]
 
-    respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=200))
+    route = respx_mock.put("/lm/features/bulk").mock(return_value=Response(status_code=200))
 
-    try:
-        await make_feature_update(features_to_update)
-    except Exception as e:
-        assert False, f"Exception was raised: {e}"
+    await make_feature_update(features_to_update)
+    assert route.called
 
 
 @pytest.mark.asyncio
@@ -452,17 +450,15 @@ async def test__remove_job_by_slurm_job_id__success(respx_mock):
     """
     slurm_job_id = "12345"
 
-    respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
+    route = respx_mock.delete(f"/lm/jobs/slurm_job_id/{slurm_job_id}").mock(
         return_value=Response(
             status_code=200,
             json={"message": "Job removed successfully"},
         )
     )
 
-    try:
-        await remove_job_by_slurm_job_id(slurm_job_id)
-    except Exception as e:
-        assert False, f"Exception was raised: {e}"
+    await remove_job_by_slurm_job_id(slurm_job_id)
+    assert route.called
 
 
 @pytest.mark.asyncio

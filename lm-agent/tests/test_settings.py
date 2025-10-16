@@ -1,6 +1,7 @@
 """
-Test the environment parser the creates SETTINGS
+Test the environment parser the creates Settings.
 """
+
 import os
 from unittest.mock import patch
 

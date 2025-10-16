@@ -1,6 +1,7 @@
 """
 Test Epilog script.
 """
+
 from unittest import mock
 
 import pytest

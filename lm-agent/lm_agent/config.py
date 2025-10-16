@@ -1,7 +1,7 @@
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import Optional, Annotated
+from typing import Annotated, Optional
 
 from pydantic import AnyHttpUrl, confloat
 from pydantic_core import ValidationError

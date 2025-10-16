@@ -1,17 +1,24 @@
 """
 Service to clean jobs and bookings that are no longer needed.
 """
+
 import asyncio
 from collections import defaultdict
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
-from lm_agent.models import JobSchema, BookingSchema, ConfigurationSchema, LicenseReportItem
 from lm_agent.backend_utils.utils import (
     remove_booking,
     remove_job_by_slurm_job_id,
 )
 from lm_agent.logs import logger
-from lm_agent.models import ExtractedBookingSchema, ExtractedUsageSchema
+from lm_agent.models import (
+    BookingSchema,
+    ConfigurationSchema,
+    ExtractedBookingSchema,
+    ExtractedUsageSchema,
+    JobSchema,
+    LicenseReportItem,
+)
 
 
 def get_cluster_grace_times(cluster_configurations: List[ConfigurationSchema]) -> Dict[int, int]:

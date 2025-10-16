@@ -1,4 +1,7 @@
-"""Slurm reservation CRUD module."""
+"""
+Slurm reservation CRUD module.
+"""
+
 from typing import Union
 
 from lm_agent.config import settings

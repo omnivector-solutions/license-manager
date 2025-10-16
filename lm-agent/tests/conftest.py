@@ -1,6 +1,7 @@
 """
 Configuration of pytest for agent tests.
 """
+
 from textwrap import dedent
 from unittest.mock import patch
 
@@ -8,17 +9,17 @@ import httpx
 import respx
 from pytest import fixture
 
+from lm_agent.config import settings
 from lm_agent.models import (
     BookingSchema,
     ConfigurationSchema,
     FeatureSchema,
     JobSchema,
-    LicenseServerSchema,
     LicenseReportItem,
+    LicenseServerSchema,
     LicenseServerType,
     ProductSchema,
 )
-from lm_agent.config import settings
 
 
 @fixture(autouse=True)

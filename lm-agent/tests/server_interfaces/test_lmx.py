@@ -1,4 +1,7 @@
-"""Test the LM-X license server interface."""
+"""
+Test the LM-X license server interface.
+"""
+
 from unittest import mock
 
 from pytest import fixture, mark, raises

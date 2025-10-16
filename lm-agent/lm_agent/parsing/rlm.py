@@ -1,10 +1,11 @@
 """
-Parser for RLM
+Parser for RLM.
 """
+
 import re
 from typing import Optional
-from lm_agent.models import LicenseUsesItem
 
+from lm_agent.models import LicenseUsesItem
 
 INT = r"\d+"
 VERSION = rf"v{INT}\.{INT}"

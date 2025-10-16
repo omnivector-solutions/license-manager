@@ -1,6 +1,7 @@
 from unittest import mock
 
 from pytest import mark
+
 from lm_agent.models import LicenseReportItem
 from lm_agent.services.reconciliation import reconcile
 

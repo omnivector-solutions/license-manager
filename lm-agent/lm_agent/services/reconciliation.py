@@ -1,14 +1,15 @@
 """
 Reconciliation functionality live here.
 """
+
 from lm_agent.backend_utils.utils import (
     get_all_features_bookings_sum,
     get_cluster_configs_from_backend,
     get_cluster_jobs_from_backend,
 )
 from lm_agent.logs import logger
-from lm_agent.services.license_report import update_features
 from lm_agent.services.clean_jobs_and_bookings import clean_jobs_and_bookings
+from lm_agent.services.license_report import update_features
 from lm_agent.workload_managers.slurm.cmd_utils import (
     get_all_features_cluster_values,
     return_formatted_squeue_out,

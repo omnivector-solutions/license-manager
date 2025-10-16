@@ -1,18 +1,13 @@
 """
 Provide utilities that communicate with the backend.
 """
+
 import getpass
 from typing import Dict, List, Optional, Union
 
 import httpx
 import jwt
 
-from lm_agent.models import (
-    ConfigurationSchema,
-    FeatureSchema,
-    JobSchema,
-    LicenseBookingRequest,
-)
 from lm_agent.config import settings
 from lm_agent.exceptions import (
     LicenseManagerAuthTokenError,
@@ -20,6 +15,12 @@ from lm_agent.exceptions import (
     LicenseManagerParseError,
 )
 from lm_agent.logs import log_error, logger
+from lm_agent.models import (
+    ConfigurationSchema,
+    FeatureSchema,
+    JobSchema,
+    LicenseBookingRequest,
+)
 
 USER_NAME = getpass.getuser()
 TOKEN_FILE_NAME = f"{USER_NAME}.token"

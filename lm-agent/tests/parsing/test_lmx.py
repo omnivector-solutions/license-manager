@@ -1,11 +1,11 @@
 """
-Test the LM-X parser
+Test the LM-X parser.
 """
 
 from pytest import mark
 
-from lm_agent.parsing.lmx import parse, parse_feature_line, parse_in_use_line, parse_usage_line
 from lm_agent.models import LicenseUsesItem
+from lm_agent.parsing.lmx import parse, parse_feature_line, parse_in_use_line, parse_usage_line
 
 
 def test_parse_feature_line():

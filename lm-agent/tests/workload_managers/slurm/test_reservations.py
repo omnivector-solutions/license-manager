@@ -1,6 +1,7 @@
 """
 Test Slurm reservations.
 """
+
 from unittest import mock
 
 from pytest import fixture, mark
@@ -8,11 +9,11 @@ from pytest import fixture, mark
 from lm_agent.config import settings
 from lm_agent.exceptions import CommandFailedToExecute
 from lm_agent.workload_managers.slurm.reservations import (
+    create_or_update_reservation,
     scontrol_create_reservation,
     scontrol_delete_reservation,
     scontrol_show_reservation,
     scontrol_update_reservation,
-    create_or_update_reservation,
 )
 
 
