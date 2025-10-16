@@ -22,7 +22,7 @@ from lm_agent.workload_managers.slurm.cmd_utils import (
 
 @fixture
 def job_licenses_good() -> str:
-    return "testproduct1.test-feature1@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"
+    return "testproduct1.test-feature1@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"  # noqa: E501
 
 
 @fixture

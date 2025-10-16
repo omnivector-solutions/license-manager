@@ -46,6 +46,6 @@ def test_init_settings_bad(bad_env, caplog):
         init_settings()
     assert (
         len(caplog.messages) == 1
-        and "Input should be a valid URL, relative URL without a base [type=url_parsing, input_value='not-a-url', input_type=str]"
+        and "Input should be a valid URL, relative URL without a base [type=url_parsing, input_value='not-a-url', input_type=str]"  # noqa: E501
         in caplog.text
     )

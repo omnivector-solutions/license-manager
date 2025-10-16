@@ -117,7 +117,7 @@ def make_request(
     :param: response_model_cls:  If supplied, serialize the response data into this Pydantic model class.
     :param: request_model:       Use a pydantic model instance as the data body for the request.
     :param: request_kwargs:      Any additional keyword arguments that need to be passed on to the client.
-    """
+    """  # noqa: E501
 
     if request_model is not None:
         _deserialize_request_model(request_model, request_kwargs, abort_message, abort_subject)

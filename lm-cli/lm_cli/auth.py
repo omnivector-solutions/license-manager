@@ -275,7 +275,9 @@ def fetch_auth_tokens(ctx: LicenseManagerContext) -> TokenSet:
                 ctx.client,
                 "/protocol/openid-connect/token",
                 "POST",
-                abort_message="There was a problem retrieving a device verification code from the auth provider",
+                abort_message=(
+                    "There was a problem retrieving a device verification code from the auth provider"
+                ),
                 abort_subject="COULD NOT FETCH ACCESS TOKEN.",
                 support=True,
                 data=dict(
