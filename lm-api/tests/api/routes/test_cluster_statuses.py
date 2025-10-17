@@ -1,3 +1,4 @@
+import pendulum
 from fastapi import status
 from httpx import AsyncClient
 from pytest import mark
@@ -5,7 +6,6 @@ from sqlalchemy import select
 
 from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.permissions import Permissions
-import pendulum
 
 
 @mark.parametrize(

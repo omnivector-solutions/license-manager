@@ -1,11 +1,14 @@
-"""Utilities that interact with slurm."""
+"""
+Utilities that interact with Slurm.
+"""
+
 import re
 from typing import Dict, List, Optional, Union
 
-from lm_agent.exceptions import ScontrolRetrievalFailure, SqueueParserUnexpectedInputError
-from lm_agent.models import LicenseBooking
-from lm_agent.logs import logger, log_error
 from lm_agent.config import settings
+from lm_agent.exceptions import ScontrolRetrievalFailure, SqueueParserUnexpectedInputError
+from lm_agent.logs import log_error, logger
+from lm_agent.models import LicenseBooking
 from lm_agent.utils import run_command
 
 
@@ -74,7 +77,7 @@ async def get_all_features_cluster_values() -> Optional[Dict[str, Dict[str, int]
     )
 
     used_tokens_line = re.compile(
-        r"^\s*Total=(?P<total>\d+) Used=(?P<used>\d+) Free=(?P<free>\d+) Reserved=(?P<reserved>\d+) Remote=(?P<remote>\w+)"  # noqa
+        r"^\s*Total=(?P<total>\d+) Used=(?P<used>\d+) Free=(?P<free>\d+) Reserved=(?P<reserved>\d+) Remote=(?P<remote>\w+)"  # noqa E501
     )
 
     scontrol_output = await scontrol_show_lic()
@@ -209,17 +212,12 @@ def squeue_parser(squeue_formatted_output) -> List:
     if not squeue_formatted_output:
         return squeue_parsed_output
 
-    def parse_squeue_line():
-        """Parse a line from squeue formatted output."""
+    for line in squeue_formatted_output.split():
         with SqueueParserUnexpectedInputError.handle_errors(
             "Unexpected input from squeue", do_except=log_error
         ):
             job_id, run_time, state = line.strip("'").split("|")
 
-        return job_id, run_time, state
-
-    for line in squeue_formatted_output.split():
-        job_id, run_time, state = parse_squeue_line()
         squeue_parsed_output.append(
             {
                 "job_id": int(job_id),

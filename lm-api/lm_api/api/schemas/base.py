@@ -1,5 +1,6 @@
-"""Base schemas for the License Manager API."""
-
+"""
+Base schemas for the License Manager API.
+"""
 
 from pydantic import BaseModel
 

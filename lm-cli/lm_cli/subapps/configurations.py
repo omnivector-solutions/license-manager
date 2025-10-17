@@ -12,7 +12,6 @@ from lm_cli.render import StyleMapper, render_list_results, render_single_result
 from lm_cli.requests import make_request, parse_query_params
 from lm_cli.schemas import ConfigurationCreateSchema, LicenseManagerContext
 
-
 style_mapper = StyleMapper(
     id="blue",
     name="green",

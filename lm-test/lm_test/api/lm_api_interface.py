@@ -1,7 +1,6 @@
 from lm_test.config import settings
 from lm_test.utils import LM_API_Client, create_resource, delete_resource
 
-
 lm_api_client = LM_API_Client()
 
 
@@ -27,7 +26,9 @@ async def setup():
         "host": "test-host",
         "port": 27000,
     }
-    license_server_id = (await create_resource(lm_api_client, license_server_data, "/lm/license_servers/"))["id"]
+    license_server_id = (await create_resource(lm_api_client, license_server_data, "/lm/license_servers/"))[
+        "id"
+    ]
     print(f"Created license server with id: {license_server_id}")
 
     product_data = {
@@ -59,7 +60,9 @@ async def teardown(created_data: dict):
     """
     print("Tearing down License Manager API...")
 
-    await delete_resource(client=lm_api_client, resource_id=created_data["product_id"], resource_url="/lm/products")
+    await delete_resource(
+        client=lm_api_client, resource_id=created_data["product_id"], resource_url="/lm/products"
+    )
     print(f"Deleted product with id: {created_data['product_id']}")
 
     # Cluster delete cascades to configurations, license servers, and features

@@ -23,7 +23,6 @@ from lm_cli.subapps.license_servers import app as license_servers_app
 from lm_cli.subapps.products import app as products_app
 from lm_cli.text_tools import conjoin, copy_to_clipboard
 
-
 app = typer.Typer()
 
 app.add_typer(bookings_app, name="bookings")

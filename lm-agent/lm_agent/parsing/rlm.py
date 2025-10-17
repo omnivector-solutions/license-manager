@@ -1,10 +1,11 @@
 """
-Parser for RLM
+Parser for RLM.
 """
+
 import re
 from typing import Optional
-from lm_agent.models import LicenseUsesItem
 
+from lm_agent.models import LicenseUsesItem
 
 INT = r"\d+"
 VERSION = rf"v{INT}\.{INT}"
@@ -15,7 +16,7 @@ FEATURE_NAME = r"[\w-]+"
 
 FEATURE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}$"
 COUNT_LINE = r"^\s*count: (?P<count>\d+).*inuse: (?P<in_use>\d+).*$"
-USAGE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}: (?P<user_name>\w+)@(?P<lead_host>{HOSTNAME}) (?P<license_used_by_host>\d+).*$"  # noqa
+USAGE_LINE = rf"^\s*(?P<license_feature>{FEATURE_NAME}) {VERSION}: (?P<user_name>\w+)@(?P<lead_host>{HOSTNAME}) (?P<license_used_by_host>\d+).*$"  # noqa E501
 
 RX_FEATURE = re.compile(FEATURE_LINE)
 RX_COUNT = re.compile(COUNT_LINE)

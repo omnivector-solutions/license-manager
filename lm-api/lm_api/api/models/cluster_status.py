@@ -1,11 +1,13 @@
-"""Database models for the cluster health resource."""
-
-from pendulum.datetime import DateTime as PendulumDateTime
-from sqlalchemy import DateTime, Integer, String
-from lm_api.api.models.crud_base import CrudWithoutId
+"""
+Database models for the cluster health resource.
+"""
 
 from inflection import tableize
+from pendulum.datetime import DateTime as PendulumDateTime
+from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
+
+from lm_api.api.models.crud_base import CrudWithoutId
 
 
 class ClusterStatus(CrudWithoutId):

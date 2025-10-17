@@ -1,7 +1,10 @@
-"""Booking schemas for the License Manager API."""
+"""
+Booking schemas for the License Manager API.
+"""
+
 from typing import Optional
 
-from pydantic import ConfigDict, BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 

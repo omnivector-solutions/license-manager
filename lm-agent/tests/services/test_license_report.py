@@ -1,16 +1,16 @@
 from unittest import mock
 
-from pytest import mark, raises
 from httpx import Response
+from pytest import mark, raises
 
 from lm_agent.exceptions import LicenseManagerBackendConnectionError, LicenseManagerEmptyReportError
 from lm_agent.models import (
     ConfigurationSchema,
     FeatureSchema,
+    LicenseReportItem,
     LicenseServerSchema,
     LicenseServerType,
     ProductSchema,
-    LicenseReportItem,
 )
 from lm_agent.services import license_report
 

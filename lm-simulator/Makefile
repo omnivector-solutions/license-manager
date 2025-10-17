@@ -9,16 +9,18 @@ PACKAGE_NAME:=lm_simulator
 install:
 	poetry install
 
-.PHONY: lint
-lint: install
+.PHONY: verify
+verify: install
 	poetry run ruff check ${PACKAGE_NAME}
+	poetry run ruff format --check ${PACKAGE_NAME}
 
-.PHONY: format
-format: install
+.PHONY: modify
+modify: install
+	poetry run ruff check --fix ${PACKAGE_NAME}
 	poetry run ruff format ${PACKAGE_NAME}
 
 .PHONY: qa
-qa: lint
+qa: verify
 	echo "All quality checks pass!"
 
 .PHONY: clean

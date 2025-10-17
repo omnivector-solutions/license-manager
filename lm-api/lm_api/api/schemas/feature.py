@@ -1,7 +1,10 @@
-"""Feature schemas for the License Manager API."""
+"""
+Feature schemas for the License Manager API.
+"""
+
 from typing import Optional
 
-from pydantic import ConfigDict, BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.product import ProductSchema

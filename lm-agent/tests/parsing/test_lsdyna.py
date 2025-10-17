@@ -1,9 +1,9 @@
 """
-Test the LS-Dyna parser
+Test the LS-Dyna parser.
 """
 
-from lm_agent.parsing.lsdyna import parse, parse_program_line, parse_total_line, parse_usage_line
 from lm_agent.models import LicenseUsesItem
+from lm_agent.parsing.lsdyna import parse, parse_program_line, parse_total_line, parse_usage_line
 
 
 def test_parse_program_line():

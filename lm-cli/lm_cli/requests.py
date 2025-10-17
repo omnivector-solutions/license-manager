@@ -1,6 +1,7 @@
 """
 Utilities for making requests against the License Manager API.
 """
+
 from typing import Any, Dict, Optional, Type, TypeVar, Union
 
 import httpx
@@ -82,7 +83,7 @@ def _deserialize_request_model(
                 """
             ),
             original_error=err,
-        )
+        ) from err
 
 
 ResponseModel = TypeVar("ResponseModel", bound=pydantic.BaseModel)
@@ -116,7 +117,7 @@ def make_request(
     :param: response_model_cls:  If supplied, serialize the response data into this Pydantic model class.
     :param: request_model:       Use a pydantic model instance as the data body for the request.
     :param: request_kwargs:      Any additional keyword arguments that need to be passed on to the client.
-    """
+    """  # noqa: E501
 
     if request_model is not None:
         _deserialize_request_model(request_model, request_kwargs, abort_message, abort_subject)
@@ -152,7 +153,7 @@ def make_request(
             support=support,
             log_message="There was an error making the request to the API.",
             original_error=err,
-        )
+        ) from err
 
     if expected_status is not None and response.status_code != expected_status:
         try:
@@ -188,7 +189,7 @@ def make_request(
             support=support,
             log_message=f"Failed unpacking json: {response.text}.",
             original_error=err,
-        )
+        ) from err
     logger.debug(f"Extracted data from response: {data}.")
 
     if response_model_cls is None:
@@ -209,4 +210,4 @@ def make_request(
             support=support,
             log_message=f"Unexpected format in response data: {data}.",
             original_error=err,
-        )
+        ) from err

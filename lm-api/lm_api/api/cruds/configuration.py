@@ -1,4 +1,7 @@
-"""Feature CRUD class for SQLAlchemy models."""
+"""
+Feature CRUD class for SQLAlchemy models.
+"""
+
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import delete
@@ -30,7 +33,7 @@ class ConfigurationCRUD(GenericCRUD):
             await db_session.execute(delete_unused_features_query)
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="Feature could not be deleted.")
+            raise HTTPException(status_code=400, detail="Feature could not be deleted.") from e
 
     async def delete_license_servers(
         self, db_session: AsyncSession, configuration_id: int, payload: ConfigurationCompleteUpdateSchema
@@ -51,4 +54,4 @@ class ConfigurationCRUD(GenericCRUD):
             await db_session.execute(delete_unused_license_servers_query)
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail="License Server could not be deleted.")
+            raise HTTPException(status_code=400, detail="License Server could not be deleted.") from e

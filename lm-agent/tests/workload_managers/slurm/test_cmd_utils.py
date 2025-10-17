@@ -1,27 +1,28 @@
 """
 Test Slurm cmd_utils.
 """
+
 from textwrap import dedent
 from typing import List
 from unittest import mock
 
 from pytest import fixture, mark, raises
 
+from lm_agent.exceptions import ScontrolRetrievalFailure, SqueueParserUnexpectedInputError
+from lm_agent.models import LicenseBooking
 from lm_agent.workload_managers.slurm.cmd_utils import (
     _match_requested_license,
     get_all_features_cluster_values,
     get_all_product_features_from_cluster,
+    get_lead_host,
     get_required_licenses_for_job,
     squeue_parser,
-    get_lead_host,
 )
-from lm_agent.exceptions import SqueueParserUnexpectedInputError, ScontrolRetrievalFailure
-from lm_agent.models import LicenseBooking
 
 
 @fixture
 def job_licenses_good() -> str:
-    return "testproduct1.test-feature1@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"
+    return "testproduct1.test-feature1@flexlm:11,testproduct2.testfeature2@flexlm:22,testproduct3.testfeature3@flexlm:33"  # noqa: E501
 
 
 @fixture

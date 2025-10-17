@@ -60,7 +60,7 @@ env = [
 concurrency = ["greenlet", "thread"]
 
 [tool.ruff]
-line-length = 110
+extend = "../ruff.toml"
 
 [tool.mypy]
 plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"

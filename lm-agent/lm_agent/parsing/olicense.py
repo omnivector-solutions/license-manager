@@ -1,10 +1,11 @@
 """
-Parser for OLicense
+Parser for OLicense.
 """
+
 import re
 from typing import Optional
-from lm_agent.models import LicenseUsesItem
 
+from lm_agent.models import LicenseUsesItem
 
 HOSTWORD = r"[a-zA-Z0-9-]+"
 HOSTNAME = rf"{HOSTWORD}(\.{HOSTWORD})*"

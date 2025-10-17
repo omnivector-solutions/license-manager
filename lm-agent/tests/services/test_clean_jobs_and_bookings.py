@@ -1,27 +1,27 @@
 from collections import defaultdict
-
-from pytest import mark
 from unittest import mock
 
-from lm_agent.services.clean_jobs_and_bookings import (
-    extract_bookings_from_job,
-    extract_usages_from_report,
-    get_bookings_mapping,
-    get_usages_mapping,
-    clean_bookings_by_usage,
-    get_cluster_grace_times,
-    get_greatest_grace_time_for_job,
-    clean_jobs_without_bookings,
-    clean_jobs_no_longer_running,
-    clean_jobs_by_grace_time,
-    clean_jobs_and_bookings,
-)
+from pytest import mark
+
 from lm_agent.models import (
-    JobSchema,
     BookingSchema,
     ExtractedBookingSchema,
     ExtractedUsageSchema,
+    JobSchema,
     LicenseReportItem,
+)
+from lm_agent.services.clean_jobs_and_bookings import (
+    clean_bookings_by_usage,
+    clean_jobs_and_bookings,
+    clean_jobs_by_grace_time,
+    clean_jobs_no_longer_running,
+    clean_jobs_without_bookings,
+    extract_bookings_from_job,
+    extract_usages_from_report,
+    get_bookings_mapping,
+    get_cluster_grace_times,
+    get_greatest_grace_time_for_job,
+    get_usages_mapping,
 )
 
 
@@ -278,7 +278,7 @@ async def test__clean_jobs_no_longer_running__not_running(remove_job_by_slurm_jo
 
     remaining_jobs_with_bookings = await clean_jobs_no_longer_running(parsed_jobs, squeue_result)
 
-    remove_job_by_slurm_job_id_mock.call_count == 2
+    assert remove_job_by_slurm_job_id_mock.call_count == 2
     remove_job_by_slurm_job_id_mock.assert_has_calls([mock.call("456"), mock.call("789")])
     assert remaining_jobs_with_bookings == [parsed_jobs[0]]
 
@@ -295,7 +295,7 @@ async def test__clean_jobs_no_longer_running__not_in_squeue(remove_job_by_slurm_
 
     remaining_jobs_with_bookings = await clean_jobs_no_longer_running(parsed_jobs, squeue_result)
 
-    remove_job_by_slurm_job_id_mock.call_count == 2
+    assert remove_job_by_slurm_job_id_mock.call_count == 2
     remove_job_by_slurm_job_id_mock.assert_has_calls([mock.call("456"), mock.call("789")])
     assert remaining_jobs_with_bookings == [parsed_jobs[0]]
 
@@ -310,7 +310,7 @@ async def test__clean_jobs_no_longer_running__no_squeue_result(remove_job_by_slu
 
     remaining_jobs_with_bookings = await clean_jobs_no_longer_running(parsed_jobs, squeue_result)
 
-    remove_job_by_slurm_job_id_mock.call_count == 3
+    assert remove_job_by_slurm_job_id_mock.call_count == 3
     remove_job_by_slurm_job_id_mock.assert_has_calls([mock.call("123"), mock.call("456"), mock.call("789")])
     assert remaining_jobs_with_bookings == []
 

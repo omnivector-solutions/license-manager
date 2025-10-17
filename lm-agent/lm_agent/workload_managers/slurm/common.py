@@ -1,6 +1,7 @@
 """
 Common utilities for slurm commands.
 """
+
 import os
 
 from lm_agent.logs import logger

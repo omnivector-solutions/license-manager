@@ -1,4 +1,7 @@
-"""Generic CRUD class for SQLAlchemy models."""
+"""
+Generic CRUD class for SQLAlchemy models.
+"""
+
 from __future__ import annotations
 
 from typing import List, Optional, Sequence, Type, Union
@@ -28,7 +31,7 @@ class GenericCRUD:
             db_session.add(db_obj)
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be created.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be created.") from e
 
         # TODO: Determine if the session actually needs to be flushed here. I think it might not
         await db_session.flush()
@@ -47,7 +50,7 @@ class GenericCRUD:
             db_objs = list(query.scalars().all())
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.") from e
 
         if db_objs is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
@@ -66,7 +69,7 @@ class GenericCRUD:
             db_obj = query.scalars().one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
@@ -97,7 +100,7 @@ class GenericCRUD:
             return query.all()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__}s could not be read.") from e
 
     async def update(
         self,
@@ -114,7 +117,7 @@ class GenericCRUD:
             db_obj = query.scalar_one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
@@ -133,7 +136,7 @@ class GenericCRUD:
             await db_session.refresh(db_obj)
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.") from e
 
         return db_obj
 
@@ -146,7 +149,7 @@ class GenericCRUD:
             db_obj = query.scalar_one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.") from e
 
         if db_obj is None:
             raise HTTPException(status_code=404, detail=f"{self.model.__name__} not found.")
@@ -156,6 +159,6 @@ class GenericCRUD:
             await db_session.flush()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be deleted.") from e
 
         return {"message": f"{self.model.__name__} deleted successfully."}

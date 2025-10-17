@@ -10,7 +10,6 @@ from lm_agent.logs import init_logging, logger
 from lm_agent.scheduler import scheduler
 from lm_agent.services.reconciliation import reconcile
 
-
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,

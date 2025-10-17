@@ -1,7 +1,11 @@
-"""Cluster status API endpoints."""
+"""
+Cluster status API endpoints.
+"""
+
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from buzz import require_condition
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pendulum.datetime import DateTime as PendulumDateTime
 
 from lm_api.api.cruds.cluster_status import ClusterStatusCRUD
@@ -9,8 +13,6 @@ from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.api.schemas.cluster_status import ClusterStatusSchema
 from lm_api.database import SecureSession, secure_session
 from lm_api.permissions import Permissions
-from buzz import require_condition
-
 
 router = APIRouter()
 crud_cluster_status = ClusterStatusCRUD(ClusterStatus)

@@ -1,4 +1,7 @@
-"""Database model for Bookings."""
+"""
+Database model for Bookings.
+"""
+
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Integer, func

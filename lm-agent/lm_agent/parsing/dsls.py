@@ -1,6 +1,7 @@
 """
 Parser for DSLS.
 """
+
 import csv
 from typing import Optional
 

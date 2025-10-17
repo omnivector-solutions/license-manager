@@ -11,31 +11,17 @@ packages = [{include = "lm_test"}]
 [tool.poetry.dependencies]
 python = "^3.12"
 license-manager-cli = {path = "../lm-cli"}
-py-buzz = "^3.2.1"
+py-buzz = "^7.3.0"
 httpx = "^0.28.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.3.0"
-isort = "^5.10.1"
-mypy = "^0.961"
-pyproject-flake8 = "^0.0.1-alpha.4"
+ruff = "^0.13.0"
+
+[tool.ruff]
+extend = "../ruff.toml"
 
 [tool.poetry.scripts]
 test-lm = "lm_test.main:main"
-
-[tool.black]
-line-length = 120
-
-[tool.isort]
-line_length = 120
-lines_after_imports = "2"
-profile = "black"
-multi_line_output = 3
-include_trailing_comma = true
-
-[tool.flake8]
-max-line-length = 120
-max-complexity = 40
 
 [build-system]
 requires = ["poetry-core"]

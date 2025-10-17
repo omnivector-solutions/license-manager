@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field, PositiveInt
 
-from lm_agent.constants import LicenseServerType, PRODUCT_FEATURE_RX
+from lm_agent.constants import PRODUCT_FEATURE_RX, LicenseServerType
 
 
 class LicenseUsesItem(BaseModel):

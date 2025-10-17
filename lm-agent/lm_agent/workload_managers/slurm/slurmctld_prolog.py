@@ -10,13 +10,14 @@ Executing this script will result in either an exit(0) or exit(1). Slurm will
 proceed with scheduling the job if the exit status is 0, and will not proceed
 if the exit status is anything other then 0, e.g. 1.
 """
+
 import asyncio
 import sys
 
-from lm_agent.models import LicenseBookingRequest
 from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_booking_request
 from lm_agent.config import settings
 from lm_agent.logs import init_logging, logger
+from lm_agent.models import LicenseBookingRequest
 from lm_agent.services.reconciliation import reconcile
 from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for_job
 from lm_agent.workload_managers.slurm.common import get_job_context
@@ -91,7 +92,10 @@ async def prolog():
             logger.debug(f"Booking request for job {job_id} unsuccessful, not enough licenses.")
             sys.exit(1)
         logger.debug(
-            f"Booking request for job {job_id} sucessful, licenses booked: {repr(tracked_license_booking_request.bookings)}"
+            (
+                f"Booking request for job {job_id} sucessful, licenses booked: "
+                f"{repr(tracked_license_booking_request.bookings)}"
+            )
         )
     sys.exit(0)
 

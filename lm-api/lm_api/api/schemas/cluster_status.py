@@ -1,8 +1,11 @@
-"""Schema definitions for the cluster app."""
+"""
+Schema definitions for the cluster app.
+"""
 
-from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from pydantic import ConfigDict, field_serializer
 from pydantic_extra_types.pendulum_dt import DateTime
+
+from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 
 
 class ClusterStatusSchema(BaseCreateSchema, BaseUpdateSchema):

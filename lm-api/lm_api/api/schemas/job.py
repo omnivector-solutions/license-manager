@@ -1,7 +1,10 @@
-"""Job schemas for the License Manager API."""
+"""
+Job schemas for the License Manager API.
+"""
+
 from typing import List, Optional
 
-from pydantic import ConfigDict, BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from lm_api.api.schemas.base import BaseCreateSchema, BaseUpdateSchema
 from lm_api.api.schemas.booking import BookingSchema

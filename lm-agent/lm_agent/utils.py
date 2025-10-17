@@ -1,4 +1,7 @@
-"""Provide utilities to be used by interfaces."""
+"""
+Provide utilities to be used by interfaces.
+"""
+
 import asyncio
 import shlex
 from typing import List, Optional
@@ -45,10 +48,10 @@ async def run_command(command_line_parts: List[str], stdin_str: Optional[str] = 
             raise CommandFailedToExecute(
                 f"The command failed to execute, with return code {proc.returncode}."
             )
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError as e:
         logger.error(f"Command {command_line} timed out after {settings.TOOL_TIMEOUT} seconds.")
         raise CommandFailedToExecute(
             f"The command failed to execute, timed out after {settings.TOOL_TIMEOUT} seconds."
-        )
+        ) from e
 
     return output

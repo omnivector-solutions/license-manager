@@ -9,7 +9,6 @@ from lm_cli.constants import SortOrder
 from lm_cli.exceptions import Abort
 from lm_cli.requests import _deserialize_request_model, make_request, parse_query_params
 
-
 DEFAULT_DOMAIN = "https://dummy-domain.com"
 
 
@@ -50,9 +49,10 @@ class ErrorResponseModel(pydantic.BaseModel):
 
 def test__deserialize_request_model__success():
     """
-    Validate that the ``_deserialize_request_model`` method can successfully deserialize a pydantic model instance into
-    the ``content`` part of the ``request_kwargs``. Also, validate that the ``content-type`` part of the request is set
-    to ``application/json``.
+    Validate that the ``_deserialize_request_model`` method can successfully
+    deserialize a pydantic model instance into the ``content`` part of the ``request_kwargs``.
+
+    Also, validate that the ``content-type`` part of the request is set to ``application/json``.
     """
     request_kwargs = dict()
     _deserialize_request_model(
@@ -67,8 +67,8 @@ def test__deserialize_request_model__success():
 
 def test__deserialize_request_model__raises_Abort_if_request_kwargs_already_has_other_body_parts():
     """
-    Validate that the ``_deserialize_request_model`` raises an Abort if the ``request_kwargs`` already has a "body" part
-    (``data``, ``json``, or ``content``).
+    Validate that the ``_deserialize_request_model`` raises an Abort if the
+    ``request_kwargs`` already has a "body" part (``data``, ``json``, or ``content``).
     """
     with pytest.raises(Abort, match="Request was incorrectly structured"):
         _deserialize_request_model(
@@ -156,8 +156,8 @@ def test_make_request__raises_Abort_when_expected_status_is_not_None_and_respons
     respx_mock, dummy_client
 ):
     """
-    Validate that the ``make_request()`` function will raise an Abort if the ``expected_status`` arg is set and it
-    does not match the status code of the response.
+    Validate that the ``make_request()`` function will raise an Abort if the ``expected_status`` arg is set
+    and it does not match the status code of the response.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -189,8 +189,8 @@ def test_make_request__does_not_raise_Abort_when_expected_status_is_None_and_res
     respx_mock, dummy_client
 ):
     """
-    Validate that the ``make_request()`` function will not raise an Abort if the ``expected_status`` arg is not set
-    and the response is an error status code.
+    Validate that the ``make_request()`` function will not raise an Abort if the ``expected_status`` arg
+    is not set and the response is an error status code.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -213,8 +213,8 @@ def test_make_request__does_not_raise_Abort_when_expected_status_is_None_and_res
 
 def test_make_request__returns_the_response_status_code_if_expect_response_is_False(respx_mock, dummy_client):
     """
-    Validate that the ``make_request()`` function will return None if the ``expect_response`` arg is False and the
-    request was successfull.
+    Validate that the ``make_request()`` function will return None if the ``expect_response`` arg
+    is False and the request was successfull.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -230,7 +230,8 @@ def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_wi
     respx_mock, dummy_client
 ):
     """
-    Validate that the ``make_request()`` function will raise an Abort if the response is not JSON de-serializable.
+    Validate that the ``make_request()`` function will raise an Abort if the response is
+    not JSON de-serializable.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -259,8 +260,8 @@ def test_make_request__raises_an_Abort_if_the_response_cannot_be_deserialized_wi
 
 def test_make_request__returns_a_plain_dict_if_response_model_cls_is_None(respx_mock, dummy_client):
     """
-    Validate that the ``make_request()`` function will return a plain dictionary containing the response data if the
-    ``response_model_cls`` argument is not supplied.
+    Validate that the ``make_request()`` function will return a plain dictionary containing the
+    response data if the ``response_model_cls`` argument is not supplied.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -279,8 +280,8 @@ def test_make_request__raises_an_Abort_if_the_response_data_cannot_be_serialized
     respx_mock, dummy_client
 ):
     """
-    Validate that the ``make_request()`` function will raise an Abort if the response data cannot be serialized as and
-    validated with the ``response_model_cls``.
+    Validate that the ``make_request()`` function will raise an Abort if the response data cannot be
+    serialized as and validated with the ``response_model_cls``.
     """
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
@@ -310,10 +311,9 @@ def test_make_request__raises_an_Abort_if_the_response_data_cannot_be_serialized
 
 def test_make_request__uses_request_model_instance_for_request_body_if_passed(respx_mock, dummy_client):
     """
-    Validate that the ``make_request()`` function will use a pydantic model instance to build the body of the request if
-    the ``request_model`` argument is passed.
+    Validate that the ``make_request()`` function will use a pydantic model instance to
+    build the body of the request if the ``request_model`` argument is passed.
     """
-
     client = dummy_client(headers={"content-type": "garbage"})
     req_path = "/fake-path"
 
@@ -339,7 +339,9 @@ def test_make_request__uses_request_model_instance_for_request_body_if_passed(re
     assert dummy_response_instance.foo == 1
     assert dummy_response_instance.bar == "one"
 
-    assert json.loads(dummy_route.calls.last.request.content.decode("utf-8")) == json.loads(json.dumps(dict(foo=1, bar="one")).encode("utf-8"))
+    assert json.loads(dummy_route.calls.last.request.content.decode("utf-8")) == json.loads(
+        json.dumps(dict(foo=1, bar="one")).encode("utf-8")
+    )
     assert dummy_route.calls.last.request.headers["Content-Type"] == "application/json"
 
 

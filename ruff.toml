@@ -1,0 +1,16 @@
+line-length = 110
+
+[lint]
+select = ["E", "F", "I", "B"]
+ignore = ["B008"]
+
+[lint.isort]
+known-first-party = ["lm_agent", "lm_api", "lm_cli", "lm_simulator_api", "lm-test"]
+
+[lint.per-file-ignores]
+"lm-agent/tests/conftest.py" = ["E501"]
+"lm-agent/tests/workload_managers/slurm/test_reservations.py" = ["E501"]
+"lm-agent/tests/parsing/test_flexlm.py" = ["E501"]
+
+[format]
+quote-style = "double"

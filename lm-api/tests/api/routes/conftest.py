@@ -1,14 +1,13 @@
+import pendulum
 from pytest import fixture
 
 from lm_api.api.models.booking import Booking
+from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.api.models.configuration import Configuration
 from lm_api.api.models.feature import Feature
 from lm_api.api.models.job import Job
 from lm_api.api.models.license_server import LicenseServer
 from lm_api.api.models.product import Product
-from lm_api.api.models.cluster_status import ClusterStatus
-
-import pendulum
 
 
 @fixture

@@ -1,19 +1,20 @@
 """
 Invoke license stat tools to build a view of license token counts.
 """
+
 import asyncio
 import typing
 
-from lm_agent.models import ConfigurationSchema, LicenseReportItem
 from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_feature_update
-from lm_agent.exceptions import LicenseManagerNonSupportedServerTypeError, LicenseManagerEmptyReportError
+from lm_agent.exceptions import LicenseManagerEmptyReportError, LicenseManagerNonSupportedServerTypeError
 from lm_agent.logs import logger
+from lm_agent.models import ConfigurationSchema, LicenseReportItem
+from lm_agent.server_interfaces.dsls import DSLSLicenseServer
 from lm_agent.server_interfaces.flexlm import FlexLMLicenseServer
 from lm_agent.server_interfaces.lmx import LMXLicenseServer
 from lm_agent.server_interfaces.lsdyna import LSDynaLicenseServer
 from lm_agent.server_interfaces.olicense import OLicenseLicenseServer
 from lm_agent.server_interfaces.rlm import RLMLicenseServer
-from lm_agent.server_interfaces.dsls import DSLSLicenseServer
 from lm_agent.workload_managers.slurm.cmd_utils import get_all_product_features_from_cluster
 
 

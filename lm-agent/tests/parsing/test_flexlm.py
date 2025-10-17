@@ -1,11 +1,11 @@
 """
-Test the flexlm parser
+Test the FlexLM parser.
 """
+
 from pytest import mark
 
-from lm_agent.parsing.flexlm import parse, parse_feature_line, parse_usage_line
-
 from lm_agent.models import LicenseUsesItem
+from lm_agent.parsing.flexlm import parse, parse_feature_line, parse_usage_line
 
 
 @mark.parametrize(

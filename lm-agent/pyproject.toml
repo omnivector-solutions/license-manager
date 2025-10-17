@@ -48,7 +48,7 @@ env = [
 ]
 
 [tool.ruff]
-line-length = 110
+extend = "../ruff.toml"
 
 [[tool.mypy.overrides]]
 module = [

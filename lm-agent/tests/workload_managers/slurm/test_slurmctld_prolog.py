@@ -1,6 +1,7 @@
 """
 Test Prolog script.
 """
+
 from unittest import mock
 
 import pytest

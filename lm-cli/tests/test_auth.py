@@ -21,7 +21,6 @@ from lm_cli.exceptions import Abort
 from lm_cli.schemas import LicenseManagerContext
 from lm_cli.time_loop import Tick
 
-
 LOGIN_DOMAIN = "https://dummy-auth.com"
 
 

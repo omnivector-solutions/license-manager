@@ -15,10 +15,10 @@ requests = "^2.26.0"
 Jinja2 = "^3.0.1"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5.7"
+ruff = "^0.13.0"
 
 [tool.ruff]
-line-length = 110
+extend = "../ruff.toml"
 
 [tool.poetry.scripts]
 lmutil = "lm_simulator.fake_binaries.flexlm.lmutil:main"

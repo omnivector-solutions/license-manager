@@ -1,10 +1,14 @@
-"""Cluster CRUD class for SQLAlchemy models."""
+"""
+Cluster CRUD class for SQLAlchemy models.
+"""
+
+from typing import Optional
+
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from typing import Optional
 from lm_api.api.cruds.generic import GenericCRUD
 from lm_api.api.models.cluster_status import ClusterStatus
 from lm_api.api.schemas.cluster_status import ClusterStatusSchema
@@ -25,7 +29,7 @@ class ClusterStatusCRUD(GenericCRUD):
             db_obj = query.scalar_one_or_none()
         except Exception as e:
             logger.error(e)
-            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.")
+            raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be read.") from e
 
         if db_obj is None:
             create_obj = self.model(**payload.model_dump())
@@ -33,7 +37,9 @@ class ClusterStatusCRUD(GenericCRUD):
                 db_session.add(create_obj)
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be created.")
+                raise HTTPException(
+                    status_code=400, detail=f"{self.model.__name__} could not be created."
+                ) from e
 
             await db_session.flush()
             await db_session.refresh(create_obj)
@@ -48,6 +54,8 @@ class ClusterStatusCRUD(GenericCRUD):
                 await db_session.refresh(db_obj)
             except Exception as e:
                 logger.error(e)
-                raise HTTPException(status_code=400, detail=f"{self.model.__name__} could not be updated.")
+                raise HTTPException(
+                    status_code=400, detail=f"{self.model.__name__} could not be updated."
+                ) from e
 
             return db_obj

@@ -14,7 +14,6 @@ from rich.panel import Panel
 from lm_cli.config import OV_CONTACT
 from lm_cli.text_tools import dedent, unwrap
 
-
 # Enables prettified traceback printing via rich
 traceback.install()
 
@@ -91,6 +90,6 @@ def handle_abort(func):
             console.print()
             console.print(Panel(message, **panel_kwargs))
             console.print()
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from err
 
     return wrapper
