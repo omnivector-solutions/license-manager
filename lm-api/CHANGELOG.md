@@ -3,7 +3,12 @@
 This file keeps track of all notable changes to `License Manager API`.
 
 ## Unreleased
+
+
+## 4.5.0a0 -- 2025-10-17
 * Update keycloak token structure [[PENG-3064](https://app.clickup.com/t/18022949/PENG-3064)]
+* Update dependencies to latest versions
+* Improve `ruff` configuration for linting and formatting
 
 ## 4.4.0 -- 2025-04-04
 * Remove `pytest-freezegun` dependency [ASP-6607]
