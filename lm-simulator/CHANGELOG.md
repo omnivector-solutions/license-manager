@@ -5,7 +5,7 @@ This file keeps track of all notable changes to License Manager Simulator
 ## Unreleased
 
 
-## 4.5.0a0 -- 2025-10-17
+## 4.5.0 -- 2025-11-14
 * Update dependencies to latest versions
 * Improve `ruff` configuration for linting and formatting
 
