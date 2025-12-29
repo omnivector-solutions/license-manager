@@ -1,34 +1,43 @@
-[tool.poetry]
+[project]
 name = "license-manager-agent"
 version = "4.5.0"
 description = "Provides an agent for interacting with license manager"
-authors = ["OmniVector Solutions <info@omnivector.solutions>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
 documentation = "https://omnivector-solutions.github.io/license-manager/"
-packages = [{ include = "lm_agent" }]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-httpx = "^0.28.1"
-PyJWT = "^2.10.0"
-pydantic = "^2.12"
-sentry-sdk = "2.38.0"
-py-buzz = "^7.3.0"
-pydantic-settings = "^2.10.1"
-apscheduler = "3.10.4"
+dependencies = [
+    "httpx>=0.28.1",
+    "PyJWT>=2.10.0",
+    "pydantic>=2.12",
+    "sentry-sdk==2.38.0",
+    "py-buzz>=7.3.0",
+    "pydantic-settings>=2.10.1",
+    "apscheduler==3.10.4",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.18.1"
-pytest = "^8.2.0"
-pytest-asyncio = "^1.0.0"
-pytest-cov = "^7.0.0"
-pytest-env = "^1.0.0"
-respx = "^0.22.0"
-pytest-random-order = "^1.2.0"
-pytest-sugar = "^1.1.1"
-ruff = "^0.13.0"
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.18.1",
+    "pytest>=8.2.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=7.0.0",
+    "pytest-env>=1.0.0",
+    "respx>=0.22.0",
+    "pytest-random-order>=1.2.0",
+    "pytest-sugar>=1.1.1",
+    "ruff>=0.13.0",
+]
+
+[project.scripts]
+license-manager-agent = "lm_agent.main:main"
+slurmctld-prolog = "lm_agent.workload_managers.slurm.slurmctld_prolog:main"
+slurmctld-epilog = "lm_agent.workload_managers.slurm.slurmctld_epilog:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -58,11 +67,9 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.poetry.scripts]
-license-manager-agent = "lm_agent.main:main"
-slurmctld-prolog = "lm_agent.workload_managers.slurm.slurmctld_prolog:main"
-slurmctld-epilog = "lm_agent.workload_managers.slurm.slurmctld_epilog:main"
+[tool.hatch.build.targets.wheel]
+packages = ["lm_agent"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
