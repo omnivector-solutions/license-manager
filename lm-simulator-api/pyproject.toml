@@ -1,37 +1,44 @@
-[tool.poetry]
+[project]
 name = "license-manager-simulator-api"
 version = "4.5.0"
 description = "Provides an API for interfacing with License Manager Simulator"
-authors = ["OmniVector Solutions <info@omnivector.solutions>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
 documentation = "https://omnivector-solutions.github.io/license-manager/"
-packages = [{ include = "lm_simulator_api" }]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-fastapi = {extras = ["all"], version = "^0.116.2"}
-pydantic = "^2.11.9"
-pydantic-settings = "^2.10.1"
-SQLAlchemy = {extras = ["mypy"], version = "^2.0.43"}
-uvicorn = "^0.35.0"
-requests = "^2.32.5"
-psycopg2 = "2.9.10"
-yarl = "^1.20.1"
-asyncpg = "^0.30.0"
-py-buzz = "7.2.0"
-toml = "^0.10.2"
-httpx = "^0.28.1"
+dependencies = [
+    "fastapi[all]>=0.116.2",
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.10.1",
+    "SQLAlchemy[mypy]>=2.0.43",
+    "uvicorn>=0.35.0",
+    "requests>=2.32.5",
+    "psycopg2==2.9.10",
+    "yarl>=1.20.1",
+    "asyncpg>=0.30.0",
+    "py-buzz==7.2.0",
+    "toml>=0.10.2",
+    "httpx>=0.28.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.2.0"
-pytest-asyncio = "^1.0.0"
-pytest-cov = "^7.0.0"
-pytest-env = "^1.0.0"
-pytest-random-order = "^1.2.0"
-python-dotenv = "^1.1.1"
-ruff = "^0.13.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=7.0.0",
+    "pytest-env>=1.0.0",
+    "pytest-random-order>=1.2.0",
+    "python-dotenv>=1.1.1",
+    "ruff>=0.13.0",
+]
+
+[tool.ruff]
+extend = "../ruff.toml"
 
 [tool.pytest.ini_options]
 addopts = "-v --random-order --cov=lm_simulator_api --cov-report=term-missing --cov-fail-under=85"
@@ -44,9 +51,9 @@ env = [
     "TEST_DATABASE_PORT: 5432"
 ]
 
-[tool.ruff]
-extend = "../ruff.toml"
+[tool.hatch.build.targets.wheel]
+packages = ["lm_simulator_api"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
