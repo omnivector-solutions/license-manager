@@ -1,42 +1,45 @@
-[tool.poetry]
+[project]
 name = "license-manager-cli"
 version = "4.5.0"
 description = "License Manager CLI Client"
-authors = ["Omnivector Solutions <info@omnivector.solutions>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
 documentation = "https://omnivector-solutions.github.io/license-manager/"
-packages = [ { include = "lm_cli" } ]
 
+dependencies = [
+    "pydantic>=2.12",
+    "rich>=14.2.0",
+    "pyperclip>=1.11.0",
+    "python-jose>=3.5.0",
+    "loguru>=0.7.3",
+    "py-buzz>=7.3.0",
+    "typer>=0.19.2",
+    "pendulum==3.1.0",
+    "httpx>=0.28.1",
+    "importlib-metadata<5.0",
+    "python-dotenv>=1.1.1",
+    "pydantic-settings>=2.11.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-pydantic = "^2.12"
-rich = "^14.2.0"
-pyperclip = "^1.11.0"
-python-jose = "^3.5.0"
-loguru = "^0.7.3"
-py-buzz = "^7.3.0"
-typer = "^0.19.2"
-pendulum = "3.1.0"
-httpx = "^0.28.1"
-importlib-metadata = "<5.0"
-python-dotenv = "^1.1.1"
-pydantic-settings = "^2.11.0"
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.18.0",
+    "plummet[time-machine]>=1.1.0",
+    "pytest-random-order>=1.2.0",
+    "pytest-cov>=7.0.0",
+    "pytest-responsemock>=1.0.1",
+    "pytest-env>=1.0.0",
+    "pytest-mock>=3.6.0",
+    "respx>=0.22.0",
+    "ruff>=0.13.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.18.0"
-plummet = { extras = ["time-machine"], version = "^1.1.0" }
-pytest-random-order = "^1.2.0"
-pytest-cov = "^7.0.0"
-pytest-responsemock = "^1.0.1"
-pytest-env = "^1.0.0"
-pytest-mock = "^3.6.0"
-respx = "^0.22.0"
-ruff = "^0.13.0"
-
-[tool.poetry.scripts]
+[project.scripts]
 lm-cli = "lm_cli.main:app"
 
 [tool.pytest.ini_options]
@@ -65,7 +68,9 @@ module = [
 ]
 ignore_missing_imports = true
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["lm_cli"]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
