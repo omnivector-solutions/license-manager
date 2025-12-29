@@ -7,17 +7,17 @@ PACKAGE_NAME:=lm_simulator
 
 .PHONY: install
 install:
-	poetry install
+	uv sync --extra dev
 
 .PHONY: verify
 verify: install
-	poetry run ruff check ${PACKAGE_NAME}
-	poetry run ruff format --check ${PACKAGE_NAME}
+	uv run ruff check ${PACKAGE_NAME}
+	uv run ruff format --check ${PACKAGE_NAME}
 
 .PHONY: modify
 modify: install
-	poetry run ruff check --fix ${PACKAGE_NAME}
-	poetry run ruff format ${PACKAGE_NAME}
+	uv run ruff check --fix ${PACKAGE_NAME}
+	uv run ruff format ${PACKAGE_NAME}
 
 .PHONY: qa
 qa: verify
