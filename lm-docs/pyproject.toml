@@ -1,19 +1,18 @@
-[tool.poetry]
+[project]
 name = "license-manager-documentation"
 version = "3.0.6"
 description = "License Manager Official Documentation"
-authors = ["Omnivector Solutions <info@omnivector.solutions>"]
-license = "MIT"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
 
-[tool.poetry.dependencies]
-python = "^3.12"
-mkdocs-material = "^9.1.21"
-griffe-pydantic = "^1.1.0"
-griffe = "^1.5.1"
-mkdocstrings-python = "^1.12.2"
-pydantic = "^2.10.2"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+dependencies = [
+    "mkdocs-material>=9.1.21",
+    "griffe-pydantic>=1.1.0",
+    "griffe>=1.5.1",
+    "mkdocstrings-python>=1.12.2",
+    "pydantic>=2.10.2",
+]
