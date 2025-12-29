@@ -34,7 +34,7 @@ services:
       ARMASEC_DOMAIN: armasec.dev
       LOG_LEVEL: DEBUG
       DEPLOY_ENV: TEST
-    command: poetry run pytest -s
+    command: uv run pytest -s
     depends_on:
       test-db:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
       DATABASE_NAME: ${DATABASE_NAME:-compose-db-name}
       ARMASEC_DOMAIN: armasec.dev
       LOG_LEVEL: DEBUG
-    command: "poetry run python -m alembic -c alembic/alembic.ini upgrade head"
+    command: "uv run python -m alembic -c alembic/alembic.ini upgrade head"
     depends_on:
       pgsql:
         condition: service_healthy

@@ -63,7 +63,7 @@ async def test_get_all_features__success(
 
     expected_features = sorted(create_features, key=lambda e: e.name)
     computed_features = sorted(response.json(), key=lambda e: e["name"])
-    for expected, computed in zip(expected_features, computed_features):
+    for expected, computed in zip(expected_features, computed_features, strict=True):
         assert computed["name"] == expected.name
         assert computed["reserved"] == expected.reserved
 
@@ -91,7 +91,7 @@ async def test_get_all_features__with_booked_total(
 
     expected_features = sorted(create_features, key=lambda e: e.name)
     computed_features = sorted(response.json(), key=lambda e: e["name"])
-    for expected, computed in zip(expected_features, computed_features):
+    for expected, computed in zip(expected_features, computed_features, strict=True):
         assert computed["name"] == expected.name
         assert computed["reserved"] == expected.reserved
         if "booked_total" in computed and getattr(expected, "quantity", None) is not None:

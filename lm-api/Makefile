@@ -7,7 +7,7 @@ PACKAGE_NAME:=lm_api
 
 .PHONY: install
 install:
-	poetry install
+	uv sync --extra dev 
 
 .PHONY: test
 test:
@@ -16,17 +16,17 @@ test:
 
 .PHONY: mypy
 mypy: install
-	poetry run mypy ${PACKAGE_NAME} --pretty
+	uv run mypy ${PACKAGE_NAME} --pretty
 
 .PHONY: verify
 verify: install
-	poetry run ruff check tests ${PACKAGE_NAME}
-	poetry run ruff format --check tests ${PACKAGE_NAME}
+	uv run ruff check tests ${PACKAGE_NAME}
+	uv run ruff format --check tests ${PACKAGE_NAME}
 
 .PHONY: modify
 modify: install
-	poetry run ruff check --fix tests ${PACKAGE_NAME}
-	poetry run ruff format tests ${PACKAGE_NAME}
+	uv run ruff check --fix tests ${PACKAGE_NAME}
+	uv run ruff format tests ${PACKAGE_NAME}
 
 .PHONY: qa
 qa: test mypy verify
@@ -48,14 +48,14 @@ local:
 #   $ make db-migration MESSAGE="this migration applies foo to bar"
 .PHONY: db-migrate
 db-migrate: install
-	poetry run alembic --config=alembic/alembic.ini revision --autogenerate --message "$(MESSAGE)"
+	uv run alembic --config=alembic/alembic.ini revision --autogenerate --message "$(MESSAGE)"
 
 # To override the upgrade target from head, set the UPGRADE_TARGET variable in the make command:
 #   $ make db-upgrade UPGRADE_TARGET=bf1e9e
 UPGRADE_TARGET ?= head
 .PHONY: db-upgrade
 db-upgrade: install
-	poetry run alembic --config=alembic/alembic.ini upgrade $(UPGRADE_TARGET)
+	uv run alembic --config=alembic/alembic.ini upgrade $(UPGRADE_TARGET)
 
 .PHONY: clean
 clean:
