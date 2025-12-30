@@ -16,13 +16,15 @@ on:
         type: choice
         description: Bump version rule for uv
         options:
-        - patch
-        - minor
         - major
-        - prepatch
-        - preminor
-        - premajor
-        - prerelease
+        - minor
+        - patch
+        - stable
+        - alpha
+        - beta
+        - rc
+        - post
+        - dev
 
 permissions:
   contents: write
