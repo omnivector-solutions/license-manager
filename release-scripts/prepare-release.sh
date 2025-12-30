@@ -21,8 +21,8 @@ fi
 
 echo "Creating release for version increment in $version_type"
 
-poetry version $version_type
-version_target=$(poetry version --short)
+uv version --bump $version_type
+version_target=$(uv version --short)
 
 echo "Building release $version_target"
 

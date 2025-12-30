@@ -3,18 +3,18 @@ name: Prepare for release
 # This action:
 #   - Is triggered manually in a workflow dispatch;
 #   - Inquire the kind of release in a dropdown menu;
-#   - Use Poetry to bump up the versions;
+#   - Use uv to bump up the versions;
 #   - Create a new header for the new version at the changelogs;
 #   - Check if all sub-projects share the same version number;
 #   - Create a new branch named prepare-release/<new_version>;
 #   - Open a draft PR to the main branch, so all the changes above can be reviewed by the team before merging.
 
 on:
-  workflow_dispatch:
+   workflow_dispatch:
     inputs:
       bump_rule:
         type: choice
-        description: Bump version rule for Poetry
+        description: Bump version rule for uv
         options:
         - patch
         - minor
@@ -38,53 +38,52 @@ jobs:
         with:
           python-version: 3.12
 
-      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
-        with:
-          poetry-version: 1.5.1
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
 
       - id: agent-package
         name: Bump version on the agent
         working-directory: lm-agent
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
       - id: backend-package
         name: Bump version on the API
         working-directory: lm-api
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
       - id: lm-cli-package
         name: Bump version on the CLI
         working-directory: lm-cli
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
       - id: lm-sim-package
         name: Bump version on the Simulator
         working-directory: lm-simulator
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)" 
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
       - id: lm-sim-api-package
         name: Bump version on the Simulator API
         working-directory: lm-simulator-api
         run: |
           ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)" 
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
-      - name: Fail if poetry packages version don't match
+      - name: Fail if uv packages version don't match
         if: ${{ steps.agent-package.outputs.version != steps.backend-package.outputs.version != steps.lm-cli-package.outputs.version != steps.lm-sim-package.outputs.version != steps.lm-sim-api-package.outputs.version }}
-        run: echo "Poetry packages version don't match!"
+        run: echo "uv packages version don't match!"
 
       - uses: peter-evans/create-pull-request@4320041ed380b20e97d388d56a7fb4f9b8c20e79 # v7
         name: Create Pull Request
