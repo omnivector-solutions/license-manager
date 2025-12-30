@@ -47,11 +47,8 @@ RUN ln -s /opt/python/python3.12/bin/python3.12 /usr/local/bin/python3
 
 ENV PATH=/usr/local/bin:$PATH
 
-# Install Poetry
-RUN curl -sSL  https://install.python-poetry.org | \
-    POETRY_HOME=/opt/poetry POETRY_VERSION=1.5.1 python3 && \
-    ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry && \
-    poetry config virtualenvs.in-project true
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Prepare Filesystem
 RUN mkdir /var/spool/slurmctld \

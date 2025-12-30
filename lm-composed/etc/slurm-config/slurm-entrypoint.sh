@@ -34,10 +34,10 @@ then
 
     echo "---> Installing lm-agent ..."
     cd /app/lm-agent
-    poetry install
+    uv sync
 
     echo "---> Installing lm-simulator ..."
-    poetry add /app/lm-simulator
+    uv pip install /app/lm-simulator
     
     echo "---> Polutating LM API with pre-defined license ..."
     /app/populate-lm-api.py
@@ -46,7 +46,7 @@ then
     /app/populate-lm-simulator-api.py
 
     echo "---> Starting the License Manager Agent (lm-agent) ..."
-    poetry run license-manager-agent &
+    uv run license-manager-agent &
 
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
     gosu slurm /usr/sbin/slurmctld -Dvvv &
