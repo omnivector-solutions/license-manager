@@ -10,7 +10,7 @@ name: Prepare for release
 #   - Open a draft PR to the main branch, so all the changes above can be reviewed by the team before merging.
 
 on:
-   workflow_dispatch:
+  workflow_dispatch:
     inputs:
       bump_rule:
         type: choice
