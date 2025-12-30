@@ -16,13 +16,13 @@ def get_version_from_metadata() -> str:
     return metadata.version(__package__ or __name__)
 
 
-def get_version_from_poetry() -> str:
+def get_version_from_uv() -> str:
     """
     Get the version from pyproject.toml.
     This is a fallback method if the package is not installed, but just copied
     and accessed locally, like in a Docker image.
     """
-    return toml.load("pyproject.toml")["tool"]["poetry"]["version"]
+    return toml.load("pyproject.toml")["project"]["version"]
 
 
 def get_version() -> str:
@@ -34,7 +34,7 @@ def get_version() -> str:
         return get_version_from_metadata()
     except metadata.PackageNotFoundError:
         try:
-            return get_version_from_poetry()
+            return get_version_from_uv()
         except (FileNotFoundError, KeyError):
             return "unknown"
 
