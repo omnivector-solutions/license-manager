@@ -32,6 +32,10 @@ qa: test verify
 local: install
 	docker compose up --build lm-simulator
 
+.PHONY: changes
+changes:
+	towncrier create --dir .. --section "Simulator API"
+
 .PHONY: clean
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete
