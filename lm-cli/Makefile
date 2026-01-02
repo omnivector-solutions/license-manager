@@ -29,6 +29,10 @@ modify: install
 qa: test mypy verify
 	echo "All quality checks pass!"
 
+.PHONY: changes
+changes:
+	towncrier create --dir .. --section "CLI"
+
 .PHONY: clean
 clean:
 	@find . -iname '*.pyc' -delete

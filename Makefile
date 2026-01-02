@@ -44,3 +44,15 @@ clean:
 	$(MAKE) -C lm-simulator clean
 	$(MAKE) -C lm-simulator-api clean
 	$(MAKE) -C lm-agent-snap clean
+
+.PHONY: changes
+changes:
+	towncrier create --dir .
+
+.PHONY: changelog-draft
+changelog-draft:
+	towncrier build --draft --version $$(uv version --short --directory lm-agent)
+
+.PHONY: changelog-build
+changelog-build:
+	towncrier build --yes --version $$(uv version --short --directory lm-agent)
