@@ -1,59 +1,62 @@
-[tool.poetry]
+[project]
 name = "license-manager-backend"
 version = "4.5.0"
 description = "Provides an API for managing license data"
-authors = ["OmniVector Solutions <info@omnivector.solutions>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
 documentation = "https://omnivector-solutions.github.io/license-manager/"
-packages = [{ include = "lm_api" }]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-fastapi = {extras = ["all"], version = "^0.116.2"}
-sentry-sdk = "2.38.0"
-jwt = {version = "^1.4.0", optional = true}
-SQLAlchemy-Utils = "^0.42.0"
-loguru = "^0.7.3"
-asyncpg = "^0.30.0"
-uvicorn = "^0.35.0"
-python-dotenv = "^1.1.1"
-armasec = "^3.0.2"
-SQLAlchemy = {extras = ["mypy"], version = "^2.0.43"}
-toml = "^0.10.2"
-py-buzz = "7.3.0"
-psycopg2 = "^2.9.10"
-yarl = "^1.20.1"
-pydantic = {version = "^2.11.9", extras = ["email"]}
-inflection = "^0.5.1"
-pendulum = {extras = ["test"], version = "^3.1.0"}
-pydantic-settings = "^2.10.1"
-pydantic-extra-types = "^2.10.5"
-greenlet = "^3.2.4"
+dependencies = [
+    "fastapi[all]>=0.116.2",
+    "sentry-sdk==2.38.0",
+    "SQLAlchemy-Utils>=0.42.0",
+    "loguru>=0.7.3",
+    "asyncpg>=0.30.0",
+    "uvicorn>=0.35.0",
+    "python-dotenv>=1.1.1",
+    "armasec>=3.0.2",
+    "SQLAlchemy[mypy]>=2.0.43",
+    "toml>=0.10.2",
+    "py-buzz==7.3.0",
+    "psycopg2>=2.9.10",
+    "yarl>=1.20.1",
+    "pydantic[email]>=2.11.9",
+    "inflection>=0.5.1",
+    "pendulum[test]>=3.1.0",
+    "pydantic-settings>=2.10.1",
+    "pydantic-extra-types>=2.10.5",
+    "greenlet>=3.2.4",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.18.1"
-pytest = "^8.2.0"
-pytest-asyncio = "1.0.0"
-pytest-cov = "^7.0.0"
-pytest-env = "^1.0.0"
-respx = "^0.22.0"
-pytest-random-order = "^1.2.0"
-pytest-sugar = "^1.1.1"
-ipython = "^9.5.0"
-asgi-lifespan = "^2.1.0"
-alembic = "^1.16.5"
-ruff = "^0.13.0"
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.18.1",
+    "pytest>=8.2.0",
+    "pytest-asyncio==1.0.0",
+    "pytest-cov>=7.0.0",
+    "pytest-env>=1.0.0",
+    "respx>=0.22.0",
+    "pytest-random-order>=1.2.0",
+    "pytest-sugar>=1.1.1",
+    "ipython>=9.5.0",
+    "asgi-lifespan>=2.1.0",
+    "alembic>=1.16.5",
+    "ruff>=0.13.0",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-v --random-order --cov=lm_api --cov-report=term-missing --cov-fail-under=85"
 asyncio_mode = "auto"
 env = [
-    "DEPLOY_ENV = TEST",  # Enforces that test database env vars will be used
-    "ARMASEC_DOMAIN = armasec.dev",  # Must align with the rs256_domain fixture in armasec's pytest extension
-    "ARMASEC_DEBUG = False",  # Set this to True to debug armasec issues by seeing verbose logging
+    "DEPLOY_ENV = TEST",
+    "ARMASEC_DOMAIN = armasec.dev",
+    "ARMASEC_DEBUG = False",
 ]
 
 [tool.coverage.run]
@@ -63,7 +66,10 @@ concurrency = ["greenlet", "thread"]
 extend = "../ruff.toml"
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin, pydantic.mypy"
+plugins = [
+    "sqlalchemy.ext.mypy.plugin",
+    "pydantic.mypy",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -74,6 +80,9 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.hatch.build.targets.wheel]
+packages = ["lm_api"]
+
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

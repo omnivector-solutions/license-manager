@@ -7,7 +7,7 @@ Before you get started, ensure you have the following pre-requisites installed o
 * charmcraft
 * LXD (latest/stable)
 * juju
-* poetry
+* uv
 * docker compose
 * docker
 

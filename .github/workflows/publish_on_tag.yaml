@@ -36,38 +36,38 @@ jobs:
         with:
           python-version: 3.12
   
-      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
 
-      - id: poetry-package-version
+      - id: uv-package-version
         name: Get project's version
         working-directory: ${{ matrix.sub_project }}
         run: |
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
       - name: Fail if package version doesn't match the tag
-        if: ${{ github.ref_name != steps.poetry-package-version.outputs.version }}
+        if: ${{ github.ref_name != steps.uv-package-version.outputs.version }}
         run: |
-          echo "Poetry package version doesn't match tag!"
-          echo "tag=${{ github.ref_name }}, version=${{ steps.poetry-package-version.outputs.version }}"
+          echo "uv package version doesn't match tag!"
+          echo "tag=${{ github.ref_name }}, version=${{ steps.uv-package-version.outputs.version }}"
           exit 1
 
       - name: Build and publish on PyPI
         working-directory: ${{ matrix.sub_project }}
+        env:
+          UV_PYPI_TOKEN: ${{ secrets.OMNIVECTOR_PYPI_TOKEN }}
         run: |
-          poetry config pypi-token.pypi ${{ secrets.OMNIVECTOR_PYPI_TOKEN }}
-          poetry build
-          poetry publish
+          uv build
+          uv publish
 
       - name: Output metadata
         working-directory: ${{ matrix.sub_project }}
         if: matrix.sub_project == 'lm-agent'
         id: extract-metadata
         run: |
-          VERSION=$(find ./dist -name '*.tar.gz' | sed 's/.\/dist\/license_manager_agent-\(.*\)\.tar\.gz/\1/')
-          NAME=$(poetry --no-interaction version | awk '{print $1}')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
+          echo "name=$(uv version | awk '{print $1}')" >> "$GITHUB_OUTPUT"
 
   publish-to-ecr:
     name: Publish to ECR
@@ -87,20 +87,21 @@ jobs:
         with:
           python-version: 3.12
 
-      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
 
-      - id: poetry-package-version
-        name: Get version of project from poetry
+      - id: uv-package-version
+        name: Get version of project from uv
         working-directory: lm-api
         run: |
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
 
-      - name: Fail if poetry package version doesn't match tag
-        if: ${{ github.ref_name != steps.poetry-package-version.outputs.version }}
+      - name: Fail if uv package version doesn't match tag
+        if: ${{ github.ref_name != steps.uv-package-version.outputs.version }}
         run: |
-          echo "Poetry package version doesn't match tag!"
-          echo "tag=${{ github.ref_name }}, version=${{ steps.poetry-package-version.outputs.version }}"
+          echo "uv package version doesn't match tag!"
+          echo "tag=${{ github.ref_name }}, version=${{ steps.uv-package-version.outputs.version }}"
           exit 1
 
       - name: Setup AWS credentials
@@ -130,7 +131,6 @@ jobs:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v3
 

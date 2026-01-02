@@ -101,7 +101,7 @@ async def report() -> typing.List[LicenseReportItem]:
         *get_report_awaitables, return_exceptions=True
     )
 
-    for result, feature_info in zip(results, product_features_awaited):
+    for result, feature_info in zip(results, product_features_awaited, strict=True):
         feature_id, product_feature = feature_info
 
         if isinstance(result, Exception):

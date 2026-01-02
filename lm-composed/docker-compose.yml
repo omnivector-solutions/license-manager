@@ -46,7 +46,7 @@ services:
       ARMASEC_DOMAIN: keycloak.local:8080/realms/lm-local
       ARMASEC_USE_HTTPS: false
       LOG_LEVEL: DEBUG
-    command: poetry run python -m alembic -c alembic/alembic.ini upgrade head
+    command: uv run python -m alembic -c alembic/alembic.ini upgrade head
     depends_on:
       db-lm-api:
         condition: service_healthy
@@ -188,11 +188,11 @@ services:
       - ./slurm-work-dir:/slurm-work-dir
       - ../lm-agent/lm_agent/:/app/lm-agent/lm_agent
       - ../lm-agent/pyproject.toml:/app/lm-agent/pyproject.toml
-      - ../lm-agent/poetry.lock:/app/lm-agent/poetry.lock
+      - ../lm-agent/uv.lock:/app/lm-agent/uv.lock
       - ../lm-agent/README.md:/app/lm-agent/README.md
       - ../lm-simulator/lm_simulator/:/app/lm-simulator/lm_simulator
       - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
-      - ../lm-simulator/poetry.lock:/app/lm-simulator/poetry.lock
+      - ../lm-simulator/uv.lock:/app/lm-simulator/uv.lock
       - ../lm-simulator/README.md:/app/lm-simulator/README.md
       - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
       - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py

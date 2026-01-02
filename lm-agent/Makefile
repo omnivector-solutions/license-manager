@@ -7,25 +7,25 @@ PACKAGE_NAME:=lm_agent
 
 .PHONY: install
 install:
-	poetry install
+	uv sync --extra dev 
 
 .PHONY: test
 test: install
-	poetry run pytest
+	uv run pytest
 
 .PHONY: mypy
 mypy: install
-	poetry run mypy ${PACKAGE_NAME} --pretty
+	uv run mypy ${PACKAGE_NAME} --pretty
 
 .PHONY: verify
 verify: install
-	poetry run ruff check tests ${PACKAGE_NAME}
-	poetry run ruff format --check tests ${PACKAGE_NAME}
+	uv run ruff check tests ${PACKAGE_NAME}
+	uv run ruff format --check tests ${PACKAGE_NAME}
 
 .PHONY: modify
 modify: install
-	poetry run ruff check --fix tests ${PACKAGE_NAME}
-	poetry run ruff format tests ${PACKAGE_NAME}
+	uv run ruff check --fix tests ${PACKAGE_NAME}
+	uv run ruff format tests ${PACKAGE_NAME}
 
 .PHONY: qa
 qa: test mypy verify

@@ -4,12 +4,12 @@ WORKDIR /app
 
 RUN apt update && apt install -y curl libpq-dev gcc
 
-COPY ./pyproject.toml ./poetry.lock /app
+COPY ./pyproject.toml ./uv.lock ./README.md /app/
 
-RUN pip install poetry==2.1.2 \
-    && poetry config virtualenvs.in-project true \
-    && poetry install --no-root --only main \
-    && rm -rf "$POETRY_CACHE_DIR"
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+RUN uv sync --frozen --no-dev
+
 
 FROM python:3.12-slim-bullseye as runner
 

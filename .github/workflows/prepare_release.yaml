@@ -2,8 +2,8 @@ name: Prepare for release
 
 # This action:
 #   - Is triggered manually in a workflow dispatch;
-#   - Inquire the kind of release in a dropdown menu;
-#   - Use Poetry to bump up the versions;
+#   - Inquire the kind of base and stage release in a dropdown menu;
+#   - Use uv to bump up the versions;
 #   - Create a new header for the new version at the changelogs;
 #   - Check if all sub-projects share the same version number;
 #   - Create a new branch named prepare-release/<new_version>;
@@ -12,17 +12,28 @@ name: Prepare for release
 on:
   workflow_dispatch:
     inputs:
-      bump_rule:
+      base_bump:
+        description: Base version bump
         type: choice
-        description: Bump version rule for Poetry
+        required: false
         options:
-        - patch
-        - minor
-        - major
-        - prepatch
-        - preminor
-        - premajor
-        - prerelease
+          - ""
+          - major
+          - minor
+          - patch
+          - stable
+      stage_bump:
+        description: Prerelease / release stage
+        type: choice
+        required: false
+        options:
+          - ""
+          - alpha
+          - beta
+          - rc
+          - post
+          - dev
+
 
 permissions:
   contents: write
@@ -31,72 +42,109 @@ permissions:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
+    strategy:
+      matrix:
+        subproject:
+          - lm-agent
+          - lm-api
+          - lm-cli
+          - lm-simulator
+          - lm-simulator-api
+
+    outputs:
+      version: ${{ steps.capture-version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.12
 
-      - uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844 # v8
-        with:
-          poetry-version: 1.5.1
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
 
-      - id: agent-package
-        name: Bump version on the agent
+      - name: Validate version bump inputs
+        if: matrix.subproject == 'lm-agent'
+        run: |
+          BASE="${{ inputs.base_bump }}"
+          STAGE="${{ inputs.stage_bump }}"
+
+          if [ -z "$BASE" ] && [ -z "$STAGE" ]; then
+            echo "Error: at least one of base_bump or stage_bump must be set"
+            exit 1
+          fi
+
+          if [ "$BASE" = "stable" ] && [ -n "$STAGE" ]; then
+            echo "Error: 'stable' must not be combined with stage_bump"
+            exit 1
+          fi
+
+          if [ -z "$BASE" ] && [ -n "$STAGE" ]; then
+            CURRENT_VERSION=$(uv version --short)
+            if ! echo "$CURRENT_VERSION" | grep -Eq '(a|b|rc|dev|post)[0-9]+$'; then
+              echo "Error: stage_bump without base_bump requires an existing prerelease"
+              echo "Current version: $CURRENT_VERSION"
+              exit 1
+            fi
+          fi
+
+      - name: Bump version
+        working-directory: ${{ matrix.subproject }}
+        run: |
+          if [ -n "${{ inputs.base_bump }}" ]; then
+            uv version --bump "${{ inputs.base_bump }}"
+          fi
+
+          if [ -n "${{ inputs.stage_bump }}" ]; then
+            uv version --bump "${{ inputs.stage_bump }}"
+          fi
+
+      - name: Capture version
+        id: capture-version
+        if: matrix.subproject == 'lm-agent'
         working-directory: lm-agent
         run: |
-          ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          VERSION=$(uv version --short)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - id: backend-package
-        name: Bump version on the API
-        working-directory: lm-api
+      - name: Verify version consistency
+        if: matrix.subproject != 'lm-agent'
+        working-directory: ${{ matrix.subproject }}
         run: |
-          ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          EXPECTED="${{ needs.bump-version.outputs.version }}"
+          CURRENT=$(uv version --short)
 
-      - id: lm-cli-package
-        name: Bump version on the CLI
-        working-directory: lm-cli
-        run: |
-          ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)"
+          if [ "$CURRENT" != "$EXPECTED" ]; then
+            echo "Version mismatch in ${{ matrix.subproject }}"
+            echo "Expected: $EXPECTED"
+            echo "Found:    $CURRENT"
+            exit 1
+          fi
 
-      - id: lm-sim-package
-        name: Bump version on the Simulator
-        working-directory: lm-simulator
-        run: |
-          ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)" 
+  create-pr:
+    runs-on: ubuntu-latest
+    needs: bump-version
 
-      - id: lm-sim-api-package
-        name: Bump version on the Simulator API
-        working-directory: lm-simulator-api
-        run: |
-          ../release-scripts/prepare-release.sh ${{ github.event.inputs.bump_rule }}
-          echo "Poetry version is: $(poetry version --short)"
-          echo "::set-output name=version::$(poetry version --short)" 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Fail if poetry packages version don't match
-        if: ${{ steps.agent-package.outputs.version != steps.backend-package.outputs.version != steps.lm-cli-package.outputs.version != steps.lm-sim-package.outputs.version != steps.lm-sim-api-package.outputs.version }}
-        run: echo "Poetry packages version don't match!"
-
-      - uses: peter-evans/create-pull-request@4320041ed380b20e97d388d56a7fb4f9b8c20e79 # v7
-        name: Create Pull Request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@4320041ed380b20e97d388d56a7fb4f9b8c20e79 # v7
         id: cpr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Prepared release ${{ steps.agent-package.outputs.version }}"
-          branch: "prepare-release/${{ steps.agent-package.outputs.version }}"
-          title: "Release ${{ steps.agent-package.outputs.version }}"
+          commit-message: "Prepared release ${{ needs.bump-version.outputs.version }}"
+          branch: prepare-release/${{ needs.bump-version.outputs.version }}
+          title: Release ${{ needs.bump-version.outputs.version }}
           draft: true
           delete-branch: true
-          body: "Automated changes by [prepare_release](https://github.com/omnivector-solutions/license-manager/blob/main/.github/workflows/prepare_release.yaml) GitHub action."
+          body: |
+            Automated changes by [prepare_release](https://github.com/omnivector-solutions/license-manager/blob/main/.github/workflows/prepare_release.yaml) GitHub action.
 
       - name: Show Pull Request info
         if: ${{ steps.cpr.outputs.pull-request-number }}

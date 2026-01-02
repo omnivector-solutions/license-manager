@@ -1,28 +1,36 @@
-[tool.poetry]
+[project]
 name = "lm-test"
 version = "0.1.0"
 description = "License Manager automated integration test"
-authors = ["Omnivector Solutions <info@omnivector.solutions>"]
-license = "MIT"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
 repository = "https://github.com/omnivector-solutions/license-manager"
-packages = [{include = "lm_test"}]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-license-manager-cli = {path = "../lm-cli"}
-py-buzz = "^7.3.0"
-httpx = "^0.28.1"
+dependencies = [
+    # Local workspace / path dependency
+    "license-manager-cli @ file://../lm-cli",
+    "py-buzz>=7.3.0",
+    "httpx>=0.28.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.13.0"
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.13.0",
+]
+
+[project.scripts]
+test-lm = "lm_test.main:main"
 
 [tool.ruff]
 extend = "../ruff.toml"
 
-[tool.poetry.scripts]
-test-lm = "lm_test.main:main"
+[tool.hatch.build.targets.wheel]
+packages = ["lm_test"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
