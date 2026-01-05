@@ -32,14 +32,6 @@ modify: install
 qa: test mypy verify
 	echo "All quality checks pass!"
 
-.PHONY: release-%
-release-%:
-	../release-scripts/prepare-release.sh $(subst release-,,$@)
-
-.PHONY: publish
-publish:
-	../release-scripts/publish-release.sh
-
 .PHONY: local
 local:
 	docker compose up --build license-manager
@@ -56,6 +48,10 @@ UPGRADE_TARGET ?= head
 .PHONY: db-upgrade
 db-upgrade: install
 	uv run alembic --config=alembic/alembic.ini upgrade $(UPGRADE_TARGET)
+
+.PHONY: changes
+changes:
+	towncrier create --dir .. --section "API"
 
 .PHONY: clean
 clean:

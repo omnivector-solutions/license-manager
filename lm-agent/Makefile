@@ -31,13 +31,9 @@ modify: install
 qa: test mypy verify
 	echo "All quality checks pass!"
 
-.PHONY: release-%
-release-%:
-	../release-scripts/prepare-release.sh $(subst release-,,$@)
-
-.PHONY: publish
-publish:
-	../release-scripts/publish-release.sh
+.PHONY: changes
+changes:
+	towncrier create --dir .. --section "Agent"
 
 .PHONY: clean
 clean:

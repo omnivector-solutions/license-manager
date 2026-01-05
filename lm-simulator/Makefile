@@ -23,6 +23,10 @@ modify: install
 qa: verify
 	echo "All quality checks pass!"
 
+.PHONY: changes
+changes:
+	towncrier create --dir .. --section "Simulator"
+
 .PHONY: clean
 clean: clean-eggs clean-build
 	@find . -iname '*.pyc' -delete
