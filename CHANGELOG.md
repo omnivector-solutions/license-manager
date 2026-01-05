@@ -6,9 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## Unreleased
 
-Refer to component-specific unreleased sections in the original projects.
+Refer to [changes](./changes) directory for unreleased changes.
 
-<!-- unified changelog start -->
+<!-- towncrier release notes start -->
+
 
 ## 4.5.0 -- 2025-11-14
 
