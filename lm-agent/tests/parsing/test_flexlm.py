@@ -28,6 +28,14 @@ from lm_agent.parsing.flexlm import parse, parse_feature_line, parse_usage_line
             },
         ),
         (
+            "Users of TESTFEATURE:  (Total of 1 license issued;  Total of 1 license in use)",
+            {
+                "feature": "testfeature",
+                "total": 1,
+                "used": 1,
+            },
+        ),
+        (
             "not a feature line",
             None,
         ),
