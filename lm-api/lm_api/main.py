@@ -2,6 +2,7 @@
 License Manager API command line entrypoint.
 """
 
+import asyncio
 import logging
 import sys
 from contextlib import asynccontextmanager
@@ -17,6 +18,8 @@ from lm_api import __version__
 from lm_api.api import api
 from lm_api.config import settings
 from lm_api.database import engine_factory
+from lm_api.metrics.router import router as metrics_router
+from lm_api.metrics.updater import metrics_loop
 
 subapp = FastAPI(
     title="License Manager API",
@@ -94,10 +97,14 @@ async def lifespan(_: FastAPI):
 
         logger.info(f"Database logging configured 📝 Level: {settings.LOG_LEVEL_SQL}")
 
+    metrics_task = asyncio.create_task(metrics_loop())
+
     yield
 
+    metrics_task.cancel()
     await engine_factory.cleanup()
 
 
+subapp.include_router(metrics_router)
 app = FastAPI(lifespan=lifespan)
 app.mount("/lm", subapp)
