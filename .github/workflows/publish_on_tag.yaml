@@ -6,6 +6,7 @@ name: Publish on Tag
 #   - Build and release the packages to PyPI.
 #   - Build the agent snap and upload to the snap store.
 #   - Build the License Manager API Docker image and push to ECR.
+#   - Build the License Manager Agent Docker image and push to GHCR.
 
 on:
   push:
@@ -19,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build-publish:
@@ -123,6 +125,67 @@ jobs:
           IMAGE_TAG=${{ github.ref_name }}
           docker build -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG lm-api
           docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG
+
+  publish-agent-to-ghcr:
+    name: Publish Agent to GHCR
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Fail if ref is not a tag
+        if: github.ref_type != 'tag'
+        run: |
+          echo "Publish only supported from tag refs!"
+          echo "Got ref_type=${{ github.ref_type }} instead"
+          exit 1
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
+
+      - id: uv-package-version
+        name: Get version of project from uv
+        working-directory: lm-agent
+        run: |
+          echo "uv version is: $(uv version --short)"
+          echo "::set-output name=version::$(uv version --short)"
+
+      - name: Fail if uv package version doesn't match tag
+        if: ${{ github.ref_name != steps.uv-package-version.outputs.version }}
+        run: |
+          echo "uv package version doesn't match tag!"
+          echo "tag=${{ github.ref_name }}, version=${{ steps.uv-package-version.outputs.version }}"
+          exit 1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/lm-agent
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./lm-agent/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   snapstore:
     runs-on: ubuntu-24.04

@@ -1,0 +1,24 @@
+[project]
+name = "license-manager"
+version = "4.5.0"
+description = "License Manager monorepo workspace"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "license-manager-agent",
+    "license-manager-simulator",
+]
+
+[tool.uv.sources]
+license-manager-agent = { workspace = true }
+license-manager-simulator = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+    "lm-agent",
+    "lm-simulator",
+]
