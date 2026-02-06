@@ -11,14 +11,20 @@ requires-python = ">=3.12"
 dependencies = [
     "license-manager-agent",
     "license-manager-simulator",
+    "license-manager-simulator-api",
+    "license-manager-prolog-epilog-api",
 ]
 
 [tool.uv.sources]
 license-manager-agent = { workspace = true }
 license-manager-simulator = { workspace = true }
+license-manager-simulator-api = { workspace = true }
+license-manager-prolog-epilog-api = { workspace = true }
 
 [tool.uv.workspace]
 members = [
     "lm-agent",
     "lm-simulator",
+    "lm-simulator-api",
+    "lm-prolog-epilog-api",
 ]
