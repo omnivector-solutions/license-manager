@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS builder
+FROM ubuntu:resolute AS builder
 
 WORKDIR /app
 
@@ -30,13 +30,20 @@ COPY ./lm-prolog-epilog-api/lm_prolog_epilog_api /app/lm-prolog-epilog-api/lm_pr
 RUN uv sync --frozen --no-dev
 
 
-FROM python:3.12-slim-bullseye AS runner
+FROM ubuntu:resolute AS runner
 
 WORKDIR /app
 
-RUN apt update && apt install -y curl && rm -rf /var/lib/apt/lists/*
+# Install Python 3.14 runtime (matching the builder's uv-installed Python) and curl
+RUN apt update && apt install -y python3.14 curl && rm -rf /var/lib/apt/lists/*
+
+# Create slurm user (needed for Slurm client commands to read slurm.conf)
+RUN groupadd -r slurm && useradd -r -g slurm slurm
 
 COPY --from=builder /app /app
+
+# Recreate Python symlink in venv (broken during COPY since target doesn't exist)
+RUN ln -sf /usr/bin/python3.14 /app/.venv/bin/python
 
 ENV PATH="/app/.venv/bin:$PATH"
 

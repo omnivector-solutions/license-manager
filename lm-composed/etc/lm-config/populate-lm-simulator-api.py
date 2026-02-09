@@ -1,8 +1,8 @@
-#!/app/lm-agent/.venv/bin/python
+#!/app/.venv/bin/python
 import httpx
 
 
-LM_SIMULATOR_BASE_URL = "http://lm-simulator-api:8000"
+LM_SIMULATOR_BASE_URL = "http://localhost:8080"
 
 
 def handle_request_errors(response):
