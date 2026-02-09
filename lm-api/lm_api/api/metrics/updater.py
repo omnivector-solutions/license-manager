@@ -1,12 +1,12 @@
 import asyncio
 import logging
 
-from lm_api.database import engine_factory
-from lm_api.metrics.collector import collect_feature_metrics
-from lm_api.metrics.schema import (
+from lm_api.api.metrics.collector import collect_feature_metrics
+from lm_api.api.schemas.metrics import (
     LICENSE_TOTAL,
     LICENSE_USED,
 )
+from lm_api.database import engine_factory
 
 logger = logging.getLogger(__name__)
 

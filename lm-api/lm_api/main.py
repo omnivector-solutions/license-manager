@@ -16,10 +16,9 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_api import __version__
 from lm_api.api import api
+from lm_api.api.metrics.updater import metrics_loop
 from lm_api.config import settings
 from lm_api.database import engine_factory
-from lm_api.metrics.router import router as metrics_router
-from lm_api.metrics.updater import metrics_loop
 
 subapp = FastAPI(
     title="License Manager API",
@@ -105,6 +104,5 @@ async def lifespan(_: FastAPI):
     await engine_factory.cleanup()
 
 
-subapp.include_router(metrics_router)
 app = FastAPI(lifespan=lifespan)
 app.mount("/lm", subapp)
