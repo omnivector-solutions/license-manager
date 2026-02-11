@@ -86,6 +86,7 @@ class MetricsManager:
         try:
             await task
         except asyncio.CancelledError:
+            # Task cancellation is expected when stopping metrics manager
             pass
         finally:
             self.task = None
