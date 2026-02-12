@@ -18,8 +18,8 @@ class Job(CrudBase):
     Represents the jobs submitted in a cluster.
     """
 
-    slurm_job_id = mapped_column(String, nullable=False)
-    cluster_client_id = mapped_column(String, nullable=False)
+    slurm_job_id = mapped_column(String, nullable=False, index=True)
+    cluster_client_id = mapped_column(String, nullable=False, index=True)
     username = mapped_column(String, nullable=False)
     lead_host = mapped_column(String, nullable=False)
 

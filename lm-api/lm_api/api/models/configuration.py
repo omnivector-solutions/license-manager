@@ -26,7 +26,7 @@ class Configuration(CrudBase):
         return "configs"
 
     name = mapped_column(String, nullable=False)
-    cluster_client_id = mapped_column(String, nullable=False)
+    cluster_client_id = mapped_column(String, nullable=False, index=True)
     grace_time = mapped_column(Integer, CheckConstraint("grace_time>=0"), nullable=False)
     type = mapped_column(String, nullable=False)
 

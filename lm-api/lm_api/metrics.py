@@ -41,6 +41,7 @@ class MetricsCollector(Collector):
             )
             .join(Feature, Feature.config_id == Configuration.id)
             .join(Product, Feature.product_id == Product.id)
+            .order_by(Configuration.cluster_client_id, Product.name, Feature.name)
         )
 
         result = session.execute(stmt)

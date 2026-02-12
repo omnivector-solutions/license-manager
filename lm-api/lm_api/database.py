@@ -101,9 +101,23 @@ class EngineFactory:
 
         if engine_key not in self.engine_map:
             if asynchronous:
-                self.engine_map[engine_key] = create_async_engine(db_url, pool_pre_ping=True)
+                self.engine_map[engine_key] = create_async_engine(
+                    db_url,
+                    pool_pre_ping=True,
+                    pool_size=settings.DATABASE_POOL_SIZE,
+                    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+                    pool_recycle=settings.DATABASE_POOL_RECYCLE,
+                    pool_timeout=settings.DATABASE_POOL_TIMEOUT,
+                )
             else:
-                self.engine_map[engine_key] = create_engine(db_url, pool_pre_ping=True)
+                self.engine_map[engine_key] = create_engine(
+                    db_url,
+                    pool_pre_ping=True,
+                    pool_size=settings.DATABASE_POOL_SIZE,
+                    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+                    pool_recycle=settings.DATABASE_POOL_RECYCLE,
+                    pool_timeout=settings.DATABASE_POOL_TIMEOUT,
+                )
 
         return self.engine_map[engine_key]
 
