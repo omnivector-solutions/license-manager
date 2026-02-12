@@ -26,8 +26,8 @@ class Feature(CrudBase):
     """
 
     name = mapped_column(String, nullable=False)
-    product_id = mapped_column(Integer, ForeignKey("products.id"), nullable=False)
-    config_id = mapped_column(Integer, ForeignKey("configs.id"), nullable=False)
+    product_id = mapped_column(Integer, ForeignKey("products.id"), nullable=False, index=True)
+    config_id = mapped_column(Integer, ForeignKey("configs.id"), nullable=False, index=True)
     total = mapped_column(Integer, CheckConstraint("total>=0"), default=0, nullable=False)
     used = mapped_column(Integer, CheckConstraint("used>=0"), default=0, nullable=False)
     reserved = mapped_column(Integer, CheckConstraint("reserved>=0"), nullable=False)

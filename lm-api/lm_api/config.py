@@ -37,6 +37,16 @@ class Settings(BaseSettings):
     TEST_DATABASE_NAME: str = "test-db-name"
     TEST_DATABASE_PORT: int = 5433
 
+    # Database connection pool settings
+    # Pool size: max number of persistent connections to maintain
+    # Max overflow: additional connections that can be created when pool is exhausted
+    # Pool recycle: recycle connections after this many seconds (prevents stale connections)
+    # Pool timeout: seconds to wait for connection from pool before giving up
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_MAX_OVERFLOW: int = 10
+    DATABASE_POOL_RECYCLE: int = 3600  # 1 hour
+    DATABASE_POOL_TIMEOUT: int = 30  # seconds
+
     # Enable multi-tenancy so that the database is determined by the client_id in the auth token
     MULTI_TENANCY_ENABLED: bool = Field(False)
 

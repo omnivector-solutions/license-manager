@@ -24,8 +24,8 @@ class Booking(CrudBase):
     Represents the bookings of a feature.
     """
 
-    job_id = mapped_column(Integer, ForeignKey("jobs.id"), nullable=False)
-    feature_id = mapped_column(Integer, ForeignKey("features.id"), nullable=False)
+    job_id = mapped_column(Integer, ForeignKey("jobs.id"), nullable=False, index=True)
+    feature_id = mapped_column(Integer, ForeignKey("features.id"), nullable=False, index=True)
     quantity = mapped_column(Integer, CheckConstraint("quantity>=0"), nullable=False)
     created_at = mapped_column(DateTime, default=func.now())
 
