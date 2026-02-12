@@ -15,7 +15,7 @@ FROM python:3.12-slim-bullseye as runner
 
 WORKDIR /app
 
-RUN apt update && apt install -y curl
+RUN apt update && apt install -y curl libpq5
 
 COPY --from=builder /app /app
 

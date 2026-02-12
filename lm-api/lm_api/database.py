@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from loguru import logger
-from sqlalchemy import or_
+from sqlalchemy import Engine, create_engine, or_
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
-from sqlalchemy.orm import Mapped, MappedColumn
+from sqlalchemy.orm import Mapped, MappedColumn, Session, sessionmaker
 from sqlalchemy.sql.expression import ColumnElement, UnaryExpression
 from starlette import status
 from yarl import URL
@@ -38,7 +38,7 @@ def build_db_url(
     db_port = getattr(settings, f"{prefix}DATABASE_PORT")
     db_name = getattr(settings, f"{prefix}DATABASE_NAME") if override_db_name is None else override_db_name
     db_path = "/{}".format(db_name)
-    db_scheme = "postgresql+asyncpg" if asynchronous else "postgresql"
+    db_scheme = "postgresql+asyncpg" if asynchronous else "postgresql+psycopg2"
 
     return str(
         URL.build(
@@ -57,9 +57,11 @@ class EngineFactory:
     Provide a factory class that creates engines and keeps track of them in an engine mapping.
 
     This is used for multi-tenancy and database URL creation at request time.
+    This factory can create both synchronous and asynchronous engines and sessions,
+    depending on the needs of the caller.
     """
 
-    engine_map: typing.Dict[str, AsyncEngine]
+    engine_map: typing.Dict[str, typing.Union[AsyncEngine, Engine]]
 
     def __init__(self):
         """
@@ -72,32 +74,58 @@ class EngineFactory:
         Close all engines stored in the engine map and clears the engine_map.
         """
         for engine in self.engine_map.values():
-            await engine.dispose()
+            if isinstance(engine, AsyncEngine):
+                await engine.dispose()
+            else:
+                engine.dispose()
         self.engine_map = dict()
 
-    def get_engine(self, override_db_name: typing.Optional[str] = None) -> AsyncEngine:
+    def get_engine(
+        self, override_db_name: typing.Optional[str] = None, asynchronous: bool = True
+    ) -> typing.Union[AsyncEngine, Engine]:
         """
         Get a database engine.
 
         If the database url is already in the engine map, return the engine stored there. Otherwise, build
         a new one, store it, and return the new engine.
+
+        If asynchronous is True, returns an AsyncEngine. Otherwise, returns a synchronous Engine.
         """
         db_url = build_db_url(
             override_db_name=override_db_name,
             force_test=settings.DEPLOY_ENV.lower() == "test",
+            asynchronous=asynchronous,
         )
-        if db_url not in self.engine_map:
-            self.engine_map[db_url] = create_async_engine(db_url, pool_pre_ping=True)
-        return self.engine_map[db_url]
 
-    def get_session(self, override_db_name: typing.Optional[str] = None) -> AsyncSession:
+        engine_key = f"{db_url}_{'async' if asynchronous else 'sync'}"
+
+        if engine_key not in self.engine_map:
+            if asynchronous:
+                self.engine_map[engine_key] = create_async_engine(db_url, pool_pre_ping=True)
+            else:
+                self.engine_map[engine_key] = create_engine(db_url, pool_pre_ping=True)
+
+        return self.engine_map[engine_key]
+
+    def get_session(
+        self, override_db_name: typing.Optional[str] = None, asynchronous: bool = True
+    ) -> typing.Union[AsyncSession, Session]:
         """
-        Get an asynchronous database session.
+        Get a database session.
 
         Gets a new session from the correct engine in the engine map.
+
+        If asynchronous is True, returns an AsyncSession. Otherwise, returns a synchronous Session.
         """
-        engine = self.get_engine(override_db_name=override_db_name)
-        return AsyncSession(engine, expire_on_commit=False)
+        engine = self.get_engine(override_db_name=override_db_name, asynchronous=asynchronous)
+
+        if asynchronous:
+            assert isinstance(engine, AsyncEngine)
+            return AsyncSession(engine, expire_on_commit=False)
+        else:
+            assert isinstance(engine, Engine)
+            session_factory = sessionmaker(bind=engine)
+            return session_factory()
 
 
 engine_factory = EngineFactory()
@@ -134,6 +162,7 @@ def secure_session(*scopes: str, permission_mode: PermissionMode = PermissionMod
     ) -> typing.AsyncIterator[SecureSession]:
         override_db_name = identity_payload.organization_id if settings.MULTI_TENANCY_ENABLED else None
         session = engine_factory.get_session(override_db_name=override_db_name)
+        assert isinstance(session, AsyncSession)
         await session.begin_nested()
         try:
             yield SecureSession(
