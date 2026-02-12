@@ -3,7 +3,6 @@ from pytest import fixture
 from lm_api.api.models.configuration import Configuration
 from lm_api.api.models.feature import Feature
 from lm_api.api.models.product import Product
-from lm_api.metrics import MetricsCollector
 
 
 @fixture
@@ -68,8 +67,3 @@ async def metrics_data(sync_insert_objects):
         "products": inserted_products,
         "features": inserted_features,
     }
-
-
-@fixture
-def metrics_collector():
-    return MetricsCollector()
