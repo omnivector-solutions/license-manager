@@ -3,22 +3,23 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from starlette.responses import Response
 
 from lm_api.database import SecureSession, secure_session
+from lm_api.metrics import metrics_collector
 from lm_api.permissions import Permissions
 
 router = APIRouter()
 
 
-@router.get("/metrics")
+@router.get("")
 def metrics(
     secure_session: SecureSession = Depends(secure_session(Permissions.ADMIN, Permissions.METRICS_READ)),
 ):
     """
-    Returns the current metrics.
+    Read-only endpoint to expose metrics for Prometheus.
 
-    The data is cached in memory and updated periodically by the MetricsManager.
-    Calling this endpoint does not trigger a metrics update, preventing potential performance issues.
+    The metrics are collected using the MetricsCollector class, which queries
+    the database for license usage information and formats it for Prometheus.
     """
     return Response(
-        generate_latest(),
+        generate_latest(metrics_collector.registry),
         media_type=CONTENT_TYPE_LATEST,
     )

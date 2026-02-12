@@ -11,6 +11,7 @@ from httpx import ASGITransport, AsyncClient
 from pytest import fixture
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from lm_api.api.models.crud_base import CrudBase
@@ -87,6 +88,37 @@ async def synth_session():
         yield session
         await session.rollback()
         await session.close()
+
+
+@fixture
+def synth_sync_session():
+    """
+    Provide a synchronous SQLAlchemy session bound to the same test database.
+    Used for testing sync-only code paths (e.g. Prometheus collectors).
+    """
+    session: Session = engine_factory.get_session(asynchronous=False)
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+
+
+@fixture
+def sync_insert_objects(synth_sync_session):
+    """
+    A fixture that provides a helper method that perform a synchronous database insertion for the
+    objects passed as the argument, into the specified table
+    """
+
+    def _helper(objects, table):
+        db_objects = [table(**obj) for obj in objects]
+        for obj in db_objects:
+            synth_sync_session.add(obj)
+        synth_sync_session.commit()
+        return db_objects
+
+    return _helper
 
 
 @fixture

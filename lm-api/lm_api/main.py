@@ -15,7 +15,6 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from lm_api import __version__
 from lm_api.api import api
-from lm_api.api.metrics.updater import metrics_manager
 from lm_api.config import settings
 from lm_api.database import engine_factory
 
@@ -78,10 +77,7 @@ async def lifespan(_: FastAPI):
     """
     Provide a lifespan context for the app.
 
-    Will set up:
-    - logging
-    - metrics update loop
-    - cleanup database engines when the app is shut down
+    Will set up logging and cleanup database engines when the app is shut down.
 
     This is the preferred method of handling lifespan events in FastAPI.
     For more details, see: https://fastapi.tiangolo.com/advanced/events/
@@ -98,11 +94,8 @@ async def lifespan(_: FastAPI):
 
         logger.info(f"Database logging configured 📝 Level: {settings.LOG_LEVEL_SQL}")
 
-    await metrics_manager.start(settings.METRICS_UPDATE_INTERVAL)
-
     yield
 
-    await metrics_manager.stop()
     await engine_factory.cleanup()
 
 

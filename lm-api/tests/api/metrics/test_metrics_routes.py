@@ -16,7 +16,7 @@ async def test_read_metrics__success(
     permission,
     backend_client: AsyncClient,
     inject_security_header,
-    setup_metrics_cache,
+    metrics_data,
 ):
     inject_security_header("owner@test.com", permission)
 

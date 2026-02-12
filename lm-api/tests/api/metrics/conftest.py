@@ -1,14 +1,13 @@
 from pytest import fixture
 
-from lm_api.api.metrics.collector import collect_feature_metrics
 from lm_api.api.models.configuration import Configuration
 from lm_api.api.models.feature import Feature
 from lm_api.api.models.product import Product
-from lm_api.api.schemas.metrics import LICENSE_TOTAL, LICENSE_USED
+from lm_api.metrics import MetricsCollector
 
 
 @fixture
-async def metrics_data(insert_objects):
+async def metrics_data(sync_insert_objects):
     configurations_to_add = [
         {
             "name": "Abaqus",
@@ -24,7 +23,7 @@ async def metrics_data(insert_objects):
         },
     ]
 
-    inserted_configurations = await insert_objects(
+    inserted_configurations = sync_insert_objects(
         configurations_to_add,
         Configuration,
     )
@@ -38,7 +37,7 @@ async def metrics_data(insert_objects):
         },
     ]
 
-    inserted_products = await insert_objects(
+    inserted_products = sync_insert_objects(
         products_to_add,
         Product,
     )
@@ -62,7 +61,7 @@ async def metrics_data(insert_objects):
         },
     ]
 
-    inserted_features = await insert_objects(features_to_add, Feature)
+    inserted_features = sync_insert_objects(features_to_add, Feature)
 
     return {
         "configurations": inserted_configurations,
@@ -72,28 +71,5 @@ async def metrics_data(insert_objects):
 
 
 @fixture
-async def setup_metrics_cache(synth_session, metrics_data):
-    rows = await collect_feature_metrics(synth_session)
-
-    LICENSE_TOTAL.clear()
-    LICENSE_USED.clear()
-
-    for r in rows:
-        labels = {
-            "cluster": r.cluster,
-            "product": r.product,
-            "feature": r.feature,
-        }
-        LICENSE_TOTAL.labels(**labels).set(r.total)
-        LICENSE_USED.labels(**labels).set(r.used)
-
-    return rows
-
-
-@fixture(autouse=True)
-def clear_metrics():
-    LICENSE_TOTAL.clear()
-    LICENSE_USED.clear()
-    yield
-    LICENSE_TOTAL.clear()
-    LICENSE_USED.clear()
+def metrics_collector():
+    return MetricsCollector()
