@@ -10,6 +10,69 @@ Refer to [changes](./changes) directory for unreleased changes.
 
 <!-- towncrier release notes start -->
 
+# [4.6.0](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.0) - 2026-02-13
+
+
+## Agent
+
+### Added
+
+- Added towncrier as CHANGELOG manager ([PR #482](https://github.com/omnivector-solutions/license-manager/pull/482))
+
+### Changed
+
+- Migrated the project management tool from Poetry to uv ([PR #481](https://github.com/omnivector-solutions/license-manager/pull/481))
+
+### Fixed
+
+- Fixed FlexLM parser to parse "license" in the singular ([PR #483](https://github.com/omnivector-solutions/license-manager/pull/483))
+
+
+## API
+
+### Added
+
+- Added towncrier as CHANGELOG manager ([PR #482](https://github.com/omnivector-solutions/license-manager/pull/482))
+- Added a new /lm/metrics endpoint for Prometheus scrapers ([PR #485](https://github.com/omnivector-solutions/license-manager/pull/485))
+- Added database indexes to improve metrics performance ([PR #486](https://github.com/omnivector-solutions/license-manager/pull/486))
+
+### Changed
+
+- Migrated the project management tool from Poetry to uv ([PR #481](https://github.com/omnivector-solutions/license-manager/pull/481))
+
+
+## CLI
+
+### Added
+
+- Added towncrier as CHANGELOG manager ([PR #482](https://github.com/omnivector-solutions/license-manager/pull/482))
+
+### Changed
+
+- Migrated the project management tool from Poetry to uv ([PR #481](https://github.com/omnivector-solutions/license-manager/pull/481))
+
+
+## Simulator
+
+### Added
+
+- Added towncrier as CHANGELOG manager ([PR #482](https://github.com/omnivector-solutions/license-manager/pull/482))
+
+### Changed
+
+- Migrated the project management tool from Poetry to uv ([PR #481](https://github.com/omnivector-solutions/license-manager/pull/481))
+
+
+## Simulator API
+
+### Added
+
+- Added towncrier as CHANGELOG manager ([PR #482](https://github.com/omnivector-solutions/license-manager/pull/482))
+
+### Changed
+
+- Migrated the project management tool from Poetry to uv ([PR #481](https://github.com/omnivector-solutions/license-manager/pull/481))
+
 
 ## 4.5.0 -- 2025-11-14
 
