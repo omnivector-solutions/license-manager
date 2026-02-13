@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   lm-api:
     build:
@@ -63,51 +61,59 @@ services:
     ports: ["5434:5432"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U compose-db-api-user -d compose-db-api-name"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - lm-net
 
-  lm-simulator-api:
+  lm-agent-all:
     build:
-      context: ../lm-simulator-api
-      dockerfile: ./Dockerfile
-    container_name: lm-simulator-api
+      dockerfile: ./lm-agent/Dockerfile
+      context: ..
+    container_name: lm-agent-all
+    depends_on:
+      slurmctld:
+        condition: service_started
+    volumes:
+      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
+      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/lm-config/lm-agent-entrypoint.sh:/app/lm-agent-entrypoint.sh:ro
+      - slurm_binaries:/opt/slurm:ro
+      - slurm_config:/etc/slurm:ro
+    entrypoint: ["/bin/bash", "/app/lm-agent-entrypoint.sh"]
     environment:
-      DATABASE_HOST: db-lm-simulator-api
-      DATABASE_USER: compose-db-sim-user
-      DATABASE_PSWD: compose-db-sim-pswd
-      DATABASE_NAME: compose-db-sim-name
-      DATABASE_PORT: 5432
-    ports: ["8001:8000"]
-    command: uvicorn lm_simulator_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+      PATH: /app/.venv/bin:/opt/slurm/view/bin:/opt/slurm/view/sbin:/usr/local/bin:/usr/bin:/bin
+      LD_LIBRARY_PATH: /opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm
+      DATABASE_TYPE: sqlite
+      ENABLE_LM_SIMULATOR: "true"
+      ENABLE_PROLOG_EPILOG_API: "true"
+      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
+      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
+      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
+      LM_AGENT_LOG_LEVEL: DEBUG
+      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
+      LM_AGENT_OIDC_CLIENT_ID: local-slurm
+      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
+      LM_AGENT_OIDC_USE_HTTPS: false
+      LM_AGENT_SCONTROL_PATH: /opt/slurm/view/bin/scontrol
+      LM_AGENT_SACCTMGR_PATH: /opt/slurm/view/bin/sacctmgr
+      LM_AGENT_SQUEUE_PATH: /opt/slurm/view/bin/squeue
+      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
+      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
+      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
+      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
+      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
+      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
+      LM_AGENT_LM_USER: root
+      LM_AGENT_STAT_INTERVAL: 60
+    expose: ["8081", "8080"]
     healthcheck:
-      test: curl --fail http://localhost:8000/lm-sim/health || exit 1
+      test: curl --fail http://localhost:8080/lm-sim/health || exit 1
       interval: 5s
       retries: 10
       timeout: 5s
-    depends_on:
-      db-lm-simulator-api:
-        condition: service_healthy
-    networks:
-      - lm-net
-
-  db-lm-simulator-api:
-    image: postgres:13-alpine
-    container_name: db-lm-simulator-api
-    environment:
-      POSTGRES_USER: compose-db-sim-user
-      POSTGRES_PASSWORD: compose-db-sim-pswd
-      POSTGRES_DB: compose-db-sim-name
-    ports: ["5435:5432"]
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - lm-net
 
@@ -133,7 +139,7 @@ services:
       - ./etc/lm-local.json:/opt/keycloak/data/import/lm-local.json
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: mysql
     hostname: mysql
     environment:
@@ -155,52 +161,24 @@ services:
     image: slurm-docker-cluster
     container_name: slurmctld
     hostname: slurmctld
-    environment:
-      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
-      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
-      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
-      LM_AGENT_LOG_LEVEL: DEBUG
-      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
-      LM_AGENT_OIDC_CLIENT_ID: local-slurm
-      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
-      LM_AGENT_OIDC_USE_HTTPS: false
-      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
-      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
-      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
-      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
-      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
-      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
-      LM_AGENT_LM_USER: root
-      LM_AGENT_STAT_INTERVAL: 60
     expose: ["6817"]
     command: ["slurmctld"]
     depends_on:
       lm-api:
         condition: service_healthy
-      lm-simulator-api:
-        condition: service_healthy
     networks:
       - lm-net
     volumes:
-      - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-      - ../lm-agent/lm_agent/:/app/lm-agent/lm_agent
-      - ../lm-agent/pyproject.toml:/app/lm-agent/pyproject.toml
-      - ../lm-agent/uv.lock:/app/lm-agent/uv.lock
-      - ../lm-agent/README.md:/app/lm-agent/README.md
-      - ../lm-simulator/lm_simulator/:/app/lm-simulator/lm_simulator
-      - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
-      - ../lm-simulator/uv.lock:/app/lm-simulator/uv.lock
-      - ../lm-simulator/README.md:/app/lm-simulator/README.md
-      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
-      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
-      - ./etc/lm-config/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
+      - slurm_binaries:/opt/slurm
+      - slurm_config:/etc/slurm
       - ./etc/lm-config/configure-prolog-epilog.py:/app/configure-prolog-epilog.py
       - ./etc/slurm-config/slurmctld_prolog.sh:/app/slurmctld_prolog.sh
-      - ./etc/slurm-configslurmctld_epilog.sh:/app/slurmctld_epilog.sh
+      - ./etc/slurm-config/slurmctld_epilog.sh:/app/slurmctld_epilog.sh
       - ./etc/job_example.py:/nfs/job_example.py
+      - ./etc/lm-config/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
 
   slurmdbd:
     build:
@@ -212,10 +190,10 @@ services:
     expose: ["6819"]
     command: ["slurmdbd"]
     volumes:
-      - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
+      - slurm_config:/etc/slurm
     depends_on:
       - slurmctld
       - mysql
@@ -237,10 +215,10 @@ services:
     networks:
       - lm-net
     volumes:
-      - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
+      - slurm_config:/etc/slurm
 
   c2:
     privileged: true
@@ -257,10 +235,10 @@ services:
     networks:
       - lm-net
     volumes:
-      - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
+      - slurm_config:/etc/slurm
 
   slurmrestd:
     build:
@@ -269,8 +247,9 @@ services:
     image: slurm-docker-cluster
     container_name: slurmrestd
     hostname: slurmrestd
+    user: "slurmrestd:slurmrestd"
     environment:
-      - SLURMRESTD_SECURITY=disable_unshare_files,disable_unshare_sysv,disable_user_check
+      - SLURMRESTD_SECURITY=disable_unshare_files,disable_unshare_sysv
       - SLURM_JWT=daemon
     ports: ["6820:6820"]
     expose: ["6820"]
@@ -280,17 +259,18 @@ services:
     networks:
       - lm-net
     volumes:
-      - etc_munge:/etc/munge
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
+      - slurm_config:/etc/slurm
 
 volumes:
   postgres_data:
   kc-realm-files:
-  etc_munge:
   var_lib_mysql:
   var_log_slurm:
+  slurm_binaries:
+  slurm_config:
 
 networks:
   lm-net:

@@ -13,6 +13,7 @@ if the exit status is anything other then 0, e.g. 1.
 
 import asyncio
 import sys
+from typing import Optional
 
 from lm_agent.backend_utils.utils import get_cluster_configs_from_backend, make_booking_request
 from lm_agent.config import settings
@@ -23,12 +24,18 @@ from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 
-async def prolog():
-    """The PrologSlurmctld for the license-manager-agent."""
+async def prolog(job_context: Optional[dict] = None):
+    """The PrologSlurmctld for the license-manager-agent.
+    
+    Args:
+        job_context: Optional job context dict. If not provided, will be fetched
+                     from Slurm environment variables via get_job_context().
+    """
     # Initialize the logger
     init_logging("slurmctld-prolog")
-    # Acqure the job context
-    job_context = await get_job_context()
+    # Acquire the job context if not provided
+    if job_context is None:
+        job_context = await get_job_context()
     job_id = job_context.get("job_id", "")
     user_name = job_context.get("user_name")
     lead_host = job_context.get("lead_host")

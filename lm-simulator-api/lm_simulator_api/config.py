@@ -2,6 +2,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # Database type: "sqlite" or "postgresql"
+    DATABASE_TYPE: str = "postgresql"
+    
+    # SQLite settings (used when DATABASE_TYPE is "sqlite")
+    SQLITE_PATH: str = "/app/data/simulator.db"
+    
+    # PostgreSQL settings (used when DATABASE_TYPE is "postgresql")
     DATABASE_HOST: str = "localhost"
     DATABASE_USER: str = "local-user"
     DATABASE_PSWD: str = "local-pswd"
