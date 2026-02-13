@@ -56,7 +56,7 @@ jobs:
       - name: Build and publish on PyPI
         working-directory: ${{ matrix.sub_project }}
         env:
-          UV_PYPI_TOKEN: ${{ secrets.OMNIVECTOR_PYPI_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.OMNIVECTOR_PYPI_TOKEN }}
         run: |
           uv build
           uv publish
