@@ -28,7 +28,7 @@ if [[ "${ENABLE_LM_SIMULATOR,,}" == "true" ]]; then
     echo "  SQLITE_PATH=$SQLITE_PATH"
     
     # Start the simulator API in the background (use app which includes lifespan for db init)
-    uvicorn lm_simulator_api.main:app \
+    /app/.venv/bin/uvicorn lm_simulator_api.main:app \
         --host "${LM_SIM_HOST}" \
         --port "${LM_SIM_PORT}" \
         --log-level info &
@@ -78,7 +78,7 @@ if [[ "${ENABLE_PROLOG_EPILOG_API,,}" == "true" ]]; then
     echo "Starting Prolog/Epilog API on ${LM_PROLOG_EPILOG_HOST}:${LM_PROLOG_EPILOG_PORT}..."
     
     # Start the prolog/epilog API in the background
-    uvicorn lm_prolog_epilog_api.main:app \
+    /app/.venv/bin/uvicorn lm_prolog_epilog_api.main:app \
         --host "${LM_PROLOG_EPILOG_HOST}" \
         --port "${LM_PROLOG_EPILOG_PORT}" \
         --log-level info &
@@ -104,7 +104,7 @@ fi
 
 echo "---> Polutating LM API with pre-defined license ..."
 if [ -f /app/populate-lm-api.py ]; then
-    /app/populate-lm-api.py
+    /app/.venv/bin/python /app/populate-lm-api.py
 else
     echo "WARNING: /app/populate-lm-api.py not found, skipping LM API population"
 fi
@@ -117,4 +117,4 @@ else
 fi
 
 echo "Starting License Manager Agent..."
-exec license-manager-agent "$@"
+exec /app/.venv/bin/license-manager-agent "$@"
