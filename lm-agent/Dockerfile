@@ -26,7 +26,8 @@ COPY ./lm-simulator-api/lm_simulator_api /app/lm-simulator-api/lm_simulator_api
 COPY ./lm-prolog-epilog-api/pyproject.toml ./lm-prolog-epilog-api/README.md /app/lm-prolog-epilog-api/
 COPY ./lm-prolog-epilog-api/lm_prolog_epilog_api /app/lm-prolog-epilog-api/lm_prolog_epilog_api
 
-# Install all dependencies and workspace packages
+# Install all dependencies and workspace packages with Python in a portable location
+ENV UV_PYTHON_INSTALL_DIR=/app/.python
 RUN uv sync --frozen --no-dev
 
 
@@ -34,18 +35,15 @@ FROM ubuntu:resolute AS runner
 
 WORKDIR /app
 
-# Install Python 3.14 runtime (matching the builder's uv-installed Python) and curl
-RUN apt update && apt install -y python3.14 curl && rm -rf /var/lib/apt/lists/*
+# Install curl for health checks
+RUN apt update && apt install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Create slurm user (needed for Slurm client commands to read slurm.conf)
 RUN groupadd -r slurm && useradd -r -g slurm slurm
 
-COPY --from=builder /app /app
-
-# Recreate Python symlink in venv (broken during COPY since target doesn't exist)
-RUN ln -sf /usr/bin/python3.14 /app/.venv/bin/python
-
-ENV PATH="/app/.venv/bin:$PATH"
+# Copy virtual environment and uv-managed Python from builder
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/.python /app/.python
 
 # Create log directory for the agent and data directory for SQLite
 RUN mkdir -p /var/log/license-manager-agent /app/data
