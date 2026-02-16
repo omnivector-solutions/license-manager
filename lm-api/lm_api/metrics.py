@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Optional
 
 from loguru import logger
 from prometheus_client.core import CollectorRegistry, GaugeMetricFamily
@@ -9,7 +9,9 @@ from sqlalchemy.orm import Session
 from lm_api.api.models.configuration import Configuration
 from lm_api.api.models.feature import Feature
 from lm_api.api.models.product import Product
+from lm_api.config import settings
 from lm_api.database import engine_factory
+from lm_api.security import IdentityPayload
 
 
 class MetricsCollector(Collector):
@@ -21,11 +23,15 @@ class MetricsCollector(Collector):
     labeled by cluster, product, and feature.
 
     The collector is registered with a CollectorRegistry, which is used by the /lm/metrics endpoint.
+
+    If multi-tenancy is enabled, the collector uses the identity payload to determine which database to query,
+    ensuring that it collects metrics for the correct tenant.
     """
 
-    def __init__(self):
+    def __init__(self, identity_payload: Optional[IdentityPayload] = None):
         self.registry = CollectorRegistry()
         self.registry.register(self)
+        self.identity_payload = identity_payload
 
     def _collect_feature_metrics(self, session: Session):
         """
@@ -50,9 +56,16 @@ class MetricsCollector(Collector):
     def _get_metrics_data(self):
         """
         Get metrics data from database.
+
+        If multi-tenancy is enabled, the database is determined by the
+        organization_id in the identity payload.
         """
         try:
-            session = engine_factory.get_session(asynchronous=False)
+            override_db_name = None
+            if self.identity_payload and settings.MULTI_TENANCY_ENABLED:
+                override_db_name = self.identity_payload.organization_id
+
+            session = engine_factory.get_session(override_db_name=override_db_name, asynchronous=False)
             try:
                 return self._collect_feature_metrics(session)
             finally:
@@ -88,6 +101,3 @@ class MetricsCollector(Collector):
 
         yield total
         yield used
-
-
-metrics_collector = MetricsCollector()
