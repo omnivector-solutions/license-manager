@@ -3,7 +3,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from starlette.responses import Response
 
 from lm_api.database import SecureSession, secure_session
-from lm_api.metrics import metrics_collector
+from lm_api.metrics import MetricsCollector
 from lm_api.permissions import Permissions
 
 router = APIRouter()
@@ -18,7 +18,12 @@ def metrics(
 
     The metrics are collected using the MetricsCollector class, which queries
     the database for license usage information and formats it for Prometheus.
+
+    If multi-tenancy is enabled, the MetricsCollector will use the identity payload when
+    creating its database session to ensure it collects metrics for the correct tenant.
     """
+    metrics_collector = MetricsCollector(identity_payload=secure_session.identity_payload)
+
     return Response(
         generate_latest(metrics_collector.registry),
         media_type=CONTENT_TYPE_LATEST,
