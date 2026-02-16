@@ -10,6 +10,36 @@ Refer to [changes](./changes) directory for unreleased changes.
 
 <!-- towncrier release notes start -->
 
+# [4.6.1](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.1) - 2026-02-16
+
+
+## Agent
+
+No significant changes.
+
+
+## API
+
+### Fixed
+
+- Fixed issue in MetricsCollection database session, making it aware of multi-tenancy environments ([PR #494](https://github.com/omnivector-solutions/license-manager/pull/494))
+
+
+## CLI
+
+No significant changes.
+
+
+## Simulator
+
+No significant changes.
+
+
+## Simulator API
+
+No significant changes.
+
+
 # [4.6.0](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.0) - 2026-02-13
 
 
