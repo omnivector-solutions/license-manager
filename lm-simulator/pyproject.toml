@@ -1,6 +1,6 @@
 [project]
 name = "license-manager-simulator"
-version = "4.6.1"
+version = "4.6.2"
 description = "The License Manager Simulator is an application that simulates output from 5 license servers for use in the development of applications which interface to the license servers."
 readme = "README.md"
 license = { text = "MIT" }
