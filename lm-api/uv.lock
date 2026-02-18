@@ -795,7 +795,7 @@ wheels = [
 
 [[package]]
 name = "license-manager-backend"
-version = "4.6.0"
+version = "4.6.2"
 source = { editable = "." }
 dependencies = [
     { name = "armasec" },
