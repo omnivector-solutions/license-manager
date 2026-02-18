@@ -19,7 +19,7 @@ dependencies = [
     "asyncpg>=0.30.0",
     "uvicorn>=0.35.0",
     "python-dotenv>=1.1.1",
-    "armasec>=3.0.2",
+    "armasec>=3.0.3",
     "SQLAlchemy[mypy]>=2.0.43",
     "toml>=0.10.2",
     "py-buzz==7.3.0",
