@@ -10,6 +10,34 @@ Refer to [changes](./changes) directory for unreleased changes.
 
 <!-- towncrier release notes start -->
 
+# [4.6.3](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.3) - 2026-02-19
+
+
+## Agent
+
+No significant changes.
+
+
+## API
+
+Included fixes from 4.6.1 that weren't included in 4.6.2 due to Git conflicts
+
+
+## CLI
+
+No significant changes.
+
+
+## Simulator
+
+No significant changes.
+
+
+## Simulator API
+
+No significant changes.
+
+
 # [4.6.2](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.2) - 2026-02-18
 
 
