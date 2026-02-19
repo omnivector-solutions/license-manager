@@ -1,6 +1,6 @@
 [project]
 name = "license-manager-simulator-api"
-version = "4.6.2"
+version = "4.6.3"
 description = "Provides an API for interfacing with License Manager Simulator"
 readme = "README.md"
 license = { text = "MIT" }
