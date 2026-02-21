@@ -24,12 +24,14 @@ from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 
-async def prolog(job_context: Optional[dict] = None):
+async def prolog(job_context: Optional[dict] = None, skip_reconcile: bool = False):
     """The PrologSlurmctld for the license-manager-agent.
     
     Args:
         job_context: Optional job context dict. If not provided, will be fetched
                      from Slurm environment variables via get_job_context().
+        skip_reconcile: If True, skip the reconciliation step (useful when called
+                        from API context without Slurm binaries).
     """
     # Initialize the logger
     init_logging("slurmctld-prolog")
@@ -86,7 +88,7 @@ async def prolog(job_context: Optional[dict] = None):
 
     if len(tracked_license_booking_request.bookings) > 0:
         # Check if reconciliation should be triggered.
-        if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
+        if settings.USE_RECONCILE_IN_PROLOG_EPILOG and not skip_reconcile:
             # Force a reconciliation before we check the feature token availability.
             try:
                 await reconcile()

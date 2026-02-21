@@ -3,9 +3,6 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as agent_prolog
-from lm_agent.workload_managers.slurm.slurmctld_epilog import epilog as agent_epilog
-
 from lm_prolog_epilog_api import __version__
 from lm_prolog_epilog_api.schemas import JobHookRequest, JobHookResponse
 
@@ -50,6 +47,9 @@ async def prolog(request: JobHookRequest) -> JobHookResponse:
     This endpoint receives job information from the slurmctld prolog script
     and calls the license-manager-agent prolog function to handle license booking.
     """
+    # Lazy import to defer settings loading until runtime
+    from lm_agent.workload_managers.slurm.slurmctld_prolog import prolog as agent_prolog
+    
     job_context = {
         "cluster_name": request.cluster_name,
         "job_id": request.job_id,
@@ -59,26 +59,18 @@ async def prolog(request: JobHookRequest) -> JobHookResponse:
     }
     
     try:
-        await agent_prolog(job_context=job_context)
-        return JobHookResponse(
-            status="ok",
-            message=f"Prolog completed for job {request.job_id} on cluster {request.cluster_name}",
-        )
+        await agent_prolog(job_context=job_context, skip_reconcile=True)
     except SystemExit as e:
+        pass
         if e.code != 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Prolog failed for job {request.job_id}: insufficient licenses or error",
+                detail=f"Prolog failed for job {request.job_id}",
             )
-        return JobHookResponse(
-            status="ok",
-            message=f"Prolog completed for job {request.job_id} on cluster {request.cluster_name}",
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Prolog error for job {request.job_id}: {str(e)}",
-        )
+    return JobHookResponse(
+        status="ok",
+        message=f"Prolog completed for job {request.job_id} on cluster {request.cluster_name}",
+    )
 
 
 @app.post(
@@ -93,6 +85,9 @@ async def epilog(request: JobHookRequest) -> JobHookResponse:
     This endpoint receives job information from the slurmctld epilog script
     and calls the license-manager-agent epilog function to handle license release.
     """
+    # Lazy import to defer settings loading until runtime
+    from lm_agent.workload_managers.slurm.slurmctld_epilog import epilog as agent_epilog
+    
     job_context = {
         "cluster_name": request.cluster_name,
         "job_id": request.job_id,
@@ -102,7 +97,7 @@ async def epilog(request: JobHookRequest) -> JobHookResponse:
     }
     
     try:
-        await agent_epilog(job_context=job_context)
+        await agent_epilog(job_context=job_context, skip_reconcile=True)
         return JobHookResponse(
             status="ok",
             message=f"Epilog completed for job {request.job_id} on cluster {request.cluster_name}",

@@ -87,8 +87,6 @@ services:
       PATH: /app/.venv/bin:/opt/slurm/view/bin:/opt/slurm/view/sbin:/usr/local/bin:/usr/bin:/bin
       LD_LIBRARY_PATH: /opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm
       DATABASE_TYPE: sqlite
-      ENABLE_LM_SIMULATOR: "true"
-      ENABLE_PROLOG_EPILOG_API: "true"
       LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
       LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
       LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent

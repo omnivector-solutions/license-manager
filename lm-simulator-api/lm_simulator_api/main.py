@@ -151,3 +151,9 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.mount("/lm-sim", subapp)
+
+
+@app.get("/health", status_code=status.HTTP_204_NO_CONTENT)
+async def root_health():
+    """Health check endpoint at root path."""
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
