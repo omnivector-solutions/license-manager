@@ -1,5 +1,4 @@
-FROM ubuntu:jammy-20211122
-
+FROM ubuntu:resolute
 
 # Install GOSU
 ARG GOSU_VERSION=1.16
@@ -17,33 +16,20 @@ RUN set -ex \
     && gosu nobody true
 
 
-# Install slurm from ubuntu-hpc ppa
-COPY ubuntu-hpc.pub .
-
+# Install slurm from slurm-factory binary cache
 RUN set -ex \
-    && export GNUPGHOME="$(mktemp -d)" \
-    && cat ubuntu-hpc.pub | gpg --dearmor -o /usr/share/keyrings/ubuntu-hpc.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/ubuntu-hpc.gpg] https://ppa.launchpadcontent.net/ubuntu-hpc/slurm-wlm-23.02/ubuntu/ jammy main" > /etc/apt/sources.list.d/ubuntu-hpc-slurm.list \
-    && gpg --keyserver hkp://keyserver.ubuntu.com:80  --recv-keys AE87121DC3E4A0B0F81FF023F6D0C5D5C6BEB37B \
+    && mkdir -p /opt/slurm \
+    && wget -qO- https://slurm-factory-spack-binary-cache.vantagecompute.ai/resolute/25.11/slurm-25.11-resolute-software.tar.gz | tar --no-same-owner --no-same-permissions --touch -xz -C /opt/slurm \
     && apt update \
-    && apt install slurm-wlm-basic-plugins slurmd slurmdbd slurmctld slurmrestd mysql-client -y \
-    && rm -rf "${GNUPGHOME}" ubuntu-hpc.pub
+    && apt install -y mysql-client python3 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python 3.12.1
-ENV DEBIAN_FRONTEND=noninteractive
+# Add slurm binaries to PATH and create slurm user/group
+ENV PATH="/opt/slurm/view/bin:/opt/slurm/view/sbin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm:${LD_LIBRARY_PATH}"
 
-RUN apt install -y curl jq build-essential libssl-dev zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev \
-    libsqlite3-dev libgdbm-dev libdb-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev curl libgdbm-compat-dev \
-    && curl -O https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tar.xz \
-    && tar -xf Python-3.12.1.tar.xz \
-    && cd Python-3.12.1  \
-    && export CFLAGS="$CFLAGS $(pkg-config --cflags openssl11)"  \
-    && export LDFLAGS="$LDFLAGS $(pkg-config --libs openssl11)"  \
-    && ./configure --prefix=/opt/python/python3.12 --enable-optimizations  \
-    && make -j "$(nproc)" && make -j "$(nproc)" altinstall \
-    && cd .. && rm -rf Python-3.12.1 Python-3.12.1.tar.xz
-
-RUN ln -s /opt/python/python3.12/bin/python3.12 /usr/local/bin/python3
+RUN groupadd -r slurm && useradd -r -g slurm slurm \
+    && groupadd -r slurmrestd && useradd -r -g slurmrestd slurmrestd
 
 ENV PATH=/usr/local/bin:$PATH
 
@@ -56,23 +42,38 @@ RUN mkdir /var/spool/slurmctld \
 
 COPY etc/slurm-config/slurmdbd.conf /etc/slurm/slurmdbd.conf
 COPY etc/slurm-config/slurm.conf /etc/slurm/slurm.conf
+COPY etc/slurm-config/cgroup.conf /etc/slurm/cgroup.conf
 COPY etc/slurm-config/slurm-env.sh /etc/profile.d/slurm-env.sh
 
 ARG JWT_SECRET=supersecret
-RUN echo -n "$JWT_SECRET" > /var/spool/slurmctld/jwt_hs256.key
+RUN echo -n "$JWT_SECRET" > /etc/slurm/jwt_hs256.key
+
+# Generate slurm.key for auth/slurm authentication
+RUN dd if=/dev/urandom bs=1 count=1024 > /etc/slurm/slurm.key
 
 RUN chown -R slurm:slurm /var/spool/slurmctld \
-    && chmod 600 /var/spool/slurmctld/jwt_hs256.key \
+    && chmod 640 /etc/slurm/jwt_hs256.key \
+    && chown slurm:slurmrestd /etc/slurm/jwt_hs256.key \
+    && chmod 600 /etc/slurm/slurm.key \
     && chmod 600 /etc/slurm/slurmdbd.conf \
     && chown -R slurm:slurm /var/spool/slurmd \
     && chown -R slurm:slurm /etc/slurm
 
 RUN mkdir -p /var/log/license-manager-agent \
     && mkdir -p /var/cache/license-manager-agent \
+    && mkdir -p /var/log/slurm \
+    && mkdir -p /var/run \
     && chown -R slurm:slurm /var/log/license-manager-agent \
     && chown -R slurm:slurm /var/cache/license-manager-agent \
+    && chown -R slurm:slurm /var/log/slurm \
     && chmod -R 777 /var/log/license-manager-agent \
-    && chmod -R 777 /var/cache/license-manager-agent
+    && chmod -R 777 /var/cache/license-manager-agent \
+    && chmod -R 777 /var/log/slurm \
+    && chmod 777 /var/run
+
+# Create symlink for slurmstepd at the spack placeholder path
+RUN mkdir -p /opt/slurm/software/__spack_path_placeholder__/__spack_path_placeholder__/__spack_path_placeholder__/__spack_path_placeholder___/slurm-25-11-1-1-7otctkr/sbin \
+    && ln -s /opt/slurm/view/sbin/slurmstepd /opt/slurm/software/__spack_path_placeholder__/__spack_path_placeholder__/__spack_path_placeholder__/__spack_path_placeholder___/slurm-25-11-1-1-7otctkr/sbin/slurmstepd
 
 # Copy in the entrypoint.sh
 COPY etc/slurm-config/slurm-entrypoint.sh /usr/local/bin/slurm-entrypoint.sh
