@@ -2,23 +2,20 @@ FROM ubuntu:resolute AS builder
 
 WORKDIR /app
 
-RUN apt update && apt install -y curl
-
 # Copy uv from official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Copy workspace configuration and lock file from root
 COPY ./pyproject.toml ./uv.lock /app/
 
-# Copy workspace packages (entire directories like jobbergate does)
+# Copy workspace packages; lm-agent and lm-simulator
 COPY ./lm-agent /app/lm-agent
 COPY ./lm-simulator /app/lm-simulator
-COPY ./lm-simulator-api /app/lm-simulator-api
-COPY ./lm-prolog-epilog-api /app/lm-prolog-epilog-api
 
 # Install all workspace packages with Python in a portable location
 ENV UV_PYTHON_INSTALL_DIR=/app/.python
-RUN uv sync --python 3.12 --managed-python --frozen --no-dev --no-editable
+RUN uv sync --python 3.12 --managed-python --frozen --no-dev --no-editable --package=license-manager-agent \
+    && uv sync --python 3.12 --managed-python --frozen --no-dev --no-editable --package=license-manager-simulator --inexact
 
 FROM ubuntu:resolute AS runner
 

@@ -1,17 +1,19 @@
 #!/bin/bash
 set -e
 
-# Set LD_LIBRARY_PATH for Slurm binaries only
-export SLURM_LD_LIBRARY_PATH="/opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm"
-
-# Start sackd for Slurm authentication if available
-if [[ -x "/opt/slurm/view/sbin/sackd" ]]; then
-    echo "Starting sackd for Slurm authentication..."
-    LD_LIBRARY_PATH="$SLURM_LD_LIBRARY_PATH" /opt/slurm/view/sbin/sackd &
-    SACKD_PID=$!
-    echo "sackd started with PID $SACKD_PID"
-    sleep 1
+echo "---> Polutating LM API with pre-defined license ..."
+if [ -f /app/populate-lm-api.py ]; then
+    /app/.venv/bin/python /app/populate-lm-api.py
+else
+    echo "WARNING: /app/populate-lm-api.py not found, skipping LM API population"
 fi
 
-# Execute the original entrypoint
-exec /app/entrypoint.sh "$@"
+echo "---> Polutating LM Simulator API with pre-defined license ..."
+if [ -f /app/populate-lm-simulator-api.py ]; then
+    /app/.venv/bin/python /app/populate-lm-simulator-api.py
+else
+    echo "WARNING: /app/populate-lm-simulator-api.py not found, skipping LM Simulator API population"
+fi
+
+echo "Starting License Manager Agent..."
+exec /app/.venv/bin/license-manager-agent "$@"

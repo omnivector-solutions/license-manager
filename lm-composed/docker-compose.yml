@@ -15,7 +15,6 @@ services:
       ARMASEC_DEBUG: false
       LOG_LEVEL: DEBUG
     ports: ["7000:8000"]
-    command: uvicorn lm_api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     healthcheck:
       test: curl --fail http://localhost:8000/lm/health || exit 1
       interval: 5s
@@ -68,11 +67,11 @@ services:
     networks:
       - lm-net
 
-  lm-agent-all:
+  lm-agent:
     build:
       dockerfile: ./lm-agent/Dockerfile
       context: ..
-    container_name: lm-agent-all
+    container_name: lm-agent
     depends_on:
       slurmctld:
         condition: service_started
@@ -80,33 +79,64 @@ services:
       - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
       - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
       - ./etc/lm-config/lm-agent-entrypoint.sh:/app/lm-agent-entrypoint.sh:ro
+      - ./etc/lm-config/sackd-entrypoint.sh:/app/sackd-entrypoint.sh:ro
       - slurm_binaries:/opt/slurm:ro
       - slurm_config:/etc/slurm:ro
-    entrypoint: ["/bin/bash", "/app/lm-agent-entrypoint.sh"]
+      - ./license-manager-agent-env:/etc/default/license-manager-agent:ro
+    entrypoint: ["/bin/bash", "/app/sackd-entrypoint.sh"]
     environment:
       PATH: /app/.venv/bin:/opt/slurm/view/bin:/opt/slurm/view/sbin:/usr/local/bin:/usr/bin:/bin
       LD_LIBRARY_PATH: /opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm
       DATABASE_TYPE: sqlite
-      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
-      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
-      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
-      LM_AGENT_LOG_LEVEL: DEBUG
-      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
-      LM_AGENT_OIDC_CLIENT_ID: local-slurm
-      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
-      LM_AGENT_OIDC_USE_HTTPS: false
-      LM_AGENT_SCONTROL_PATH: /opt/slurm/view/bin/scontrol
-      LM_AGENT_SACCTMGR_PATH: /opt/slurm/view/bin/sacctmgr
-      LM_AGENT_SQUEUE_PATH: /opt/slurm/view/bin/squeue
-      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
-      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
-      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
-      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
-      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
-      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
-      LM_AGENT_LM_USER: root
-      LM_AGENT_STAT_INTERVAL: 60
     expose: ["8081", "8080"]
+    healthcheck:
+      test: curl --fail http://localhost:8080/lm-sim/health || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 5s
+    networks:
+      - lm-net
+
+  lm-prolog-epilog-api:
+    build:
+      dockerfile: ./lm-prolog-epilog-api/Dockerfile
+      context: ..
+    container_name: lm-prolog-epilog-api
+    depends_on:
+      slurmctld:
+        condition: service_started
+    volumes:
+      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
+      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/lm-config/lm-prolog-epilog-api-entrypoint.sh:/app/lm-prolog-epilog-api-entrypoint.sh:ro
+      - slurm_binaries:/opt/slurm:ro
+      - slurm_config:/etc/slurm:ro
+      - ./license-manager-agent-env:/etc/default/license-manager-agent:ro
+    entrypoint: ["/bin/bash", "/app/lm-prolog-epilog-api-entrypoint.sh"]
+    environment:
+      DATABASE_TYPE: sqlite
+    expose: ["8081"]
+    healthcheck:
+      test: curl --fail http://localhost:8080/lm-sim/health || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 5s
+    networks:
+      - lm-net
+
+  lm-simulator-api:
+    build:
+      dockerfile: ./lm-simulator-api/Dockerfile
+      context: ..
+    container_name: lm-simulator-api
+    volumes:
+      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/lm-config/lm-simulator-api-entrypoint.sh:/app/lm-simulator-api-entrypoint.sh:ro
+      - lm-simulator-api-db:/app/data
+    entrypoint: ["/bin/bash", "/app/lm-simulator-api-entrypoint.sh"]
+    environment:
+      DATABASE_TYPE: sqlite
+    expose: ["8080"]
     healthcheck:
       test: curl --fail http://localhost:8080/lm-sim/health || exit 1
       interval: 5s
@@ -263,6 +293,7 @@ services:
       - slurm_config:/etc/slurm
 
 volumes:
+  lm-simulator-api-db:
   postgres_data:
   kc-realm-files:
   var_lib_mysql:
