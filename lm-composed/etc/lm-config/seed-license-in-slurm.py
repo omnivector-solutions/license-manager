@@ -1,4 +1,4 @@
-#!/app/lm-agent/.venv/bin/python
+#!/usr/bin/env python3
 import subprocess
 import shlex
 
