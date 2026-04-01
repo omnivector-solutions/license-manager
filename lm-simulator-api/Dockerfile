@@ -5,16 +5,13 @@ WORKDIR /app
 # Copy uv from official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy workspace configuration and lock file from root
-COPY ./pyproject.toml ./uv.lock /app/
-
 # Copy lm-simulator-api package
-COPY ./lm-simulator-api/pyproject.toml ./lm-simulator-api/README.md /app/lm-simulator-api/
-COPY ./lm-simulator-api/lm_simulator_api /app/lm-simulator-api/lm_simulator_api
+COPY ./lm-simulator-api/pyproject.toml ./lm-simulator-api/uv.lock ./lm-simulator-api/README.md /app/
+COPY ./lm-simulator-api/lm_simulator_api /app/lm_simulator_api
 
 # Install dependencies with Python in a portable location
 ENV UV_PYTHON_INSTALL_DIR=/app/.python
-RUN uv sync --frozen --no-dev --no-editable --package license-manager-simulator-api
+RUN uv sync --python 3.12 --managed-python --frozen --no-dev --no-editable
 
 
 FROM ubuntu:resolute AS runner
