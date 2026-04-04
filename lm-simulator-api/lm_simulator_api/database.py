@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -6,18 +7,35 @@ from yarl import URL
 from lm_simulator_api.config import settings
 from lm_simulator_api.models import Base
 
-engine = create_async_engine(
-    str(
-        URL.build(
-            scheme="postgresql+asyncpg",
-            user=settings.DATABASE_USER,
-            password=settings.DATABASE_PSWD,
-            host=settings.DATABASE_HOST,
-            port=settings.DATABASE_PORT,
-            path=f"/{settings.DATABASE_NAME}",
+
+def get_database_url() -> str:
+    """Build the database URL based on DATABASE_TYPE setting."""
+    if settings.DATABASE_TYPE == "sqlite":
+        # Ensure the directory exists for SQLite
+        sqlite_path = Path(settings.SQLITE_PATH)
+        sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+        return f"sqlite+aiosqlite:///{settings.SQLITE_PATH}"
+    else:
+        # PostgreSQL
+        return str(
+            URL.build(
+                scheme="postgresql+asyncpg",
+                user=settings.DATABASE_USER,
+                password=settings.DATABASE_PSWD,
+                host=settings.DATABASE_HOST,
+                port=settings.DATABASE_PORT,
+                path=f"/{settings.DATABASE_NAME}",
+            )
         )
-    )
-)
+
+
+# Build engine with appropriate settings for the database type
+connect_args = {}
+if settings.DATABASE_TYPE == "sqlite":
+    # SQLite needs check_same_thread=False for async
+    connect_args = {"check_same_thread": False}
+
+engine = create_async_engine(get_database_url(), connect_args=connect_args)
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 

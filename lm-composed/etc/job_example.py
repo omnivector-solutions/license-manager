@@ -17,7 +17,7 @@ import urllib.request
 from time import sleep
 
 
-URL = "http://lm-simulator-api:8000"
+URL = "http://lm-agent-all:8080"
 
 
 def make_request(url, method="GET", data=None, headers=None):

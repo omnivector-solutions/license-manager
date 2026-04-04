@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
-
-echo "---> Starting the MUNGE Authentication service (munged) ..."
-service munge start
+# Set library path for Slurm shared libraries
+export LD_LIBRARY_PATH="/opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm:${LD_LIBRARY_PATH}"
 
 if [ "$1" = "slurmdbd" ]
 then
@@ -18,7 +17,7 @@ then
     }
     echo "-- Database is now active ..."
 
-    exec gosu slurm /usr/sbin/slurmdbd -Dvvv
+    exec gosu slurm /opt/slurm/view/sbin/slurmdbd -Dvvv
 fi
 
 if [ "$1" = "slurmctld" ]
@@ -32,30 +31,21 @@ then
     done
     echo "-- slurmdbd is now active ..."
 
-    echo "---> Installing lm-agent ..."
-    cd /app/lm-agent
-    uv sync
-
-    echo "---> Installing lm-simulator ..."
-    uv pip install /app/lm-simulator
-    
-    echo "---> Polutating LM API with pre-defined license ..."
-    /app/populate-lm-api.py
-
-    echo "---> Polutating LM Simulator API with pre-defined license ..."
-    /app/populate-lm-simulator-api.py
-
-    echo "---> Starting the License Manager Agent (lm-agent) ..."
-    uv run license-manager-agent &
 
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
-    gosu slurm /usr/sbin/slurmctld -Dvvv &
+    gosu slurm /opt/slurm/view/sbin/slurmctld -Dvvv &
+
+    # Sleep to allow slurmctld to start
+    sleep 3
+
+    # Define environment for Python scripts that need Slurm commands
+    SLURM_ENV="PATH=/opt/slurm/view/bin:/opt/slurm/view/sbin:/usr/local/bin:/usr/bin:/bin LD_LIBRARY_PATH=/opt/slurm/view/lib/private:/opt/slurm/view/lib:/opt/slurm/view/lib/slurm HOME=/root"
 
     echo "---> Seeding the test license into Slurm ..."
-    /app/seed-license-in-slurm.py
+    env -i $SLURM_ENV /usr/bin/python3 /app/seed-license-in-slurm.py
 
     echo "---> Configuring Prolog and Epilog scripts ..."
-    /app/configure-prolog-epilog.py
+    env -i $SLURM_ENV /usr/bin/python3 /app/configure-prolog-epilog.py
 
     # Wait for both slurmctld and lm-agent to finish
     wait -n
@@ -73,7 +63,7 @@ then
     echo "-- slurmctld is now active ..."
 
     echo "---> Starting the Slurm Node Daemon (slurmd) ..."
-    exec /usr/sbin/slurmd -Dvvv
+    exec /opt/slurm/view/sbin/slurmd -Dvvv
 fi
 
 if [ "$1" = "slurmrestd" ]
@@ -89,7 +79,7 @@ then
     echo "-- slurmctld is now active ..."
 
     echo "---> Starting the Slurm Rest API (slurmrestd) ..."
-    exec /usr/sbin/slurmrestd -vvvv -a rest_auth/jwt 0.0.0.0:6820
+    exec /opt/slurm/view/sbin/slurmrestd -vvvv -a rest_auth/jwt 0.0.0.0:6820
 fi
 
 exec "$@"
