@@ -1,4 +1,4 @@
-#!/app/lm-agent/.venv/bin/python
+#!/app/.venv/bin/python
 import httpx
 import os
 
@@ -77,8 +77,8 @@ def main():
         ],
         "license_servers": [
             {
-                "host": "lm-simulator-api",
-                "port": 8000
+                "host": "lm-agent-all",
+                "port": 8080
             }
         ],
         "grace_time": 300,

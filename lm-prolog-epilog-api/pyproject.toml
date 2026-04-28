@@ -1,0 +1,38 @@
+[project]
+name = "license-manager-prolog-epilog-api"
+version = "4.5.0"
+description = "FastAPI service for Slurm prolog/epilog license management hooks"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Omnivector Solutions", email = "info@omnivector.solutions" }
+]
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi>=0.115.0",
+    "pydantic>=2.10.0",
+    "uvicorn>=0.30.0",
+    "license-manager-agent",
+]
+
+[tool.uv.sources]
+license-manager-agent = { workspace = true }
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=1.0.0",
+    "httpx>=0.28.0",
+    "ruff>=0.13.0",
+]
+
+[tool.ruff]
+extend = "../ruff.toml"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lm_prolog_epilog_api"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
