@@ -18,7 +18,7 @@ dependencies = [
     "sentry-sdk==2.38.0",
     "py-buzz>=7.3.0",
     "pydantic-settings>=2.10.1",
-    "apscheduler==3.10.4",
+    "apscheduler==3.11.2",
 ]
 
 [project.optional-dependencies]
