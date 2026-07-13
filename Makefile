@@ -12,6 +12,7 @@ test:
 	$(MAKE) -C lm-api test
 	$(MAKE) -C lm-cli test
 	$(MAKE) -C lm-simulator-api test
+	$(MAKE) -C lm-prolog-epilog test
 
 qa:
 	$(MAKE) -C lm-agent qa
@@ -20,6 +21,7 @@ qa:
 	$(MAKE) -C lm-simulator qa
 	$(MAKE) -C lm-simulator-api qa
 	$(MAKE) -C lm-agent-snap qa
+	$(MAKE) -C lm-prolog-epilog qa
 
 verify:
 	$(MAKE) -C lm-agent verify
@@ -28,6 +30,7 @@ verify:
 	$(MAKE) -C lm-simulator verify
 	$(MAKE) -C lm-simulator-api verify
 	$(MAKE) -C lm-agent-snap verify
+	$(MAKE) -C lm-prolog-epilog verify
 
 modify:
 	$(MAKE) -C lm-agent modify
@@ -44,6 +47,7 @@ clean:
 	$(MAKE) -C lm-simulator clean
 	$(MAKE) -C lm-simulator-api clean
 	$(MAKE) -C lm-agent-snap clean
+	$(MAKE) -C lm-prolog-epilog clean
 
 .PHONY: changes
 changes:
