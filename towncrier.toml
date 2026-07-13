@@ -27,6 +27,10 @@ path = "simulator"
 name = "Simulator API"
 path = "simulator-api"
 
+[[tool.towncrier.section]]
+name = "Prolog/Epilog"
+path = "prolog-epilog"
+
 [[tool.towncrier.type]]
 directory = "security"
 name = "Security"

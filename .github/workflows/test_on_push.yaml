@@ -88,6 +88,16 @@ jobs:
         run: |
           make qa
 
+  prolog-epilog-tests:
+    name: "lm-prolog-epilog tests"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - uses: actions/checkout@v3
+      - name: "run quality control checks"
+        working-directory: lm-prolog-epilog
+        run: |
+          make qa
+
   agent-snap-tests:
     name: "lm-agent-snap tests"
     runs-on: "ubuntu-22.04"
