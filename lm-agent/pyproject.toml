@@ -36,8 +36,6 @@ dev = [
 
 [project.scripts]
 license-manager-agent = "lm_agent.main:main"
-slurmctld-prolog = "lm_agent.workload_managers.slurm.slurmctld_prolog:main"
-slurmctld-epilog = "lm_agent.workload_managers.slurm.slurmctld_epilog:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
