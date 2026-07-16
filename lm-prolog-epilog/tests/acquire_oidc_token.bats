@@ -42,7 +42,7 @@ teardown() {
 
     run bash -c 'source "'"${REPO_DIR}"'/acquire_oidc_token.sh"; acquire_oidc_token'
     [ "$status" -eq 0 ]
-    perms="$(stat -f '%Lp' "${LM_CACHE_DIR}/access.token" 2>/dev/null || stat -c '%a' "${LM_CACHE_DIR}/access.token")"
+    perms="$(stat -c '%a' "${LM_CACHE_DIR}/access.token" 2>/dev/null || stat -f '%Lp' "${LM_CACHE_DIR}/access.token")"
     [ "$perms" = "600" ]
 }
 
