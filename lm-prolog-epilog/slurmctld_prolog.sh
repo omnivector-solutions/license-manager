@@ -67,11 +67,14 @@ TRACKED_FEATURES="$(
 
 # --- Build bookings for tracked licenses only ---
 BOOKINGS=""
+BOOKED_LICENSES=""
 for i in "${!REQUESTED_FEATURES[@]}"; do
     feature="${REQUESTED_FEATURES[$i]}"
     if grep -qxF "$feature" <<< "$TRACKED_FEATURES"; then
         [[ -n "$BOOKINGS" ]] && BOOKINGS+=","
         BOOKINGS+="{\"product_feature\":\"${feature}\",\"quantity\":${REQUESTED_QUANTITIES[$i]}}"
+        [[ -n "$BOOKED_LICENSES" ]] && BOOKED_LICENSES+=","
+        BOOKED_LICENSES+="${feature}"
     else
         logger -t "lm-prolog" "License ${feature} requested by job ${JOB_ID} is not tracked by License Manager; skipping"
     fi
@@ -96,7 +99,7 @@ if http_request POST "${LM_API_BASE_URL}/lm/jobs" \
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d "$PAYLOAD" && [[ "$HTTP_CODE" -eq 201 ]]; then
-    logger -t "lm-prolog" "Booking acquired for job ${JOB_ID} from user ${JOB_USER}, booked licenses: ${JOB_LICENSES})"
+    logger -t "lm-prolog" "Booking acquired for job ${JOB_ID} from user ${JOB_USER}, booked licenses: ${BOOKED_LICENSES}"
     exit 0
 fi
 
