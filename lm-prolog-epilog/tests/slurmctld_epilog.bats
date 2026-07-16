@@ -45,6 +45,14 @@ teardown() {
     [ ! -f "${CURL_ARGS_FILE}" ]
 }
 
+@test "epilog does not delete when requested licenses are not tracked" {
+    export TRACKED_CONFIGS_JSON="$(tracked_configs_json abaqus.abaqus)"
+    export SLURM_JOB_LICENSES="unknown.unknown@flexlm:1"
+    run bash "${REPO_DIR}/${EPILOG_REL}"
+    [ "$status" -eq 0 ]
+    ! grep -q "/lm/jobs/slurm_job_id/42" "${CURL_ARGS_FILE}"
+}
+
 @test "epilog exits 0 when the OIDC token cannot be acquired" {
     export SLURM_JOB_LICENSES="abaqus.abaqus@flexlm:1"
     export TOKEN_CODE=401
