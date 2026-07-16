@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source configuration and shared helpers
 # shellcheck source=/dev/null
-source "${LM_CONFIG_FILE:-/etc/default/license-manager-agent}"
+source "${LM_CONFIG_FILE:-/etc/default/license-manager}"
 # shellcheck source=acquire_oidc_token.sh
 source "${SCRIPT_DIR}/acquire_oidc_token.sh"
 
@@ -39,6 +39,8 @@ if ! http_request DELETE "${LM_API_BASE_URL}/lm/jobs/slurm_job_id/${JOB_ID}" \
     logger -t "lm-epilog" "Failed to remove bookings for job ${JOB_ID} (request error)"
 elif [[ "$HTTP_CODE" -ne 200 && "$HTTP_CODE" -ne 404 ]]; then
     logger -t "lm-epilog" "Failed to remove bookings for job ${JOB_ID} (HTTP ${HTTP_CODE})"
+else
+    logger -t "lm-epilog" "Booking removed for licenses ${JOB_LICENSES} from job ${JOB_ID}"
 fi
 
 # Exit 0 to not block job completion

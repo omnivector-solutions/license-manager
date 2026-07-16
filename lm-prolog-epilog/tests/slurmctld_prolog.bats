@@ -64,3 +64,27 @@ teardown() {
     [ "$status" -eq 0 ]
     [ ! -f "${CURL_ARGS_FILE}" ]
 }
+
+@test "prolog books only tracked licenses and skips untracked ones" {
+    export TRACKED_CONFIGS_JSON="$(tracked_configs_json abaqus.abaqus)"
+    export SLURM_JOB_LICENSES="abaqus.abaqus@flexlm:2,unknown.unknown@flexlm:1"
+    run bash "${REPO_DIR}/${PROLOG_REL}"
+    [ "$status" -eq 0 ]
+    grep -q '{"product_feature":"abaqus.abaqus","quantity":2}' "${CURL_ARGS_FILE}"
+    ! grep -q 'unknown.unknown' "${CURL_ARGS_FILE}"
+}
+
+@test "prolog exits 0 without booking when all requested licenses are untracked" {
+    export TRACKED_CONFIGS_JSON="$(tracked_configs_json abaqus.abaqus)"
+    export SLURM_JOB_LICENSES="unknown.unknown@flexlm:1"
+    run bash "${REPO_DIR}/${PROLOG_REL}"
+    [ "$status" -eq 0 ]
+    ! grep -q "${LM_API_BASE_URL:-http://api.example}/lm/jobs" "${CURL_ARGS_FILE}"
+}
+
+@test "prolog rejects the job (exit 1) when tracked configurations cannot be fetched" {
+    export TRACKED_CODE=503
+    export SLURM_JOB_LICENSES="abaqus.abaqus@flexlm:1"
+    run bash "${REPO_DIR}/${PROLOG_REL}"
+    [ "$status" -eq 1 ]
+}

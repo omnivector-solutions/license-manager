@@ -52,12 +52,31 @@ STUB
     chmod +x "${STUB_BIN}/scontrol"
 }
 
+# tracked_configs_json PRODUCT.FEATURE [PRODUCT.FEATURE ...]
+# Emit a JSON array mimicking GET /lm/configurations/by_client_id that tracks
+# the given "product.feature" licenses.
+tracked_configs_json() {
+    local features=() id=1 pf product feature
+    for pf in "$@"; do
+        product="${pf%%.*}"
+        feature="${pf#*.}"
+        features+=("{\"id\":${id},\"name\":\"${feature}\",\"product\":{\"id\":${id},\"name\":\"${product}\"},\"config_id\":1,\"reserved\":0,\"total\":100,\"used\":0,\"booked_total\":0}")
+        id=$((id + 1))
+    done
+    local IFS=,
+    printf '[{"id":1,"name":"config","cluster_client_id":"client","grace_time":60,"type":"flexlm","features":[%s],"license_servers":[]}]' "${features[*]}"
+}
+
 # install_e2e_curl - stub curl for end-to-end prolog/epilog tests.
-# It answers the OIDC token endpoint with ${TOKEN_CODE:-200} plus a token
-# body, and any other endpoint with ${BOOKING_CODE:-201}. Every invocation's
-# arguments are appended (one per line) to ${CURL_ARGS_FILE}.
+# It answers the OIDC token endpoint with ${TOKEN_CODE:-200} plus a token body,
+# the configurations endpoint with ${TRACKED_CODE:-200} plus ${TRACKED_CONFIGS_JSON}
+# (defaulting to tracking abaqus.abaqus and matlab.matlab), and any other
+# endpoint with ${BOOKING_CODE:-201}. Every invocation's arguments are appended
+# (one per line) to ${CURL_ARGS_FILE}.
 install_e2e_curl() {
     export CURL_ARGS_FILE="${TMP_DIR}/curl_args"
+    : "${TRACKED_CONFIGS_JSON:=$(tracked_configs_json abaqus.abaqus matlab.matlab)}"
+    export TRACKED_CONFIGS_JSON
     cat >"${STUB_BIN}/curl" <<'STUB'
 #!/usr/bin/env bash
 out=""; prev=""; url=""
@@ -70,6 +89,11 @@ printf '%s\n' "$@" >> "$CURL_ARGS_FILE"
 if [[ "$url" == *openid-connect/token* ]]; then
   [ -n "$out" ] && printf '%s' '{"access_token":"header.payload.sig"}' > "$out"
   printf '%s' "${TOKEN_CODE:-200}"
+  exit 0
+fi
+if [[ "$url" == *configurations/by_client_id* ]]; then
+  [ -n "$out" ] && printf '%s' "$TRACKED_CONFIGS_JSON" > "$out"
+  printf '%s' "${TRACKED_CODE:-200}"
   exit 0
 fi
 [ -n "$out" ] && : > "$out"

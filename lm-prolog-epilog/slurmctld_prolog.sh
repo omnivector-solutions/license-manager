@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source configuration and shared helpers
 # shellcheck source=/dev/null
-source "${LM_CONFIG_FILE:-/etc/default/license-manager-agent}"
+source "${LM_CONFIG_FILE:-/etc/default/license-manager}"
 # shellcheck source=acquire_oidc_token.sh
 source "${SCRIPT_DIR}/acquire_oidc_token.sh"
 
@@ -24,21 +24,60 @@ if [[ -z "$JOB_LICENSES" || "$JOB_LICENSES" == "(null)" ]]; then
     exit 0
 fi
 
-# --- Parse licenses into JSON bookings ---
+# --- Parse requested licenses ---
 # Format: product.feature@server_type:quantity,...
-BOOKINGS=""
+declare -a REQUESTED_FEATURES=()
+declare -a REQUESTED_QUANTITIES=()
 IFS=',' read -ra LICENSE_ARRAY <<< "$JOB_LICENSES"
 for lic in "${LICENSE_ARRAY[@]}"; do
     if [[ "$lic" =~ ^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)@([a-zA-Z0-9_]+)(:([0-9]+))?$ ]]; then
-        PRODUCT="${BASH_REMATCH[1]}"
-        FEATURE="${BASH_REMATCH[2]}"
-        QUANTITY="${BASH_REMATCH[5]:-1}"
-        [[ -n "$BOOKINGS" ]] && BOOKINGS+=","
-        BOOKINGS+="{\"product_feature\":\"${PRODUCT}.${FEATURE}\",\"quantity\":${QUANTITY}}"
+        REQUESTED_FEATURES+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
+        REQUESTED_QUANTITIES+=("${BASH_REMATCH[5]:-1}")
     fi
 done
 
 # Exit if no parseable licenses
+if [[ ${#REQUESTED_FEATURES[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+# --- Acquire OIDC token ---
+if ! TOKEN="$(acquire_oidc_token)"; then
+    logger -t "lm-prolog" "Could not acquire OIDC token for job ${JOB_ID}; rejecting"
+    exit 1
+fi
+
+# --- Fetch the licenses tracked by License Manager for this cluster ---
+# Only licenses configured in the API can be booked. Requesting an untracked
+# license returns a 404 from the booking endpoint, which would otherwise reject
+# the job. Filtering here lets jobs proceed when they mix tracked licenses with
+# resources License Manager does not manage.
+if ! http_request GET "${LM_API_BASE_URL}/lm/configurations/by_client_id" \
+    -H "Authorization: Bearer ${TOKEN}" || [[ "$HTTP_CODE" -ne 200 ]]; then
+    logger -t "lm-prolog" "Could not fetch tracked configurations for job ${JOB_ID} (HTTP ${HTTP_CODE}); rejecting"
+    exit 1
+fi
+
+# Extract the set of tracked "product.feature" names from the configurations.
+TRACKED_FEATURES="$(
+    printf '%s' "$HTTP_BODY" \
+        | grep -oE '"name":"[^"]+","product":\{"id":[0-9]+,"name":"[^"]+"' \
+        | sed -E 's/"name":"([^"]+)","product":\{"id":[0-9]+,"name":"([^"]+)"/\2.\1/' || true
+)"
+
+# --- Build bookings for tracked licenses only ---
+BOOKINGS=""
+for i in "${!REQUESTED_FEATURES[@]}"; do
+    feature="${REQUESTED_FEATURES[$i]}"
+    if grep -qxF "$feature" <<< "$TRACKED_FEATURES"; then
+        [[ -n "$BOOKINGS" ]] && BOOKINGS+=","
+        BOOKINGS+="{\"product_feature\":\"${feature}\",\"quantity\":${REQUESTED_QUANTITIES[$i]}}"
+    else
+        logger -t "lm-prolog" "License ${feature} requested by job ${JOB_ID} is not tracked by License Manager; skipping"
+    fi
+done
+
+# Exit if none of the requested licenses are tracked
 if [[ -z "$BOOKINGS" ]]; then
     exit 0
 fi
@@ -46,13 +85,7 @@ fi
 # --- Resolve lead host ---
 LEAD_HOST="$("${SCONTROL_PATH:-/usr/bin/scontrol}" show hostnames "$JOB_NODELIST" | head -1)"
 if [[ -z "$LEAD_HOST" ]]; then
-    log CRITICAL "Could not resolve lead host for job ${JOB_ID}; rejecting"
-    exit 1
-fi
-
-# --- Acquire OIDC token ---
-if ! TOKEN="$(acquire_oidc_token)"; then
-    logger -t "lm-prolog" "Could not acquire OIDC token for job ${JOB_ID}; rejecting"
+    logger -t "lm-prolog" "Could not resolve lead host for job ${JOB_ID}; rejecting"
     exit 1
 fi
 
