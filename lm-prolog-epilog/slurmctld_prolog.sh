@@ -26,18 +26,20 @@ fi
 
 # --- Parse requested licenses ---
 # Format: product.feature@server_type:quantity,...
-declare -a REQUESTED_FEATURES=()
+declare -a REQUESTED_PRODUCT_FEATURES=()
 declare -a REQUESTED_QUANTITIES=()
+declare -a REQUESTED_LICENSES=()
 IFS=',' read -ra LICENSE_ARRAY <<< "$JOB_LICENSES"
 for lic in "${LICENSE_ARRAY[@]}"; do
     if [[ "$lic" =~ ^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)@([a-zA-Z0-9_]+)(:([0-9]+))?$ ]]; then
-        REQUESTED_FEATURES+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
+        REQUESTED_PRODUCT_FEATURES+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
         REQUESTED_QUANTITIES+=("${BASH_REMATCH[5]:-1}")
+        REQUESTED_LICENSES+=("$lic")
     fi
 done
 
 # Exit if no parseable licenses
-if [[ ${#REQUESTED_FEATURES[@]} -eq 0 ]]; then
+if [[ ${#REQUESTED_PRODUCT_FEATURES[@]} -eq 0 ]]; then
     exit 0
 fi
 
@@ -58,8 +60,8 @@ if ! http_request GET "${LM_API_BASE_URL}/lm/configurations/by_client_id" \
     exit 1
 fi
 
-# Extract the set of tracked "product.feature" names from the configurations.
-TRACKED_FEATURES="$(
+# Extract the set of tracked "product.feature" identifiers from the configurations.
+TRACKED_PRODUCT_FEATURES="$(
     printf '%s' "$HTTP_BODY" \
         | grep -oE '"name":"[^"]+","product":\{"id":[0-9]+,"name":"[^"]+"' \
         | sed -E 's/"name":"([^"]+)","product":\{"id":[0-9]+,"name":"([^"]+)"/\2.\1/' || true
@@ -68,15 +70,15 @@ TRACKED_FEATURES="$(
 # --- Build bookings for tracked licenses only ---
 BOOKINGS=""
 BOOKED_LICENSES=""
-for i in "${!REQUESTED_FEATURES[@]}"; do
-    feature="${REQUESTED_FEATURES[$i]}"
-    if grep -qxF "$feature" <<< "$TRACKED_FEATURES"; then
+for i in "${!REQUESTED_PRODUCT_FEATURES[@]}"; do
+    product_feature="${REQUESTED_PRODUCT_FEATURES[$i]}"
+    if grep -qxF "$product_feature" <<< "$TRACKED_PRODUCT_FEATURES"; then
         [[ -n "$BOOKINGS" ]] && BOOKINGS+=","
-        BOOKINGS+="{\"product_feature\":\"${feature}\",\"quantity\":${REQUESTED_QUANTITIES[$i]}}"
+        BOOKINGS+="{\"product_feature\":\"${product_feature}\",\"quantity\":${REQUESTED_QUANTITIES[$i]}}"
         [[ -n "$BOOKED_LICENSES" ]] && BOOKED_LICENSES+=","
-        BOOKED_LICENSES+="${feature}"
+        BOOKED_LICENSES+="${REQUESTED_LICENSES[$i]}"
     else
-        logger -t "lm-prolog" "License ${feature} requested by job ${JOB_ID} is not tracked by License Manager; skipping"
+        logger -t "lm-prolog" "License ${REQUESTED_LICENSES[$i]} requested by job ${JOB_ID} is not tracked by License Manager; skipping"
     fi
 done
 

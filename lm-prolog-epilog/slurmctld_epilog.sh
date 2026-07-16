@@ -24,16 +24,18 @@ fi
 
 # --- Parse requested licenses ---
 # Format: product.feature@server_type:quantity,...
-declare -a REQUESTED_FEATURES=()
+declare -a REQUESTED_PRODUCT_FEATURES=()
+declare -a REQUESTED_LICENSES=()
 IFS=',' read -ra LICENSE_ARRAY <<< "$JOB_LICENSES"
 for lic in "${LICENSE_ARRAY[@]}"; do
     if [[ "$lic" =~ ^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)@([a-zA-Z0-9_]+)(:([0-9]+))?$ ]]; then
-        REQUESTED_FEATURES+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
+        REQUESTED_PRODUCT_FEATURES+=("${BASH_REMATCH[1]}.${BASH_REMATCH[2]}")
+        REQUESTED_LICENSES+=("$lic")
     fi
 done
 
 # Exit early if no tracked licenses (product.feature@server_type) are requested
-if [[ ${#REQUESTED_FEATURES[@]} -eq 0 ]]; then
+if [[ ${#REQUESTED_PRODUCT_FEATURES[@]} -eq 0 ]]; then
     exit 0
 fi
 
@@ -49,15 +51,15 @@ fi
 BOOKED_LICENSES=""
 if http_request GET "${LM_API_BASE_URL}/lm/configurations/by_client_id" \
     -H "Authorization: Bearer ${TOKEN}" && [[ "$HTTP_CODE" -eq 200 ]]; then
-    TRACKED_FEATURES="$(
+    TRACKED_PRODUCT_FEATURES="$(
         printf '%s' "$HTTP_BODY" \
             | grep -oE '"name":"[^"]+","product":\{"id":[0-9]+,"name":"[^"]+"' \
             | sed -E 's/"name":"([^"]+)","product":\{"id":[0-9]+,"name":"([^"]+)"/\2.\1/' || true
     )"
-    for feature in "${REQUESTED_FEATURES[@]}"; do
-        if grep -qxF "$feature" <<< "$TRACKED_FEATURES"; then
+    for i in "${!REQUESTED_PRODUCT_FEATURES[@]}"; do
+        if grep -qxF "${REQUESTED_PRODUCT_FEATURES[$i]}" <<< "$TRACKED_PRODUCT_FEATURES"; then
             [[ -n "$BOOKED_LICENSES" ]] && BOOKED_LICENSES+=","
-            BOOKED_LICENSES+="${feature}"
+            BOOKED_LICENSES+="${REQUESTED_LICENSES[$i]}"
         fi
     done
 fi
