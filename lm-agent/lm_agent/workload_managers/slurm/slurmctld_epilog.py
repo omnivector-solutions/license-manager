@@ -5,6 +5,7 @@ The EpilogSlurmctld executable.
 
 import asyncio
 import sys
+from typing import Optional
 
 from lm_agent.backend_utils.utils import remove_job_by_slurm_job_id
 from lm_agent.config import settings
@@ -14,15 +15,25 @@ from lm_agent.workload_managers.slurm.cmd_utils import get_required_licenses_for
 from lm_agent.workload_managers.slurm.common import get_job_context
 
 
-async def epilog():
+async def epilog(job_context: Optional[dict] = None, skip_reconcile: bool = False):
+    """The EpilogSlurmctld for the license-manager-agent.
+    
+    Args:
+        job_context: Optional job context dict. If not provided, will be fetched
+                     from Slurm environment variables via get_job_context().
+        skip_reconcile: If True, skip the reconciliation step (useful when called
+                        from API context without Slurm binaries).
+    """
     # Initialize the logger
     init_logging("slurmctld-epilog")
-    job_context = await get_job_context()
+    # Acquire the job context if not provided
+    if job_context is None:
+        job_context = await get_job_context()
     job_id = job_context["job_id"]
     job_licenses = job_context["job_licenses"]
 
     # Check if reconciliation should be triggered.
-    if settings.USE_RECONCILE_IN_PROLOG_EPILOG:
+    if settings.USE_RECONCILE_IN_PROLOG_EPILOG and not skip_reconcile:
         # Force a reconciliation before we attempt to remove bookings.
         try:
             await reconcile()

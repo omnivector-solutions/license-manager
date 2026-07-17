@@ -1,4 +1,4 @@
-#!/app/lm-agent/.venv/bin/python
+#!/usr/bin/env python3
 import os
 import re
 import subprocess
@@ -32,7 +32,7 @@ if output_pkill.returncode != 0:
     print(f"Failed to kill slurmctld, return code: {output_pkill.returncode}")
     exit(1)
 
-output_gosu = subprocess.run(["gosu", "slurm", "/usr/sbin/slurmctld", "-Dvvv", "&"])
+output_gosu = subprocess.run(["gosu", "slurm", "/opt/slurm/view/sbin/slurmctld", "-Dvvv", "&"])
 if output_gosu.returncode != 0:
     print(f"Failed to start slurmctld, return code: {output_gosu.returncode}")
     exit(1)

@@ -1,0 +1,67 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation
+docs/_build/
+
+# Local development
+*.log
+.env
+.env.*
+
+# Other project directories not needed for lm-agent
+lm-api/
+lm-cli/
+lm-docs/
+lm-test/
+lm-agent-snap/
+lm-composed/
+lm-simulator-api/
+
+# Changes/changelog
+changes/
+CHANGELOG.md
+
+# CI/CD
+.github/

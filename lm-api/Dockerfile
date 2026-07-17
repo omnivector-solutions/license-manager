@@ -23,5 +23,6 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 COPY ./alembic /app/alembic
 COPY ./lm_api /app/lm_api
+COPY ./entrypoint.sh /app/lm-api-entrypoint.sh
 
-CMD ["uvicorn", "lm_api.main:app", "--host", "0.0.0.0", "--port", "80", "--loop", "asyncio"]
+ENTRYPOINT ["/bin/bash", "/app/lm-api-entrypoint.sh"]
