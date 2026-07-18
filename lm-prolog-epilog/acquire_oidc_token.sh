@@ -108,9 +108,12 @@ acquire_oidc_token() {
         return 1
     fi
 
-    # Cache token with restrictive permissions
+    # Cache token with restrictive permissions (atomic write)
     mkdir -p "$CACHE_DIR"
-    ( umask 077; echo -n "$token" > "$TOKEN_CACHE" )
+    tmp="$(mktemp "$CACHE_DIR/token.XXXXXX")" || exit 1
+    chmod 600 "$tmp" || exit 1
+    printf '%s' "$token" > "$tmp" || { rm -f "$tmp"; exit 1; }
+    mv -f "$tmp" "$TOKEN_CACHE"
 
     echo "$token"
 }
