@@ -11,11 +11,12 @@ on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+a[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+b[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.post[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.dev[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.post[0-9]+.dev[0-9]+'
 
 permissions:
   contents: read
@@ -44,7 +45,7 @@ jobs:
         working-directory: ${{ matrix.sub_project }}
         run: |
           echo "uv version is: $(uv version --short)"
-          echo "::set-output name=version::$(uv version --short)"
+          echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
 
       - name: Fail if package version doesn't match the tag
         if: ${{ github.ref_name != steps.uv-package-version.outputs.version }}
@@ -95,7 +96,7 @@ jobs:
         working-directory: lm-api
         run: |
           echo "uv version is: $(uv version --short)"
-          echo "::set-output name=version::$(uv version --short)"
+          echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
 
       - name: Fail if uv package version doesn't match tag
         if: ${{ github.ref_name != steps.uv-package-version.outputs.version }}
