@@ -18,6 +18,7 @@ guard = Armasec(
     domain=settings.ARMASEC_DOMAIN,
     debug_logger=logger.debug if settings.ARMASEC_DEBUG else None,
     use_https=settings.ARMASEC_USE_HTTPS,
+    ignore_audience=True,
 )
 
 
