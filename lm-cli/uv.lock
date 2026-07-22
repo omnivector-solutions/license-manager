@@ -318,7 +318,7 @@ wheels = [
 
 [[package]]
 name = "license-manager-cli"
-version = "4.6.1"
+version = "5.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },

@@ -10,6 +10,44 @@ Refer to [changes](./changes) directory for unreleased changes.
 
 <!-- towncrier release notes start -->
 
+# [5.0.0](https://github.com/omnivector-solutions/license-manager/releases/tag/5.0.0) - 2026-07-22
+
+## Agent
+
+### Removed
+
+- SlurmctldProlog and SlurmctldEpilog no longer are part of the License Manager Agent subproject ([PR #564](https://github.com/omnivector-solutions/license-manager/pull/564))
+
+
+## API
+
+### Changed
+
+- Updated Armasec guard to ignore the audience claim in the OIDC token ([PR #503](https://github.com/omnivector-solutions/license-manager/pull/503))
+
+
+## CLI
+
+No significant changes.
+
+
+## Simulator
+
+No significant changes.
+
+
+## Simulator API
+
+No significant changes.
+
+
+## Prolog/Epilog
+
+### Changed
+
+- Extracted the SlurmctldProlog/SlurmctldEpilog scripts from License Manager Agent to its own subproject, rewritten in Bash ([PR #564](https://github.com/omnivector-solutions/license-manager/pull/564))
+
+
 # [4.6.1](https://github.com/omnivector-solutions/license-manager/releases/tag/4.6.1) - 2026-02-16
 
 
