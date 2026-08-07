@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   lm-api:
     build:
@@ -63,7 +61,7 @@ services:
     ports: ["5434:5432"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U compose-db-api-user"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -104,12 +102,59 @@ services:
     ports: ["5435:5432"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U compose-db-sim-user"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - lm-net
+
+  lm-agent:
+    build:
+      context: ../lm-agent
+      dockerfile: Dockerfile
+    container_name: lm-agent
+    environment:
+      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
+      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
+      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
+      LM_AGENT_LOG_LEVEL: DEBUG
+      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
+      LM_AGENT_OIDC_CLIENT_ID: local-slurm
+      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
+      LM_AGENT_OIDC_USE_HTTPS: false
+      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
+      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
+      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
+      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
+      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
+      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
+      LM_AGENT_LM_USER: root
+      LM_AGENT_STAT_INTERVAL: 60
+    command: ["/app/lm-agent-entrypoint.sh"]
+    depends_on:
+      lm-api:
+        condition: service_healthy
+      lm-simulator-api:
+        condition: service_healthy
+      slurmctld:
+        condition: service_started
+    networks:
+      - lm-net
+    volumes:
+      - etc_munge:/etc/munge
+      - ./etc/slurm-config/slurm.conf:/etc/slurm/slurm.conf
+      - ../lm-agent/lm_agent/:/app/lm-agent/lm_agent
+      - ../lm-agent/pyproject.toml:/app/lm-agent/pyproject.toml
+      - ../lm-agent/uv.lock:/app/lm-agent/uv.lock
+      - ../lm-agent/README.md:/app/lm-agent/README.md
+      - ../lm-simulator/lm_simulator/:/app/lm-simulator/lm_simulator
+      - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
+      - ../lm-simulator/uv.lock:/app/lm-simulator/uv.lock
+      - ../lm-simulator/README.md:/app/lm-simulator/README.md
+      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
+      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ./etc/lm-config/lm-agent-entrypoint.sh:/app/lm-agent-entrypoint.sh
 
   keycloak.local:
     image: keycloak/keycloak:18.0.0
@@ -123,9 +168,10 @@ services:
     restart: always
     healthcheck:
       test: curl --fail http://localhost:8080/health/ready || exit 1
-      interval: 5s
-      retries: 10
+      interval: 10s
+      retries: 30
       timeout: 5s
+      start_period: 180s
     networks:
       - lm-net
     volumes:
@@ -133,7 +179,7 @@ services:
       - ./etc/lm-local.json:/opt/keycloak/data/import/lm-local.json
 
   mysql:
-    image: mysql:5.7
+    image: mariadb:10.11
     container_name: mysql
     hostname: mysql
     environment:
@@ -156,28 +202,17 @@ services:
     container_name: slurmctld
     hostname: slurmctld
     environment:
-      LM_AGENT_BACKEND_BASE_URL: http://lm-api:8000
-      LM_AGENT_LOG_BASE_DIR: /var/log/license-manager-agent
-      LM_AGENT_CACHE_DIR: /var/cache/license-manager-agent
-      LM_AGENT_LOG_LEVEL: DEBUG
-      LM_AGENT_OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
-      LM_AGENT_OIDC_CLIENT_ID: local-slurm
-      LM_AGENT_OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
-      LM_AGENT_OIDC_USE_HTTPS: false
-      LM_AGENT_LMUTIL_PATH: /app/lm-agent/.venv/bin/lmutil
-      LM_AGENT_RLMUTIL_PATH: /app/lm-agent/.venv/bin/rlmutil
-      LM_AGENT_LSDYNA_PATH: /app/lm-agent/.venv/bin/lstc_qrun
-      LM_AGENT_LMXENDUTIL_PATH: /app/lm-agent/.venv/bin/lmxendutil
-      LM_AGENT_OLIXTOOL_PATH: /app/lm-agent/.venv/bin/olixtool
-      LM_AGENT_DSLICSRV_PATH: /app/lm-agent/.venv/bin/DSLicSrv
-      LM_AGENT_LM_USER: root
-      LM_AGENT_STAT_INTERVAL: 60
+      # Configuration consumed by the License Manager prolog/epilog scripts
+      LM_API_BASE_URL: http://lm-api:8000
+      OIDC_DOMAIN: keycloak.local:8080/realms/lm-local
+      OIDC_CLIENT_ID: local-slurm
+      OIDC_CLIENT_SECRET: PNy6e5CflHCsQVRcBx3rDpyUdam9n8nv
+      OIDC_USE_HTTPS: false
+      LM_CACHE_DIR: /var/cache/license-manager-agent
     expose: ["6817"]
     command: ["slurmctld"]
     depends_on:
       lm-api:
-        condition: service_healthy
-      lm-simulator-api:
         condition: service_healthy
     networks:
       - lm-net
@@ -186,20 +221,9 @@ services:
       - var_log_slurm:/var/log/slurm
       - ./slurm-fake-nfs:/nfs
       - ./slurm-work-dir:/slurm-work-dir
-      - ../lm-agent/lm_agent/:/app/lm-agent/lm_agent
-      - ../lm-agent/pyproject.toml:/app/lm-agent/pyproject.toml
-      - ../lm-agent/uv.lock:/app/lm-agent/uv.lock
-      - ../lm-agent/README.md:/app/lm-agent/README.md
-      - ../lm-simulator/lm_simulator/:/app/lm-simulator/lm_simulator
-      - ../lm-simulator/pyproject.toml:/app/lm-simulator/pyproject.toml
-      - ../lm-simulator/uv.lock:/app/lm-simulator/uv.lock
-      - ../lm-simulator/README.md:/app/lm-simulator/README.md
-      - ./etc/lm-config/populate-lm-api.py:/app/populate-lm-api.py
-      - ./etc/lm-config/populate-lm-simulator-api.py:/app/populate-lm-simulator-api.py
+      - ../lm-prolog-epilog:/app/lm-prolog-epilog
       - ./etc/lm-config/seed-license-in-slurm.py:/app/seed-license-in-slurm.py
       - ./etc/lm-config/configure-prolog-epilog.py:/app/configure-prolog-epilog.py
-      - ./etc/slurm-config/slurmctld_prolog.sh:/app/slurmctld_prolog.sh
-      - ./etc/slurm-configslurmctld_epilog.sh:/app/slurmctld_epilog.sh
       - ./etc/job_example.py:/nfs/job_example.py
 
   slurmdbd:

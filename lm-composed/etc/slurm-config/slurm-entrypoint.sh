@@ -3,7 +3,26 @@ set -e
 
 
 echo "---> Starting the MUNGE Authentication service (munged) ..."
+chown -R munge:munge /etc/munge
+chmod 700 /etc/munge
+[ -f /etc/munge/munge.key ] && chmod 400 /etc/munge/munge.key
 service munge start
+
+echo "---> Starting the D-Bus system daemon (dbus) ..."
+mkdir -p /run/dbus
+rm -f /run/dbus/pid
+dbus-daemon --system --fork
+
+if [ "$1" = "slurmd" ]; then
+    echo "---> Preparing cgroup v2 delegation for slurmd ..."
+    mkdir -p /sys/fs/cgroup/init
+    for p in $(cat /sys/fs/cgroup/cgroup.procs); do
+        echo "$p" > /sys/fs/cgroup/init/cgroup.procs 2>/dev/null || true
+    done
+    echo "+cpu +cpuset +memory +io +pids" > /sys/fs/cgroup/cgroup.subtree_control
+    mkdir -p "/sys/fs/cgroup/system.slice/${HOSTNAME}_slurmstepd.scope"
+    echo "+cpu +cpuset +memory" > /sys/fs/cgroup/system.slice/cgroup.subtree_control
+fi
 
 if [ "$1" = "slurmdbd" ]
 then
@@ -32,22 +51,6 @@ then
     done
     echo "-- slurmdbd is now active ..."
 
-    echo "---> Installing lm-agent ..."
-    cd /app/lm-agent
-    uv sync
-
-    echo "---> Installing lm-simulator ..."
-    uv pip install /app/lm-simulator
-    
-    echo "---> Polutating LM API with pre-defined license ..."
-    /app/populate-lm-api.py
-
-    echo "---> Polutating LM Simulator API with pre-defined license ..."
-    /app/populate-lm-simulator-api.py
-
-    echo "---> Starting the License Manager Agent (lm-agent) ..."
-    uv run license-manager-agent &
-
     echo "---> Starting the Slurm Controller Daemon (slurmctld) ..."
     gosu slurm /usr/sbin/slurmctld -Dvvv &
 
@@ -57,7 +60,7 @@ then
     echo "---> Configuring Prolog and Epilog scripts ..."
     /app/configure-prolog-epilog.py
 
-    # Wait for both slurmctld and lm-agent to finish
+    # Wait for slurmctld to finish
     wait -n
 fi
 
@@ -73,7 +76,9 @@ then
     echo "-- slurmctld is now active ..."
 
     echo "---> Starting the Slurm Node Daemon (slurmd) ..."
-    exec /usr/sbin/slurmd -Dvvv
+    /usr/sbin/slurmd -Dvvv &
+    wait $!
+    exit $?
 fi
 
 if [ "$1" = "slurmrestd" ]
