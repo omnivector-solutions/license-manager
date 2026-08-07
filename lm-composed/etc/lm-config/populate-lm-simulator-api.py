@@ -8,11 +8,16 @@ LM_SIMULATOR_BASE_URL = "http://lm-simulator-api:8000"
 def handle_request_errors(response):
     try:
         response.raise_for_status()
-        return response.json()
     except httpx.HTTPStatusError as e:
         print(f"Request to {response.request.url} failed with: {e.response.status_code} - {e.response.text}")
         exit(1)
-    except KeyError:
+
+    if response.status_code == httpx.codes.NO_CONTENT or not response.content:
+        return None
+
+    try:
+        return response.json()
+    except ValueError:
         print("Unexpected response format; JSON data could not be parsed.")
         exit(1)
 

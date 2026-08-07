@@ -1,21 +1,23 @@
-#!/app/lm-agent/.venv/bin/python
+#!/usr/bin/env python3
 import os
 import re
 import subprocess
 
 
-ENV_FILE = "/etc/default/license-manager-agent"
+ENV_FILE = "/etc/default/license-manager"
 
-env_vars = os.environ.items()
+# Only export the variables the prolog/epilog scripts actually consume.
+CONFIG_PREFIXES = ("LM_API_", "LM_CACHE_", "LM_MAX_", "LM_RETRY_", "OIDC_")
 
 with open(ENV_FILE, "w") as file:
-    for key, value in env_vars:
-        file.write(f"export {key}={value}\n")
+    for key, value in os.environ.items():
+        if key.startswith(CONFIG_PREFIXES):
+            file.write(f'export {key}="{value}"\n')
 
 
 SLURM_CONF_PATH = "/etc/slurm/slurm.conf"
-PROLOG_PATH = "/app/slurmctld_prolog.sh"
-EPILOG_PATH = "/app/slurmctld_epilog.sh"
+PROLOG_PATH = "/app/lm-prolog-epilog/slurmctld_prolog.sh"
+EPILOG_PATH = "/app/lm-prolog-epilog/slurmctld_epilog.sh"
 
 
 with open(SLURM_CONF_PATH, "r") as file:
