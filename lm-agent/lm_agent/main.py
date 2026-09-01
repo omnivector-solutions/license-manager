@@ -42,14 +42,15 @@ def main():
     init_logging("license-manager-agent")
     logger.info("Starting License Manager Agent")
 
-    scheduler.start()
-    scheduler.add_job(scheduled_tasks)
+    async def _run():
+        async with scheduler:
+            await scheduler.add_job(scheduled_tasks)
+            await scheduler.run()
 
     try:
-        asyncio.get_event_loop().run_forever()
+        asyncio.run(_run())
     except KeyboardInterrupt:
         logger.info("Stopping License Manager Agent")
-        scheduler.stop()
 
 
 if __name__ == "__main__":
