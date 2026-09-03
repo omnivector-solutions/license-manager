@@ -1,13 +1,17 @@
 # Getting Started
 To run License Manager you will need three different systems:
 
-1. Slurm cluster (where `License Manager Agent` runs)
+1. Slurm cluster (where the `License Manager Agent` runs on a dedicated node and the `License Manager Prolog/Epilog` scripts run on the `slurmctld` node)
 2. License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense, DSLS or License Manager Simulator)
 3. API with license information (`License Manager API`)
 
 ## Slurm cluster
 License Manager is designed to work with Slurm. To learn how to create a Slurm cluster, please refer to the
 [Omnivector Slurm Distribution documentation](https://omnivector-solutions.github.io/osd-documentation/master/index.html).
+
+The `License Manager Agent` is decoupled from the `slurmctld` node: it can run on any dedicated node with access to the Slurm
+command line tools. Only the `License Manager Prolog/Epilog` scripts need to be installed on the `slurmctld` node, where they
+communicate directly with the `License Manager API` to manage bookings.
 
 ## License servers
 License Manager supports the following license servers:

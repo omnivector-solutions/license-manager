@@ -4,10 +4,11 @@
 **License Manager** works in a client/server architecture, where the main components are the **Agent**, the **API** and the **CLI**.
 
 The **License Manager Agent** is the component that syncs the local **Slurm** license counters with the **License Server** data.
-It's also responsible for making **Booking** requests to the **License Manager API** when a job is submitted to **Slurm**.
+It runs on a dedicated node that has access to Slurm commands (via sackd, for example), decoupled from the **slurmctld** node
+In the **slurmctld**, the **License Manager Prolog/Epilog** scripts are responsible for making **Booking** requests to the **License Manager API** when a job is submitted to **Slurm**.
 
 The **License Manager API** provides a **RESTful API** where license usage and **Bookings** are tracked. The **License Manager Agent** uses this **API**
-to store the license usage information and to process the **Booking** requests.
+to store the license usage information, while the **License Manager Prolog/Epilog** scripts use it to process the **Booking** requests.
 
 The **License Manager CLI** provides an interface for managing license **Configurations** and retrieving usage information for tracked licenses via the **License Manager API**. 
 
