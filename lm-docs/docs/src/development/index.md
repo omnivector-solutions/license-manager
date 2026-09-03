@@ -1,14 +1,9 @@
 # Development
-The `License Manager` can be provisioned using two approaches:
+The `License Manager` can be provisioned using `Docker Compose` to run the services.
 
-* Use `Docker Compose` to run the services
-* Create a `Slurm` cluster and `License Manager` components using `Juju`.  
-
-You can also provision the components manually, but this guide will focus on the two approaches mentioned above.
+You can also provision the components manually, but this guide will focus on the approach mentioned above.
 
 ## Instructions
-The guides below will walk you through the steps to provision the `License Manager` using the two approaches mentioned above.
+The guide below will walk you through the steps to provision the `License Manager` using `Docker Compose`.
 
 - [Docker Compose](./docker_compose.md)
-
-- [Juju](./juju.md)

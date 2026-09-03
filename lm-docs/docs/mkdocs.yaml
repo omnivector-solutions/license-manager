@@ -87,7 +87,6 @@ nav:
   - Development:
     - Overview: development/index.md
     - Docker Compose: development/docker_compose.md
-    - Juju: development/juju.md
   - Reference:
     - License Manager Agent: reference/agent.md
     - License Manager API: reference/api.md
