@@ -645,34 +645,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/juju/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Juju
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -892,9 +864,10 @@
 <h2 id="overview">Overview</h2>
 <p><strong>License Manager</strong> works in a client/server architecture, where the main components are the <strong>Agent</strong>, the <strong>API</strong> and the <strong>CLI</strong>.</p>
 <p>The <strong>License Manager Agent</strong> is the component that syncs the local <strong>Slurm</strong> license counters with the <strong>License Server</strong> data.
-It's also responsible for making <strong>Booking</strong> requests to the <strong>License Manager API</strong> when a job is submitted to <strong>Slurm</strong>.</p>
+It runs on a dedicated node that has access to Slurm commands (via sackd, for example), decoupled from the <strong>slurmctld</strong> node
+In the <strong>slurmctld</strong>, the <strong>License Manager Prolog/Epilog</strong> scripts are responsible for making <strong>Booking</strong> requests to the <strong>License Manager API</strong> when a job is submitted to <strong>Slurm</strong>.</p>
 <p>The <strong>License Manager API</strong> provides a <strong>RESTful API</strong> where license usage and <strong>Bookings</strong> are tracked. The <strong>License Manager Agent</strong> uses this <strong>API</strong>
-to store the license usage information and to process the <strong>Booking</strong> requests.</p>
+to store the license usage information, while the <strong>License Manager Prolog/Epilog</strong> scripts use it to process the <strong>Booking</strong> requests.</p>
 <p>The <strong>License Manager CLI</strong> provides an interface for managing license <strong>Configurations</strong> and retrieving usage information for tracked licenses via the <strong>License Manager API</strong>. </p>
 <h2 id="architecture">Architecture</h2>
 <p>Each component has its own architecture page:</p>

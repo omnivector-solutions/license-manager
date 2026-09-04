@@ -12,7 +12,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../juju/">
+        <link rel="next" href="../../reference/agent/">
       
       
         
@@ -656,34 +656,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../juju/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Juju
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -921,22 +893,25 @@
 <p>To get started, clone the <code>license-manager</code> repository from GitHub and run <code>docker compose up</code>.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/omnivector-solutions/license-manager
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>license-manager/lm-composed
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>--build
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>--build
 </span></code></pre></div>
 <p>The <code>docker compose</code> command will start the following services:</p>
 <ol>
 <li>License Manager API</li>
 <li>Postgresql database (for the License Manager API)</li>
-<li>Keycloak (authentication provider for the-LM API)</li>
 <li>License Manager Simulator API</li>
 <li>Postgresql database (for the License Manager Simulator API)</li>
+<li>License Manager Agent</li>
+<li>Keycloak (authentication provider for the LM API)</li>
 <li>Slurm cluster (Slurmctld, Slurmdbd, Slurmrestd, and two Slurmd containers)</li>
 </ol>
+<p>The <code>License Manager Agent</code> runs as its own container, decoupled from the <code>slurmctld</code> container. The <code>slurmctld</code> container only has the
+<code>License Manager Prolog/Epilog</code> scripts installed, which are configured to communicate directly with the <code>License Manager API</code>.</p>
 <h2 id="submitting-a-job">Submitting a job</h2>
 <ol>
 <li>Log into the <code>slurmctld</code> container:</li>
 </ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>slurmctld<span class="w"> </span>bash
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>slurmctld<span class="w"> </span>bash
 </span></code></pre></div>
 <ol>
 <li>Execute the job example:</li>
@@ -944,7 +919,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sbatch<span class="w"> </span>/nfs/job_example.py
 </span></code></pre></div>
 <p>The job will request 42 licenses to the <code>License Manager Simulator API</code> and return it after a few minutes.
-It will be submitted to the Slurm cluster and the <code>License Manager Agent</code> will make a booking request to the <code>License Manager API</code>.
+It will be submitted to the Slurm cluster and the <code>License Manager Prolog</code> script will make a booking request to the <code>License Manager API</code>.
 The results will be available in the <code>slurm-fake-nfs</code> directory.</p>
 
 
@@ -992,13 +967,13 @@ The results will be available in the <code>slurm-fake-nfs</code> directory.</p>
         
         
           
-          <a href="../juju/" class="md-footer__link md-footer__link--next" aria-label="Next: Juju">
+          <a href="../../reference/agent/" class="md-footer__link md-footer__link--next" aria-label="Next: License Manager Agent">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Juju
+                License Manager Agent
               </div>
             </div>
             <div class="md-footer__button md-icon">

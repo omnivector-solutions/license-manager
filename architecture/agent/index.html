@@ -723,34 +723,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../development/juju/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Juju
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1046,7 +1018,8 @@
 
 <h1 id="license-manager-agent">License Manager Agent</h1>
 <p>The <strong>License Manager Agent</strong> is the key component that ensures jobs have enough free licenses to execute successfully.
-Deployed on the <strong>Slurm</strong> cluster, this agent works in conjunction with the <strong>License Manager API</strong> to track license usage and prevent job failures due to insufficient licenses.  </p>
+Running on a dedicated node with access to the <strong>Slurm</strong> command line tools, this agent works in conjunction with the <strong>License Manager API</strong> to track license usage and prevent job failures due to insufficient licenses.  </p>
+<p>The <strong>License Manager Agent</strong> is decoupled from the <strong>slurmctld</strong> node. Only the <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> scripts, provided by the <strong>License Manager Prolog/Epilog</strong> subproject, need to be installed on the <strong>slurmctld</strong> node. These scripts communicate directly with the <strong>License Manager API</strong>, so the <strong>Agent</strong> itself can run on any node that can reach both the <strong>License Servers</strong> and the <strong>Slurm</strong> cluster.</p>
 <p>The agent has two main functionalities:</p>
 <ul>
 <li>
@@ -1059,7 +1032,7 @@ Deployed on the <strong>Slurm</strong> cluster, this agent works in conjunction 
 <p>Since the <strong>Slurm</strong> license counter doesn't directly interact with <strong>License Servers</strong>, the <strong>License Manager Agent</strong> actively polls the servers for data. Then it updates the corresponding counters in <strong>Slurm</strong>.
 Each cluster managed by <strong>License Manager</strong> has a dedicated license counter linked to the <strong>License Server</strong>. This configuration allows for license sharing across multiple clusters.</p>
 <h2 id="bookings">Bookings</h2>
-<p><strong>License Manager</strong> provides custom scripts for <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> that are executed when a job is submitted and when it finishes.</p>
+<p><strong>License Manager</strong> provides custom scripts for <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> that run on the <strong>slurmctld</strong> node and are executed when a job is submitted and when it finishes. These scripts communicate directly with the <strong>License Manager API</strong> to create and delete <strong>Bookings</strong>, independently of the <strong>License Manager Agent</strong>.</p>
 <p>When submitting a job to <strong>Slurm</strong>, if the <strong>sbatch</strong> directive for requesting licenses (<code>-L</code> or <code>--licenses</code>) is included in the job script, the <strong>SlurmctldProlog</strong> will intercept the job and make a <strong>Booking</strong> request to the <strong>License Manager API</strong>.
 The <strong>Booking</strong> reserves the needed licenses prior to the allocation of the job. The <strong>Booking</strong> ensures that the licenses are available for the job to use by taking into consideration the licenses booked for other jobs and the license usage in the <strong>License Server</strong>.</p>
 <p>If the <strong>Booking</strong> cannot be made, the job will be kept in the queue until there are enough licenses available to satisfy the <strong>Booking</strong> request.</p>
@@ -1115,7 +1088,6 @@ This prevents double booking the license, since <strong>License Manager</strong>
 <p>For each license tracked by <strong>License Manager</strong>, the <strong>License Manager Agent</strong> will periodically poll the <strong>License Servers</strong> to get
 the usage information and store it in the <strong>License Manager API</strong>. This process is called <strong>Reconciliation</strong>. The <strong>stat-interval</strong> is the period of time
 between each <strong>Reconciliation</strong> and can be configured in the <strong>License Manager Agent</strong> configuration file.</p>
-<p>The <strong>Reconciliation</strong> is also triggered when the <strong>SlurmctldProlog</strong> and <strong>SlurmctldEpilog</strong> run.</p>
 <p>The information in the <strong>License Manager API</strong> is used by the <strong>Reconciliation</strong> process to update the license counters in <strong>Slurm</strong>.</p>
 <h3 id="slurm-license-counters">Slurm License Counters</h3>
 <p>The license counter in <strong>Slurm</strong> shows the total number of licenses, how many are in use, and how many are reserved.
@@ -1171,11 +1143,6 @@ have a user account in the <strong>Slurm</strong> cluster and have <strong>opera
 
         %% Sequence begins
         Slurm-&gt;&gt;Prolog: Job is submitted
-        Prolog-&gt;&gt;Reconciliation: Forced Reconciliation
-        Reconciliation-&gt;&gt;LicenseServer: Access License Server
-        LicenseServer--&gt;&gt;Reconciliation: Get updated counters
-        Reconciliation-&gt;&gt;LMAPI: Update API counters
-        Reconciliation-&gt;&gt;Slurm: Update Reservation with license usage
         Prolog-&gt;&gt;LMAPI: Create Booking
         LMAPI--&gt;&gt;Prolog: Booking creation succeeded
         Slurm-&gt;&gt;Slurm: Start job

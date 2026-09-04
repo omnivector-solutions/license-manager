@@ -656,34 +656,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/juju/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Juju
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -913,13 +885,16 @@
 <h1 id="getting-started">Getting Started</h1>
 <p>To run License Manager you will need three different systems:</p>
 <ol>
-<li>Slurm cluster (where <code>License Manager Agent</code> runs)</li>
+<li>Slurm cluster (where the <code>License Manager Agent</code> runs on a dedicated node and the <code>License Manager Prolog/Epilog</code> scripts run on the <code>slurmctld</code> node)</li>
 <li>License servers (FlexLM, RLM, LS-Dyna, LM-X, OLicense, DSLS or License Manager Simulator)</li>
 <li>API with license information (<code>License Manager API</code>)</li>
 </ol>
 <h2 id="slurm-cluster">Slurm cluster</h2>
 <p>License Manager is designed to work with Slurm. To learn how to create a Slurm cluster, please refer to the
 <a href="https://omnivector-solutions.github.io/osd-documentation/master/index.html">Omnivector Slurm Distribution documentation</a>.</p>
+<p>The <code>License Manager Agent</code> is decoupled from the <code>slurmctld</code> node: it can run on any dedicated node with access to the Slurm
+command line tools. Only the <code>License Manager Prolog/Epilog</code> scripts need to be installed on the <code>slurmctld</code> node, where they
+communicate directly with the <code>License Manager API</code> to manage bookings.</p>
 <h2 id="license-servers">License servers</h2>
 <p>License Manager supports the following license servers:</p>
 <ul>
