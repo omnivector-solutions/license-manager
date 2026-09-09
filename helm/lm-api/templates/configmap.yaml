@@ -5,9 +5,9 @@ metadata:
   labels:
     k8s-app: lm
 data:
-  ARMASEC_DOMAIN: {{ .Values.globalConfig.armasecDomain }}
-  {{- if .Values.config.lmApi.enableSentry }}
-  SENTRY_DSN: {{ .Values.config.lmApi.sentryDsn }}
+  ARMASEC_DOMAIN: {{ .Values.auth.armasecDomain | quote }}
+  {{- if .Values.sentry.enabled }}
+  SENTRY_DSN: {{ .Values.sentry.dsn | quote }}
   {{- end }}
-  SENTRY_TRACING_SAMPLE_RATE: "{{ or .Values.config.lmApi.sentryTracesSampleRate .Values.globalConfig.sentryTracesSampleRate }}"
-  SENTRY_PROFILING_SAMPLE_RATE: "{{ or .Values.config.lmApi.sentryProfilesSampleRate .Values.globalConfig.sentryProfilesSampleRate }}"
+  SENTRY_TRACING_SAMPLE_RATE: {{ .Values.sentry.tracesSampleRate | quote }}
+  SENTRY_PROFILING_SAMPLE_RATE: {{ .Values.sentry.profilesSampleRate | quote }}

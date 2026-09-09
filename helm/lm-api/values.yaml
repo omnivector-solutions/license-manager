@@ -1,69 +1,89 @@
-imageVersions:
-  lmApi: 266735843730.dkr.ecr.us-west-2.amazonaws.com/lm-api:3.1.0
+# Default values for lm-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
-deployHpa: false
+image:
+  repository: ghcr.io/omnivector-solutions/lm-api
+  tag: "5.0.0"
+  pullPolicy: Always
 
-globalConfig:
-  # clusterMode = aws | agnostic
-  clusterMode: aws
-  stage: dev
+# Names of existing Secrets to use as imagePullSecrets, e.g. if
+# `image.repository` points at a private registry.
+imagePullSecrets: []
 
-  armasecDomain: auth.dev.vantagehpc.io/realms/vantage
+replicaCount: 1
 
-  sentryTracesSampleRate: 0.25
-  sentryProfilesSampleRate: 0.1
+# Pod scheduling for the API deployment. Left empty by default so the chart
+# makes no assumptions about your cluster's nodes/zones. Set these if you
+# need to pin workloads (e.g. to a specific node pool or spot instances).
+affinity: {}
+tolerations: []
+nodeSelector: {}
 
-  installArmasecSubscription: true
-  armasecSubscriptionPluginTag: v0.1.0
-  armasecSubUrlSubPath: /admin/management/subscriptions/my/is-active
-  armasecSubAllowReads: true
-  armasecSubAllowDeletes: true
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    cpu: 300m
+    memory: 500Mi
 
-  lmApiPythonVersion: 3.12
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 100
+  targetMemoryUtilizationPercentage: 100
 
-config:
-  lmApi:
-    pythonpath: /app/.venv/lib/python3.12/site-packages:/extra/armasec-subscriptions
-    sentryDsn: https://565e2e73302e4a8eb60617af61204df8@o819364.ingest.sentry.io/6475118
-    enableSentry: true
-    storageClassName: gp3-encrypted
-    backupSchedule: "0 0 1 * *"
-    dbReplicas: 2
-    storageSize: 10Gi
-    dbResources:
-      requests:
-        memory: 50Mi
-        cpu: 10m
-      limits:
-        memory: 500Mi
-        cpu: 300m
-    kubegresNodeAffinityNodeSelectorTerms:
-      key: omnivector.solutions/nodegroup-role
-      value: worker
-    deploymentResources:
-      requests:
-        cpu: 10m
-        memory: 100Mi
-      limits:
-        cpu: 300m
-        memory: 500Mi
-    deploymentReplicas: 1
-    dbHighAvailability: true
+# Auth. lm-api validates JWTs (via armasec) against an OIDC realm you
+# provide, e.g. Keycloak, Auth0, or any other OIDC-compliant provider.
+auth:
+  # Domain + realm path used to fetch signing keys, e.g.
+  # "keycloak.example.com/realms/license-manager". Required.
+  armasecDomain: ""
+
+# Sentry error tracking. Disabled by default.
+sentry:
+  enabled: false
+  dsn: ""
+  tracesSampleRate: 0.0
+  profilesSampleRate: 0.0
 
 ingress:
   enabled: false
-  route53Domain: vantagehpc.io
-  certificateArn: ""
-  ingressClassName: alb
-  # Used only when globalConfig.clusterMode == "agnostic"
+  className: ""
+  annotations: {}
+  host: ""
+  path: /lm
   tls: []
-  host: lm.dev.vantagehpc.io
-  secretName: "lmapicert"
 
-awsSecrets:
-  enabled: false
-  creds:
-    keyId: ""
-    accessSecret: ""
-  role: vantage-ecrs
-  region: us-west-2
+service:
+  annotations: {}
+
+# Leave empty to use the cluster's default StorageClass.
+storageClassName: ""
+
+# lm-api's own Postgres database, managed via Kubegres
+# (https://www.kubegres.io/). Requires the Kubegres operator to be
+# installed in the cluster.
+postgres:
+  storageSize: 10Gi
+  backupSchedule: "0 0 1 * *"
+  replicas: 2
+  highAvailability: true
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 10m
+    limits:
+      memory: 500Mi
+      cpu: 300m
+
+# Image used by the init container that waits for Postgres to be reachable.
+pgCheckerImage: busybox:latest
+
+# External Secrets Operator (https://external-secrets.io/) is required to
+# generate and store the Postgres credentials. Set this to the name of an
+# existing ClusterSecretStore in your cluster.
+externalSecrets:
+  clusterSecretStoreName: k8s-secretsmanager

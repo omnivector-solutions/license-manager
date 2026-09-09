@@ -10,7 +10,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: lm-api
-  replicas: {{ .Values.config.lmApi.deploymentReplicas }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
@@ -19,38 +19,21 @@ spec:
         instrumentation.opentelemetry.io/inject-python: "default/python-instrumentation"
     spec:
       terminationGracePeriodSeconds: 30
+      {{- with .Values.affinity }}
       affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: eks.amazonaws.com/capacityType
-                    operator: In
-                    values:
-                      - SPOT
-            - weight: 1
-              preference:
-                matchExpressions:
-                  - key: eks.amazonaws.com/capacityType
-                    operator: In
-                    values:
-                      - ON_DEMAND
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                - key: omnivector.solutions/nodegroup-role
-                  operator: In
-                  values:
-                    - worker
-      {{- if .Values.globalConfig.installArmasecSubscription }}
-      volumes:
-        - name: armasec-subscriptions-plugin
-          emptyDir: {}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.awsSecrets.enabled }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: ecr-secret
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
         - name: pgchecker
@@ -61,8 +44,8 @@ spec:
               echo ">>>>> Waiting for Postgres to be ready"
               until nc -z -w 2 $HOST 5432; do sleep 2; done;
               echo "<<<<< Postgres ready"
-          image: public.ecr.aws/omnivector-solutions/busybox:latest
-          imagePullPolicy: Always
+          image: {{ .Values.pgCheckerImage }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
               cpu: 10m
@@ -77,28 +60,10 @@ spec:
             runAsUser: 1000
           env:
             - name: HOST
-              value: lm-api-kubegres-encrypted
-        {{- if .Values.globalConfig.installArmasecSubscription }}
-        - name: install-armasec-subscriptions
-          image: python:{{ .Values.globalConfig.lmApiPythonVersion }}
-          command:
-            - pip
-            - install
-            - git+https://github.com/omnivector-solutions/armasec-subscriptions.git@{{ .Values.globalConfig.armasecSubscriptionPluginTag }}#egg=armasec-subscriptions
-            - -t
-            - /extra/armasec-subscriptions
-          volumeMounts:
-            - name: armasec-subscriptions-plugin
-              mountPath: /extra/armasec-subscriptions
-        {{- end }}
+              value: lm-postgres
       containers:
         - name: lm-api
-          image: {{ .Values.imageVersions.lmApi }}
-          {{- if .Values.globalConfig.installArmasecSubscription }}
-          volumeMounts:
-            - name: armasec-subscriptions-plugin
-              mountPath: /extra/armasec-subscriptions
-          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 80
               protocol: TCP
@@ -106,28 +71,6 @@ spec:
             - configMapRef:
                 name: lm-api
           env:
-            {{- if .Values.globalConfig.installArmasecSubscription }}
-            - name: PYTHONPATH
-              value: {{ .Values.config.lmApi.pythonpath }}
-            - name: ARMASEC_SUB_URL
-              {{- if eq .Values.globalConfig.stage "production" }}
-              value: https://apis.{{ .Values.ingress.route53Domain }}{{ .Values.globalConfig.armasecSubUrlSubPath }}
-              {{- else }}
-              value: https://apis.{{ .Values.globalConfig.stage }}.{{ .Values.ingress.route53Domain }}{{ .Values.globalConfig.armasecSubUrlSubPath }}
-              {{- end }}
-            - name: ARMASEC_SUB_ALLOW_READS
-              {{- if .Values.globalConfig.armasecSubAllowReads }}
-              value: "true"
-              {{- else }}
-              value: "false"
-              {{- end }}
-            - name: ARMASEC_SUB_ALLOW_DELETES
-              {{- if .Values.globalConfig.armasecSubAllowDeletes }}
-              value: "true"
-              {{- else }}
-              value: "false"
-              {{- end }}
-            {{- end }}
             - name: MULTI_TENANCY_ENABLED
               value: "true"
             - name: DATABASE_PSWD
@@ -136,12 +79,12 @@ spec:
                   name: lm-kubegres-credentials
                   key: primary-password
             - name: DATABASE_HOST
-              value: lm-api-kubegres-encrypted
+              value: lm-postgres
             - name: DATABASE_USER
               value: omnivector
             - name: DATABASE_PORT
               value: "5432"
           resources:
-            {{- toYaml .Values.config.lmApi.deploymentResources | nindent 12 }}
-          imagePullPolicy: Always
+            {{- toYaml .Values.resources | nindent 12 }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
       restartPolicy: Always
