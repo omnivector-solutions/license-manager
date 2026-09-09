@@ -1,0 +1,63 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.globalConfig.stage }}-lm-ingress
+  annotations:
+
+    {{- with .Values.ingress.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+
+    {{- if eq .Values.globalConfig.clusterMode "aws" }}
+    alb.ingress.kubernetes.io/listen-ports: >-
+      [{"HTTP": 80}, {"HTTPS": 443}]
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/ssl-redirect: >-
+      443
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: "lm-{{ .Values.globalConfig.stage }}"
+    alb.ingress.kubernetes.io/tags: "Environment={{ .Values.globalConfig.stage }},Application=lm-api"
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.certificateArn }}
+    {{- if eq .Values.globalConfig.stage "production" }}
+    external-dns.alpha.kubernetes.io/hostname: "lm.{{ .Values.ingress.route53Domain }}"
+    {{- else}}
+    external-dns.alpha.kubernetes.io/hostname: "lm.{{ .Values.globalConfig.stage }}.{{ .Values.ingress.route53Domain }}"
+    {{- end }}
+    {{- end }}
+
+    {{- if eq .Values.globalConfig.clusterMode "agnostic" }}
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+    {{- end}}
+
+    kubernetes.io/ingress.class: {{ .Values.ingress.ingressClassName }}
+
+
+  {{- if eq .Values.globalConfig.clusterMode "aws" }}
+  finalizers:
+    - ingress.k8s.aws/resources
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+
+  {{- if eq .Values.globalConfig.clusterMode "agnostic" }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.secretName }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - path: /lm
+            pathType: Prefix
+            backend:
+              service:
+                name: lm-api
+                port:
+                  number: 80
+
+      {{- if eq .Values.globalConfig.clusterMode "agnostic" }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+{{- end }}

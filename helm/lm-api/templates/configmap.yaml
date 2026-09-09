@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lm-api
+  labels:
+    k8s-app: lm
+data:
+  ARMASEC_DOMAIN: {{ .Values.globalConfig.armasecDomain }}
+  {{- if .Values.config.lmApi.enableSentry }}
+  SENTRY_DSN: {{ .Values.config.lmApi.sentryDsn }}
+  {{- end }}
+  SENTRY_TRACING_SAMPLE_RATE: "{{ or .Values.config.lmApi.sentryTracesSampleRate .Values.globalConfig.sentryTracesSampleRate }}"
+  SENTRY_PROFILING_SAMPLE_RATE: "{{ or .Values.config.lmApi.sentryProfilesSampleRate .Values.globalConfig.sentryProfilesSampleRate }}"

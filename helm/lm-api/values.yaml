@@ -1,0 +1,69 @@
+imageVersions:
+  lmApi: 266735843730.dkr.ecr.us-west-2.amazonaws.com/lm-api:3.1.0
+
+deployHpa: false
+
+globalConfig:
+  # clusterMode = aws | agnostic
+  clusterMode: aws
+  stage: dev
+
+  armasecDomain: auth.dev.vantagehpc.io/realms/vantage
+
+  sentryTracesSampleRate: 0.25
+  sentryProfilesSampleRate: 0.1
+
+  installArmasecSubscription: true
+  armasecSubscriptionPluginTag: v0.1.0
+  armasecSubUrlSubPath: /admin/management/subscriptions/my/is-active
+  armasecSubAllowReads: true
+  armasecSubAllowDeletes: true
+
+  lmApiPythonVersion: 3.12
+
+config:
+  lmApi:
+    pythonpath: /app/.venv/lib/python3.12/site-packages:/extra/armasec-subscriptions
+    sentryDsn: https://565e2e73302e4a8eb60617af61204df8@o819364.ingest.sentry.io/6475118
+    enableSentry: true
+    storageClassName: gp3-encrypted
+    backupSchedule: "0 0 1 * *"
+    dbReplicas: 2
+    storageSize: 10Gi
+    dbResources:
+      requests:
+        memory: 50Mi
+        cpu: 10m
+      limits:
+        memory: 500Mi
+        cpu: 300m
+    kubegresNodeAffinityNodeSelectorTerms:
+      key: omnivector.solutions/nodegroup-role
+      value: worker
+    deploymentResources:
+      requests:
+        cpu: 10m
+        memory: 100Mi
+      limits:
+        cpu: 300m
+        memory: 500Mi
+    deploymentReplicas: 1
+    dbHighAvailability: true
+
+ingress:
+  enabled: false
+  route53Domain: vantagehpc.io
+  certificateArn: ""
+  ingressClassName: alb
+  # Used only when globalConfig.clusterMode == "agnostic"
+  tls: []
+  host: lm.dev.vantagehpc.io
+  secretName: "lmapicert"
+
+awsSecrets:
+  enabled: false
+  creds:
+    keyId: ""
+    accessSecret: ""
+  role: vantage-ecrs
+  region: us-west-2
