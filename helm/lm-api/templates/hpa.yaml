@@ -1,4 +1,4 @@
-{{- if .Values.deployHpa -}}
+{{- if .Values.autoscaling.enabled -}}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -12,8 +12,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: lm-api
-  minReplicas: 1
-  maxReplicas: 5
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
@@ -23,11 +23,11 @@ spec:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 100
+          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 100
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
 {{- end }}

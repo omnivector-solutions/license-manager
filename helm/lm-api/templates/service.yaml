@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: lm-api
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /lm/health
-    alb.ingress.kubernetes.io/success-codes: "204"
     argocd.argoproj.io/sync-wave: "2"
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   ports:
     - port: 80

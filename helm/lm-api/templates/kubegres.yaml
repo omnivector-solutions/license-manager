@@ -1,18 +1,20 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: lm-postgres-encrypted-backup-pvc
+  name: lm-postgres-backup-pvc
   annotations:
     argocd.argoproj.io/sync-wave: "2"
   labels:
     k8s-app: lm
 spec:
-  storageClassName: {{ .Values.config.lmApi.storageClassName }}
+  {{- with .Values.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.config.lmApi.storageSize }}
+      storage: {{ .Values.postgres.storageSize }}
 ---
 apiVersion: generators.external-secrets.io/v1alpha1
 kind: Password
@@ -57,7 +59,7 @@ metadata:
 spec:
   refreshInterval: "0"
   secretStoreRef:
-    name: k8s-secretsmanager
+    name: {{ .Values.externalSecrets.clusterSecretStoreName }}
     kind: ClusterSecretStore
   target:
     name: lm-kubegres-credentials
@@ -85,39 +87,32 @@ spec:
 apiVersion: kubegres.reactive-tech.io/v1
 kind: Kubegres
 metadata:
-  name: lm-api-kubegres-encrypted
+  name: lm-postgres
   annotations:
     argocd.argoproj.io/sync-wave: "2"
   labels:
     k8s-app: lm
 spec:
-  replicas: 2
-  image: public.ecr.aws/omnivector-solutions/postgres:14.1
+  replicas: {{ .Values.postgres.replicas }}
+  image: postgres:14.1
   database:
-    size: {{ .Values.config.lmApi.storageSize }}
-    storageClassName: {{ .Values.config.lmApi.storageClassName }}
+    size: {{ .Values.postgres.storageSize }}
+    {{- with .Values.storageClassName }}
+    storageClassName: {{ . }}
+    {{- end }}
     volumeMount: /var/lib/postgresql/data
   backup:
-    schedule: "{{ .Values.config.lmApi.backupSchedule }}"
-    pvcName: lm-postgres-encrypted-backup-pvc
+    schedule: "{{ .Values.postgres.backupSchedule }}"
+    pvcName: lm-postgres-backup-pvc
     volumeMount: /var/lib/backup
   resources:
-    {{- toYaml .Values.config.lmApi.dbResources | nindent 4 }}
+    {{- toYaml .Values.postgres.resources | nindent 4 }}
   scheduler:
+    {{- if .Values.affinity }}
     affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: eks.amazonaws.com/capacityType
-                  operator: In
-                  values:
-                    - ON_DEMAND
-                - key: {{ .Values.config.lmApi.kubegresNodeAffinityNodeSelectorTerms.key }}
-                  operator: In
-                  values:
-                    - {{ .Values.config.lmApi.kubegresNodeAffinityNodeSelectorTerms.value }}
-      {{- if .Values.config.lmApi.dbHighAvailability }}
+      {{- toYaml .Values.affinity | nindent 6 }}
+    {{- else if .Values.postgres.highAvailability }}
+    affinity:
       podAntiAffinity:
         preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
@@ -125,18 +120,22 @@ spec:
               topologyKey: topology.kubernetes.io/zone
               labelSelector:
                 matchLabels:
-                  app: lm-api-kubegres-encrypted
+                  app: lm-postgres
           - weight: 90
             podAffinityTerm:
               topologyKey: kubernetes.io/hostname
               labelSelector:
                 matchLabels:
-                  app: lm-api-kubegres-encrypted
-      {{- end }}
+                  app: lm-postgres
+    {{- end }}
+    {{- with .Values.tolerations }}
     tolerations:
-    - key: "vantagecompute.ai/highcpu"
-      operator: "Equal"
-      value: "true"
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   env:
     - name: POSTGRES_PASSWORD
       valueFrom:
