@@ -5,7 +5,7 @@ name: Publish on Tag
 #   - Check if the version for each sub-project matches the tag;
 #   - Build and release the packages to PyPI.
 #   - Build the agent snap and upload to the snap store.
-#   - Build the License Manager API Docker image and push to ECR.
+#   - Build the License Manager API Docker image and push to ECR and GHCR.
 
 on:
   push:
@@ -117,8 +117,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   publish-to-ecr:
-    name: Publish to ECR
+    name: Publish to ECR and GHCR
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
 
       - name: Fail if ref is not a tag
@@ -162,14 +165,36 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           IMAGE_TAG=${{ github.ref_name }}
-          docker build -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG lm-api
-          docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG
+          docker build \
+            -t $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG \
+            -t ghcr.io/${{ github.repository_owner }}/lm-api:$IMAGE_TAG \
+            -t ghcr.io/${{ github.repository_owner }}/lm-api:latest \
+            --label org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }} \
+            --label org.opencontainers.image.version=$IMAGE_TAG \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            lm-api
+
+      - name: Push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: docker push $ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:${{ github.ref_name }}
+
+      - name: Push image to GHCR
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/lm-api:${{ github.ref_name }}
+          docker push ghcr.io/${{ github.repository_owner }}/lm-api:latest
 
   snapstore:
     runs-on: ubuntu-24.04
