@@ -70,6 +70,52 @@ jobs:
           echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
           echo "name=$(uv version | awk '{print $1}')" >> "$GITHUB_OUTPUT"
 
+  publish-to-ghcr:
+    name: Publish to GHCR
+    runs-on: ubuntu-latest
+    needs: [build-publish]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        {
+          sub_project: ['lm-agent', 'lm-api', 'lm-simulator-api'],
+        }
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/omnivector-solutions/${{ matrix.sub_project }}
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+            type=sha,prefix=sha-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./${{ matrix.sub_project }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
   publish-to-ecr:
     name: Publish to ECR
     runs-on: ubuntu-latest
