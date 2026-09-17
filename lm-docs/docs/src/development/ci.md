@@ -15,11 +15,12 @@ and on every pull request.
 
 ## Automated Publication
 
-License Manager's sub-projects are published to PyPI, the API and CLI container
-images are published to Amazon ECR and [GHCR](https://ghcr.io/omnivector-solutions),
-the standalone Helm chart is published to GHCR as an OCI artifact, and the agent snap
-is released to the Snap Store's edge/candidate channels. These are handled by three
-linked GitHub Actions, detailed below.
+License Manager's sub-projects are published to PyPI, the `lm-agent`, `lm-api` and
+`lm-simulator-api` container images are published to [GHCR](https://ghcr.io/omnivector-solutions),
+`lm-api`'s image is additionally published to Amazon ECR (Vantage's private
+registry), the standalone Helm chart is published to GHCR as an OCI artifact, and the
+agent snap is released to the Snap Store's edge/candidate channels. These are
+handled by the linked GitHub Actions detailed below.
 
 ### Prepare for release
 
@@ -51,18 +52,19 @@ version.
 
 [publish_on_tag.yaml](https://github.com/omnivector-solutions/license-manager/blob/main/.github/workflows/publish_on_tag.yaml)
 triggers when a version tag is pushed. It double-checks the tag matches each
-sub-project's version, then:
+sub-project's version, then runs three independent jobs:
 
-- Builds and publishes `lm-agent`, `lm-api`, `lm-cli`, `lm-simulator` and
-  `lm-simulator-api` to PyPI.
-- Builds a single Docker image from `lm-api/` and pushes it to both Amazon ECR
-  (Vantage's private registry) and [GHCR](https://ghcr.io/omnivector-solutions/lm-api),
-  publicly, tagged with both the version and `latest`. The GHCR image carries
-  `org.opencontainers.image.source`, `.version` and `.revision` OCI labels, so it
-  shows up on GHCR linked back to this repository and to the exact tag it was built
-  from.
-- Builds the `lm-agent` snap and releases it to the Snap Store's `edge`/`candidate`
-  channels.
+- **`build-publish`**: builds and publishes `lm-agent`, `lm-api`, `lm-cli`,
+  `lm-simulator` and `lm-simulator-api` to PyPI.
+- **`publish-to-ghcr`**: builds and pushes `lm-agent`, `lm-api` and
+  `lm-simulator-api` container images to
+  [GHCR](https://ghcr.io/omnivector-solutions), tagged by `docker/metadata-action`
+  with the semver version, `{major}.{minor}`, `{major}`, the git ref, and the commit
+  SHA.
+- **`publish-to-ecr`**: additionally builds `lm-api`'s image and pushes it to Amazon
+  ECR (Vantage's private registry).
+- **`snapstore`**: builds the `lm-agent` snap and releases it to the Snap Store's
+  `edge`/`candidate` channels.
 
 ## Automated Publication of the Helm Chart
 
