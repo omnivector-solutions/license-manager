@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lm-api
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    k8s-app: lm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lm-api
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lm-api
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "default/python-instrumentation"
+    spec:
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: pgchecker
+          command:
+            - sh
+            - -c
+            - |-
+              echo ">>>>> Waiting for Postgres to be ready"
+              until nc -z -w 2 $HOST 5432; do sleep 2; done;
+              echo "<<<<< Postgres ready"
+          image: {{ .Values.pgCheckerImage }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              cpu: 10m
+              memory: 16Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+          env:
+            - name: HOST
+              value: lm-postgres
+      containers:
+        - name: lm-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: lm-api
+          env:
+            - name: MULTI_TENANCY_ENABLED
+              value: "true"
+            - name: DATABASE_PSWD
+              valueFrom:
+                secretKeyRef:
+                  name: lm-kubegres-credentials
+                  key: primary-password
+            - name: DATABASE_HOST
+              value: lm-postgres
+            - name: DATABASE_USER
+              value: omnivector
+            - name: DATABASE_PORT
+              value: "5432"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+      restartPolicy: Always
