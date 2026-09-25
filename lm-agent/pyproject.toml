@@ -15,10 +15,10 @@ dependencies = [
     "httpx>=0.28.1",
     "PyJWT>=2.10.0",
     "pydantic>=2.12",
-    "sentry-sdk==2.38.0",
+    "sentry-sdk>=2.62.0",
     "py-buzz>=7.3.0",
     "pydantic-settings>=2.10.1",
-    "apscheduler==3.10.4",
+    "apscheduler==4.0.0a6",
 ]
 
 [project.optional-dependencies]
