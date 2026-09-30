@@ -58,6 +58,7 @@ metadata:
     k8s-app: lm
 spec:
   refreshInterval: "0"
+  refreshPolicy: CreatedOnce
   secretStoreRef:
     name: {{ .Values.externalSecrets.clusterSecretStoreName }}
     kind: ClusterSecretStore
@@ -150,4 +151,4 @@ spec:
     - name: POSTGRES_USER
       value: omnivector
     - name: POSTGRES_DB
-      value: lm
+      value: {{ .Values.postgres.database | quote }}

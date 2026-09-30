@@ -42,6 +42,18 @@ auth:
   # "keycloak.example.com/realms/license-manager". Required.
   armasecDomain: ""
 
+# Multi-tenancy. When enabled, lm-api selects the database from the
+# organization id in the user's token. When disabled (default), lm-api uses
+# the single database defined by `postgres.database`.
+multiTenancy:
+  enabled: false
+
+# Database migrations run in an init container of the lm-api pod. The lm-api
+# image does not ship alembic, so the init container installs it at startup
+# (requires access to a PyPI index).
+migration:
+  alembicVersion: "1.17.2"
+
 # Sentry error tracking. Disabled by default.
 sentry:
   enabled: false
@@ -67,6 +79,9 @@ storageClassName: ""
 # (https://www.kubegres.io/). Requires the Kubegres operator to be
 # installed in the cluster.
 postgres:
+  # Database created by Postgres. Also passed to lm-api as DATABASE_NAME
+  # when multi-tenancy is disabled.
+  database: lm
   storageSize: 10Gi
   backupSchedule: "0 0 1 * *"
   replicas: 2

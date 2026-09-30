@@ -42,6 +42,45 @@ At minimum, set `auth.armasecDomain` to your OIDC realm (e.g.
 See `values.yaml` for all configurable options: image, resources, scheduling
 (`affinity`/`tolerations`/`nodeSelector`), autoscaling, ingress, Sentry, storage class.
 
+## Multi-tenancy
+
+Multi-tenancy is **disabled by default** (`multiTenancy.enabled: false`).
+
+- **Disabled:** lm-api uses a single database, named by `postgres.database` (default
+  `lm`). The same value is used for the `POSTGRES_DB` created by Kubegres and for the
+  `DATABASE_NAME` passed to the API, so they always match.
+- **Enabled:** lm-api selects the database per request from the organization id in the
+  user's token, and `DATABASE_NAME` is not set. Tenant databases must already exist,
+  named after the organization id (UUID).
+
+```yaml
+multiTenancy:
+  enabled: true
+```
+
+Upgrading from chart `0.1.x`: the old chart hardcoded `MULTI_TENANCY_ENABLED=true`. Set
+`multiTenancy.enabled: true` to keep that behavior.
+
+## Database migrations
+
+An init container (`migration`) runs `alembic upgrade head` before the API starts, after
+the `pgchecker` init container confirms Postgres is reachable. The script is shipped in
+the `lm-check-migration` ConfigMap.
+
+- Multi-tenancy disabled: migrates the `postgres.database` database.
+- Multi-tenancy enabled: migrates every database whose name is a UUID.
+
+The lm-api image does not include alembic, so the init container installs it at startup
+with `pip` (version set by `migration.alembicVersion`). The cluster needs egress access to
+a PyPI index for the pod to start.
+
+## Postgres credentials
+
+The primary and replica passwords are generated once by External Secrets (`Password`
+generators) and stored in the `lm-kubegres-credentials` Secret. The `ExternalSecret` uses
+`refreshPolicy: CreatedOnce`, so the Secret is never regenerated afterwards. This
+requires an External Secrets Operator version that supports `refreshPolicy`.
+
 ## Publishing (CI)
 
 - **Container image** (`.github/workflows/publish_on_tag.yaml`, job `publish-to-ecr`):
