@@ -31,6 +31,10 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: check-migration
+          configMap:
+            name: lm-check-migration
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -61,6 +65,24 @@ spec:
           env:
             - name: HOST
               value: lm-postgres
+        - name: migration
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command:
+            - sh
+            - -c
+            - |-
+              pip --python /app/.venv/bin/python install --no-cache-dir --quiet "alembic=={{ .Values.migration.alembicVersion }}" \
+                && cd /app && python check-migration.py
+          envFrom:
+            - configMapRef:
+                name: lm-api
+          env:
+            {{- include "lm-api.dbEnv" . | nindent 12 }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: check-migration
+              mountPath: /app/check-migration.py
+              subPath: check-migration.py
       containers:
         - name: lm-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -71,19 +93,7 @@ spec:
             - configMapRef:
                 name: lm-api
           env:
-            - name: MULTI_TENANCY_ENABLED
-              value: "true"
-            - name: DATABASE_PSWD
-              valueFrom:
-                secretKeyRef:
-                  name: lm-kubegres-credentials
-                  key: primary-password
-            - name: DATABASE_HOST
-              value: lm-postgres
-            - name: DATABASE_USER
-              value: omnivector
-            - name: DATABASE_PORT
-              value: "5432"
+            {{- include "lm-api.dbEnv" . | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
