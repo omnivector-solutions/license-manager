@@ -13,9 +13,10 @@ scheduling, image pull secrets) is left to `values.yaml` for you to fill in.
 
 - A running Postgres-capable cluster with the [Kubegres operator](https://www.kubegres.io/)
   installed.
-- [External Secrets Operator](https://external-secrets.io/) with a `ClusterSecretStore`
-  (name configurable via `externalSecrets.clusterSecretStoreName`) able to back the
-  `Password` generator used for DB credentials.
+- [External Secrets Operator](https://external-secrets.io/) that serves the
+  `external-secrets.io/v1` API (0.16.2 or newer, tested with 2.11.0), with a
+  `ClusterSecretStore` (name configurable via `externalSecrets.clusterSecretStoreName`)
+  able to back the `Password` generator used for DB credentials.
 - An OIDC provider (Keycloak, Auth0, etc) to issue the JWTs lm-api validates.
 
 ## External dependencies (not deployed by this chart)
@@ -80,6 +81,9 @@ The primary and replica passwords are generated once by External Secrets (`Passw
 generators) and stored in the `lm-kubegres-credentials` Secret. The `ExternalSecret` uses
 `refreshPolicy: CreatedOnce`, so the Secret is never regenerated afterwards. This
 requires an External Secrets Operator version that supports `refreshPolicy`.
+
+The `ExternalSecret` uses `external-secrets.io/v1`. External Secrets Operator 0.17 and newer
+no longer serve `v1beta1`, which older versions of this chart used.
 
 ## Publishing (CI)
 
