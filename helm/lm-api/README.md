@@ -1,8 +1,8 @@
 # lm-api Helm Chart
 
 Deploys the License Manager API standalone, with its own Postgres database via
-[Kubegres](https://www.kubegres.io/) (primary/replica credentials generated through
-[External Secrets](https://external-secrets.io/)).
+[CloudNativePG](https://cloudnative-pg.io/). CloudNativePG generates and stores its own
+app credentials; optional continuous backup to S3 is available via `postgres.backup.*`.
 
 This chart makes no assumptions about your cloud provider or cluster setup: it has no
 hardcoded node affinity, no cloud-specific Ingress annotations, and no proprietary
@@ -11,19 +11,13 @@ scheduling, image pull secrets) is left to `values.yaml` for you to fill in.
 
 ## Requirements
 
-- A running Postgres-capable cluster with the [Kubegres operator](https://www.kubegres.io/)
-  installed.
-- [External Secrets Operator](https://external-secrets.io/) that serves the
-  `external-secrets.io/v1` API (0.16.2 or newer, tested with 2.11.0), with a
-  `ClusterSecretStore` (name configurable via `externalSecrets.clusterSecretStoreName`)
-  able to back the `Password` generator used for DB credentials.
+- A cluster with the [CloudNativePG operator](https://cloudnative-pg.io/) installed
+  (CRD `postgresql.cnpg.io/v1`).
 - An OIDC provider (Keycloak, Auth0, etc) to issue the JWTs lm-api validates.
 
 ## External dependencies (not deployed by this chart)
 
-- `ClusterSecretStore` (default name `k8s-secretsmanager`, configurable) for the
-  External Secrets Operator.
-- Kubegres operator (CRD `kubegres.reactive-tech.io/v1`).
+- CloudNativePG operator (CRD `postgresql.cnpg.io/v1`).
 
 ## Install
 
@@ -48,7 +42,7 @@ See `values.yaml` for all configurable options: image, resources, scheduling
 Multi-tenancy is **disabled by default** (`multiTenancy.enabled: false`).
 
 - **Disabled:** lm-api uses a single database, named by `postgres.database` (default
-  `lm`). The same value is used for the `POSTGRES_DB` created by Kubegres and for the
+  `lm`). The same value is used for the database CloudNativePG bootstraps and for the
   `DATABASE_NAME` passed to the API, so they always match.
 - **Enabled:** lm-api selects the database per request from the organization id in the
   user's token, and `DATABASE_NAME` is not set. Tenant databases must already exist,
@@ -75,15 +69,20 @@ The lm-api image does not include alembic, so the init container installs it at 
 with `pip` (version set by `migration.alembicVersion`). The cluster needs egress access to
 a PyPI index for the pod to start.
 
-## Postgres credentials
+## Postgres
 
-The primary and replica passwords are generated once by External Secrets (`Password`
-generators) and stored in the `lm-kubegres-credentials` Secret. The `ExternalSecret` uses
-`refreshPolicy: CreatedOnce`, so the Secret is never regenerated afterwards. This
-requires an External Secrets Operator version that supports `refreshPolicy`.
+CloudNativePG creates the `lm-postgres` Cluster and a `lm-postgres-app` Secret holding
+the generated `username`/`password` for the database owner (`postgres.owner`, default
+`lm`); the API and the migration job read their credentials from that Secret.
+`postgres.highAvailability: true` (default) runs 2 instances (1 primary + 1 standby)
+with pod anti-affinity; set it to `false` for a single instance.
 
-The `ExternalSecret` uses `external-secrets.io/v1`. External Secrets Operator 0.17 and newer
-no longer serve `v1beta1`, which older versions of this chart used.
+Continuous backup is **disabled by default**. Set `postgres.backup.enabled: true` and
+provide a bucket plus credentials (`postgres.backup.destinationPath`,
+`accessKeyId`/`secretAccessKey` or `existingSecret`) to enable it; this chart does not
+provision the bucket itself. It uses CloudNativePG's native Barman Cloud integration,
+which upstream has deprecated in favor of the separate Barman Cloud Plugin (removal
+planned for CloudNativePG 1.28); this chart will move to the plugin before that happens.
 
 ## Publishing (CI)
 
