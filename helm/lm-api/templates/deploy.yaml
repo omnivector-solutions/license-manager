@@ -64,7 +64,7 @@ spec:
             runAsUser: 1000
           env:
             - name: HOST
-              value: lm-postgres
+              value: {{ include "lm.dbHost" . }}
         - name: migration
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command:
