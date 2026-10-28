@@ -57,9 +57,12 @@ jobs:
 
       - name: Compute new version
         id: compute-version
+        env:
+          BASE_BUMP: ${{ inputs.base_bump }}
+          STAGE_BUMP: ${{ inputs.stage_bump }}
         run: |
-          BASE="${{ inputs.base_bump }}"
-          STAGE="${{ inputs.stage_bump }}"
+          BASE="$BASE_BUMP"
+          STAGE="$STAGE_BUMP"
           CURRENT=$(uv version --short --directory lm-agent)
           NEW_VERSION=$(python3 scripts/bump_version.py "$CURRENT" "$BASE" "$STAGE")
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
